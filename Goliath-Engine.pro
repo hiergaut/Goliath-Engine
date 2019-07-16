@@ -25,11 +25,13 @@ DEFINES += QT_DEPRECATED_WARNINGS
 CONFIG += c++11
 
 SOURCES += \
+        QOpenGLWidget_World.cpp \
         main.cpp \
         MainWindow.cpp
 
 HEADERS += \
-        MainWindow.h
+        MainWindow.h \
+        QOpenGLWidget_World.h
 
 FORMS += \
         MainWindow.ui
