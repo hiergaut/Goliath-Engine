@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/">
+        <file>first.vsh</file>
+        <file>first.fsh</file>
+        <file>texture/wall.jpg</file>
+        <file>texture/awesomeface.png</file>
+    </qresource>
+</RCC>
