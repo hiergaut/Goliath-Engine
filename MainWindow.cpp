@@ -6,6 +6,11 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+
+    ui->openGLWidget->setFocus();
+//    setCentralWidget(ui->openGLWidget);
+//    ui->openGLWidget->setAcceptDrops(true);
+//    setAcceptDrops(true);
 }
 
 MainWindow::~MainWindow()

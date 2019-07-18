@@ -31,7 +31,8 @@ SOURCES += \
 
 HEADERS += \
         MainWindow.h \
-        QOpenGLWidget_World.h
+        QOpenGLWidget_World.h \
+        camera.h
 
 FORMS += \
         MainWindow.ui

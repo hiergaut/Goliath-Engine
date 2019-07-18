@@ -13,10 +13,17 @@
   <property name="windowTitle">
    <string>MainWindow</string>
   </property>
+  <property name="styleSheet">
+   <string notr="true">background-color: orange;</string>
+  </property>
   <widget class="QWidget" name="centralWidget">
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
-     <widget class="QOpenGLWidget_World" name="openGLWidget"/>
+     <widget class="QOpenGLWidget_World" name="openGLWidget">
+      <property name="styleSheet">
+       <string notr="true">background-color: green;</string>
+      </property>
+     </widget>
     </item>
    </layout>
   </widget>
