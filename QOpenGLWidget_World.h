@@ -1,22 +1,14 @@
 #ifndef QOPENGLWIDGET_WORLD_H
 #define QOPENGLWIDGET_WORLD_H
 
-//#include <QObject>
 #include <QOpenGLBuffer>
 #include <QOpenGLFunctions_3_3_Core>
-//#include <QOpenGLFunctions_4_1_Core>
 #include <QOpenGLWidget>
-//#include <QWidget>
 
-//#include <QObject>
-//#include <QWidget>
-//#include <QMatrix4x4>
-//#include <QOpenGLShader>
 #include <QOpenGLShaderProgram>
 #include <QOpenGLTexture>
 #include <QOpenGLVertexArrayObject>
-//#include <QKeyEvent>
-//#include <QOpenGLVertexArrayObject>
+
 #include "camera.h"
 
 class QOpenGLWidget_World : public QOpenGLWidget, protected QOpenGLFunctions_3_3_Core {
@@ -25,7 +17,6 @@ class QOpenGLWidget_World : public QOpenGLWidget, protected QOpenGLFunctions_3_3
 public:
     explicit QOpenGLWidget_World(QWidget* parent = nullptr);
     ~QOpenGLWidget_World();
-    //    ~QOpenGLWidget_World();
 
 signals:
 
@@ -33,35 +24,31 @@ protected:
     void initializeGL() override;
     void resizeGL(int w, int h) override;
     void paintGL() override;
-//    void paintGLprivate();
 
-    void keyPressEvent(QKeyEvent * event) override;
-    void keyReleaseEvent(QKeyEvent * event) override;
-    void mousePressEvent(QMouseEvent * event) override;
-    void mouseMoveEvent(QMouseEvent * event) override;
-    void wheelEvent(QWheelEvent * event) override;
+    void keyPressEvent(QKeyEvent* event) override;
+    void keyReleaseEvent(QKeyEvent* event) override;
+    void mousePressEvent(QMouseEvent* event) override;
+    void mouseMoveEvent(QMouseEvent* event) override;
+    void wheelEvent(QWheelEvent* event) override;
 
-    void focusInEvent(QFocusEvent * event) override;
-//    void paintEvent(QPaintEvent *e) override;
-
-
+    void focusInEvent(QFocusEvent* event) override;
 
 private:
     void setCursorToCenter();
-    //    void makeObject();
     void cameraMove();
     void updateProjection();
 
 private:
-    //    QOpenGLVertexArrayObject m_vao;
-    int cpt =0;
+    int cpt = 0;
     float fps;
-//    float time = 0;
-    QOpenGLBuffer m_vbo;
+//    QOpenGLBuffer m_vbo;
     //    QOpenGLBuffer m_ebo;
     QOpenGLVertexArrayObject m_vao;
+//    QOpenGLVertexArrayObject m_vaoLight;
 
     QOpenGLShaderProgram m_program;
+    QOpenGLShaderProgram m_programLight;
+
     //    QOpenGLShader * m_shader;
     //    QOpenGLTexture * m_texture;
     QOpenGLTexture* m_texture;
@@ -80,9 +67,9 @@ private:
         QVector3D(-1.3f, 1.0f, -1.5f)
     };
 
-//    QVector3D cameraPos;
-//    QVector3D cameraFront;
-//    QVector3D cameraUp;
+    QVector3D lightPos[1] = {
+       QVector3D(1.2f, 1.0f, 2.0f)
+    };
 
     uint64_t deltaTime;
     uint64_t lastFrame;
@@ -91,17 +78,10 @@ private:
     int sideDir = 0;
 
     QPoint lastPos;
-//    float fov = 60.0f;
-//    float yaw = -90.0f;
-//    float pitch = 0.0f;
 
     Camera camera;
 
-//    float cameraSpeed;
-
-        QMatrix4x4 m_projection;
-//        QMatrix4x4 m_view;
-//        QMatrix4x4 m_model;
+    QMatrix4x4 m_projection;
 };
 
 #endif // QOPENGLWIDGET_WORLD_H

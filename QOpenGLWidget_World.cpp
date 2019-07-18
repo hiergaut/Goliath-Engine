@@ -7,27 +7,19 @@
 
 QOpenGLWidget_World::QOpenGLWidget_World(QWidget* parent)
     : QOpenGLWidget(parent)
-    , m_vbo(QOpenGLBuffer::VertexBuffer)
+//    , m_vbo(QOpenGLBuffer::VertexBuffer)
     , camera(QVector3D(0, 0, 3))
 //    , m_ebo(QOpenGLBuffer::IndexBuffer)
 {
-//    cameraPos = QVector3D(0, 0, 3);
-//    cameraFront = QVector3D(0, 0, -1);
-//    cameraUp = QVector3D(0, 1, 0);
-
 
 //    setAutoFillBackground(false);
     setMouseTracking(true);
-//    cursor().setPos(100, 100);
-
-//    setAcceptDrops(true);
 }
 
 QOpenGLWidget_World::~QOpenGLWidget_World()
 {
     makeCurrent();
     delete m_texture;
-
 
     //    doneCurrent();
 }
@@ -42,8 +34,11 @@ void QOpenGLWidget_World::initializeGL()
     //    m_texture = new QOpenGLTexture(img.scaled(32, 36).mirrored());
     m_texture = new QOpenGLTexture(img);
     //    m_texture->setWrapMode(QOpenGLTexture::MirroredRepeat);
-    m_texture->setMinificationFilter(QOpenGLTexture::Nearest);
-    m_texture->setMagnificationFilter(QOpenGLTexture::Nearest);
+//    m_texture->setMinificationFilter(QOpenGLTexture::Nearest);
+//    m_texture->setMagnificationFilter(QOpenGLTexture::Nearest);
+    m_texture->setMinificationFilter(QOpenGLTexture::Linear);
+    m_texture->setMagnificationFilter(QOpenGLTexture::Linear);
+//    m_texture->generateMipMaps();
 
     QImage img2(":/texture/awesomeface.png");
     Q_ASSERT(!img.isNull());
@@ -52,128 +47,121 @@ void QOpenGLWidget_World::initializeGL()
     //    m_texture->generateMipMaps();
 
     // ---------------------------------------------------------------------
-
-    //    glClearColor(1, 0, 0, 0.5);
     QOpenGLShader vShader(QOpenGLShader::Vertex, this);
-    vShader.compileSourceFile(":/first.vsh");
-
     QOpenGLShader fShader(QOpenGLShader::Fragment, this);
-    fShader.compileSourceFile(":/first.fsh");
 
+    vShader.compileSourceFile(":/shader/first.vsh");
+    fShader.compileSourceFile(":/shader/first.fsh");
     m_program.addShader(&vShader);
     m_program.addShader(&fShader);
     m_program.link();
-    m_program.release();
-    //    m_program.bind();
+//    m_program.release();
+
+//    QOpenGLShader vShader2(QOpenGLShader::Vertex, this);
+//    QOpenGLShader fShader2(QOpenGLShader::Fragment, this);
+    vShader.compileSourceFile(":/shader/light.vsh");
+    fShader.compileSourceFile(":/shader/light.fsh");
+    m_programLight.addShader(&vShader);
+    m_programLight.addShader(&fShader);
+    m_programLight.link();
+//    m_programLight.release();
     // ---------------------------------------------------------------------
+    GLfloat vertices[] = {
+        -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f,
+        0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 0.0f, -1.0f,
+        0.5f, 0.5f, -0.5f, 1.0f, 1.0f, 0.0f, 0.0f, -1.0f,
+        0.5f, 0.5f, -0.5f, 1.0f, 1.0f, 0.0f, 0.0f, -1.0f,
+        -0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, -1.0f,
+        -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 0.0f, -1.0f,
+
+        -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,
+        0.5f, -0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f,
+        0.5f, 0.5f, 0.5f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f,
+        0.5f, 0.5f, 0.5f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f,
+        -0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f,
+        -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f,
+
+        -0.5f, 0.5f, 0.5f, 1.0f, 0.0f, -1.0f, 0.0f, 0.0f,
+        -0.5f, 0.5f, -0.5f, 1.0f, 1.0f, -1.0f, 0.0f, 0.0f,
+        -0.5f, -0.5f, -0.5f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f,
+        -0.5f, -0.5f, -0.5f, 0.0f, 1.0f, -1.0f, 0.0f, 0.0f,
+        -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f,
+        -0.5f, 0.5f, 0.5f, 1.0f, 0.0f, -1.0f, 0.0f, 0.0f,
+
+        0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+        0.5f, 0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f, 0.0f,
+        0.5f, -0.5f, -0.5f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f,
+        0.5f, -0.5f, -0.5f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f,
+        0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+        0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+
+        -0.5f, -0.5f, -0.5f, 0.0f, 1.0f, 0.0f, -1.0f, 0.0f,
+        0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 0.0f, -1.0f, 0.0f,
+        0.5f, -0.5f, 0.5f, 1.0f, 0.0f, 0.0f, -1.0f, 0.0f,
+        0.5f, -0.5f, 0.5f, 1.0f, 0.0f, 0.0f, -1.0f, 0.0f,
+        -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 0.0f, -1.0f, 0.0f,
+        -0.5f, -0.5f, -0.5f, 0.0f, 1.0f, 0.0f, -1.0f, 0.0f,
+
+        -0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f,
+        0.5f, 0.5f, -0.5f, 1.0f, 1.0f, 0.0f, 1.0f, 0.0f,
+        0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
+        0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f,
+        -0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f,
+        -0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f
+    };
+
+
 
     m_vao.create();
     m_vao.bind();
 
-    GLfloat vertices[] = {
-        //        0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, // top right
-        //        0.5f, -0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, // bottom right
-        //        -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, // bottom left
-        //        -0.5f, 0.5f, 0.5f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f, // top left
+    QOpenGLBuffer vbo(QOpenGLBuffer::VertexBuffer);
+    vbo.create();
+    vbo.bind();
+    vbo.setUsagePattern(QOpenGLBuffer::StaticDraw);
+    vbo.allocate(vertices, sizeof(vertices));
 
-        //        0.5f, 0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, // top right
-        //        0.5f, -0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f, // bottom right
-        //        -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, // bottom left
-        //        -0.5f, 0.5f, -0.5f, 1.0f, 1.0f, 0.0f, 0.0f, 1.0f // top left
-        -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
-        0.5f, -0.5f, -0.5f, 1.0f, 0.0f,
-        0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
-        0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
-        -0.5f, 0.5f, -0.5f, 0.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f, 0.0f, 0.0f,
-
-        -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
-        0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
-        0.5f, 0.5f, 0.5f, 1.0f, 1.0f,
-        0.5f, 0.5f, 0.5f, 1.0f, 1.0f,
-        -0.5f, 0.5f, 0.5f, 0.0f, 1.0f,
-        -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
-
-        -0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
-        -0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-        -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-        -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
-        -0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
-
-        0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
-        0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
-        0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-        0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-        0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
-        0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
-
-        -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-        0.5f, -0.5f, -0.5f, 1.0f, 1.0f,
-        0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
-        0.5f, -0.5f, 0.5f, 1.0f, 0.0f,
-        -0.5f, -0.5f, 0.5f, 0.0f, 0.0f,
-        -0.5f, -0.5f, -0.5f, 0.0f, 1.0f,
-
-        -0.5f, 0.5f, -0.5f, 0.0f, 1.0f,
-        0.5f, 0.5f, -0.5f, 1.0f, 1.0f,
-        0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
-        0.5f, 0.5f, 0.5f, 1.0f, 0.0f,
-        -0.5f, 0.5f, 0.5f, 0.0f, 0.0f,
-        -0.5f, 0.5f, -0.5f, 0.0f, 1.0f
-    };
-
-    m_vbo.create();
-    m_vbo.bind();
-    m_vbo.setUsagePattern(QOpenGLBuffer::StaticDraw);
-    m_vbo.allocate(vertices, sizeof(vertices));
-
-    //    GLuint indices[] = {
-    //        0, 1, 3, // first triangle
-    //        1, 2, 3, // second triangle
-
-    //        1, 0, 5,
-    //        5, 0, 4,
-
-    //        7, 4, 5,
-    //        6, 4, 5,
-
-    //        4, 3, 5,
-    //        3, 2, 5,
-
-    //        3, 4, 0,
-    //        4, 7, 4,
-
-    //        2, 1, 5,
-    //        1, 6, 5
-    //    };
-
-    //    m_ebo.create();
     //    m_ebo.bind();
     //    m_ebo.setUsagePattern(QOpenGLBuffer::StaticDraw);
     //    m_ebo.allocate(indices, sizeof(indices));
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void*)0);
     glEnableVertexAttribArray(0);
+
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof (GLfloat), (void*)(5 * sizeof(float)));
+    glEnableVertexAttribArray(2);
 
     //    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (void*)(3 * sizeof(GLfloat)));
     //    glEnableVertexAttribArray(1);
-
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-
-    m_vbo.release();
     m_vao.release();
+//    m_vao.bind();
+
+//    m_vaoLight.create();
+//    m_vaoLight.bind();
+
+//    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (void*)0);
+//    glEnableVertexAttribArray(0);
+
+//    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (void*)(3 * sizeof(float)));
+//    glEnableVertexAttribArray(1);
+
+
+//    m_vaoLight.release();
+////    m_vao.release();
+//    vbo.release();
 
     // ---------------------------------------------------------------------
-    //    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+//        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     //    glClearColor(0, 0, 0, 0);
     glEnable(GL_DEPTH_TEST);
-    glEnable(GL_LIGHT0);
-    glEnable(GL_LIGHTING);
-    glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
-    glEnable(GL_COLOR_MATERIAL);
-    glEnable(GL_MULTISAMPLE);
+//    glEnable(GL_LIGHT0);
+//    glEnable(GL_LIGHTING);
+//    glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+//    glEnable(GL_COLOR_MATERIAL);
+//    glEnable(GL_MULTISAMPLE);
 }
 
 void QOpenGLWidget_World::resizeGL(int w, int h)
@@ -181,18 +169,11 @@ void QOpenGLWidget_World::resizeGL(int w, int h)
     updateProjection();
 }
 
-//void QOpenGLWidget_World::paintGLprivate()
 void QOpenGLWidget_World::paintGL()
 {
-    //    makeCurrent();
-    //    glPushMatrix();
-    //    qDebug() << "paintGL";
     uint64_t currentFrame = QDateTime::currentMSecsSinceEpoch();
-    //    qDebug() << currentFrame;
-    //    qDebug() << static_cast<int>(currentFrame / 100);
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
-    //        qDebug() << "fps : " << 1000.0 / deltaTime;
     fps += 1000.0 / deltaTime;
     if (cpt % 60 == 0) {
         qDebug() << "fps : " << fps / 60.0;
@@ -204,56 +185,58 @@ void QOpenGLWidget_World::paintGL()
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+
+    // -------------------------------------------------------------------------------
+    m_vao.bind();
+
+    m_program.bind();
     m_texture->bind();
     m_texture2->bind(1);
     m_program.setUniformValue("texture1", 0);
     m_program.setUniformValue("texture2", 1);
 
-    //    QMatrix4x4 transform;
-    //    transform.setToIdentity();
-    //    transform.scale(abs(sin(time * 0.01)));
-    //    transform.rotate(time++, 0, 0, 1);
-    //    transform.translate(0.5, -0.5, 0.0);
-    //    m_program.setUniformValue("transform", transform);
-
-//    QMatrix4x4 view;
-    //    float radius = 10;
-    //    float camX = sin(0.01 * time) * radius;
-    //    float camZ = cos(0.01 * time) * radius;
-    //    view.translate(0, 0, -3);
-    //    view.lookAt(QVector3D(camX, 0, camZ), QVector3D(0, 0, 0), QVector3D(0, 1, 0));
-//    m_view.setToIdentity();
-//    m_view.lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
-//    m_view = camera.GetViewMatrix();
     m_program.setUniformValue("view", camera.GetViewMatrix());
-
-    //    QMatrix4x4 projection;
-    //    projection.perspective(60, width() / float(height()), 0.01, 100);
     m_program.setUniformValue("projection", m_projection);
 
-    m_program.bind();
-    m_vao.bind();
+//    lightPos[0].setX(1.0 + sin(currentFrame * 0.01) * 2.0f);
+//    lightPos[0].setY(sin(currentFrame * 0.01 / 2.0) * 1.0f);
+    m_program.setUniformValue("lightPos", lightPos[0]);
+    m_program.setUniformValue("lightColor", 1.0, 1.0, 1.0);
+    m_program.setUniformValue("viewPos", camera.Position);
 
-    //    float timeValue = QTime::currentTime().msec();
-    //    float greenValue = sin(time += 0.1) / 2.0f + 0.5f;
+//    m_program.setUniformValue("lightColor")
+
+//    m_programLight.bind();
+//    m_vaoLight.bind();
     //    m_program.setUniformValue("ourColor", 0.0f, greenValue, 0.0f, 1.0f);
-
     for (int i = 0; i < 10; ++i) {
         QMatrix4x4 model;
         model.translate(cubePositions[i]);
         model.rotate(static_cast<int>(currentFrame / 10) % 360, cubePositions[i]);
+//        model.scale(sin(currentFrame * 0.001), 1, 1);
         //        model.rotate(0.1 * time++, 1, 0.3, 05);
         m_program.setUniformValue("model", model);
         glDrawArrays(GL_TRIANGLES, 0, 36);
     }
 
-    //    doneCurrent();
+
+    m_programLight.bind();
+    m_programLight.setUniformValue("view", camera.GetViewMatrix());
+    m_programLight.setUniformValue("projection", m_projection);
+//    m_vaoLight.bind();
+    for (int i =0; i <1; ++i) {
+        QMatrix4x4 model;
+        model.translate(lightPos[i]);
+        model.scale(0.2);
+        m_programLight.setUniformValue("model", model);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+    }
+
 
     //    glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 
     //        m_program.release();
     //        m_vao.release();
-    //    ++time;
 
     update();
     ++cpt;
@@ -317,58 +300,25 @@ void QOpenGLWidget_World::mousePressEvent(QMouseEvent* event)
 
 void QOpenGLWidget_World::mouseMoveEvent(QMouseEvent* event)
 {
-//    qDebug() << "mouseMoveEvent " << event;
-
     float dx = event->x() - lastPos.x();
     float dy = event->y() - lastPos.y();
 
-//    float sensitivity = 0.1f;
-//    dx *= sensitivity;
-//    dy *= sensitivity;
-
-//    yaw += dx;
-////    qDebug() << yaw;
-///
-
-
-//    pitch -= dy;
-//    pitch = qMax(qMin(90.0f, pitch), -90.0f);
-
-//    QVector3D front;
-////    front.setX(sin(yaw));
-////    front.setY(cos(pitch));
-////    front.setZ(cos(yaw));
-//    front.setX(cos(qDegreesToRadians(yaw)) * cos(qDegreesToRadians(pitch)));
-//    front.setY(sin(qDegreesToRadians(pitch)));
-//    front.setZ(sin(qDegreesToRadians(yaw)) * cos(qDegreesToRadians(pitch)));
-
-//    front.normalize();
-
-//    cameraFront = front;
-
     setCursorToCenter();
     camera.ProcessMouseMovement(dx, -dy);
-
-    //    lastPos = event->pos();
 }
 
 void QOpenGLWidget_World::wheelEvent(QWheelEvent *event)
 {
     float dy = event->delta() * 0.1f;
-//    qDebug() << dy;
-//    fov -= dy * 0.1f;
-//    fov = qMax(qMin(170.0f, fov), 1.0f);
 
     camera.ProcessMouseScroll(dy);
     updateProjection();
-
 }
 
 void QOpenGLWidget_World::focusInEvent(QFocusEvent *event)
 {
-//    qDebug() << "focusInEvent";
     setCursorToCenter();
-//    setCursor(Qt::BlankCursor);
+    setCursor(Qt::BlankCursor);
 }
 
 void QOpenGLWidget_World::setCursorToCenter()
@@ -380,8 +330,6 @@ void QOpenGLWidget_World::setCursorToCenter()
 
 void QOpenGLWidget_World::cameraMove()
 {
-//    float cameraSpeed = 0.01 * deltaTime;
-    //    float cameraSpeed = 0.1;
     if (frontDir == 1) {
         camera.ProcessKeyboard(FORWARD, deltaTime);
     }
@@ -395,8 +343,6 @@ void QOpenGLWidget_World::cameraMove()
     else if (sideDir == -1) {
         camera.ProcessKeyboard(LEFT, deltaTime);
     }
-//    cameraPos += frontDir * cameraFront * cameraSpeed;
-//    cameraPos += sideDir * QVector3D::crossProduct(cameraFront, cameraUp).normalized() * cameraSpeed;
 }
 
 void QOpenGLWidget_World::updateProjection()
@@ -404,28 +350,3 @@ void QOpenGLWidget_World::updateProjection()
     m_projection.setToIdentity();
     m_projection.perspective(camera.Zoom, width() / float(height()), 0.01f, 100.0f);
 }
-
-//void QOpenGLWidget_World::paintEvent(QPaintEvent *e)
-//{
-////    paintGLprivate();
-//    qDebug() << "paintEvent" << e;
-////    paintGL();
-
-//    QPainter painter(this);
-////    painter.setBackground(Qt::gray);
-//    painter.drawText(QPoint(0, 0), "fuck");
-//    painter.setBackground(QBrush(Qt::gray));
-
-//    painter.setPen(Qt::red);
-//    painter.drawLine(rect().topLeft(), rect().bottomRight());
-////    painter.end();
-//}
-
-//void QOpenGLWidget_World::makeObject()
-//{
-////    QVector<GLfloat> vertData;
-
-////    vertData.append(vertices);
-////    vertData.insert(vertData.end(), 9, vertices[0]);
-
-//}
