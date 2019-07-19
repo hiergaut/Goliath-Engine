@@ -27,12 +27,18 @@ CONFIG += c++11
 SOURCES += \
         QOpenGLWidget_World.cpp \
         main.cpp \
-        MainWindow.cpp
+        MainWindow.cpp \
+        stb_image.cpp
 
 HEADERS += \
         MainWindow.h \
         QOpenGLWidget_World.h \
-        camera.h
+        camera.h \
+        mesh.h \
+        model.h \
+        shader.h \
+        version.h \
+        stb_image.h
 
 FORMS += \
         MainWindow.ui
@@ -44,3 +50,5 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 RESOURCES += \
     Resources.qrc
+
+LIBS += -lassimp

@@ -8,5 +8,7 @@
         <file>shader/first.fsh</file>
         <file>texture/container2.png</file>
         <file>texture/container2_specular.png</file>
+        <file>shader/model_loading.vsh</file>
+        <file>shader/model_loading.fsh</file>
     </qresource>
 </RCC>
