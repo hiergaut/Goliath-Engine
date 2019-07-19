@@ -67,8 +67,11 @@ private:
         QVector3D(-1.3f, 1.0f, -1.5f)
     };
 
-    QVector3D lightPos[1] = {
-       QVector3D(1.2f, 1.0f, 2.0f)
+    QVector3D pointLightPositions[4] = {
+       QVector3D(0.7f, 0.2f, 2.0f),
+       QVector3D(2.3f, -3.3f, -4.0f),
+       QVector3D(-4.0f, 2.0f, -12.0f),
+       QVector3D(0.0f, 0.0f, -3.0f)
     };
 
     uint64_t deltaTime;

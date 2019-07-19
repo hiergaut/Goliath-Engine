@@ -6,5 +6,7 @@
         <file>shader/light.fsh</file>
         <file>shader/first.vsh</file>
         <file>shader/first.fsh</file>
+        <file>texture/container2.png</file>
+        <file>texture/container2_specular.png</file>
     </qresource>
 </RCC>
