@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include "QOpenGLWidget_World.h"
 
 namespace Ui {
 class MainWindow;
@@ -17,6 +18,8 @@ public:
 
 private:
     Ui::MainWindow *ui;
+
+    QOpenGLWidget_World * openglWidget;
 };
 
 #endif // MAINWINDOW_H

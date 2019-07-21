@@ -5,6 +5,8 @@
 #include <QKeyEvent>
 #include <QPainter>
 
+#include <QOpenGLContext>
+
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -14,7 +16,7 @@ QOpenGLWidget_World::QOpenGLWidget_World(QWidget* parent)
     //    , m_vbo(QOpenGLBuffer::VertexBuffer)
     //    , shaderCube(":/shader/first.vsh", ":/shader/first.fsh")
     //    , shaderLight(":/shader/light.vsh", ":/shader/light.fsh")
-//    , model("../Goliath-Engine/model/cube/cube.obj")
+    //    , model("../Goliath-Engine/model/cube/cube.obj")
     , camera(glm::vec3(0.0f, 0.0f, 3.0f))
 //    , m_ebo(QOpenGLBuffer::IndexBuffer)
 {
@@ -35,6 +37,15 @@ void QOpenGLWidget_World::initializeGL()
     initializeOpenGLFunctions();
 
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
+    glEnable(GL_MULTISAMPLE);
+
+    //    glFrontFace(GL_CW);
+    //    glCullFace(GL_BACK);
+    //    glEnable(GL_STENCIL_TEST);
+    //    glEnable(GL_BLEND);
+    //    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
     //    glEnable(GL_LIGHT0);
     //    glEnable(GL_LIGHTING);
     //    glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
@@ -43,16 +54,42 @@ void QOpenGLWidget_World::initializeGL()
     // ---------------------------------------------------------------------
     //    m_program.bind();
 
-//    shaderCube = Shader("../Goliath-Engine/shader/first.vsh", "../Goliath-Engine/shader/first.fsh");
+    //    shaderCube = Shader("../Goliath-Engine/shader/first.vsh", "../Goliath-Engine/shader/first.fsh");
     shader = Shader("../Goliath-Engine/shader/model_loading.vsh", "../Goliath-Engine/shader/model_loading.fsh");
-//    shaderLight = Shader("../Goliath-Engine/shader/light.vsh", "../Goliath-Engine/shader/light.fsh");
-//    Model
-    model =  Model("../Goliath-Engine/model/cube/cube.obj");
+    //    shader = Shader("../Goliath-Engine/shader/model_loading.vsh", "../Goliath-Engine/shader/depthTesting.fsh");
+    //    shaderLight = Shader("../Goliath-Engine/shader/light.vsh", "../Goliath-Engine/shader/light.fsh");
+    //    Model
+    //    model =  Model("../Goliath-Engine/model/cube/cube.obj");
+    scene = Model("../Goliath-Engine/map/de_aztec.obj");
+    //    scene = Model("../Goliath-Engine/model/nanosuit/nanosuit.obj");
+
+//    QGLFormat glFormat;
+//      glFormat.setSampleBuffers(true);
+//      glFormat.setSamples(4);
+
+//      widget = new GLWidget(glFormat, ui->centralWidget);
+//      widget->setObjectName(QStringLiteral("widget"));
+//      ui->horizontalLayout->addWidget(widget);
+//    QSurfaceFormat glFormat;
+//    glFormat.setSamples(4);
+//    this->setFormat(glFormat);
+
+    GLint flags; glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
+    if (flags & GL_CONTEXT_FLAG_DEBUG_BIT)
+    {
+        // initialisation de la sortie de débogage
+    }
 }
 
 void QOpenGLWidget_World::resizeGL(int w, int h)
 {
     updateProjection();
+
+    GLint bufs;
+    GLint samples;
+    glGetIntegerv(GL_SAMPLE_BUFFERS, &bufs);
+    glGetIntegerv(GL_SAMPLES, &samples);
+    qDebug("Have %d buffers and %d samples", bufs, samples);
 }
 
 void QOpenGLWidget_World::paintGL()
@@ -70,6 +107,7 @@ void QOpenGLWidget_World::paintGL()
 
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    //    glDepthMask(GL_FALSE);
 
     // -------------------------------------------------------------------------------
 
@@ -77,14 +115,15 @@ void QOpenGLWidget_World::paintGL()
 
     shader.setMat4("view", camera.GetViewMatrix());
     shader.setMat4("projection", m_projection);
-    shader.setMat4("model", glm::mat4(1.0));
+    glm::mat4 model(1.0);
+    model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0, 0, 0));
+    model = glm::scale(model, glm::vec3(0.01f));
+    shader.setMat4("model", model);
 
-    model.Draw(shader);
+    scene.Draw(shader);
 
-//    shader.setVec3("viewPos", camera.Position);
-//    glDrawArrays(GL_TRIANGLES, 0, 36);
-
-
+    //    shader.setVec3("viewPos", camera.Position);
+    //    glDrawArrays(GL_TRIANGLES, 0, 36);
 
     // ----------------------------------------------------------------
 
@@ -196,5 +235,5 @@ void QOpenGLWidget_World::cameraMove()
 void QOpenGLWidget_World::updateProjection()
 {
     //    m_projection.setToIdentity();
-    m_projection = glm::perspective(glm::radians(camera.Zoom), width() / float(height()), 0.01f, 100.0f);
+    m_projection = glm::perspective(glm::radians(camera.Zoom), width() / float(height()), 0.1f, 100.0f);
 }

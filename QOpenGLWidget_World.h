@@ -6,6 +6,8 @@
 #include <QOpenGLBuffer>
 #include <QOpenGLWidget>
 
+#include <QOpenGLFunctions_3_3_Core>
+
 #include <QOpenGLShaderProgram>
 #include <QOpenGLTexture>
 #include <QOpenGLVertexArrayObject>
@@ -14,7 +16,7 @@
 #include "shader.h"
 #include "model.h"
 
-class QOpenGLWidget_World : public QOpenGLWidget, protected QOpenGLFunctionsCore {
+class QOpenGLWidget_World : public QOpenGLWidget, QOpenGLFunctions_3_3_Core {
     Q_OBJECT
 
 public:
@@ -47,7 +49,7 @@ private:
     //    QOpenGLBuffer m_vbo;
     //    QOpenGLBuffer m_ebo;
     Shader shader;
-    Model model;
+    Model scene;
 //    Shader shaderLight;
 
 //    QOpenGLVertexArrayObject m_vao;

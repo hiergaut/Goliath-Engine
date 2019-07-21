@@ -52,3 +52,5 @@ RESOURCES += \
     Resources.qrc
 
 LIBS += -lassimp
+
+DISTFILES +=

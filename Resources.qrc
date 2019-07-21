@@ -10,5 +10,6 @@
         <file>texture/container2_specular.png</file>
         <file>shader/model_loading.vsh</file>
         <file>shader/model_loading.fsh</file>
+        <file>shader/depthTesting.fsh</file>
     </qresource>
 </RCC>

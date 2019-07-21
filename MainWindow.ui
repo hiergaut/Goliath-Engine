@@ -17,15 +17,7 @@
    <string notr="true">background-color: orange;</string>
   </property>
   <widget class="QWidget" name="centralWidget">
-   <layout class="QVBoxLayout" name="verticalLayout">
-    <item>
-     <widget class="QOpenGLWidget_World" name="openGLWidget">
-      <property name="styleSheet">
-       <string notr="true">background-color: green;</string>
-      </property>
-     </widget>
-    </item>
-   </layout>
+   <layout class="QVBoxLayout" name="verticalLayout"/>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
@@ -48,13 +40,6 @@
   <widget class="QStatusBar" name="statusBar"/>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <customwidgets>
-  <customwidget>
-   <class>QOpenGLWidget_World</class>
-   <extends>QOpenGLWidget</extends>
-   <header>QOpenGLWidget_World.h</header>
-  </customwidget>
- </customwidgets>
  <resources/>
  <connections/>
 </ui>
