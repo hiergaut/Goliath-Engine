@@ -1,6 +1,7 @@
 #include "MainWindow.h"
 #include "ui_MainWindow.h"
 
+#include <QTextEdit>
 
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -16,13 +17,27 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->setupUi(this);
 
-    openglWidget = new QOpenGLWidget_World(this);
-    openglWidget->resize(ui->centralWidget->size());
-    openglWidget->setFocus();
+
+    QTextEdit * editor1 = new QTextEdit;
+    QTextEdit * editor2 = new QTextEdit;
+    QTextEdit * editor3 = new QTextEdit;
+
+//    splitter = new QSplitter(Qt::Horizontal);
+    splitter = new QSplitter(Qt::Vertical);
+    splitter->addWidget(editor1);
+    splitter->addWidget(editor2);
+    splitter->addWidget(editor3);
+
+    setCentralWidget(splitter);
+
+
+//    openglWidget = new QOpenGLWidget_World(this);
+//    openglWidget->resize(ui->centralWidget->size());
+//    openglWidget->setFocus();
 
 //    openglWidget->resize(openglWidget->sizeHint());
 
-    setCentralWidget(openglWidget);
+//    setCentralWidget(openglWidget);
 
 //    ui->openGLWidget->setFocus();
 

@@ -22,14 +22,17 @@ file(GLOB_RECURSE headers ${CMAKE_SOURCE_DIR}/src/*.h)
 
 #INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
 
-#include_directories(${CMAKE_SOURCE_DIR}/src)
+include_directories(
+    ${CMAKE_SOURCE_DIR}/src/qt/
+    ${CMAKE_SOURCE_DIR}/src/opengl/
+    )
 
 #source_group("source files" FILES ${sources})
 #source_group("forms files" FILES ${forms})
 #source_group("header files" FILES ${headers})
 
 set(CMAKE_AUTOMOC ON)
-#set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTOUIC ON)
 #set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 

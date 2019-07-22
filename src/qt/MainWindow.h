@@ -4,6 +4,8 @@
 #include <QMainWindow>
 #include "QOpenGLWidget_World.h"
 
+#include <QSplitter>
+
 namespace Ui {
 class MainWindow;
 }
@@ -20,6 +22,8 @@ private:
     Ui::MainWindow *ui;
 
     QOpenGLWidget_World * openglWidget;
+
+    QSplitter * splitter;
 };
 
 #endif // MAINWINDOW_H
