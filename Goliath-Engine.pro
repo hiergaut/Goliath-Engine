@@ -24,24 +24,11 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 CONFIG += c++11
 
-SOURCES += \
-        QOpenGLWidget_World.cpp \
-        main.cpp \
-        MainWindow.cpp \
-        stb_image.cpp
+SOURCES += $$files("*.cpp", true)
 
-HEADERS += \
-        MainWindow.h \
-        QOpenGLWidget_World.h \
-        camera.h \
-        mesh.h \
-        model.h \
-        shader.h \
-        version.h \
-        stb_image.h
+HEADERS += $$files("*.h", true)
 
-FORMS += \
-        MainWindow.ui
+FORMS += $$files("*.ui", true)
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -52,5 +39,3 @@ RESOURCES += \
     Resources.qrc
 
 LIBS += -lassimp
-
-DISTFILES +=

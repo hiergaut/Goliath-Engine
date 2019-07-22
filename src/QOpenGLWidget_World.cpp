@@ -55,12 +55,12 @@ void QOpenGLWidget_World::initializeGL()
     //    m_program.bind();
 
     //    shaderCube = Shader("../Goliath-Engine/shader/first.vsh", "../Goliath-Engine/shader/first.fsh");
-    shader = Shader("../Goliath-Engine/shader/model_loading.vsh", "../Goliath-Engine/shader/model_loading.fsh");
+    shader = Shader("../Goliath-Engine/resources/shader/model_loading.vsh", "../Goliath-Engine/resources/shader/model_loading.fsh");
     //    shader = Shader("../Goliath-Engine/shader/model_loading.vsh", "../Goliath-Engine/shader/depthTesting.fsh");
-    //    shaderLight = Shader("../Goliath-Engine/shader/light.vsh", "../Goliath-Engine/shader/light.fsh");
+    //    shaderLight = Shader("../Goliath-Engine/resources/shader/light.vsh", "../Goliath-Engine/resources/shader/light.fsh");
     //    Model
     //    model =  Model("../Goliath-Engine/model/cube/cube.obj");
-    scene = Model("../Goliath-Engine/map/de_aztec.obj");
+    scene = Model("../Goliath-Engine/resources/maps/de_aztec/de_aztec.obj");
     //    scene = Model("../Goliath-Engine/model/nanosuit/nanosuit.obj");
 
 //    QGLFormat glFormat;
