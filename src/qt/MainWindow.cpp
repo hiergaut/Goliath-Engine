@@ -19,7 +19,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
 
 //    ui->splitter_root->setup();
-    ui->splitter_root->loadSetting();
+//    ui->splitter_root->loadSetting();
+    ui->splitter_root->setup();
 
 
 //    QTextEdit * editor1 = new QTextEdit;

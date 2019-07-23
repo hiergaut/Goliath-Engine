@@ -2,21 +2,23 @@
 #define QSPLITTERNODE_H
 
 #include <QSplitter>
-//#include <QWidget>
+#include <QWidget>
 #include <QMouseEvent>
+#include <QObject>
 
 class QSplitterNode : public QSplitter
 {
+        Q_OBJECT
 public:
     explicit QSplitterNode(QWidget * parent = nullptr, QString name = "root");
 
-//    void setup();
+    void setup();
     void loadSetting();
 
 protected:
-    void resizeEvent(QResizeEvent *) override;
-    void moveSplitter(int pos, int index);
-    void mouseMoveEvent(QMouseEvent *) override;
+//    void resizeEvent(QResizeEvent *) override;
+//    void moveSplitter(int pos, int index);
+//    void mouseMoveEvent(QMouseEvent *) override;
     void mousePressEvent(QMouseEvent *) override;
 
 //    void dragEnterEvent(QDragEnterEvent *) override;
@@ -24,9 +26,12 @@ protected:
 
 
 public slots:
-    void onSplitterMoved(int pos, int index);
+//    void onSplitterMoved(int pos, int index);
+    void onNewHSplitAdded(QMouseEvent * ev);
+    void onNewVSplitAdded(QMouseEvent * ev);
 
-    void onHandleMousePressEvent(QMouseEvent *);
+
+//    void onHandleMousePressEvent(QMouseEvent *);
 
 private:
     QString m_name;

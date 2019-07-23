@@ -32,19 +32,59 @@
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
      <widget class="QSplitterNode" name="splitter_root">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
       <property name="styleSheet">
-       <string notr="true"/>
+       <string notr="true">background-color: black;</string>
       </property>
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
       </property>
-      <widget class="EditorTemplate" name="widget" native="true"/>
+      <widget class="QSplitterNode" name="splitter_gauche">
+       <property name="styleSheet">
+        <string notr="true">background-color: green;</string>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+       <widget class="QSplitterNode" name="splitter_hautGauche">
+        <property name="styleSheet">
+         <string notr="true">background-color: pink;</string>
+        </property>
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <widget class="FormEditor" name="widget" native="true">
+         <property name="styleSheet">
+          <string notr="true"/>
+         </property>
+        </widget>
+       </widget>
+       <widget class="QSplitterNode" name="splitter_basGauche">
+        <property name="styleSheet">
+         <string notr="true">background-color: yellow;</string>
+        </property>
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <widget class="FormEditor" name="widget_2" native="true">
+         <property name="styleSheet">
+          <string notr="true"/>
+         </property>
+        </widget>
+       </widget>
+      </widget>
+      <widget class="QSplitterNode" name="splitter_droit">
+       <property name="styleSheet">
+        <string notr="true">background-color: purple;</string>
+       </property>
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <widget class="FormEditor" name="widget_3" native="true">
+        <property name="styleSheet">
+         <string notr="true"/>
+        </property>
+       </widget>
+      </widget>
      </widget>
     </item>
    </layout>
@@ -88,9 +128,9 @@
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>EditorTemplate</class>
+   <class>FormEditor</class>
    <extends>QWidget</extends>
-   <header>EditorTemplate.h</header>
+   <header>editor/FormEditor.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

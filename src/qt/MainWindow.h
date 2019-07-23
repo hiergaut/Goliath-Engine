@@ -2,7 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include "QOpenGLWidget_World.h"
+#include "editor/QOpenGLWidget_World.h"
 
 #include <QSplitter>
 
