@@ -23,7 +23,7 @@ private:
 
     QOpenGLWidget_World * openglWidget;
 
-    QSplitter * splitter;
+//    QSplitter * splitter;
 };
 
 #endif // MAINWINDOW_H

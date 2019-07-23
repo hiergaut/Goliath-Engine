@@ -24,9 +24,11 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 CONFIG += c++11
 
-SOURCES += $$files("*.cpp", true)
+SOURCES += $$files("*.cpp", true) \
+    src/QSplitterNode.cpp
 
-HEADERS += $$files("*.h", true)
+HEADERS += $$files("*.h", true) \
+    src/QSplitterNode.h
 
 FORMS += $$files("*.ui", true)
 
@@ -35,7 +37,5 @@ qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
-RESOURCES += \
-    Resources.qrc
 
 LIBS += -lassimp
