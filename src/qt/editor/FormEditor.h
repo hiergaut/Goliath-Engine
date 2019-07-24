@@ -4,6 +4,8 @@
 #include <QWidget>
 #include <QMouseEvent>
 
+#include "QSplitterNode.h"
+
 namespace Ui {
 class FormEditor;
 }
@@ -16,17 +18,20 @@ public:
     explicit FormEditor(QWidget *parent = nullptr);
     ~FormEditor();
 
-signals:
-    void addingNewHSplit(QMouseEvent * ev);
-    void addingNewVSplit(QMouseEvent * ev);
+//signals:
+//    void addingNewHSplit(QMouseEvent * ev);
+//    void addingNewVSplit(QMouseEvent * ev);
 
 
-//public slots:
+public slots:
 //    void onNewHSplitAdded(QMouseEvent * ev);
 //    void onNewVSplitAdded(QMouseEvent * ev);
 
 private:
     Ui::FormEditor *ui;
+
+//    QSplitterNode * m_parent;
+
 };
 
 #endif // FORMEDITOR_H

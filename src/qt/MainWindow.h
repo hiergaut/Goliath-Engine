@@ -2,7 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include "editor/QOpenGLWidget_World.h"
+//#include "editor/QOpenGLWidget_World.h"
 
 #include <QSplitter>
 
@@ -18,10 +18,13 @@ public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+private slots:
+    void on_actionQuit_triggered();
+
 private:
     Ui::MainWindow *ui;
 
-    QOpenGLWidget_World * openglWidget;
+//    QOpenGLWidget_World * openglWidget;
 
 //    QSplitter * splitter;
 };
