@@ -4,7 +4,11 @@
 #include <QWidget>
 #include <QMouseEvent>
 
-#include "QSplitterNode.h"
+//#include <Gui/TillingWindow/QSplitterNode.h>
+//#include <TillingWindow/QSplitterNode.h>
+//#include "TillingWindow/QSplitterNode.h"
+#include "Gui/TillingWindow/QSplitterNode.h"
+
 
 namespace Ui {
 class FormEditor;

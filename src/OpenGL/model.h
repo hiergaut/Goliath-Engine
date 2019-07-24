@@ -2,7 +2,7 @@
 #define MODEL_H
 
 //#include <glad/glad.h>
-#include "editor/version.h"
+#include "Gui/Editor/version.h"
 
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
