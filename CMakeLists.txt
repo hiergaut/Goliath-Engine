@@ -17,6 +17,7 @@ set (M_Qt5_LIBRARIES Qt5::Core Qt5::Widgets Qt5::OpenGL)
 #add_subdirectory(tests)
 
 add_subdirectory(src)
-add_subdirectory(Applications)
+add_subdirectory(applications)
+add_subdirectory(tests)
 
 
