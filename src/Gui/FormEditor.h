@@ -7,7 +7,8 @@
 //#include <Gui/TillingWindow/QSplitterNode.h>
 //#include <TillingWindow/QSplitterNode.h>
 //#include "TillingWindow/QSplitterNode.h"
-#include "Gui/TillingWindow/QSplitterNode.h"
+#include "QSplitterNode.h"
+
 
 
 namespace Ui {

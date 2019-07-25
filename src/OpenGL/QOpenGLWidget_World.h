@@ -13,9 +13,9 @@
 #include <QOpenGLVertexArrayObject>
 
 //#include "camera.h"
-#include "OpenGL/camera.h"
-#include "OpenGL/shader.h"
-#include "OpenGL/model.h"
+#include "camera.h"
+#include "shader.h"
+#include "model.h"
 
 class QOpenGLWidget_World : public QOpenGLWidget, QOpenGLFunctions_3_3_Core {
     Q_OBJECT

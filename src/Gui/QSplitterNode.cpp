@@ -1,4 +1,4 @@
-#include "Gui/TillingWindow/QSplitterNode.h"
+#include "QSplitterNode.h"
 
 #include <QCryptographicHash>
 #include <QDebug>
@@ -7,7 +7,7 @@
 #include <iostream>
 #include <sstream>
 
-#include "Gui/Editor/FormEditor.h"
+#include "FormEditor.h"
 #include <QSplitterHandle>
 
 #include <QLabel>

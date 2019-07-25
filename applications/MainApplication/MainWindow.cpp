@@ -32,7 +32,7 @@ MainWindow::MainWindow(QWidget* parent)
 
 //    ui->splitter_root->setParent(ui->splitter_root);
 
-//    ui->splitter_root->loadSetting();
+    ui->splitter_root->loadSetting();
 
 
     //    QTextEdit * editor1 = new QTextEdit;
@@ -45,7 +45,7 @@ MainWindow::MainWindow(QWidget* parent)
     //    splitter->addWidget(editor2);
     //    splitter->addWidget(editor3);
 
-    node = new QSplitterNode;
+//    node = new QSplitterNode;
 
     //    setCentralWidget(splitter);
 
@@ -78,7 +78,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::on_actionQuit_triggered()
 {
-//    ui->splitter_root->saveSetting();
+    ui->splitter_root->saveSetting();
 //    std::cout << std::flush;
     QCoreApplication::quit();
 }

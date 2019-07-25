@@ -1,7 +1,7 @@
 #ifndef SHADER_H
 #define SHADER_H
 
-#include "Gui/Editor/version.h"
+#include "version.h"
 
 //#include <glad/glad.h>
 #include <glm/glm.hpp>

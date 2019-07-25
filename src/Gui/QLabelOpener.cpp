@@ -10,6 +10,7 @@ QLabelOpener::QLabelOpener(QWidget* parent)
 
 void QLabelOpener::mousePressEvent(QMouseEvent* ev)
 {
+
 //    qDebug() << this << ": mousePressEvent";
 
     m_posOnClick = ev->pos();

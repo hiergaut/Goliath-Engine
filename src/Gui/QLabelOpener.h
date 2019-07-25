@@ -18,6 +18,7 @@ signals:
     void addingNewHSplit(QMouseEvent * ev);
     void addingNewVSplit(QMouseEvent * ev);
 
+
 public slots:
 
 private:

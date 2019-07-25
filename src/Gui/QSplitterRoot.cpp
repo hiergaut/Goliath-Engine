@@ -1,4 +1,4 @@
-#include "Gui/TillingWindow/QSplitterRoot.h"
+#include "QSplitterRoot.h"
 
 #include <QDebug>
 
