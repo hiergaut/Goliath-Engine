@@ -1,5 +1,6 @@
 #include "MainWindow.h"
 #include "ui_MainWindow.h"
+#include <QDebug>
 
 #include <QTextEdit>
 //#include <QSplitterHandle>
@@ -32,7 +33,9 @@ MainWindow::MainWindow(QWidget* parent)
 
 //    ui->splitter_root->setParent(ui->splitter_root);
 
-    ui->splitter_root->loadSetting();
+//    ui->splitter_root->loadSetting();
+    setCentralWidget(ui->splitter_root);
+    ui->splitter_root->setFocus();
 
 
     //    QTextEdit * editor1 = new QTextEdit;
@@ -81,4 +84,15 @@ void MainWindow::on_actionQuit_triggered()
     ui->splitter_root->saveSetting();
 //    std::cout << std::flush;
     QCoreApplication::quit();
+}
+
+void MainWindow::keyPressEvent(QKeyEvent *) {
+    qDebug() << this << ": keyPressEvent";
+
+}
+
+
+void MainWindow::focusInEvent(QFocusEvent *ev) {
+    qDebug() << this << ": focusInEvent";
+
 }

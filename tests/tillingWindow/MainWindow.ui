@@ -32,18 +32,32 @@
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
      <widget class="QSplitterNode" name="splitter_root">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="styleSheet">
-       <string notr="true"/>
-      </property>
       <property name="orientation">
-       <enum>Qt::Horizontal</enum>
+       <enum>Qt::Vertical</enum>
       </property>
+      <widget class="QSplitterNode" name="splitter_top">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <widget class="QSplitterNode" name="splitter_topLeft">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <widget class="MainWindowEditor" name="widget_topLeft" native="true"/>
+       </widget>
+       <widget class="QSplitterNode" name="splitter_topRight">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <widget class="MainWindowEditor" name="widget_topRight" native="true"/>
+       </widget>
+      </widget>
+      <widget class="QSplitterNode" name="splitter_bottom">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+       <widget class="MainWindowEditor" name="widget_bottom" native="true"/>
+      </widget>
      </widget>
     </item>
    </layout>
@@ -98,7 +112,13 @@
   <customwidget>
    <class>QSplitterNode</class>
    <extends>QSplitter</extends>
-   <header>Gui/TillingWindow/QSplitterNode.h</header>
+   <header location="global">gui/QSplitterNode.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>MainWindowEditor</class>
+   <extends>QWidget</extends>
+   <header>gui/editor/MainWindowEditor.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

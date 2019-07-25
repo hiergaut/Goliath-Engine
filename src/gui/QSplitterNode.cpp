@@ -7,7 +7,8 @@
 #include <iostream>
 #include <sstream>
 
-#include "FormEditor.h"
+//#include "FormEditor.h"
+#include "editor/MainWindowEditor.h"
 #include <QSplitterHandle>
 
 #include <QLabel>
@@ -19,6 +20,9 @@ QSizePolicy defaultPolicy(singlePolicy, singlePolicy);
 //QList<QList<int>> sizes;
 QString groupName = "splitterTree0";
 }
+
+//using widgetTemplate = QWidget;
+using widgetTemplate = MainWindowEditor;
 
 QSplitterNode::QSplitterNode(QWidget* parent, QString name)
     : QSplitter(parent)
@@ -33,6 +37,7 @@ QSplitterNode::QSplitterNode(QWidget* parent, QString name)
     //    qDebug() << this << handle(0);
     //    qDebug() << this << ": handle(0) = " << handle(0);
     //    setStyleSheet("background-color: " + 222);
+//    setFocus();
 
     //    QByteArray array = QCryptographicHash::hash(this);
 
@@ -56,29 +61,29 @@ QSplitterNode::QSplitterNode(QWidget* parent, QString name)
     //    setMouseTracking(true);
 }
 
-void QSplitterNode::setup()
-{
-    Q_ASSERT(count() > 0);
-    //    for (int i = 0; i < 3; ++i) {
-    //        qDebug() << this << ": handle(" << i << ") = " << handle(i);
-    //    setSizePolicy(defaultPolicy);
-    //    }
-    if (count() != 1) {
-        //        FormEditor* w = static_cast<FormEditor*>(widget(0));
-        //        connect(w, &FormEditor::addingNewHSplit, this, &QSplitterNode::onNewHSplitAdded);
-        //        connect(w, &FormEditor::addingNewVSplit, this, &QSplitterNode::onNewVSplitAdded);
+//void QSplitterNode::setup()
+//{
+//    Q_ASSERT(count() > 0);
+//    //    for (int i = 0; i < 3; ++i) {
+//    //        qDebug() << this << ": handle(" << i << ") = " << handle(i);
+//    //    setSizePolicy(defaultPolicy);
+//    //    }
+//    if (count() != 1) {
+//        //        FormEditor* w = static_cast<FormEditor*>(widget(0));
+//        //        connect(w, &FormEditor::addingNewHSplit, this, &QSplitterNode::onNewHSplitAdded);
+//        //        connect(w, &FormEditor::addingNewVSplit, this, &QSplitterNode::onNewVSplitAdded);
 
-        //        qDebug() << this << ": leaf widget " << w;
+//        //        qDebug() << this << ": leaf widget " << w;
 
-        for (int i = 0; i < count(); ++i) {
-            QSplitterNode* node = static_cast<QSplitterNode*>(widget(i));
-            node->setName(m_name + QString::number(i));
-            //            node->setOrientation(Qt::Vertical);
-            node->setup();
-            //            connect(w, &FormEditor::addingNewHSplit, this, &QSplitterNode::onNewHSplitAdded);
-        }
-    }
-}
+//        for (int i = 0; i < count(); ++i) {
+//            QSplitterNode* node = static_cast<QSplitterNode*>(widget(i));
+//            node->setName(m_name + QString::number(i));
+//            //            node->setOrientation(Qt::Vertical);
+//            node->setup();
+//            //            connect(w, &FormEditor::addingNewHSplit, this, &QSplitterNode::onNewHSplitAdded);
+//        }
+//    }
+//}
 
 void QSplitterNode::loadSetting()
 {
@@ -100,9 +105,12 @@ void QSplitterNode::loadSetting()
     qDebug() << m_name << ": m_sizes = " << m_sizes;
     if (m_sizes.size() == 0 || (m_sizes.size() == 1 && m_name == "root")) {
         QSplitterNode* node = new QSplitterNode(this, this->m_name + "0");
-        node->addWidget(new FormEditor);
+//        node->addWidget(new MainWindowEditor);
+        node->addWidget(new widgetTemplate);
+//        node->addWidget(new FormEditor);
 
         addWidget(node);
+
     }
 
     //        setSizes(m_sizes);
@@ -115,7 +123,9 @@ void QSplitterNode::loadSetting()
         //        } else {
 
         //        qDebug() << "loadSetting: " << m_name << " leaf";
-        addWidget(new FormEditor);
+//        addWidget(new FormEditor);
+//        addWidget(new MainWindowEditor);
+        addWidget(new widgetTemplate);
         //        }
     } else {
         for (int i = 0; i < m_sizes.size(); ++i) {
@@ -316,7 +326,8 @@ void QSplitterNode::mousePressEvent(QMouseEvent* ev)
         //        int rand2 = 100 + qrand() % 155;
         //        int rand3 = 100 + qrand() % 155;
         //        widget->setStyleSheet(QString("background-color: rgb(%1,%2,%3);").arg(rand1).arg(rand2).arg(rand3));
-        QWidget* widget = new FormEditor;
+//        QWidget* widget = new MainWindowEditor;
+        QWidget* widget = new widgetTemplate;
 
         if (parent->orientation() == orientation) {
             QSplitterNode* node = new QSplitterNode(parent, parent->m_name + QString::number(parent->count()));
@@ -363,6 +374,19 @@ void QSplitterNode::mousePressEvent(QMouseEvent* ev)
 void QSplitterNode::mouseReleaseEvent(QMouseEvent*)
 {
     //    setCursor(Qt::ArrowCursor);
+}
+
+void QSplitterNode::focusInEvent(QFocusEvent *)
+{
+    qDebug() << this << m_name << ": focusInEvent";
+
+}
+
+void QSplitterNode::keyPressEvent(QKeyEvent * ev)
+{
+    qDebug() << this << m_name << ": keyPressEvent" << ev;
+
+//    ev->ignore();
 }
 
 void QSplitterNode::setName(const QString& name)

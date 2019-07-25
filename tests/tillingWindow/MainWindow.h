@@ -23,6 +23,10 @@ public:
 private slots:
     void on_actionQuit_triggered();
 
+protected:
+    void keyPressEvent(QKeyEvent *);
+    void focusInEvent(QFocusEvent *);
+
 private:
     Ui::MainWindow *ui;
 

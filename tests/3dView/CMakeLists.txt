@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.0)
-project (src)
+project (3dView)
 #project (src)
 
-set(CMAKE_INCLUDE_CURRENT_DIR ON)
+#set(CMAKE_INCLUDE_CURRENT_DIR ON)
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -pedantic -Wextra -lassimp -O0 -g")
 #set(EXECUTABLE_OUTPUT_PATH ${CMAKE_SOURCE_DIR}/bin)
 
@@ -31,13 +31,15 @@ file(GLOB_RECURSE headers *.h)
 #INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
 
 
-#include_directories(
+include_directories(
 #    .
-##    ${M_INCLUDE_DIR}
+        ${M_SRC_DIR}
+#    ${M_INCLUDE_DIR}
+#    ${PROJECT_SOURCE_DIR}/src/
 #    ${CMAKE_CURRENT_BINARY_DIR} #Moc
-##    ${CMAKE_SOURCE_DIR}/src/
-##    ${CMAKE_SOURCE_DIR}/src/opengl/
-#    )
+#    ${CMAKE_SOURCE_DIR}/src/
+#    ${CMAKE_SOURCE_DIR}/src/opengl/
+    )
 
 #add_dependencies(${PROJECT_NAME} Gui)
 
@@ -53,7 +55,7 @@ set(CMAKE_AUTOUIC ON)
 
 
 
-add_library(${PROJECT_NAME} SHARED
+add_executable(${PROJECT_NAME}
     ${sources}
     ${forms}
     ${headers}
@@ -67,11 +69,10 @@ add_library(${PROJECT_NAME} SHARED
 
 
 #set(EXT_LIBS Qt5::OpenGL ${OPENGL_LIBRARIES})
-#target_link_libraries(${PROJECT_NAME} ${EXT_LIBS} ${M_GOLIATH_LIBRARIES})
-target_link_libraries(${PROJECT_NAME} ${M_Qt5_LIBRARIES} ${OPENGL_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} ${M_Qt5_LIBRARIES} src)
 
+#add_dependencies(${PROJECT_NAME} src)
 
-#install(TARGETS ${PROJECT_NAME} DESTINATION ${M_LIB_DIR})
 
 
 # add_subdirectory(tests EXCLUDE_FROM_ALL)

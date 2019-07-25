@@ -7,4 +7,8 @@
 //gl->initializeOpenGLFunctions();
 using QOpenGLFunctionsCore = QOpenGLFunctions_3_3_Core;
 
+static std::string resourcesPath = "../../../Goliath-Engine/resources/";
+
+//#define RESOURCES_PATH ../../../Goliath-Engine/resources/
+
 #endif // VERSION_H

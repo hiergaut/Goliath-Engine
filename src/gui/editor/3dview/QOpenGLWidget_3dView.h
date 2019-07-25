@@ -1,7 +1,8 @@
 #ifndef QOPENGLWIDGET_WORLD_H
 #define QOPENGLWIDGET_WORLD_H
 
-#include "version.h"
+//#include "version.h"
+#include <opengl/version.h>
 
 #include <QOpenGLBuffer>
 #include <QOpenGLWidget>
@@ -13,16 +14,19 @@
 #include <QOpenGLVertexArrayObject>
 
 //#include "camera.h"
-#include "camera.h"
-#include "shader.h"
-#include "model.h"
+//#include "camera.h"
+#include <opengl/camera.h>
+//#include "shader.h"
+#include <opengl/shader.h>
+//#include "model.h"
+#include <opengl/model.h>
 
-class QOpenGLWidget_World : public QOpenGLWidget, QOpenGLFunctions_3_3_Core {
+class QOpenGLWidget_3dView : public QOpenGLWidget, QOpenGLFunctions_3_3_Core {
     Q_OBJECT
 
 public:
-    explicit QOpenGLWidget_World(QWidget* parent = nullptr);
-    ~QOpenGLWidget_World();
+    explicit QOpenGLWidget_3dView(QWidget* parent = nullptr);
+    ~QOpenGLWidget_3dView();
 
 signals:
 

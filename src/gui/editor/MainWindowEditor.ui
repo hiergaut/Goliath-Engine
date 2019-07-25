@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindowEditor</class>
+ <widget class="QMainWindow" name="MainWindowEditor">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <property name="focusPolicy">
+    <enum>Qt::NoFocus</enum>
+   </property>
+   <layout class="QVBoxLayout" name="verticalLayout"/>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>800</width>
+     <height>19</height>
+    </rect>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background-color: lightgray;</string>
+   </property>
+   <property name="defaultUp">
+    <bool>false</bool>
+   </property>
+   <widget class="QMenu" name="menuEditor_Type">
+    <property name="title">
+     <string>Editor Type</string>
+    </property>
+    <widget class="QMenu" name="menuGeneral">
+     <property name="title">
+      <string>General</string>
+     </property>
+     <addaction name="action3D_View"/>
+     <addaction name="actionUV_Image_Editor"/>
+     <addaction name="actionNode_Editor"/>
+    </widget>
+    <widget class="QMenu" name="menuAnimation">
+     <property name="title">
+      <string>Animation</string>
+     </property>
+     <addaction name="actionTimeline"/>
+     <addaction name="actionDope_Sheet"/>
+    </widget>
+    <widget class="QMenu" name="menuData">
+     <property name="title">
+      <string>Data</string>
+     </property>
+     <addaction name="actionOutliner"/>
+     <addaction name="actionProperties"/>
+     <addaction name="actionFile_Browser"/>
+     <addaction name="actionUser_Preferences"/>
+    </widget>
+    <addaction name="menuGeneral"/>
+    <addaction name="menuAnimation"/>
+    <addaction name="menuData"/>
+   </widget>
+   <addaction name="menuEditor_Type"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <action name="action3D_View">
+   <property name="text">
+    <string>3D View</string>
+   </property>
+  </action>
+  <action name="actionUV_Image_Editor">
+   <property name="text">
+    <string>UV/Image Editor</string>
+   </property>
+  </action>
+  <action name="actionNode_Editor">
+   <property name="text">
+    <string>Node Editor</string>
+   </property>
+  </action>
+  <action name="actionTimeline">
+   <property name="text">
+    <string>Timeline</string>
+   </property>
+  </action>
+  <action name="actionDope_Sheet">
+   <property name="text">
+    <string>Dope Sheet</string>
+   </property>
+  </action>
+  <action name="actionOutliner">
+   <property name="text">
+    <string>Outliner</string>
+   </property>
+  </action>
+  <action name="actionProperties">
+   <property name="text">
+    <string>Properties</string>
+   </property>
+  </action>
+  <action name="actionFile_Browser">
+   <property name="text">
+    <string>File Browser</string>
+   </property>
+  </action>
+  <action name="actionUser_Preferences">
+   <property name="text">
+    <string>User Preferences</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

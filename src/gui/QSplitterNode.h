@@ -12,7 +12,7 @@ class QSplitterNode : public QSplitter
 public:
     explicit QSplitterNode(QWidget * parent = nullptr, QString name = "root");
 
-    void setup();
+//    void setup();
     void loadSetting();
     void saveSetting();
 
@@ -24,6 +24,9 @@ protected:
 //    void mouseMoveEvent(QMouseEvent *) override;
     void mousePressEvent(QMouseEvent *) override;
     void mouseReleaseEvent(QMouseEvent *) override;
+
+    void focusInEvent(QFocusEvent *) override;
+    void keyPressEvent(QKeyEvent *) override;
 
 //    void dragEnterEvent(QDragEnterEvent *) override;
 //    void setOpaqueResize(bool opaque = true);

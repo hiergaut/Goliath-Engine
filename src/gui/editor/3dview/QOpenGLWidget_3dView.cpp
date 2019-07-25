@@ -1,4 +1,5 @@
-#include "QOpenGLWidget_World.h"
+#include "QOpenGLWidget_3dView.h"
+
 #include <QTime>
 #include <QtMath>
 
@@ -11,7 +12,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-QOpenGLWidget_World::QOpenGLWidget_World(QWidget* parent)
+QOpenGLWidget_3dView::QOpenGLWidget_3dView(QWidget* parent)
     : QOpenGLWidget(parent)
     //    , m_vbo(QOpenGLBuffer::VertexBuffer)
     //    , shaderCube(":/shader/first.vsh", ":/shader/first.fsh")
@@ -22,17 +23,17 @@ QOpenGLWidget_World::QOpenGLWidget_World(QWidget* parent)
 {
 
     //    setAutoFillBackground(false);
-    setMouseTracking(true);
+//    setMouseTracking(true);
 }
 
-QOpenGLWidget_World::~QOpenGLWidget_World()
+QOpenGLWidget_3dView::~QOpenGLWidget_3dView()
 {
     makeCurrent();
 
     //    doneCurrent();
 }
 
-void QOpenGLWidget_World::initializeGL()
+void QOpenGLWidget_3dView::initializeGL()
 {
     initializeOpenGLFunctions();
 
@@ -55,12 +56,12 @@ void QOpenGLWidget_World::initializeGL()
     //    m_program.bind();
 
     //    shaderCube = Shader("../Goliath-Engine/shader/first.vsh", "../Goliath-Engine/shader/first.fsh");
-    shader = Shader("../Goliath-Engine/resources/shader/model_loading.vsh", "../Goliath-Engine/resources/shader/model_loading.fsh");
+    shader = Shader(resourcesPath + "shader/model_loading.vsh", resourcesPath + "shader/model_loading.fsh");
     //    shader = Shader("../Goliath-Engine/shader/model_loading.vsh", "../Goliath-Engine/shader/depthTesting.fsh");
-    //    shaderLight = Shader("../Goliath-Engine/resources/shader/light.vsh", "../Goliath-Engine/resources/shader/light.fsh");
+    //    shaderLight = Shader("../Goliath-Engine/resources/shader/light.vsh", "../../Goliath-Engine/resources/shader/light.fsh");
     //    Model
     //    model =  Model("../Goliath-Engine/model/cube/cube.obj");
-    scene = Model("../Goliath-Engine/resources/maps/de_aztec/de_aztec.obj");
+    scene = Model(resourcesPath + "maps/de_aztec/de_aztec.obj");
     //    scene = Model("../Goliath-Engine/model/nanosuit/nanosuit.obj");
 
 //    QGLFormat glFormat;
@@ -81,7 +82,7 @@ void QOpenGLWidget_World::initializeGL()
     }
 }
 
-void QOpenGLWidget_World::resizeGL(int w, int h)
+void QOpenGLWidget_3dView::resizeGL(int w, int h)
 {
     updateProjection();
 
@@ -92,14 +93,14 @@ void QOpenGLWidget_World::resizeGL(int w, int h)
     qDebug("Have %d buffers and %d samples", bufs, samples);
 }
 
-void QOpenGLWidget_World::paintGL()
+void QOpenGLWidget_3dView::paintGL()
 {
     uint64_t currentFrame = QDateTime::currentMSecsSinceEpoch();
     deltaTime = currentFrame - lastFrame;
     lastFrame = currentFrame;
     fps += 1000.0 / deltaTime;
     if (cpt % 60 == 0) {
-        qDebug() << "fps : " << fps / 60.0;
+//        qDebug() << "fps : " << fps / 60.0;
         fps = 0.0;
     }
 
@@ -131,11 +132,16 @@ void QOpenGLWidget_World::paintGL()
     ++cpt;
 }
 
-void QOpenGLWidget_World::keyPressEvent(QKeyEvent* event)
+void QOpenGLWidget_3dView::keyPressEvent(QKeyEvent* event)
 {
     //    qDebug() << "keyPressEvent";
+//    qDebug() << this << ": keyPressEvent";
 
     switch (event->key()) {
+    case Qt::Key_Escape:
+        setMouseTracking(false);
+        break;
+
     case Qt::Key_Up:
     case Qt::Key_Comma:
         //        cameraPos += cameraFront * cameraSpeed;
@@ -163,7 +169,7 @@ void QOpenGLWidget_World::keyPressEvent(QKeyEvent* event)
     }
 }
 
-void QOpenGLWidget_World::keyReleaseEvent(QKeyEvent* event)
+void QOpenGLWidget_3dView::keyReleaseEvent(QKeyEvent* event)
 {
     switch (event->key()) {
     case Qt::Key_Up:
@@ -182,12 +188,16 @@ void QOpenGLWidget_World::keyReleaseEvent(QKeyEvent* event)
     }
 }
 
-void QOpenGLWidget_World::mousePressEvent(QMouseEvent* event)
+void QOpenGLWidget_3dView::mousePressEvent(QMouseEvent* event)
 {
-    //    qDebug() << "fuck";
+    setMouseTracking(true);
+//    setFocus();
+//    qDebug() << "fuck";
+        event->ignore();
+
 }
 
-void QOpenGLWidget_World::mouseMoveEvent(QMouseEvent* event)
+void QOpenGLWidget_3dView::mouseMoveEvent(QMouseEvent* event)
 {
     float dx = event->x() - lastPos.x();
     float dy = event->y() - lastPos.y();
@@ -196,7 +206,7 @@ void QOpenGLWidget_World::mouseMoveEvent(QMouseEvent* event)
     camera.ProcessMouseMovement(dx, -dy);
 }
 
-void QOpenGLWidget_World::wheelEvent(QWheelEvent* event)
+void QOpenGLWidget_3dView::wheelEvent(QWheelEvent* event)
 {
     float dy = event->delta() * 0.1f;
 
@@ -204,20 +214,23 @@ void QOpenGLWidget_World::wheelEvent(QWheelEvent* event)
     updateProjection();
 }
 
-void QOpenGLWidget_World::focusInEvent(QFocusEvent* event)
+void QOpenGLWidget_3dView::focusInEvent(QFocusEvent* event)
 {
+    qDebug() << this << ": focusInEvent";
     setCursorToCenter();
-    setCursor(Qt::BlankCursor);
+//    setCursor(Qt::BlankCursor);
+
+    setMouseTracking(true);
 }
 
-void QOpenGLWidget_World::setCursorToCenter()
+void QOpenGLWidget_3dView::setCursorToCenter()
 {
     lastPos = QPoint(width() / 2, height() / 2);
     QPoint glob = mapToGlobal(lastPos);
     QCursor::setPos(glob);
 }
 
-void QOpenGLWidget_World::cameraMove()
+void QOpenGLWidget_3dView::cameraMove()
 {
     if (frontDir == 1) {
         camera.ProcessKeyboard(FORWARD, deltaTime);
@@ -232,7 +245,7 @@ void QOpenGLWidget_World::cameraMove()
     }
 }
 
-void QOpenGLWidget_World::updateProjection()
+void QOpenGLWidget_3dView::updateProjection()
 {
     //    m_projection.setToIdentity();
     m_projection = glm::perspective(glm::radians(camera.Zoom), width() / float(height()), 0.1f, 100.0f);

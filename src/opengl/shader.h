@@ -14,15 +14,16 @@
 class Shader {
 public:
     unsigned int ID;
-    QOpenGLFunctionsCore * fun;
+    QOpenGLFunctionsCore* fun;
     // constructor generates the shader on the fly
     // ------------------------------------------------------------------------
     Shader() {}
 
-    Shader(const char* vertexPath, const char* fragmentPath, const char* geometryPath = nullptr)
+    //    Shader(const char* vertexPath, const char* fragmentPath, const char* geometryPath = nullptr)
+    Shader(const std::string vertexPath, const std::string fragmentPath, const std::string geometryPath = "")
     {
         fun = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
-//        initializeOpenGLFunctions();
+        //        initializeOpenGLFunctions();
 
         // 1. retrieve the vertex/fragment source code from filePath
         std::string vertexCode;
@@ -61,7 +62,8 @@ public:
             // convert stream into string
             fragmentCode = fShaderStream.str();
             // if geometry shader path is present, also load a geometry shader
-            if (geometryPath != nullptr) {
+            //            if (geometryPath != nullptr) {
+            if (!geometryPath.empty()) {
                 gShaderFile.open(geometryPath);
                 std::stringstream gShaderStream;
                 gShaderStream << gShaderFile.rdbuf();
@@ -88,7 +90,8 @@ public:
         checkCompileErrors(fragment, "FRAGMENT");
         // if geometry shader is given, compile geometry shader
         unsigned int geometry;
-        if (geometryPath != nullptr) {
+        //        if (geometryPath != nullptr) {
+        if (!geometryPath.empty()) {
             const char* gShaderCode = geometryCode.c_str();
             geometry = fun->glCreateShader(GL_GEOMETRY_SHADER);
             fun->glShaderSource(geometry, 1, &gShaderCode, NULL);
@@ -99,14 +102,16 @@ public:
         ID = fun->glCreateProgram();
         fun->glAttachShader(ID, vertex);
         fun->glAttachShader(ID, fragment);
-        if (geometryPath != nullptr)
+        //        if (geometryPath != nullptr)
+        if (!geometryPath.empty())
             fun->glAttachShader(ID, geometry);
         fun->glLinkProgram(ID);
         checkCompileErrors(ID, "PROGRAM");
         // delete the shaders as they're linked into our program now and no longer necessery
         fun->glDeleteShader(vertex);
         fun->glDeleteShader(fragment);
-        if (geometryPath != nullptr)
+//        if (geometryPath != nullptr)
+        if (!geometryPath.empty())
             fun->glDeleteShader(geometry);
     }
     // activate the shader
