@@ -5,12 +5,16 @@
 
 #include <QKeyEvent>
 #include <QPainter>
+#include <QDebug>
 
 #include <QOpenGLContext>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <QCoreApplication>
+
+//#include <opengl/grid.h>
 
 QOpenGLWidget_3dView::QOpenGLWidget_3dView(QWidget* parent)
     : QOpenGLWidget(parent)
@@ -19,17 +23,20 @@ QOpenGLWidget_3dView::QOpenGLWidget_3dView(QWidget* parent)
     //    , shaderLight(":/shader/light.vsh", ":/shader/light.fsh")
     //    , model("../Goliath-Engine/model/cube/cube.obj")
     , camera(glm::vec3(0.0f, 0.0f, 3.0f))
+//    , m_shader(":/shader/model_loading.vsh", ":/shader/model_loading.fsh")
 //    , m_ebo(QOpenGLBuffer::IndexBuffer)
 {
 
     //    setAutoFillBackground(false);
 //    setMouseTracking(true);
+//    initializeOpenGLFunctions();
 }
 
 QOpenGLWidget_3dView::~QOpenGLWidget_3dView()
 {
     makeCurrent();
 
+    delete m_grid;
     //    doneCurrent();
 }
 
@@ -55,14 +62,42 @@ void QOpenGLWidget_3dView::initializeGL()
     // ---------------------------------------------------------------------
     //    m_program.bind();
 
-    //    shaderCube = Shader("../Goliath-Engine/shader/first.vsh", "../Goliath-Engine/shader/first.fsh");
+//        shaderCube = Shader("../Goliath-Engine/shader/first.vsh", "../Goliath-Engine/shader/first.fsh");
+
     shader = Shader(resourcesPath + "shader/model_loading.vsh", resourcesPath + "shader/model_loading.fsh");
-    //    shader = Shader("../Goliath-Engine/shader/model_loading.vsh", "../Goliath-Engine/shader/depthTesting.fsh");
+//    shader = Shader(":/resources/shader/model_loading.vsh", ":/resources/shader/model_loading.fsh");
+//    QOpenGLShader vertexShader(QOpenGLShader::Vertex);
+//    vertexShader.compileSourceFile(":/shader/model_loading.vsh");
+
+//    QOpenGLShader fragmentShader(QOpenGLShader::Fragment);
+//    fragmentShader.compileSourceFile(":/shader/model_loading.fsh");
+
+//    m_shader.addShader(&vertexShader);
+//    m_shader.addShader(&fragmentShader);
+//    m_shader.link();
+
+//    m_shader = Q
+//    qDebug() << QCoreApplication::applicationDirPath();
+
+//    QFile file(":/resources/shader/model_loading.vsh");
+//    QFile file("qrc:/resources/shader/model_loading.vsh");
+//    QFile file(":/resources/shader/model_loading.vsh");
+//    QFile file(":/shader/model_loading.fsh");
+//    qDebug() << file.exists() << file.fileName();
+
+//    shader = Shader(":/shader/model_loading.vsh", ":/shader/model_loading.fsh");
+
+//        shader = Shader("../Goliath-Engine/shader/model_loading.vsh", "../Goliath-Engine/shader/depthTesting.fsh");
+
     //    shaderLight = Shader("../Goliath-Engine/resources/shader/light.vsh", "../../Goliath-Engine/resources/shader/light.fsh");
     //    Model
     //    model =  Model("../Goliath-Engine/model/cube/cube.obj");
     scene = Model(resourcesPath + "maps/de_aztec/de_aztec.obj");
+//    scene = Model(":/maps/de_aztec/de_aztec.obj");
+
     //    scene = Model("../Goliath-Engine/model/nanosuit/nanosuit.obj");
+
+//    m_grid = new Grid;
 
 //    QGLFormat glFormat;
 //      glFormat.setSampleBuffers(true);
@@ -75,22 +110,17 @@ void QOpenGLWidget_3dView::initializeGL()
 //    glFormat.setSamples(4);
 //    this->setFormat(glFormat);
 
-    GLint flags; glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
-    if (flags & GL_CONTEXT_FLAG_DEBUG_BIT)
-    {
-        // initialisation de la sortie de débogage
-    }
+//    GLint flags; glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
+//    if (flags & GL_CONTEXT_FLAG_DEBUG_BIT)
+//    {
+//        // initialisation de la sortie de débogage
+//    }
 }
 
 void QOpenGLWidget_3dView::resizeGL(int w, int h)
 {
     updateProjection();
 
-    GLint bufs;
-    GLint samples;
-    glGetIntegerv(GL_SAMPLE_BUFFERS, &bufs);
-    glGetIntegerv(GL_SAMPLES, &samples);
-    qDebug("Have %d buffers and %d samples", bufs, samples);
 }
 
 void QOpenGLWidget_3dView::paintGL()
@@ -112,16 +142,23 @@ void QOpenGLWidget_3dView::paintGL()
 
     // -------------------------------------------------------------------------------
 
-    shader.use();
 
-    shader.setMat4("view", camera.GetViewMatrix());
-    shader.setMat4("projection", m_projection);
+    glm::mat4 view = camera.GetViewMatrix();
+    glm::mat4 projection = m_projection;
     glm::mat4 model(1.0);
     model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0, 0, 0));
     model = glm::scale(model, glm::vec3(0.01f));
+
+    shader.use();
+    shader.setMat4("view", view);
+    shader.setMat4("projection", projection);
     shader.setMat4("model", model);
 
     scene.Draw(shader);
+
+
+//    m_grid->draw(model, view, projection);
+//    m_grid->draw();
 
     //    shader.setVec3("viewPos", camera.Position);
     //    glDrawArrays(GL_TRIANGLES, 0, 36);
@@ -219,8 +256,13 @@ void QOpenGLWidget_3dView::focusInEvent(QFocusEvent* event)
     qDebug() << this << ": focusInEvent";
     setCursorToCenter();
 //    setCursor(Qt::BlankCursor);
-
     setMouseTracking(true);
+
+//    GLint bufs;
+//    GLint samples;
+//    glGetIntegerv(GL_SAMPLE_BUFFERS, &bufs);
+//    glGetIntegerv(GL_SAMPLES, &samples);
+//    qDebug("Have %d buffers and %d samples", bufs, samples);
 }
 
 void QOpenGLWidget_3dView::setCursorToCenter()

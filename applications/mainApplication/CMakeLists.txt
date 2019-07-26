@@ -53,12 +53,15 @@ set(CMAKE_AUTOUIC ON)
 
 #set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
+#file (GLOB resources ${M_RESOURCES_FILE})
 
 
 add_executable(${PROJECT_NAME}
     ${sources}
     ${forms}
     ${headers}
+#    ${resources}
+#        ${M_RESOURCES}
 #    ${so}
 )
 

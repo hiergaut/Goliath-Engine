@@ -8,22 +8,28 @@
 //#include <Gui/TillingWindow/QSplitterNode.h>
 
 #include <QVariant>
+#include <opengl/version.h>
+//#include <QOpengl
 Q_DECLARE_METATYPE(QList<QList<int>>);
 //Q_DECLARE_METATYPE(Qt::Orientation);
+#include <QSurface>
 
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
+//    QCoreApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
+//    QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>()->initializeOpenGLFunctions();
+
     qRegisterMetaTypeStreamOperators<QList<int>>("QList<int>");
 //    qRegisterMetaTypeStreamOperators<Qt::Orientation>("Qt::Orientation");
 
-    //    QSurfaceFormat format;
-    //    format.setVersion(3, 3);
-    //    format.setProfile(QSurfaceFormat::CoreProfile);
-    //    format.setDepthBufferSize(24);
-    //    format.setSamples(4);
-    //    QSurfaceFormat::setDefaultFormat(format);
+        QSurfaceFormat format;
+        format.setVersion(3, 3);
+        format.setProfile(QSurfaceFormat::CoreProfile);
+        format.setDepthBufferSize(24);
+        format.setSamples(4);
+        QSurfaceFormat::setDefaultFormat(format);
 
     ui->setupUi(this);
 

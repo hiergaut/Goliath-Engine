@@ -12,6 +12,7 @@
 #include <QOpenGLShaderProgram>
 #include <QOpenGLTexture>
 #include <QOpenGLVertexArrayObject>
+#include <opengl/grid.h>
 
 //#include "camera.h"
 //#include "camera.h"
@@ -56,7 +57,9 @@ private:
     Shader shader;
     Model scene;
 //    Shader shaderLight;
+    Grid * m_grid;
 
+//    QOpenGLShaderProgram m_shader;
 //    QOpenGLVertexArrayObject m_vao;
     //    QOpenGLVertexArrayObject m_vaoLight;
 

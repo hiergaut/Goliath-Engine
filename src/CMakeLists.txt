@@ -46,7 +46,7 @@ file(GLOB_RECURSE headers *.h)
 #source_group("header files" FILES ${headers})
 
 set(CMAKE_AUTOMOC ON)
-#set(CMAKE_AUTORCC ON)
+set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
 #set(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -57,6 +57,8 @@ add_library(${PROJECT_NAME} SHARED
     ${sources}
     ${forms}
     ${headers}
+#    ${RES_FILES}
+    ${resources}
 #    ${so}
 )
 
