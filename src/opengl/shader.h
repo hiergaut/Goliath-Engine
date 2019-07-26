@@ -17,11 +17,12 @@ public:
     QOpenGLFunctionsCore* fun;
     // constructor generates the shader on the fly
     // ------------------------------------------------------------------------
-    Shader() {}
+//    Shader() {}
 
     //    Shader(const char* vertexPath, const char* fragmentPath, const char* geometryPath = nullptr)
     Shader(const std::string vertexPath, const std::string fragmentPath, const std::string geometryPath = "")
     {
+//        vertexPath = shaderPath + vertexPath;
         fun = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
         //        initializeOpenGLFunctions();
 

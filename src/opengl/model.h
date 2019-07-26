@@ -33,7 +33,7 @@ public:
     string directory;
     bool gammaCorrection;
 
-    Model() {}
+//    Model() {}
 
     /*  Functions   */
     // constructor, expects a filepath to a 3D model.

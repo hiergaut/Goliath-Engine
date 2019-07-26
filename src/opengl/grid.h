@@ -4,6 +4,7 @@
 #include "version.h"
 #include <glm/glm.hpp>
 #include <vector>
+#include "shader.h"
 
 namespace {
     struct vertex {
@@ -26,7 +27,7 @@ public:
         //        Vertex b;
         vertex v;
 //        Line l;
-        for (int i = -10; i < 10; ++i) {
+        for (int i = -10; i < 11; ++i) {
             //            for (int j = -10; j < 10; ++j) {
             v.Position = glm::vec3(i, -10, 0);
             m_vertices.push_back(v);
@@ -38,13 +39,24 @@ public:
             v.Position = glm::vec3(10, i, 0);
             m_vertices.push_back(v);
         }
+//        m_vertices.push_back(glm::vec3(10, ))
         //        fun = QOpenGLContext
         fun = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
         setup();
+
+        m_shader = new Shader(shaderPath + "grid.vsh", shaderPath + "grid.fsh");
+    }
+    ~Grid() {
+        delete m_shader;
     }
 
-    void draw()
+    void draw(glm::mat4 model, glm::mat4 view, glm::mat4 projection)
     {
+        m_shader->use();
+        m_shader->setMat4("model", model);
+        m_shader->setMat4("view", view);
+        m_shader->setMat4("projection", projection);
+
         fun->glBindVertexArray(m_vao);
         fun->glDrawArrays(GL_LINES, 0, m_vertices.size());
         fun->glBindVertexArray(0);
@@ -71,6 +83,7 @@ private:
 private:
     unsigned int m_vbo;
     unsigned int m_vao;
+    Shader * m_shader;
     //    std::vector<float> m_vertices;
 //    std::vector<Line> m_lines;
     std::vector<vertex> m_vertices;

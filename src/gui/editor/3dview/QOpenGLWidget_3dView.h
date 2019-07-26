@@ -13,10 +13,12 @@
 #include <QOpenGLTexture>
 #include <QOpenGLVertexArrayObject>
 #include <opengl/grid.h>
+#include <opengl/axis.h>
 
 //#include "camera.h"
 //#include "camera.h"
-#include <opengl/camera.h>
+#include <opengl/CameraWorld.h>
+//#include <opengl/camera.h>
 //#include "shader.h"
 #include <opengl/shader.h>
 //#include "model.h"
@@ -39,26 +41,35 @@ protected:
     void keyPressEvent(QKeyEvent* event) override;
     void keyReleaseEvent(QKeyEvent* event) override;
     void mousePressEvent(QMouseEvent* event) override;
+    void mouseReleaseEvent(QMouseEvent *) override;
     void mouseMoveEvent(QMouseEvent* event) override;
     void wheelEvent(QWheelEvent* event) override;
 
     void focusInEvent(QFocusEvent* event) override;
 
 private:
-    void setCursorToCenter();
-    void cameraMove();
-    void updateProjection();
+//    void setCursorToCenter();
+//    void cameraMove();
+//    void updateProjection();
 
 private:
     int cpt = 0;
     float fps;
+
+    bool m_middleClicked = false;
     //    QOpenGLBuffer m_vbo;
     //    QOpenGLBuffer m_ebo;
-    Shader shader;
-    Model scene;
+//    Shader shader;
+    Model * scene;
 //    Shader shaderLight;
     Grid * m_grid;
 
+    Axis m_axis;
+
+    bool m_ortho = false;
+    float orthoSize = 10.0f;
+
+//    Shader * shaderAxis;
 //    QOpenGLShaderProgram m_shader;
 //    QOpenGLVertexArrayObject m_vao;
     //    QOpenGLVertexArrayObject m_vaoLight;
@@ -98,8 +109,10 @@ private:
     int sideDir = 0;
 
     QPoint lastPos;
+    bool m_shiftPressed = false;
 
-    Camera camera;
+//    Camera camera;
+    CameraWorld * camera;
 
     glm::mat4 m_projection;
 };

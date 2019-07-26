@@ -40,6 +40,7 @@ MainWindow::MainWindow(QWidget* parent)
 //    ui->splitter_root->setParent(ui->splitter_root);
 
     ui->splitter_root->loadSetting();
+
 //    ui->splitter_root->setFocus();
 //    setCentralWidget(ui->splitter_root);
 

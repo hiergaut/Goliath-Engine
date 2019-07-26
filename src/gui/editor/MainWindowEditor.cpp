@@ -22,8 +22,10 @@ MainWindowEditor::MainWindowEditor(QWidget* parent)
     QOpenGLWidget_3dView * widget = new QOpenGLWidget_3dView;
     setCentralWidget(widget);
 //    centralWidget()->setFocus();
+//    setFocus();
 //    widget->setFocus();
     widget->setFocusPolicy(Qt::ClickFocus);
+//    widget->setFocus();
 //    connect(widget, &QWidget::, this, &MainWindowEditor::keyPressEvent);
 
 

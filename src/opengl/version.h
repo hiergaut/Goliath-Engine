@@ -8,6 +8,7 @@
 using QOpenGLFunctionsCore = QOpenGLFunctions_3_3_Core;
 
 static std::string resourcesPath = "../../../Goliath-Engine/resources/";
+static std::string shaderPath = "../../../Goliath-Engine/resources/shader/";
 
 //#define RESOURCES_PATH ../../../Goliath-Engine/resources/
 
