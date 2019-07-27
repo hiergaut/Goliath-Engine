@@ -2,6 +2,7 @@
 #include "ui_MainWindowEditor.h"
 
 #include "3dview/QOpenGLWidget_3dView.h"
+#include "outliner/QTreeView_outliner.h"
 
 //#include <gui/editor/MainWindowEditor.h>
 
@@ -19,7 +20,9 @@ MainWindowEditor::MainWindowEditor(QWidget* parent)
 
 //    setCentralWidget()
 //    QWidget * widget = new QWidget;
-    QOpenGLWidget_3dView * widget = new QOpenGLWidget_3dView;
+//    QOpenGLWidget_3dView * widget = new QOpenGLWidget_3dView;
+    QTreeView_outliner * widget = new QTreeView_outliner;
+
     setCentralWidget(widget);
 //    centralWidget()->setFocus();
 //    setFocus();

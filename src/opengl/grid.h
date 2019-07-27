@@ -1,15 +1,15 @@
 #ifndef GRID_H
 #define GRID_H
 
+#include "shader.h"
 #include "version.h"
 #include <glm/glm.hpp>
 #include <vector>
-#include "shader.h"
 
 namespace {
-    struct vertex {
-        glm::vec3 Position;
-    };
+struct vertex {
+    glm::vec3 Position;
+};
 }
 
 //struct Line {
@@ -19,14 +19,13 @@ namespace {
 
 class Grid {
 public:
-
-//    Grid() {}
+    //    Grid() {}
     Grid()
     {
         //        Vertex a;
         //        Vertex b;
         vertex v;
-//        Line l;
+        //        Line l;
         for (int i = -10; i < 11; ++i) {
             //            for (int j = -10; j < 10; ++j) {
             v.Position = glm::vec3(i, -10, 0);
@@ -39,14 +38,15 @@ public:
             v.Position = glm::vec3(10, i, 0);
             m_vertices.push_back(v);
         }
-//        m_vertices.push_back(glm::vec3(10, ))
+        //        m_vertices.push_back(glm::vec3(10, ))
         //        fun = QOpenGLContext
         fun = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
         setup();
 
         m_shader = new Shader(shaderPath + "grid.vsh", shaderPath + "grid.fsh");
     }
-    ~Grid() {
+    ~Grid()
+    {
         delete m_shader;
     }
 
@@ -65,7 +65,7 @@ public:
 private:
     void setup()
     {
-        //        unsigned int vbo;
+        unsigned int m_vbo;
         fun->glGenVertexArrays(1, &m_vao);
         fun->glGenBuffers(1, &m_vbo);
 
@@ -81,11 +81,11 @@ private:
     }
 
 private:
-    unsigned int m_vbo;
+    //    unsigned int m_vbo;
     unsigned int m_vao;
-    Shader * m_shader;
+    Shader* m_shader;
     //    std::vector<float> m_vertices;
-//    std::vector<Line> m_lines;
+    //    std::vector<Line> m_lines;
     std::vector<vertex> m_vertices;
     QOpenGLFunctionsCore* fun;
 };

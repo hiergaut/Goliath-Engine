@@ -29,7 +29,7 @@ QOpenGLWidget_3dView::QOpenGLWidget_3dView(QWidget* parent)
 
     //    setAutoFillBackground(false);
     //    setMouseTracking(true);
-//    setFocus();
+    //    setFocus();
     //    initializeOpenGLFunctions();
     //    setFocus();
 }
@@ -101,17 +101,17 @@ void QOpenGLWidget_3dView::initializeGL()
     //    scene = Model("../Goliath-Engine/model/nanosuit/nanosuit.obj");
     camera = new CameraWorld(glm::vec3(10, -10, 10), glm::vec3(0, 0, 0));
     m_projection = glm::perspective(glm::radians(camera->getFov()), width() / float(height()), 0.1f, 100.0f);
-//    m_projection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 0.1f, 100.0f);
+    //    m_projection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 0.1f, 100.0f);
 
     m_grid = new Grid;
 
+    m_axis = new Axis();
 
     //    QGLFormat glFormat;
     //      glFormat.setSampleBuffers(true);
     //      glFormat.setSamples(4);
 
-//    shaderAxis = new Shader(shaderPath + "axis.vsh", shaderPath + "axis.fsh");
-
+    //    shaderAxis = new Shader(shaderPath + "axis.vsh", shaderPath + "axis.fsh");
 
     //      widget = new GLWidget(glFormat, ui->centralWidget);
     //      widget->setObjectName(QStringLiteral("widget"));
@@ -129,7 +129,7 @@ void QOpenGLWidget_3dView::initializeGL()
 
 void QOpenGLWidget_3dView::resizeGL(int w, int h)
 {
-//    glViewport(0, 0, w / 2, h /2);
+    //    glViewport(0, 0, w / 2, h /2);
     //    updateProjection();
 }
 
@@ -146,7 +146,7 @@ void QOpenGLWidget_3dView::paintGL()
 
     //    cameraMove();
 
-//    glViewport(0, 0, width() / 2, height() /2);
+    //    glViewport(0, 0, width() / 2, height() /2);
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     //    glDepthMask(GL_FALSE);
@@ -171,7 +171,16 @@ void QOpenGLWidget_3dView::paintGL()
 
     //    shader.setVec3("viewPos", camera.Position);
     //    glDrawArrays(GL_TRIANGLES, 0, 36);
-    m_axis.draw(view);
+    glViewport(5, 5, 55, 55);
+    //    glEnable(GL_LINE_SMOOTH);
+    //    glDisable(GL_LINE_SMOOTH);
+    //    glEnable(GL_LINE_SMOOTH);
+
+    //    glLineWidth(10);
+    //    GLfloat lineWidgthRange[2] ={0.0f, 0.0f};
+    //    glGetFloatv(GL_ALIASED_LINE_WIDTH_RANGE, lineWidgthRange);
+    //    qDebug() << lineWidgthRange[0] << lineWidgthRange[1];
+    m_axis->draw(view);
 
     // ----------------------------------------------------------------
 
@@ -181,7 +190,7 @@ void QOpenGLWidget_3dView::paintGL()
 
 void QOpenGLWidget_3dView::keyPressEvent(QKeyEvent* event)
 {
-//        qDebug() << this << ": keyPressEvent" << event;
+    //        qDebug() << this << ": keyPressEvent" << event;
 
     switch (event->key()) {
     case Qt::Key_Shift:
@@ -189,14 +198,13 @@ void QOpenGLWidget_3dView::keyPressEvent(QKeyEvent* event)
         break;
 
     case Qt::Key_Clear:
-//        qDebug() << "change projection";
+        //        qDebug() << "change projection";
         if (m_ortho) {
-            m_projection = glm::perspective(glm::radians(camera->getFov()), (float)width() / height(), 0.1f, 100.0f );
-        }
-        else {
+            m_projection = glm::perspective(glm::radians(camera->getFov()), (float)width() / height(), 0.1f, 100.0f);
+        } else {
             m_projection = glm::ortho(-orthoSize, orthoSize, -orthoSize, orthoSize, 0.1f, 100.0f);
         }
-        m_ortho = ! m_ortho;
+        m_ortho = !m_ortho;
         break;
         //    case Qt::Key_Escape:
         //        setMouseTracking(false);
@@ -271,19 +279,21 @@ void QOpenGLWidget_3dView::mouseReleaseEvent(QMouseEvent* event)
 
 void QOpenGLWidget_3dView::mouseMoveEvent(QMouseEvent* event)
 {
-    float dx = event->x() - lastPos.x();
-    //    float dx = event->x();
-    float dy = event->y() - lastPos.y();
-    lastPos = event->pos();
-    //    float dy = event->y();
+    if (m_middleClicked) {
+        float dx = event->x() - lastPos.x();
+        //    float dx = event->x();
+        float dy = event->y() - lastPos.y();
+        lastPos = event->pos();
+        //    float dy = event->y();
 
-    //    setCursorToCenter();
-    //    qDebug() << dx << dy;
-    if (m_shiftPressed) {
-        camera->processSliding(dx, dy);
+        //    setCursorToCenter();
+        //    qDebug() << dx << dy;
+        if (m_shiftPressed) {
+            camera->processSliding(dx, dy);
 
-    } else {
-        camera->processMouseMovement(dx, dy);
+        } else {
+            camera->processMouseMovement(dx, dy);
+        }
     }
 }
 
@@ -302,15 +312,15 @@ void QOpenGLWidget_3dView::wheelEvent(QWheelEvent* event)
 void QOpenGLWidget_3dView::focusInEvent(QFocusEvent* event)
 {
     qDebug() << this << ": focusInEvent";
-//    setCursorToCenter();
-//    setCursor(Qt::BlankCursor);
-//    setMouseTracking(true);
+    //    setCursorToCenter();
+    //    setCursor(Qt::BlankCursor);
+    //    setMouseTracking(true);
 
-//    GLint bufs;
-//    GLint samples;
-//    glGetIntegerv(GL_SAMPLE_BUFFERS, &bufs);
-//    glGetIntegerv(GL_SAMPLES, &samples);
-//    qDebug("Have %d buffers and %d samples", bufs, samples);
+    //    GLint bufs;
+    //    GLint samples;
+    //    glGetIntegerv(GL_SAMPLE_BUFFERS, &bufs);
+    //    glGetIntegerv(GL_SAMPLES, &samples);
+    //    qDebug("Have %d buffers and %d samples", bufs, samples);
 }
 
 //void QOpenGLWidget_3dView::setCursorToCenter()

@@ -6,17 +6,40 @@
 #include <QMouseEvent>
 #include <QObject>
 
+#include <ostream>
+
+namespace  {
+//    static int iNode;
+
+}
+
+
 class QSplitterNode : public QSplitter
 {
         Q_OBJECT
 public:
     explicit QSplitterNode(QWidget * parent = nullptr, QString name = "root");
 
-//    void setup();
-    void loadSetting();
-    void saveSetting();
+    QSplitterNode(const QSplitterNode&);
+//    QSplitterNode & operator=(const QSplitterNode&);
 
-    void setName(const QString &name);
+//    void setup();
+//    void loadSetting();
+//    void saveSetting();
+
+    void saveEnv();
+    void loadEnv();
+    void save(std::ofstream & file) const;
+    void load(std::ifstream & file);
+
+    friend std::ostream & operator <<(std::ostream & out, const QSplitterNode & node) {
+//        out << node.m_name.toStdString() << " ";
+        out << "[NODE] nb splits: " << node.m_sizes.size() << std::endl;
+        for (int size : node.m_sizes) {
+            out << size << ", ";
+        }
+        return out;
+    }
 
 protected:
 //        void resizeEvent(QResizeEvent *) override;
@@ -39,9 +62,11 @@ public slots:
 
 
 //    void onHandleMousePressEvent(QMouseEvent *);
+public:
+//    void setName(const QString &name);
 
 private:
-    QString m_name;
+//    QString m_name;
 //    bool m_leaf;
 //    int m_nbSons;
 

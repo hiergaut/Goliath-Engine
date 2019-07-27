@@ -64,7 +64,7 @@ private:
 //    Shader shaderLight;
     Grid * m_grid;
 
-    Axis m_axis;
+    Axis * m_axis;
 
     bool m_ortho = false;
     float orthoSize = 10.0f;

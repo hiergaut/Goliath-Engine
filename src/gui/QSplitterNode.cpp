@@ -12,6 +12,7 @@
 #include <QSplitterHandle>
 
 #include <QLabel>
+#include <engine/Environment.h>
 
 namespace {
 QSizePolicy::Policy singlePolicy(QSizePolicy::Policy::Ignored);
@@ -26,7 +27,7 @@ using widgetTemplate = MainWindowEditor;
 
 QSplitterNode::QSplitterNode(QWidget* parent, QString name)
     : QSplitter(parent)
-    , m_name(name)
+//    , m_name(name)
 {
 
     connect(this, &QSplitterNode::splitterMoved, this, &QSplitterNode::onSplitterMoved);
@@ -37,7 +38,7 @@ QSplitterNode::QSplitterNode(QWidget* parent, QString name)
     //    qDebug() << this << handle(0);
     //    qDebug() << this << ": handle(0) = " << handle(0);
     //    setStyleSheet("background-color: " + 222);
-//    setFocus();
+    //    setFocus();
 
     //    QByteArray array = QCryptographicHash::hash(this);
 
@@ -59,6 +60,12 @@ QSplitterNode::QSplitterNode(QWidget* parent, QString name)
     ///
 
     //    setMouseTracking(true);
+}
+
+QSplitterNode::QSplitterNode(const QSplitterNode& node)
+{
+    //    m_name = node.m_name;
+    m_sizes = node.m_sizes;
 }
 
 //void QSplitterNode::setup()
@@ -85,36 +92,185 @@ QSplitterNode::QSplitterNode(QWidget* parent, QString name)
 //    }
 //}
 
-void QSplitterNode::loadSetting()
-{
-    //    int rand1 = 100 + qrand() % 155;
-    //    int rand2 = 100 + qrand() % 155;
-    //    int rand3 = 100 + qrand() % 155;
-    //    this->setStyleSheet(QString("background-color: rgb(%1,%2,%3);").arg(rand1).arg(rand2).arg(rand3));
+//void QSplitterNode::loadSetting()
+//{
+//    //    int rand1 = 100 + qrand() % 155;
+//    //    int rand2 = 100 + qrand() % 155;
+//    //    int rand3 = 100 + qrand() % 155;
+//    //    this->setStyleSheet(QString("background-color: rgb(%1,%2,%3);").arg(rand1).arg(rand2).arg(rand3));
 
-    QSettings settings("Goliath-Engine", "splitterTree");
-    settings.beginGroup(::groupName);
+//    QSettings settings("Goliath-Engine", "splitterTree");
+//    settings.beginGroup(::groupName);
+
+//    //    m_sizes = settings.value(m_name).value<QList<int>>();
+//    //    qDebug() << m_sizes;
+//    //    nodes = settings.value("nodes").value<QList<QSplitterNode>>();
+//    //    qRegisterMetaTypeStreamOperators<QList<QList<int>>>("QList<QList<int>>");
+
+//    m_sizes = settings.value(m_name).value<QList<int>>();
+////    Q_ASSERT(m_sizes.size() != 0);
+//    qDebug() << m_name << ": m_sizes = " << m_sizes;
+//    if (m_sizes.size() == 0 || (m_sizes.size() == 1 && m_name == "root")) {
+//        QSplitterNode* node = new QSplitterNode(this, this->m_name + "0");
+////        node->addWidget(new MainWindowEditor);
+//        node->addWidget(new widgetTemplate);
+////        node->addWidget(new FormEditor);
+
+//        addWidget(node);
+
+//    }
+
+//    //        setSizes(m_sizes);
+//    else if (m_sizes.size() == 1) {
+//        //        if (m_name == "root") {
+//        //            QSplitterNode* node = new QSplitterNode(this, this->m_name + "0");
+//        //            node->addWidget(new FormEditor);
+
+//        //            addWidget(node);
+//        //        } else {
+
+//        //        qDebug() << "loadSetting: " << m_name << " leaf";
+////        addWidget(new FormEditor);
+////        addWidget(new MainWindowEditor);
+//        addWidget(new widgetTemplate);
+//        //        }
+//    } else {
+//        for (int i = 0; i < m_sizes.size(); ++i) {
+//            QSplitterNode* node = new QSplitterNode(this, this->m_name + QString::number(i));
+//            //            node->setSizePolicy(::defaultPolicy);
+//            //            qDebug() << "loadSetting: " << m_name << " create node " << node->m_name;
+//            //            node->setOrientation(Qt::Vertical);
+//            //            node->setup();
+//            node->loadSetting();
+//            //            connect(w, &FormEditor::addingNewHSplit, this, &QSplitterNode::onNewHSplitAdded);
+//            addWidget(node);
+//        }
+//        setSizes(m_sizes);
+//        int orientation = settings.value(m_name + "orientation", Qt::Horizontal).value<int>();
+//        setOrientation((orientation == 0) ?(Qt::Horizontal) :(Qt::Vertical));
+//    }
+
+//    //    qDebug() << m_sizes;
+
+//    //    QList<QList<int>> def;
+//    //    ::sizes = settings.value("sizes").value<QList<QList<int>>>();
+//    //    qDebug() << ::sizes;
+
+//    //    if (m_sizes.size() == 0) {
+//    //        FormEditor* widget;
+//    //        widget = new FormEditor(this);
+//    //        addWidget(widget);
+
+//    //        //        QSplitterNode * node = new QSplitterNode(this, m_name + QString::number(m_sizes.size()));
+//    //    }
+
+//    //    m_nbSons = settings.value(m_name + "m_nbSons", 0).toInt();
+//    //    for (int i =0; i <m_nbSons; ++i) {
+//    //        QSplitterNode node(this, "root" + QString::number(i));
+//    ////        node.setup();
+//    //        node.loadSetting();
+//    //        m_sons.push_back(node);
+//    ////        m_sons.insert(0, node);
+//    //    }
+
+//    settings.endGroup();
+//}
+
+//void QSplitterNode::saveSetting()
+//{
+//    QSettings settings("Goliath-Engine", "splitterTree");
+//    settings.beginGroup(::groupName);
+
+//    //    QList<QList<int>> sizes;
+//    //    settings.setValue("sizes", ::sizes);
+//    settings.setValue(m_name, QVariant::fromValue(sizes()));
+//    qDebug() << "settings.setValue(" << m_name << ", " << sizes() << ")";
+
+//    if (count() != 1) {
+//        int orientation = (this->orientation() == Qt::Horizontal) ?(0) :(1);
+//        settings.setValue(m_name + "orientation", QVariant::fromValue(orientation));
+
+//        for (int i = 0; i < count(); ++i) {
+//            QSplitterNode* node = static_cast<QSplitterNode*>(widget(i));
+//            node->setName(m_name + QString::number(i));
+//            //            node->setOrientation(Qt::Vertical);
+//            node->saveSetting();
+//            //            node->setup();
+//            //            connect(w, &FormEditor::addingNewHSplit, this, &QSplitterNode::onNewHSplitAdded);
+//        }
+//    }
+
+//    settings.endGroup();
+//}
+
+void QSplitterNode::saveEnv()
+{
+    if (count() == 1) {
+        //        g_env.m_SplitterNodes.push_back(*this);
+
+    } else {
+        //        qDebug() << "insert map '" << m_name << "'" << sizes();
+        //        g_env.m_sizes[m_name] = sizes();
+
+        g_env.m_SplitterNodes.push_back(*this);
+        //        qDebug() << &g_env;
+
+        for (int i = 0; i < count(); ++i) {
+            QSplitterNode* node = static_cast<QSplitterNode*>(widget(i));
+            //            node->setName(m_name + QString::number(i));
+            node->saveEnv();
+        }
+    }
+}
+
+void QSplitterNode::loadEnv()
+{
+    //    if (count() == 1) {
+
+    //    }
+    //    else {
+
+    //    }
+
+    //    for (const QSplitterNode & node : g_env.m_SplitterNodes) {
+
+    //    }
 
     //    m_sizes = settings.value(m_name).value<QList<int>>();
-    //    qDebug() << m_sizes;
-    //    nodes = settings.value("nodes").value<QList<QSplitterNode>>();
-    //    qRegisterMetaTypeStreamOperators<QList<QList<int>>>("QList<QList<int>>");
 
-    m_sizes = settings.value(m_name).value<QList<int>>();
-//    Q_ASSERT(m_sizes.size() != 0);
-    qDebug() << m_name << ": m_sizes = " << m_sizes;
-    if (m_sizes.size() == 0 || (m_sizes.size() == 1 && m_name == "root")) {
-        QSplitterNode* node = new QSplitterNode(this, this->m_name + "0");
-//        node->addWidget(new MainWindowEditor);
-        node->addWidget(new widgetTemplate);
-//        node->addWidget(new FormEditor);
+    if (g_env.m_SplitterNodes.size() == 0) { // empty load
+        qDebug() << "empty load";
+        //                QSplitterNode* node = new QSplitterNode(this);
+        //        QSplitterNode * node = &g_env.m_SplitterNodes[iNode++];
+        //                node->addWidget(new MainWindowEditor);
+        //        node->addWidget(new widgetTemplate);
 
-        addWidget(node);
+        //        node->addWidget(new FormEditor);
+        addWidget(new widgetTemplate);
 
+        //        addWidget(&g_env.m_SplitterNodes[iNode++]);
+
+    } else if (g_env.m_iSplitterNode == 0) { // root
+        if (m_sizes.size() == 0) {
+            addWidget(new widgetTemplate);
+        } else {
+            qDebug() << "root";
+//            QSplitterNode* node = new QSplitterNode(this);
+            QSplitterNode* node = &g_env.m_SplitterNodes[g_env.m_iSplitterNode++];
+            node->setParent(this);
+            //        node.addWidget(this);
+            addWidget(node);
+
+            node->loadEnv();
+        }
     }
+    //    else if (m_sizes.size() == 0) { //
+
+    //    }
 
     //        setSizes(m_sizes);
-    else if (m_sizes.size() == 1) {
+    else if (m_sizes.size() == 1) { // leaf
+        qDebug() << "leaf";
         //        if (m_name == "root") {
         //            QSplitterNode* node = new QSplitterNode(this, this->m_name + "0");
         //            node->addWidget(new FormEditor);
@@ -123,77 +279,64 @@ void QSplitterNode::loadSetting()
         //        } else {
 
         //        qDebug() << "loadSetting: " << m_name << " leaf";
-//        addWidget(new FormEditor);
-//        addWidget(new MainWindowEditor);
+        //        addWidget(new FormEditor);
+        //        addWidget(new MainWindowEditor);
         addWidget(new widgetTemplate);
         //        }
     } else {
+        qDebug() << "else";
         for (int i = 0; i < m_sizes.size(); ++i) {
-            QSplitterNode* node = new QSplitterNode(this, this->m_name + QString::number(i));
+            //            QSplitterNode* node = new QSplitterNode(this);
+            QSplitterNode* node = &g_env.m_SplitterNodes[g_env.m_iSplitterNode++];
+            node->setParent(this);
+
             //            node->setSizePolicy(::defaultPolicy);
             //            qDebug() << "loadSetting: " << m_name << " create node " << node->m_name;
             //            node->setOrientation(Qt::Vertical);
             //            node->setup();
-            node->loadSetting();
+            //            node->loadSetting();
+            node->loadEnv();
             //            connect(w, &FormEditor::addingNewHSplit, this, &QSplitterNode::onNewHSplitAdded);
             addWidget(node);
         }
         setSizes(m_sizes);
-        int orientation = settings.value(m_name + "orientation", Qt::Horizontal).value<int>();
-        setOrientation((orientation == 0) ?(Qt::Horizontal) :(Qt::Vertical));
+        //        int orientation = settings.value(m_name + "orientation", Qt::Horizontal).value<int>();
+        //        setOrientation((orientation == 0) ?(Qt::Horizontal) :(Qt::Vertical));
     }
-
-    //    qDebug() << m_sizes;
-
-    //    QList<QList<int>> def;
-    //    ::sizes = settings.value("sizes").value<QList<QList<int>>>();
-    //    qDebug() << ::sizes;
-
-    //    if (m_sizes.size() == 0) {
-    //        FormEditor* widget;
-    //        widget = new FormEditor(this);
-    //        addWidget(widget);
-
-    //        //        QSplitterNode * node = new QSplitterNode(this, m_name + QString::number(m_sizes.size()));
-    //    }
-
-    //    m_nbSons = settings.value(m_name + "m_nbSons", 0).toInt();
-    //    for (int i =0; i <m_nbSons; ++i) {
-    //        QSplitterNode node(this, "root" + QString::number(i));
-    ////        node.setup();
-    //        node.loadSetting();
-    //        m_sons.push_back(node);
-    ////        m_sons.insert(0, node);
-    //    }
-
-    settings.endGroup();
 }
 
-void QSplitterNode::saveSetting()
+void QSplitterNode::save(std::ofstream& file) const
 {
-    QSettings settings("Goliath-Engine", "splitterTree");
-    settings.beginGroup(::groupName);
+    size_t size;
+    size = m_sizes.size();
+    file.write(reinterpret_cast<const char*>(&size), sizeof(size));
 
-    //    QList<QList<int>> sizes;
-    //    settings.setValue("sizes", ::sizes);
-    settings.setValue(m_name, QVariant::fromValue(sizes()));
-    qDebug() << "settings.setValue(" << m_name << ", " << sizes() << ")";
-
-    if (count() != 1) {
-        int orientation = (this->orientation() == Qt::Horizontal) ?(0) :(1);
-        settings.setValue(m_name + "orientation", QVariant::fromValue(orientation));
-
-        for (int i = 0; i < count(); ++i) {
-            QSplitterNode* node = static_cast<QSplitterNode*>(widget(i));
-            node->setName(m_name + QString::number(i));
-            //            node->setOrientation(Qt::Vertical);
-            node->saveSetting();
-            //            node->setup();
-            //            connect(w, &FormEditor::addingNewHSplit, this, &QSplitterNode::onNewHSplitAdded);
-        }
+    //    for (const int & size : m_sizes) {
+    //        file.write(reinterpret_cast<const char *>(size), sizeof(int));
+    //    }
+    int sizes[size];
+    for (int i = 0; i < size; ++i) {
+        sizes[i] = m_sizes[i];
+        //        file.write(reinterpret_cast<const char *>(&val), sizeof(int));
     }
+    file.write(reinterpret_cast<const char*>(sizes), size * sizeof(int));
+}
 
-    settings.endGroup();
+void QSplitterNode::load(std::ifstream& file)
+{
+    size_t size;
+    file.read(reinterpret_cast<char*>(&size), sizeof(size));
+    //    int sizes[size];
+    //    m_sizes = std::vector<int>(size);
+    //    m_sizes = QList<int>(size);
+    m_sizes.clear();
+    //    int * sizes = m_sizes.data();
+    int* sizes;
+    for (int i = 0; i < size; ++i) {
+        file.read(reinterpret_cast<char*>(sizes), sizeof(int));
+        m_sizes.push_back(*sizes);
+    }
+    //    m_sizes = std::list<int>(sizes);
 }
 
 //void QSplitterNode::onNewHSplitAdded(QMouseEvent* ev)
@@ -295,7 +438,7 @@ void QSplitterNode::mousePressEvent(QMouseEvent* ev)
     Q_ASSERT(count() == 1);
     //    qDebug() << this << ": mousePressEvent, parent = " << parentWidget();
 
-    qDebug() << m_name << ": " << static_cast<QSplitterNode*>(parentWidget())->m_name << orientation() << count() << size();
+    //    qDebug() << m_name << ": " << static_cast<QSplitterNode*>(parentWidget())->m_name << orientation() << count() << size();
     //        qDebug() << m_name << ": "   << orientation() << count() <<  size();
     //    qDebug() << width() << ev;
     int width = this->width();
@@ -326,11 +469,11 @@ void QSplitterNode::mousePressEvent(QMouseEvent* ev)
         //        int rand2 = 100 + qrand() % 155;
         //        int rand3 = 100 + qrand() % 155;
         //        widget->setStyleSheet(QString("background-color: rgb(%1,%2,%3);").arg(rand1).arg(rand2).arg(rand3));
-//        QWidget* widget = new MainWindowEditor;
+        //        QWidget* widget = new MainWindowEditor;
         QWidget* widget = new widgetTemplate;
 
         if (parent->orientation() == orientation) {
-            QSplitterNode* node = new QSplitterNode(parent, parent->m_name + QString::number(parent->count()));
+            QSplitterNode* node = new QSplitterNode(parent);
             //            node->setSizePolicy(defaultPolicy);
             //            node->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
             //            node->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred));
@@ -342,7 +485,7 @@ void QSplitterNode::mousePressEvent(QMouseEvent* ev)
         } else {
             //            setOrientation(orientation);
             int idx = parent->indexOf(this);
-            QSplitterNode* node = new QSplitterNode(parent, parent->m_name + QString::number(parent->count()));
+            QSplitterNode* node = new QSplitterNode(parent);
             setParent(node);
             //            node->setSizePolicy(defaultPolicy);
             node->setOrientation(orientation);
@@ -354,7 +497,7 @@ void QSplitterNode::mousePressEvent(QMouseEvent* ev)
             //            this->widget(0)->setParent(node);
             //            node->addWidget(this);
 
-            QSplitterNode* node2 = new QSplitterNode(this, m_name + "1");
+            QSplitterNode* node2 = new QSplitterNode(this);
             //            node2->setSizePolicy(defaultPolicy);
             //                        node2->addWidget(widget);
             //            node2->insertWidget(offset - 1, widget);
@@ -376,22 +519,16 @@ void QSplitterNode::mouseReleaseEvent(QMouseEvent*)
     //    setCursor(Qt::ArrowCursor);
 }
 
-void QSplitterNode::focusInEvent(QFocusEvent *)
+void QSplitterNode::focusInEvent(QFocusEvent*)
 {
-    qDebug() << this << m_name << ": focusInEvent";
-
+    qDebug() << this << ": focusInEvent";
 }
 
-void QSplitterNode::keyPressEvent(QKeyEvent * ev)
+void QSplitterNode::keyPressEvent(QKeyEvent* ev)
 {
-    qDebug() << this << m_name << ": keyPressEvent" << ev;
+    qDebug() << this << ": keyPressEvent" << ev;
 
-//    ev->ignore();
-}
-
-void QSplitterNode::setName(const QString& name)
-{
-    m_name = name;
+    //    ev->ignore();
 }
 
 //void QSplitterNode::dragEnterEvent(QDragEnterEvent *)
@@ -419,3 +556,8 @@ void QSplitterNode::onSplitterMoved(int pos, int index)
         }
     }
 }
+
+//void QSplitterNode::setName(const QString& name)
+//{
+//    m_name = name;
+//}
