@@ -9,6 +9,8 @@
 //#include "Gui
 #include <gui/QSplitterNode.h>
 
+
+
 namespace Ui {
 class MainWindow;
 }
@@ -20,6 +22,8 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+
+    void loadFile(std::string filename);
 
 protected:
     void keyPressEvent(QKeyEvent *);

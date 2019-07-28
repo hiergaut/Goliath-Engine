@@ -7,6 +7,7 @@
 #include <QObject>
 
 #include <ostream>
+#include "editor/MainWindowEditor.h"
 
 namespace  {
 //    static int iNode;
@@ -26,7 +27,9 @@ public:
 };
 
 
-using widgetTemplate = QWidgetTemplate;
+//using widgetTemplate = QWidgetTemplate;
+//using widgetTemplate = QWidget;
+using widgetTemplate = MainWindowEditor;
 
 class QSplitterNode : public QSplitter
 {

@@ -3,6 +3,10 @@
 
 #include <QMainWindow>
 
+enum WidgetEditorId {
+    START = 0, VIEW, OUTLINER
+};
+
 namespace Ui {
 class MainWindowEditor;
 }
@@ -15,11 +19,24 @@ public:
     explicit MainWindowEditor(QWidget *parent = nullptr);
     ~MainWindowEditor();
 
+    void setEditor(WidgetEditorId id);
+
+    void save(std::ofstream & file);
+    void load(std::ifstream & file);
+
+    WidgetEditorId id() const;
+
 protected:
     void keyPressEvent(QKeyEvent *);
     void focusInEvent(QFocusEvent *);
 
+private slots:
+    void on_action3D_View_triggered();
+
+    void on_actionOutliner_triggered();
+
 private:
+    WidgetEditorId m_id;
     Ui::MainWindowEditor *ui;
 };
 

@@ -8,7 +8,6 @@
 #include <sstream>
 
 //#include "FormEditor.h"
-#include "editor/MainWindowEditor.h"
 #include <QSplitterHandle>
 
 #include <QLabel>
@@ -21,9 +20,6 @@ QSizePolicy defaultPolicy(singlePolicy, singlePolicy);
 //QList<QList<int>> sizes;
 QString groupName = "splitterTree0";
 }
-
-//using widgetTemplate = QWidget;
-//using widgetTemplate = MainWindowEditor;
 
 QSplitterNode::QSplitterNode(QWidget* parent)
     : QSplitter(parent)
@@ -393,17 +389,20 @@ void QSplitterNode::save(std::ofstream& file) const
     Q_ASSERT(count() > 0);
     Q_ASSERT(count() == sizes().size());
 
-
     size_t size;
     size = count();
     file.write(reinterpret_cast<const char*>(&size), sizeof(size));
 
     if (size == 1) {
+        static_cast<MainWindowEditor*>(widget(0))->save(file);
+        //        WidgetEditorId id = static_cast<MainWindowEditor*>(widget(0))->id();
+        //        file.write(reinterpret_cast<const char*>(&id), sizeof (id));
+        //        qDebug() << "save " << id;
         return;
     }
 
     bool orientation = this->orientation() == Qt::Horizontal;
-    file.write(reinterpret_cast<const char*>(&orientation), sizeof (orientation));
+    file.write(reinterpret_cast<const char*>(&orientation), sizeof(orientation));
 
     //    for (const int & size : m_sizes) {
     //        file.write(reinterpret_cast<const char *>(size), sizeof(int));
@@ -430,13 +429,19 @@ void QSplitterNode::load(std::ifstream& file)
     //    int sizes[size];
     //    m_sizes = std::vector<int>(size);
     if (size == 1) {
-        addWidget(new widgetTemplate);
+        //        WidgetEditorId id;
+        //        file.read(reinterpret_cast<char*>(&id), sizeof (id));
+        MainWindowEditor* w = new MainWindowEditor;
+        w->load(file);
+        //        w->setEditor(id);
+        addWidget(w);
+        //        qDebug() << "load " << id;
         return;
     }
 
     bool orientation = this->orientation() == Qt::Horizontal;
-    file.read(reinterpret_cast<char*>(&orientation), sizeof (orientation));
-    setOrientation(orientation ?Qt::Horizontal :Qt::Vertical);
+    file.read(reinterpret_cast<char*>(&orientation), sizeof(orientation));
+    setOrientation(orientation ? Qt::Horizontal : Qt::Vertical);
     //    m_sizes = QList<int>(size);
     //    m_sizes.clear();
     QList<int> localSizes;
@@ -609,8 +614,9 @@ void QSplitterNode::mousePressEvent(QMouseEvent* ev)
         //        int rand2 = 100 + qrand() % 155;
         //        int rand3 = 100 + qrand() % 155;
         //        widget->setStyleSheet(QString("background-color: rgb(%1,%2,%3);").arg(rand1).arg(rand2).arg(rand3));
-        //        QWidget* widget = new MainWindowEditor;
-        QWidget* newWidget = new widgetTemplate;
+        MainWindowEditor* newWidget = new MainWindowEditor;
+        newWidget->setEditor(VIEW);
+        //        QWidget* newWidget = new widgetTemplate;
 
         QSplitterNode* parent = static_cast<QSplitterNode*>(this->parentWidget());
         if (parent->orientation() == orientation) {
@@ -621,22 +627,22 @@ void QSplitterNode::mousePressEvent(QMouseEvent* ev)
 
             node->addWidget(newWidget);
 
-            int length = (orientation == Qt::Horizontal) ?(width) :(height);
-//            QList<int> s = parent->sizes();
+            int length = (orientation == Qt::Horizontal) ? (width) : (height);
+            //            QList<int> s = parent->sizes();
             parent->insertWidget(parent->indexOf(this) + offset, node);
 
-//            int length;
-//            if (orientation == Qt::Horizontal) {
-//                length = width / parent->count();
-//            } else {
-//                length = height / parent->count();
-//            }
-//            for (int i = 0; i < parent->count(); ++i) {
-//                sizes.push_back(length);
-//            }
+            //            int length;
+            //            if (orientation == Qt::Horizontal) {
+            //                length = width / parent->count();
+            //            } else {
+            //                length = height / parent->count();
+            //            }
+            //            for (int i = 0; i < parent->count(); ++i) {
+            //                sizes.push_back(length);
+            //            }
             QList<int> s = parent->sizes();
             s[parent->indexOf(this)] = length / 2;
-            s[parent->indexOf(this) -(1 - 2 *offset)] = length / 2;
+            s[parent->indexOf(this) - (1 - 2 * offset)] = length / 2;
             parent->setSizes(s);
 
         } else {

@@ -45,18 +45,26 @@ MainWindow::MainWindow(QWidget* parent)
 //    m_splitterRoot = new QSplitterNode;
     g_env.m_splitterRoot = &m_splitterRoot;
 
-    m_splitterRoot = new QSplitterNode;
 
+//    loadFile("temp.dat");
+
+
+    m_splitterRoot = new QSplitterNode;
     QSplitterNode * node = new QSplitterNode(m_splitterRoot);
+    MainWindowEditor * w = new widgetTemplate;
+    w->setEditor(VIEW);
+    node->addWidget(w);
+
+    setCentralWidget(m_splitterRoot);
+
+
+
 //    m_splitterRoot->addWidget(node);
 
 //    QSplitterNode * node2 = new QSplitterNode(node);
 //    node->addWidget(new widgetTemplate);
 //    QWidget * w = new widgetTemplate;
 //    node->addWidget(node2);
-    node->addWidget(new widgetTemplate);
-
-    setCentralWidget(m_splitterRoot);
 
 //    m_splitterRoot->setParent(nullptr);
 //    qDebug() << m_splitterRoot->parent();
@@ -121,6 +129,35 @@ MainWindow::~MainWindow()
     delete m_splitterRoot;
 }
 
+void MainWindow::loadFile(std::string filename)
+{
+    //    qDebug() << "------------------------------ open conf ------------------------------";
+    std::ifstream file;
+    file.open(filename, std::ios::binary | std::ios::in);
+    if (!file.is_open()) {
+        std::cerr << "cannot open file" << std::endl;
+        //        exit(1);
+    } else {
+        g_env.load(file);
+        file.close();
+    }
+    setCentralWidget(m_splitterRoot);
+
+    //    for (auto pair : g_env.m_sizes.toStdMap()) {
+    //        qDebug() << "pair : " << pair;
+    //    }
+
+    //    std::cout << "str : '" << g_env.str << "'" << std::endl;
+    //    std::cout << g_env;
+
+    //    ui->splitter_root->loadEnv();
+
+    std::cout << "load splitter root : " << std::endl;
+    std::cout << *m_splitterRoot;
+    std::cout << "-------------------------------------------------------" << std::endl;
+
+}
+
 void MainWindow::keyPressEvent(QKeyEvent* ev)
 {
     //    qDebug() << this << ": keyPressEvent";
@@ -177,28 +214,29 @@ void MainWindow::on_actionSave_As_triggered()
 
 void MainWindow::on_actionOpen_triggered()
 {
-    //    qDebug() << "------------------------------ open conf ------------------------------";
-    std::ifstream file;
-    file.open("temp.dat", std::ios::binary | std::ios::in);
-    if (!file.is_open()) {
-        std::cerr << "cannot open file" << std::endl;
-        //        exit(1);
-    } else {
-        g_env.load(file);
-        file.close();
-    }
-    setCentralWidget(m_splitterRoot);
+    loadFile("temp.dat");
+//    //    qDebug() << "------------------------------ open conf ------------------------------";
+//    std::ifstream file;
+//    file.open("temp.dat", std::ios::binary | std::ios::in);
+//    if (!file.is_open()) {
+//        std::cerr << "cannot open file" << std::endl;
+//        //        exit(1);
+//    } else {
+//        g_env.load(file);
+//        file.close();
+//    }
+//    setCentralWidget(m_splitterRoot);
 
-    //    for (auto pair : g_env.m_sizes.toStdMap()) {
-    //        qDebug() << "pair : " << pair;
-    //    }
+//    //    for (auto pair : g_env.m_sizes.toStdMap()) {
+//    //        qDebug() << "pair : " << pair;
+//    //    }
 
-    //    std::cout << "str : '" << g_env.str << "'" << std::endl;
-    //    std::cout << g_env;
+//    //    std::cout << "str : '" << g_env.str << "'" << std::endl;
+//    //    std::cout << g_env;
 
-    //    ui->splitter_root->loadEnv();
+//    //    ui->splitter_root->loadEnv();
 
-    std::cout << "load splitter root : " << std::endl;
-    std::cout << *m_splitterRoot;
-    std::cout << "-------------------------------------------------------" << std::endl;
+//    std::cout << "load splitter root : " << std::endl;
+//    std::cout << *m_splitterRoot;
+//    std::cout << "-------------------------------------------------------" << std::endl;
 }
