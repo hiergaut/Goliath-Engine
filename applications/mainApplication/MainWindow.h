@@ -7,6 +7,7 @@
 //#include <QSplitter>
 //#include "Gui/TillingWindow/QSplitterNode.h"
 //#include "Gui
+#include <gui/QSplitterNode.h>
 
 namespace Ui {
 class MainWindow;
@@ -33,6 +34,8 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
+
+    QSplitterNode * m_splitterRoot;
 
 //    QSplitterNode * node;
 //    QOpenGLWidget_World * openglWidget;
