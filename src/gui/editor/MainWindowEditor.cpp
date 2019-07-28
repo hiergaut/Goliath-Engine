@@ -62,7 +62,7 @@ void MainWindowEditor::save(ofstream& file)
 {
     //        WidgetEditorId id = static_cast<MainWindowEditor*>(widget(0))->id();
     file.write(reinterpret_cast<const char*>(&m_id), sizeof(m_id));
-    qDebug() << "save " << m_id;
+//    qDebug() << "save " << m_id;
     return;
 }
 
@@ -74,7 +74,7 @@ void MainWindowEditor::load(ifstream& file)
 //        w->load(file);
         setEditor(m_id);
 //        addWidget(w);
-        qDebug() << "load " << m_id;
+//        qDebug() << "load " << m_id;
 }
 
 void MainWindowEditor::keyPressEvent(QKeyEvent*)

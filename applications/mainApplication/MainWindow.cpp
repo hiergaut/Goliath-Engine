@@ -46,16 +46,16 @@ MainWindow::MainWindow(QWidget* parent)
     g_env.m_splitterRoot = &m_splitterRoot;
 
 
-//    loadFile("temp.dat");
+    loadFile("temp.dat");
 
 
-    m_splitterRoot = new QSplitterNode;
-    QSplitterNode * node = new QSplitterNode(m_splitterRoot);
-    MainWindowEditor * w = new widgetTemplate;
-    w->setEditor(VIEW);
-    node->addWidget(w);
+//    m_splitterRoot = new QSplitterNode;
+//    QSplitterNode * node = new QSplitterNode(m_splitterRoot);
+//    MainWindowEditor * w = new widgetTemplate;
+//    w->setEditor(VIEW);
+//    node->addWidget(w);
 
-    setCentralWidget(m_splitterRoot);
+//    setCentralWidget(m_splitterRoot);
 
 
 
@@ -152,9 +152,9 @@ void MainWindow::loadFile(std::string filename)
 
     //    ui->splitter_root->loadEnv();
 
-    std::cout << "load splitter root : " << std::endl;
-    std::cout << *m_splitterRoot;
-    std::cout << "-------------------------------------------------------" << std::endl;
+//    std::cout << "load splitter root : " << std::endl;
+//    std::cout << *m_splitterRoot;
+//    std::cout << "-------------------------------------------------------" << std::endl;
 
 }
 
@@ -181,9 +181,9 @@ void MainWindow::on_actionSave_As_triggered()
 {
     //    qDebug() << "----------------------- save conf ----------------------------------";
     //    g_env.clear();
-    std::cout << "save splitter root : " << std::endl;
-    std::cout << *m_splitterRoot;
-    std::cout << "-------------------------------------------------------" << std::endl;
+//    std::cout << "save splitter root : " << std::endl;
+//    std::cout << *m_splitterRoot;
+//    std::cout << "-------------------------------------------------------" << std::endl;
 
     //    ui->splitter_root->saveEnv();
     //        qDebug() << &g_env;

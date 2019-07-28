@@ -425,7 +425,7 @@ void QSplitterNode::load(std::ifstream& file)
     size_t size;
     Q_ASSERT(!file.eof());
     file.read(reinterpret_cast<char*>(&size), sizeof(size));
-    std::cout << "size = " << size << " " << std::endl;
+//    std::cout << "size = " << size << " " << std::endl;
     //    int sizes[size];
     //    m_sizes = std::vector<int>(size);
     if (size == 1) {
@@ -453,7 +453,7 @@ void QSplitterNode::load(std::ifstream& file)
         if (file.bad()) {
             perror("error reading ptr");
         }
-        std::cout << "ptr[" << i << "] = " << ptr << " " << std::endl;
+//        std::cout << "ptr[" << i << "] = " << ptr << " " << std::endl;
         //        m_sizes.push_back(*ptr);
         localSizes.push_back(ptr);
     }
@@ -764,7 +764,8 @@ std::ostream& operator<<(std::ostream& out, const QSplitterNode& node)
             out << size << " ";
             out << ")";
         }
-        std::cout << std::endl;
+//        std::cout << std::endl;
+        out << std::endl;
 
         for (int i = 0; i < node.count(); ++i) {
             QSplitterNode* son = static_cast<QSplitterNode*>(node.widget(i));
