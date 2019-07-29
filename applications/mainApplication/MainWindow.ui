@@ -29,7 +29,28 @@
      <verstretch>0</verstretch>
     </sizepolicy>
    </property>
-   <layout class="QVBoxLayout" name="verticalLayout"/>
+   <property name="styleSheet">
+    <string notr="true">background-color: lightgrey;</string>
+   </property>
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <widget class="QStackedWidget" name="stackedWidget">
+      <property name="currentIndex">
+       <number>1</number>
+      </property>
+      <widget class="QSplitterNode" name="page_splitterRoot">
+       <property name="styleSheet">
+        <string notr="true">background-color: red;</string>
+       </property>
+      </widget>
+      <widget class="FormSystemBrowser" name="page_systemBrowser">
+       <property name="styleSheet">
+        <string notr="true"/>
+       </property>
+      </widget>
+     </widget>
+    </item>
+   </layout>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">
@@ -55,6 +76,8 @@
     <addaction name="actionSave_As"/>
     <addaction name="separator"/>
     <addaction name="actionUser_Preferences"/>
+    <addaction name="actionSave_Startup_File"/>
+    <addaction name="actionLoad_Factory_Settings"/>
     <addaction name="separator"/>
     <addaction name="actionImport"/>
     <addaction name="actionExport"/>
@@ -148,8 +171,35 @@
     <string>Shift+E</string>
    </property>
   </action>
+  <action name="actionSave_Startup_File">
+   <property name="text">
+    <string>Save Startup File</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+U</string>
+   </property>
+  </action>
+  <action name="actionLoad_Factory_Settings">
+   <property name="text">
+    <string>Load Factory Settings</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>QSplitterNode</class>
+   <extends>QWidget</extends>
+   <header location="global">gui/QSplitterNode.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>FormSystemBrowser</class>
+   <extends>QWidget</extends>
+   <header location="global">gui/system/FormSystemBrowser.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

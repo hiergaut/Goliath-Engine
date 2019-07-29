@@ -9,6 +9,7 @@
 
 #include <gui/QSplitterNode.h>
 #include <fstream>
+#include <QSettings>
 
 class Environment
 {
@@ -18,6 +19,7 @@ public:
 //    std::vector<QSplitterNode> m_SplitterNodes;
 //    int m_iSplitterNode;
     QSplitterNode ** m_splitterRoot;
+    QSettings m_settings;
 
 public:
     Environment();

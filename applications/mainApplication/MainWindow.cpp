@@ -25,7 +25,7 @@ MainWindow::MainWindow(QWidget* parent)
     //    QCoreApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
     //    QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>()->initializeOpenGLFunctions();
 
-    qRegisterMetaTypeStreamOperators<QList<int>>("QList<int>");
+//    qRegisterMetaTypeStreamOperators<QList<int>>("QList<int>");
     //    qRegisterMetaTypeStreamOperators<Qt::Orientation>("Qt::Orientation");
 
     QSurfaceFormat format;
@@ -43,7 +43,23 @@ MainWindow::MainWindow(QWidget* parent)
     //    ui->splitter_root->setParent(ui->splitter_root);
 //    g_env.m_splitterRoot = &ui->splitter_root;
 //    m_splitterRoot = new QSplitterNode;
-    g_env.m_splitterRoot = &m_splitterRoot;
+//    g_env.m_splitterRoot = &m_splitterRoot;
+
+    g_env.m_splitterRoot = &ui->page_splitterRoot;
+
+//    ui->stackedWidget->addWidget(&m_splitterRoot);
+
+
+
+
+
+//    g_env.m_splitterRoot = ui->page;
+//    ui->page = m_splitterRoot;
+//    ui->page_2 = &m_systemBrowser;
+
+//    g_env.m_splitterRoot = &ui->page;
+//    g_env.m_splitterRoot = &ui->page;
+//    ui->stackedWidget->setCurrentIndex(2);
 
 
     loadFile("temp.dat");
@@ -126,11 +142,13 @@ MainWindow::MainWindow(QWidget* parent)
 MainWindow::~MainWindow()
 {
     delete ui;
-    delete m_splitterRoot;
+//    delete m_splitterRoot;
 }
 
 void MainWindow::loadFile(std::string filename)
 {
+    ui->stackedWidget->removeWidget(ui->page_splitterRoot);
+
     //    qDebug() << "------------------------------ open conf ------------------------------";
     std::ifstream file;
     file.open(filename, std::ios::binary | std::ios::in);
@@ -141,7 +159,13 @@ void MainWindow::loadFile(std::string filename)
         g_env.load(file);
         file.close();
     }
-    setCentralWidget(m_splitterRoot);
+
+//    ui->page_splitterRoot->setParent(ui->stackedWidget);
+    ui->stackedWidget->addWidget(ui->page_splitterRoot);
+    ui->stackedWidget->setCurrentWidget(ui->page_splitterRoot);
+
+//    ui->page = m_splitterRoot;
+//    setCentralWidget(m_splitterRoot);
 
     //    for (auto pair : g_env.m_sizes.toStdMap()) {
     //        qDebug() << "pair : " << pair;
@@ -158,10 +182,38 @@ void MainWindow::loadFile(std::string filename)
 
 }
 
+void MainWindow::saveFile(std::string filename)
+{
+    std::ofstream file;
+    file.open(filename, std::ios::binary | std::ios::out);
+    if (!file.is_open()) {
+        std::cerr << "cannot open file" << std::endl;
+        exit(1);
+    }
+    g_env.save(file);
+    file.close();
+}
+
+void MainWindow::showSystemBrowser()
+{
+//    setCentralWidget(&m_systemBrowser);
+    ui->stackedWidget->setCurrentWidget(ui->page_systemBrowser);
+//    centralWidget() = &m_systemBrowser;
+}
+
 void MainWindow::keyPressEvent(QKeyEvent* ev)
 {
-    //    qDebug() << this << ": keyPressEvent";
+        qDebug() << this << ": keyPressEvent";
 
+        switch (ev->key()) {
+        case Qt::Key_Escape:
+//            ui->stackedWidget->setCurrentWidget(&m_splitterRoot);
+            ui->stackedWidget->setCurrentWidget(ui->page_splitterRoot);
+//            ui->stackedWidget->setCurrentIndex(ui->page);
+//            setCentralWidget(m_splitterRoot);
+            break;
+
+        }
     //    ev->ignore();
 }
 
@@ -194,15 +246,8 @@ void MainWindow::on_actionSave_As_triggered()
     //    for (auto pair : g_env.m_sizes.toStdMap()) {
     //        qDebug() << "pair : " << pair;
     //    }
+    saveFile("current.dat");
 
-    std::ofstream file;
-    file.open("temp.dat", std::ios::binary | std::ios::out);
-    if (!file.is_open()) {
-        std::cerr << "cannot open file" << std::endl;
-        exit(1);
-    }
-    g_env.save(file);
-    file.close();
 
     //    file.open("temp.dat", std::t
     //    file.write(&g_env, sizeof(&g_env));
@@ -215,6 +260,7 @@ void MainWindow::on_actionSave_As_triggered()
 void MainWindow::on_actionOpen_triggered()
 {
     loadFile("temp.dat");
+
 //    //    qDebug() << "------------------------------ open conf ------------------------------";
 //    std::ifstream file;
 //    file.open("temp.dat", std::ios::binary | std::ios::in);
@@ -239,4 +285,27 @@ void MainWindow::on_actionOpen_triggered()
 //    std::cout << "load splitter root : " << std::endl;
 //    std::cout << *m_splitterRoot;
 //    std::cout << "-------------------------------------------------------" << std::endl;
+}
+
+void MainWindow::on_actionLoad_Factory_Settings_triggered()
+{
+    loadFile("factory.dat");
+}
+
+void MainWindow::on_actionSave_Startup_File_triggered()
+{
+    saveFile("startup.dat");
+}
+
+void MainWindow::on_actionNew_triggered()
+{
+
+}
+
+void MainWindow::on_actionImport_triggered()
+{
+//    qDebug() << m_splitterRoot;
+    showSystemBrowser();
+//    qDebug() << m_splitterRoot;
+
 }
