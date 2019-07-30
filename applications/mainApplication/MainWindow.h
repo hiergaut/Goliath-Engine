@@ -12,6 +12,7 @@
 
 //#include <QFileSystemModel>
 
+#include <gui/editor/3dview/QOpenGLWidget_3dView.h>
 
 namespace Ui {
 class MainWindow;
@@ -42,9 +43,13 @@ private slots:
     void on_actionNew_triggered();
     void on_actionImport_triggered();
 
+    void on_systemBrowserCanceled();
+    void on_systemBrowserLoaded(QString filename);
+
 private:
     Ui::MainWindow *ui;
 
+    QOpenGLWidget_3dView * view;
 //    QFileSystemModel * m_model;
 
 //    QSplitterNode * m_splitterRoot = nullptr;

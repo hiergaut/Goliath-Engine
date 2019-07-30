@@ -25,15 +25,15 @@ FormSystemBrowser::FormSystemBrowser(QWidget* parent)
     ui->splitter_2->setSizes(QList<int>({ 200, width() - 200 }));
 
     m_model = new QFileSystemModel(this);
-    m_model->setRootPath(resourcesPath.c_str());
+    m_model->setRootPath(g_resourcesPath.c_str());
     //    m_model->setFilter(QDir::AllEntries);
 
     ui->listView_system->setModel(m_model);
-    ui->listView_system->setRootIndex(m_model->index(resourcesPath.c_str()));
+    ui->listView_system->setRootIndex(m_model->index(g_resourcesPath.c_str()));
     connect(ui->listView_system->selectionModel(), &QItemSelectionModel::selectionChanged, this, &FormSystemBrowser::on_changeSystemSelected);
 
     ui->listView_current->setModel(m_model);
-    ui->listView_current->setRootIndex(m_model->index(resourcesPath.c_str()));
+    ui->listView_current->setRootIndex(m_model->index(g_resourcesPath.c_str()));
     connect(ui->listView_current->selectionModel(), &QItemSelectionModel::selectionChanged, this, &FormSystemBrowser::on_changeCurrentSelected);
 
     m_recent = new QStringListModel(this);
@@ -44,14 +44,14 @@ FormSystemBrowser::FormSystemBrowser(QWidget* parent)
 
     //    ui->listView_current->selectionModel()->select(ui->listView_recent.cur)
 
-//    QModelIndex first = m_recent.row
-//    QString initPath = m_recent->stringList().first();
+    //    QModelIndex first = m_recent.row
+    //    QString initPath = m_recent->stringList().first();
     if (m_recent->stringList().size() != 0) {
-//        qDebug() << m_model->index(resourcesPath.c_str());
-//        ui->listView_system->setCurrentIndex(m_model->index(1, 0));
-//        ui->listView_recent->selectionModel()->select(QModelIndex(0, 0, nullptr, nullptr));
+        //        qDebug() << m_model->index(resourcesPath.c_str());
+        //        ui->listView_system->setCurrentIndex(m_model->index(1, 0));
+        //        ui->listView_recent->selectionModel()->select(QModelIndex(0, 0, nullptr, nullptr));
         ui->listView_recent->setCurrentIndex(m_recent->index(0, 0));
-//        QModelIndex index = m_recent->stringList().first();
+        //        QModelIndex index = m_recent->stringList().first();
     }
     //    ui->lis
 }
@@ -69,7 +69,7 @@ void FormSystemBrowser::on_changeSystemSelected(const QItemSelection& selected, 
     Q_ASSERT(selected.indexes().size() == 1);
     QModelIndex index = selected.indexes().first();
     QString filename = m_model->data(index).toString();
-    QFileInfo fileInfo(resourcesPath.c_str() + filename);
+    QFileInfo fileInfo(g_resourcesPath.c_str() + filename);
     qDebug() << "fileInfo : " << fileInfo;
     qDebug() << "filename : " << filename;
 
@@ -95,7 +95,7 @@ void FormSystemBrowser::on_changeCurrentSelected(const QItemSelection& selected,
 
     QString path = ui->lineEdit_currentPath->text();
     QString filename = m_model->data(index).toString();
-    QFileInfo fileInfo(resourcesPath.c_str() + path + filename);
+    QFileInfo fileInfo(g_resourcesPath.c_str() + path + filename);
     qDebug() << fileInfo;
 
     if (fileInfo.isDir()) {
@@ -115,11 +115,11 @@ void FormSystemBrowser::on_changeRecentSelected(const QItemSelection& selected, 
     QModelIndex index = selected.indexes().first();
     QString dir = m_recent->data(index).toString();
     qDebug() << "recent change" << dir;
-    QFileInfo fileInfo(resourcesPath.c_str() + dir);
+    QFileInfo fileInfo(g_resourcesPath.c_str() + dir);
     qDebug() << fileInfo;
     Q_ASSERT(fileInfo.isDir());
 
-    QModelIndex index2 = m_model->index(resourcesPath.c_str() + dir);
+    QModelIndex index2 = m_model->index(g_resourcesPath.c_str() + dir);
     ui->listView_current->setRootIndex(index2);
     ui->lineEdit_currentPath->setText(dir);
 
@@ -127,14 +127,20 @@ void FormSystemBrowser::on_changeRecentSelected(const QItemSelection& selected, 
     ui->pushButton_openFile->setEnabled(false);
 }
 
-//void FormSystemBrowser::keyPressEvent(QKeyEvent *event)
-//{
-//    switch (event->key()) {
-//    case Qt::Key_Escape:
+void FormSystemBrowser::keyPressEvent(QKeyEvent* event)
+{
+    switch (event->key()) {
+    case Qt::Key_Return:
+        if (ui->pushButton_openFile->isEnabled()) {
+            QString path = ui->lineEdit_currentPath->text();
+            QString file = ui->lineEdit_currentFile->text();
+            emit openned(path + file);
+        }
+        break;
+    }
 
-//    }
-
-//}
+    event->ignore();
+}
 
 void FormSystemBrowser::on_pushButton_openFile_clicked()
 {
@@ -145,11 +151,17 @@ void FormSystemBrowser::on_pushButton_openFile_clicked()
     if (!paths.contains(newPath)) {
         paths += newPath;
 
-        settings.setValue(::settingsPath, QVariant::fromValue(paths));
-        qDebug() << "save setting " << paths;
-
-        updateRecent();
+    } else {
+        int idx = paths.indexOf(newPath);
+        paths.move(idx, 0);
     }
+
+    settings.setValue(::settingsPath, QVariant::fromValue(paths));
+    qDebug() << "save setting " << paths;
+
+    updateRecent();
+
+    emit openned(newPath + ui->lineEdit_currentFile->text());
 }
 
 void FormSystemBrowser::on_pushButton_cancel_clicked()

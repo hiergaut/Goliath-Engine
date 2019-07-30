@@ -1,13 +1,19 @@
 #include "Environment.h"
 
+#include <opengl/version.h>
+
 Environment g_env;
 
 Environment::Environment() : m_settings("Goliath", "Goliath-Engine")
 {
 //    m_settings.beginGroup()
 
+    qDebug() << g_resourcesPath.c_str();
+//        Model scene = Model(g_resourcesPath + "maps/de_aztec/de_aztec.obj");
+//        m_scene.push_back(scene);
 }
 //void Environment::clear()
+
 //{
 //    //        m_sizes.clear();
 ////    m_SplitterNodes.clear();

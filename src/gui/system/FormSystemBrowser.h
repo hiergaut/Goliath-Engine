@@ -18,10 +18,12 @@ public:
     explicit FormSystemBrowser(QWidget *parent = nullptr);
     ~FormSystemBrowser();
 
-//protected:
-//    void keyPressEvent(QKeyEvent *event) override;
+protected:
+    void keyPressEvent(QKeyEvent *event) override;
+
 signals:
     void canceled();
+    void openned(QString filename);
 
 public slots:
     void on_changeSystemSelected(const QItemSelection&, const QItemSelection &);

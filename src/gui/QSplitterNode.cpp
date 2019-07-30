@@ -34,6 +34,7 @@ QSplitterNode::QSplitterNode(QWidget* parent)
     connect(this, &QSplitterNode::splitterMoved, this, &QSplitterNode::onSplitterMoved);
     setSizePolicy(::defaultPolicy);
     setOrientation(Qt::Horizontal);
+
     //    connect(this, SIGNAL(splitterMoved(int, int)), this, SLOT(onSplitterMoved(int, int)));
     //    qDebug() << this << ": handleWidth = " << this->handleWidth();
     //    qDebug() << this << handle(0);

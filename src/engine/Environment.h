@@ -10,6 +10,7 @@
 #include <gui/QSplitterNode.h>
 #include <fstream>
 #include <QSettings>
+#include <opengl/model.h>
 
 class Environment
 {
@@ -20,6 +21,10 @@ public:
 //    int m_iSplitterNode;
     QSplitterNode ** m_splitterRoot;
     QSettings m_settings;
+
+    std::vector<Model> m_scene;
+
+
 
 public:
     Environment();

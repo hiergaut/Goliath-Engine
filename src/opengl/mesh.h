@@ -15,6 +15,9 @@
 #include <iostream>
 #include <vector>
 using namespace std;
+#include <QOpenGLExtraFunctions>
+#include <QOpenGLFunctions>
+#include <QDebug>
 
 struct Vertex {
     // position
@@ -49,6 +52,7 @@ public:
     Mesh(vector<Vertex> vertices, vector<unsigned int> indices, vector<Texture> textures)
     {
         fun = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
+//        fun =
 //        initializeOpenGLFunctions();
 
         this->vertices = vertices;
@@ -62,6 +66,14 @@ public:
     // render the mesh
     void Draw(const Shader & shader)
     {
+//        QOpenGLFunctionsCore * fun = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
+//        qDebug() << "mesh.h : " << fun;
+
+//        QOpenGLFunctionsCore * fun = QOpenGLContext::currentContext()->extraFunctions<QOpenGLFunctionsCore>();
+//        fun = QOpenGLContext::currentContext()->extraFunctions();
+//        QOpenGLFunctions * fun = QOpenGLContext::currentContext()->functions();
+//        QOpenGLExtraFunctions * fun = QOpenGLContext::currentContext()->extraFunctions();
+//        QOpenGLFunctionsCore * fun = QOpenGLContext::currentContext();
         // bind appropriate textures
         unsigned int diffuseNr  = 1;
         unsigned int specularNr = 1;
@@ -90,7 +102,7 @@ public:
 
         // draw mesh
         fun->glBindVertexArray(VAO);
-        glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+        fun->glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
         fun->glBindVertexArray(0);
 
         // always good practice to set everything back to defaults once configured.
@@ -105,6 +117,10 @@ private:
     // initializes all the buffer objects/arrays
     void setupMesh()
     {
+//        QOpenGLFunctionsCore * fun = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
+//        QOpenGLFunctions * fun = QOpenGLContext::currentContext()->functions();
+//        QOpenGLExtraFunctions * fun = QOpenGLContext::currentContext()->extraFunctions();
+
         // create buffers/arrays
         fun->glGenVertexArrays(1, &VAO);
         fun->glGenBuffers(1, &VBO);

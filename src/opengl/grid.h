@@ -43,7 +43,7 @@ public:
         fun = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
         setup();
 
-        m_shader = new Shader(shaderPath + "grid.vsh", shaderPath + "grid.fsh");
+        m_shader = new Shader(g_shaderPath + "grid.vsh", g_shaderPath + "grid.fsh");
     }
     ~Grid()
     {

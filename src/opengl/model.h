@@ -24,10 +24,12 @@
 #include <string>
 #include <vector>
 using namespace std;
+#include <QDebug>
 
 class Model {
 public:
     /*  Model Data */
+    QOpenGLFunctionsCore * fun;
     vector<Texture> textures_loaded; // stores all the textures loaded so far, optimization to make sure textures aren't loaded more than once.
     vector<Mesh> meshes;
     string directory;
@@ -41,13 +43,19 @@ public:
         : gammaCorrection(gamma)
     {
         //        initializeOpenGLFunctions();
+    fun = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
+    qDebug() << "[CONTEXT] model : " << fun;
 
         loadModel(path);
+        std::cout << "model loaded" << std::endl;
     }
 
     // draws the model, and thus all its meshes
     void Draw(const Shader& shader)
     {
+        fun = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
+        qDebug() << "[CONTEXT] model draw : " << fun;
+
         for (unsigned int i = 0; i < meshes.size(); i++)
             meshes[i].Draw(shader);
     }
@@ -71,13 +79,13 @@ private:
         // retrieve the directory path of the filepath
         directory = path.substr(0, path.find_last_of('/'));
 
-        std::cout << "scene:";
-        std::cout << ", numLights: " << scene->mNumLights;
-        std::cout << ", numMeshes: " << scene->mNumMeshes;
-        std::cout << ", numCameras: " << scene->mNumCameras;
-        std::cout << ", numTextures: " << scene->mNumTextures;
-        std::cout << ", numMaterials: " << scene->mNumMaterials;
-        std::cout << ", numAnimations: " << scene->mNumAnimations << std::endl;
+//        std::cout << "scene:";
+//        std::cout << ", numLights: " << scene->mNumLights;
+//        std::cout << ", numMeshes: " << scene->mNumMeshes;
+//        std::cout << ", numCameras: " << scene->mNumCameras;
+//        std::cout << ", numTextures: " << scene->mNumTextures;
+//        std::cout << ", numMaterials: " << scene->mNumMaterials;
+//        std::cout << ", numAnimations: " << scene->mNumAnimations << std::endl;
 
         // process ASSIMP's root node recursively
         processNode(scene->mRootNode, scene, 0);
@@ -86,12 +94,12 @@ private:
     // processes a node in a recursive fashion. Processes each individual mesh located at the node and repeats this process on its children nodes (if any).
     void processNode(aiNode* node, const aiScene* scene, int depth)
     {
-        for (int i = 0; i < depth; ++i) {
-            std::cout << "\t";
-        }
-        std::cout << "node: " << node->mName.C_Str();
-        std::cout << ", numMeshes: " << node->mNumMeshes;
-        std::cout << ", numChildren: " << node->mNumChildren << std::endl;
+//        for (int i = 0; i < depth; ++i) {
+//            std::cout << "\t";
+//        }
+//        std::cout << "node: " << node->mName.C_Str();
+//        std::cout << ", numMeshes: " << node->mNumMeshes;
+//        std::cout << ", numChildren: " << node->mNumChildren << std::endl;
 
         // process each mesh located at the current node
         for (unsigned int i = 0; i < node->mNumMeshes; i++) {
@@ -108,24 +116,24 @@ private:
 
     Mesh processMesh(aiMesh* mesh, const aiScene* scene, int depth)
     {
-        for (int i = 0; i < depth; ++i) {
-            std::cout << "\t";
-        }
-        std::cout << "mesh: " << mesh->mName.C_Str();
-        std::cout << ", numBones: " << mesh->mNumBones;
-        std::cout << ", numFaces: " << mesh->mNumFaces;
-        std::cout << ", numVertices: " << mesh->mNumVertices;
-        std::cout << ", numAnimMeshes: " << mesh->mNumAnimMeshes;
-        std::cout << ", numUVComponents: ";
-        for (int i = 0; i < 8; ++i) {
-            std::cout << mesh->mNumUVComponents[i] << " ";
-        }
-        std::cout << ", hasPositions: " << mesh->HasPositions();
-        std::cout << ", hasNormals: " << mesh->HasNormals();
-        std::cout << ", hasVertexColors: " << mesh->HasVertexColors(0);
-        std::cout << ", hasTextureCoords: " << mesh->HasTextureCoords(0);
-        //        std::cout << ", hasTangentAndBitangenst: " << mesh->HasTangentsAndBitangents();
-        std::cout << std::endl;
+//        for (int i = 0; i < depth; ++i) {
+//            std::cout << "\t";
+//        }
+//        std::cout << "mesh: " << mesh->mName.C_Str();
+//        std::cout << ", numBones: " << mesh->mNumBones;
+//        std::cout << ", numFaces: " << mesh->mNumFaces;
+//        std::cout << ", numVertices: " << mesh->mNumVertices;
+//        std::cout << ", numAnimMeshes: " << mesh->mNumAnimMeshes;
+//        std::cout << ", numUVComponents: ";
+//        for (int i = 0; i < 8; ++i) {
+//            std::cout << mesh->mNumUVComponents[i] << " ";
+//        }
+//        std::cout << ", hasPositions: " << mesh->HasPositions();
+//        std::cout << ", hasNormals: " << mesh->HasNormals();
+//        std::cout << ", hasVertexColors: " << mesh->HasVertexColors(0);
+//        std::cout << ", hasTextureCoords: " << mesh->HasTextureCoords(0);
+//        //        std::cout << ", hasTangentAndBitangenst: " << mesh->HasTangentsAndBitangents();
+//        std::cout << std::endl;
 
         // data to fill
         vector<Vertex> vertices;
@@ -242,7 +250,9 @@ private:
     {
         string filename = string(path);
         filename = directory + '/' + filename;
-        QOpenGLFunctionsCore* fun = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
+//        QOpenGLFunctionsCore* fun = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
+//        qDebug() << "model.h : " << fun;
+//        QOpenGLFunctions * fun = QOpenGLContext::currentContext()->functions();
 
         unsigned int textureID;
         fun->glGenTextures(1, &textureID);

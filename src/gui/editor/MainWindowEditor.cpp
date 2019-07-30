@@ -4,6 +4,7 @@
 #include "3dview/QOpenGLWidget_3dView.h"
 #include "outliner/QTreeView_outliner.h"
 
+#include <QOpenGLContext>
 //#include <gui/editor/MainWindowEditor.h>
 
 MainWindowEditor::MainWindowEditor(QWidget* parent)
@@ -32,6 +33,7 @@ MainWindowEditor::MainWindowEditor(QWidget* parent)
     ////    widget->setFocus();
     ////    connect(widget, &QWidget::, this, &MainWindowEditor::keyPressEvent);
 
+
     //    setCentralWidget(widget);
 }
 
@@ -43,6 +45,9 @@ MainWindowEditor::~MainWindowEditor()
 
 void MainWindowEditor::setEditor(WidgetEditorId id)
 {
+//    QOpenGLContext* ctx = QOpenGLContext::currentContext();
+//    qDebug() << "[CONTEXT] Editor : " << ctx;
+
     QWidget* widget;
     switch (id) {
     case VIEW:

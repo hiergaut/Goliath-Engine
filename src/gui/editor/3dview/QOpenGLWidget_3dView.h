@@ -7,7 +7,7 @@
 #include <QOpenGLBuffer>
 #include <QOpenGLWidget>
 
-#include <QOpenGLFunctions_3_3_Core>
+//#include <QOpenGLFunctions_3_3_Core>
 
 #include <QOpenGLShaderProgram>
 #include <QOpenGLTexture>
@@ -24,7 +24,7 @@
 //#include "model.h"
 #include <opengl/model.h>
 
-class QOpenGLWidget_3dView : public QOpenGLWidget, QOpenGLFunctions_3_3_Core {
+class QOpenGLWidget_3dView : public QOpenGLWidget {
     Q_OBJECT
 
 public:
@@ -53,14 +53,17 @@ private:
 //    void updateProjection();
 
 private:
+//    QOpenGLFunctionsCore * fun;
+
     int cpt = 0;
     float fps;
 
     bool m_middleClicked = false;
     //    QOpenGLBuffer m_vbo;
     //    QOpenGLBuffer m_ebo;
-//    Shader shader;
-    Model * scene;
+    Shader * m_shader;
+    Model * m_scene;
+
 //    Shader shaderLight;
     Grid * m_grid;
 
