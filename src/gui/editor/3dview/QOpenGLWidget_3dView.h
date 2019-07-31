@@ -2,18 +2,18 @@
 #define QOPENGLWIDGET_WORLD_H
 
 //#include "version.h"
-#include <opengl/version.h>
+//#include <opengl/version.h>
 
-#include <QOpenGLBuffer>
-#include <QOpenGLWidget>
+//#include <QOpenGLBuffer>
+//#include <QOpenGLWidget>
 
 //#include <QOpenGLFunctions_3_3_Core>
 
-#include <QOpenGLShaderProgram>
-#include <QOpenGLTexture>
-#include <QOpenGLVertexArrayObject>
-#include <opengl/grid.h>
-#include <opengl/axis.h>
+//#include <QOpenGLShaderProgram>
+//#include <QOpenGLTexture>
+//#include <QOpenGLVertexArrayObject>
+//#include <opengl/grid.h>
+//#include <opengl/axis.h>
 
 //#include "camera.h"
 //#include "camera.h"
@@ -22,21 +22,27 @@
 //#include "shader.h"
 #include <opengl/shader.h>
 //#include "model.h"
-#include <opengl/model.h>
+//#include <opengl/model.h>
+#include <QWidget>
 
-class QOpenGLWidget_3dView : public QOpenGLWidget {
+class QOpenGLWidget_3dView : public QWidget {
     Q_OBJECT
 
 public:
     explicit QOpenGLWidget_3dView(QWidget* parent = nullptr);
     ~QOpenGLWidget_3dView();
 
+
+//    void setScene(Model *scene);
+//    void addModel(std::string file);
+
+
 signals:
 
 protected:
-    void initializeGL() override;
-    void resizeGL(int w, int h) override;
-    void paintGL() override;
+    //    void initializeGL() override;
+//    void resizeGL(int w, int h) override;
+//    void paintGL() override;
 
     void keyPressEvent(QKeyEvent* event) override;
     void keyReleaseEvent(QKeyEvent* event) override;
@@ -55,19 +61,21 @@ private:
 private:
 //    QOpenGLFunctionsCore * fun;
 
-    int cpt = 0;
-    float fps;
+//    int cpt = 0;
+//    float fps;
 
     bool m_middleClicked = false;
     //    QOpenGLBuffer m_vbo;
     //    QOpenGLBuffer m_ebo;
-    Shader * m_shader;
-    Model * m_scene;
+//    Shader * m_shader;
+//    Model * m_scene;
+
+//    std::vector<Model> m_models;
 
 //    Shader shaderLight;
-    Grid * m_grid;
+//    Grid * m_grid;
 
-    Axis * m_axis;
+//    Axis * m_axis;
 
     bool m_ortho = false;
     float orthoSize = 10.0f;
@@ -105,8 +113,8 @@ private:
 //        glm::vec3(0.0f, 0.0f, -3.0f)
 //    };
 
-    uint64_t deltaTime;
-    uint64_t lastFrame;
+//    uint64_t deltaTime;
+//    uint64_t lastFrame;
 
     int frontDir = 0;
     int sideDir = 0;
@@ -115,9 +123,14 @@ private:
     bool m_shiftPressed = false;
 
 //    Camera camera;
-    CameraWorld * camera;
+    CameraWorld * m_camera;
 
-    glm::mat4 m_projection;
+    glm::mat4 m_projectionMatrix;
+//    glm::mat4 m_viewMatrix;
+
+public:
+    glm::mat4 projectionMatrix() const;
+    glm::mat4 viewMatrix() const;
 };
 
 #endif // QOPENGLWIDGET_WORLD_H

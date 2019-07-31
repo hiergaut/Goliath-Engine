@@ -12,7 +12,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "stb_image.h"
-#include <QOpenGLContext>
+//#include <QOpenGLContext>
 
 #include "mesh.h"
 #include "shader.h"
@@ -25,11 +25,13 @@
 #include <vector>
 using namespace std;
 #include <QDebug>
+//#include <QThread>
+//#include <QOpenGLExtraFunctions>
 
 class Model {
 public:
     /*  Model Data */
-    QOpenGLFunctionsCore * fun;
+    QOpenGLFunctionsCore * m_fun;
     vector<Texture> textures_loaded; // stores all the textures loaded so far, optimization to make sure textures aren't loaded more than once.
     vector<Mesh> meshes;
     string directory;
@@ -43,8 +45,11 @@ public:
         : gammaCorrection(gamma)
     {
         //        initializeOpenGLFunctions();
-    fun = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
-    qDebug() << "[CONTEXT] model : " << fun;
+//    fun = QOpenGLContext::globalShareContext()->versionFunctions<QOpenGLFunctionsCore>();
+//        fun = ctx->versionFunctions<QOpenGLFunctionsCore>();
+//        m_fun = fun;
+    m_fun = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
+//    qDebug() << QThread::currentThreadId() << "[MODEL]" << this << "[CONTEXT]" << fun;
 
         loadModel(path);
         std::cout << "model loaded" << std::endl;
@@ -53,11 +58,17 @@ public:
     // draws the model, and thus all its meshes
     void Draw(const Shader& shader)
     {
-        fun = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
-        qDebug() << "[CONTEXT] model draw : " << fun;
+//        qDebug() << "[MODEL]" << this << "[CONTEXT]" << QOpenGLContext::currentContext()->functions();
+//        fun = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
+//        qDebug() << "[CONTEXT] model draw : " << fun;
+
+
+
+//        qDebug() << "nb mesh = " << meshes.size();
 
         for (unsigned int i = 0; i < meshes.size(); i++)
             meshes[i].Draw(shader);
+
     }
 
 private:
@@ -66,6 +77,8 @@ private:
     void loadModel(string const& path)
     {
 
+//        qDebug() << QThread::currentThreadId() << "[MODEL][LOAD]" << this << "[CONTEXT]" << m_fun;
+//        qDebug() << QThread::currentThreadId() << "[MODEL][LOAD]" << this << "[CONTEXT]" << QOpenGLContext::currentContext()->functions();
         // read file via ASSIMP
         Assimp::Importer importer;
         const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
@@ -255,7 +268,7 @@ private:
 //        QOpenGLFunctions * fun = QOpenGLContext::currentContext()->functions();
 
         unsigned int textureID;
-        fun->glGenTextures(1, &textureID);
+        m_fun->glGenTextures(1, &textureID);
 
         int width, height, nrComponents;
         unsigned char* data = stbi_load(filename.c_str(), &width, &height, &nrComponents, 0);
@@ -268,20 +281,20 @@ private:
             else if (nrComponents == 4)
                 format = GL_RGBA;
 
-            fun->glBindTexture(GL_TEXTURE_2D, textureID);
-            fun->glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-            fun->glGenerateMipmap(GL_TEXTURE_2D);
+            m_fun->glBindTexture(GL_TEXTURE_2D, textureID);
+            m_fun->glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+            m_fun->glGenerateMipmap(GL_TEXTURE_2D);
 
             if (nrComponents == 4) {
-                fun->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-                fun->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+                m_fun->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+                m_fun->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
             } else {
-                fun->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-                fun->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+                m_fun->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+                m_fun->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
             }
-            fun->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-            fun->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            m_fun->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+            m_fun->glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
             stbi_image_free(data);
         } else {

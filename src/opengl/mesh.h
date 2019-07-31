@@ -15,7 +15,7 @@
 #include <iostream>
 #include <vector>
 using namespace std;
-#include <QOpenGLExtraFunctions>
+//#include <QOpenGLExtraFunctions>
 #include <QOpenGLFunctions>
 #include <QDebug>
 
@@ -41,7 +41,7 @@ struct Texture {
 class Mesh {
 public:
     /*  Mesh Data  */
-    QOpenGLFunctionsCore * fun;
+    QOpenGLFunctionsCore * m_fun;
     vector<Vertex> vertices;
     vector<unsigned int> indices;
     vector<Texture> textures;
@@ -51,7 +51,10 @@ public:
     // constructor
     Mesh(vector<Vertex> vertices, vector<unsigned int> indices, vector<Texture> textures)
     {
-        fun = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
+//        fun = QOpenGLContext::globalShareContext()->versionFunctions<QOpenGLFunctionsCore>();
+//        m_fun = ctx->versionFunctions<QOpenGLFunctionsCore>();
+//        m_fun = fun;
+        m_fun = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
 //        fun =
 //        initializeOpenGLFunctions();
 
@@ -81,7 +84,7 @@ public:
         unsigned int heightNr   = 1;
         for(unsigned int i = 0; i < textures.size(); i++)
         {
-            fun->glActiveTexture(GL_TEXTURE0 + i); // active proper texture unit before binding
+            m_fun->glActiveTexture(GL_TEXTURE0 + i); // active proper texture unit before binding
             // retrieve texture number (the N in diffuse_textureN)
             string number;
             string name = textures[i].type;
@@ -95,18 +98,18 @@ public:
                 number = std::to_string(heightNr++); // transfer unsigned int to stream
 
                                                      // now set the sampler to the correct texture unit
-            fun->glUniform1i(fun->glGetUniformLocation(shader.ID, (name + number).c_str()), i);
+            m_fun->glUniform1i(m_fun->glGetUniformLocation(shader.ID, (name + number).c_str()), i);
             // and finally bind the texture
-            fun->glBindTexture(GL_TEXTURE_2D, textures[i].id);
+            m_fun->glBindTexture(GL_TEXTURE_2D, textures[i].id);
         }
 
         // draw mesh
-        fun->glBindVertexArray(VAO);
-        fun->glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
-        fun->glBindVertexArray(0);
+        m_fun->glBindVertexArray(VAO);
+        m_fun->glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+        m_fun->glBindVertexArray(0);
 
         // always good practice to set everything back to defaults once configured.
-        fun->glActiveTexture(GL_TEXTURE0);
+        m_fun->glActiveTexture(GL_TEXTURE0);
     }
 
 private:
@@ -122,39 +125,39 @@ private:
 //        QOpenGLExtraFunctions * fun = QOpenGLContext::currentContext()->extraFunctions();
 
         // create buffers/arrays
-        fun->glGenVertexArrays(1, &VAO);
-        fun->glGenBuffers(1, &VBO);
-        fun->glGenBuffers(1, &EBO);
+        m_fun->glGenVertexArrays(1, &VAO);
+        m_fun->glGenBuffers(1, &VBO);
+        m_fun->glGenBuffers(1, &EBO);
 
-        fun->glBindVertexArray(VAO);
+        m_fun->glBindVertexArray(VAO);
         // load data into vertex buffers
-        fun->glBindBuffer(GL_ARRAY_BUFFER, VBO);
+        m_fun->glBindBuffer(GL_ARRAY_BUFFER, VBO);
         // A great thing about structs is that their memory layout is sequential for all its items.
         // The effect is that we can simply pass a pointer to the struct and it translates perfectly to a glm::vec3/2 array which
         // again translates to 3/2 floats which translates to a byte array.
-        fun->glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), &vertices[0], GL_STATIC_DRAW);
+        m_fun->glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(Vertex), &vertices[0], GL_STATIC_DRAW);
 
-        fun->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-        fun->glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
+        m_fun->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+        m_fun->glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
 
         // set the vertex attribute pointers
         // vertex Positions
-        fun->glEnableVertexAttribArray(0);
-        fun->glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
+        m_fun->glEnableVertexAttribArray(0);
+        m_fun->glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
         // vertex normals
-        fun->glEnableVertexAttribArray(1);
-        fun->glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Normal));
+        m_fun->glEnableVertexAttribArray(1);
+        m_fun->glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Normal));
         // vertex texture coords
-        fun->glEnableVertexAttribArray(2);
-        fun->glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, TexCoords));
+        m_fun->glEnableVertexAttribArray(2);
+        m_fun->glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, TexCoords));
         // vertex tangent
-        fun->glEnableVertexAttribArray(3);
-        fun->glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Tangent));
+        m_fun->glEnableVertexAttribArray(3);
+        m_fun->glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Tangent));
         // vertex bitangent
-        fun->glEnableVertexAttribArray(4);
-        fun->glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Bitangent));
+        m_fun->glEnableVertexAttribArray(4);
+        m_fun->glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Bitangent));
 
-        fun->glBindVertexArray(0);
+        m_fun->glBindVertexArray(0);
     }
 };
 #endif

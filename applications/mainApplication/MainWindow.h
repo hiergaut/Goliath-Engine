@@ -13,6 +13,7 @@
 //#include <QFileSystemModel>
 
 #include <gui/editor/3dview/QOpenGLWidget_3dView.h>
+#include <gui/QOpenGLWidget_Editor.h>
 
 namespace Ui {
 class MainWindow;
@@ -49,10 +50,14 @@ private slots:
 private:
     Ui::MainWindow *ui;
 
-    QOpenGLWidget_3dView * view;
+    QOpenGLWidget_Editor * editor;
+//    QOpenGLWidget_3dView * view;
+//    QOpenGLWidget_3dView * view2;
+
+//    Model * m_scene;
 //    QFileSystemModel * m_model;
 
-//    QSplitterNode * m_splitterRoot = nullptr;
+//    QSplitterNode * m_splitterRoot;
 
 //    QSplitterNode m_splitterRoot;
 //    FormSystemBrowser m_systemBrowser;

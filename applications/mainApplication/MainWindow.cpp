@@ -21,6 +21,8 @@
 #include <iostream>
 
 #include <opengl/OpenglContext.h>
+#include <QLayout>
+#include <QThread>
 
 //#include <opengl/version.h>
 //#include <QOpenGLFunctionsCore>
@@ -79,8 +81,8 @@ MainWindow::MainWindow(QWidget* parent)
     //    QOpenGLFunctionsCore * fun = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
     //    qDebug() << this << fun;
 
-    connect(ui->page_systemBrowser, &FormSystemBrowser::canceled, this, &MainWindow::on_systemBrowserCanceled);
-    connect(ui->page_systemBrowser, &FormSystemBrowser::openned, this, &MainWindow::on_systemBrowserLoaded);
+//    connect(ui->page_systemBrowser, &FormSystemBrowser::canceled, this, &MainWindow::on_systemBrowserCanceled);
+//    connect(ui->page_systemBrowser, &FormSystemBrowser::openned, this, &MainWindow::on_systemBrowserLoaded);
 
     //    ui->splitter_root->setup();
     //    ui->splitter_root->loadSetting();
@@ -93,6 +95,9 @@ MainWindow::MainWindow(QWidget* parent)
     g_env.m_splitterRoot = &ui->page_splitterRoot;
 
 
+    editor = new QOpenGLWidget_Editor(centralWidget());
+
+//    g_env.m_views = editor->views();
 //    ui->stackedWidget->addWidget(new QOpenGLWidget_3dView(this));
     //    ui->stackedWidget->addWidget(&m_splitterRoot);
 
@@ -104,7 +109,7 @@ MainWindow::MainWindow(QWidget* parent)
     //    g_env.m_splitterRoot = &ui->page;
     //    ui->stackedWidget->setCurrentIndex(2);
 
-//    loadFile("temp.dat");
+    loadFile("temp.dat");
 
     //    m_splitterRoot = new QSplitterNode;
     //    QSplitterNode * node = new QSplitterNode(m_splitterRoot);
@@ -153,7 +158,7 @@ MainWindow::MainWindow(QWidget* parent)
 
     //    node = new QSplitterNode;
 
-    qDebug() << "[GLOBAL] mainWindow init : " << QOpenGLContext::globalShareContext()->functions();
+//    qDebug() << "[mainWindow][SHARED CONTEXT]" << QOpenGLContext::globalShareContext()->functions();
 
     //    setCentralWidget(splitter);
 
@@ -177,9 +182,42 @@ MainWindow::MainWindow(QWidget* parent)
     //      widget = new GLWidget(glFormat, ui->centralWidget);
     //      widget->setObjectName(QStringLiteral("widget"));
     //      ui->horizontalLayout->addWidget(widget);
-    view = new QOpenGLWidget_3dView(this);
-    ui->stackedWidget->addWidget(view);
-    ui->stackedWidget->setCurrentWidget(view);
+//    centralWidget() = new QHBoxLayout(this);
+//    Model model(g_resourcesPath + filename.toStdString());
+
+//    view = new QOpenGLWidget_3dView(this);
+//    ui->stackedWidget->addWidget(view);
+//    QHBoxLayout * layout = new QHBoxLayout(this);
+//    QWidget * layout = new QWidget(this);
+//    layout->addWidget(view);
+
+//    ui->stackedWidget->addWidget(layout);
+//    ui->stackedWidget->setCurrentWidget(view);
+//    view->setFocusPolicy(Qt::ClickFocus);
+
+//    ui->horizontalLayout_2->addWidget(view);
+
+//    g_env.add3dView(view);
+
+
+//    g_env.addModel(g_resourcesPath + "maps/de_aztec/de_aztec.obj");
+
+//    view2 = new QOpenGLWidget_3dView(this);
+//    ui->horizontalLayout_2->addWidget(view2);
+
+//    g_env.add3dView(view2);
+
+//    QOpenGLContext::globalShareContext()->create();
+//    view2->context()->create();
+//    view2->context()->setShareContext(QOpenGLContext::globalShareContext());
+
+
+//    QOpenGLWidget_3dView * view3 = new QOpenGLWidget_3dView(view);
+//    ui->horizontalLayout_2->addWidget(view3);
+
+//    qDebug() << QApplication::instance()->thread();
+//    qDebug() << "[mainWindow][Thread] " << QThread::currentThreadId();
+
 
 //    qDebug() << "[GROUP] view : " << view->context()->shareGroup();
 }
@@ -200,7 +238,7 @@ void MainWindow::loadFile(std::string filename)
 //    ctx->setShareContext(g_openglContext->m_context);
 
 
-    ui->stackedWidget->removeWidget(ui->page_splitterRoot);
+//    ui->stackedWidget->removeWidget(ui->page_splitterRoot);
 
     //    qDebug() << "------------------------------ open conf ------------------------------";
     std::ifstream file;
@@ -213,7 +251,8 @@ void MainWindow::loadFile(std::string filename)
         file.close();
     }
 
-    //    ui->page_splitterRoot->setParent(ui->stackedWidget);
+//        ui->page_splitterRoot->setParent(ui->stackedWidget);
+
     ui->stackedWidget->addWidget(ui->page_splitterRoot);
     ui->stackedWidget->setCurrentWidget(ui->page_splitterRoot);
 
@@ -223,6 +262,11 @@ void MainWindow::loadFile(std::string filename)
     //    for (auto pair : g_env.m_sizes.toStdMap()) {
     //        qDebug() << "pair : " << pair;
     //    }
+
+
+//    editor->resize(ui->stackedWidget->size());
+    editor->resize(500, 500);
+//    setCentralWidget(editor);
 
     //    std::cout << "str : '" << g_env.str << "'" << std::endl;
     //    std::cout << g_env;
@@ -248,6 +292,19 @@ void MainWindow::saveFile(std::string filename)
 
 void MainWindow::showSystemBrowser()
 {
+//    view->update();
+//    Model*  model = new Model(g_resourcesPath + "maps/de_aztec/de_aztec.obj");
+//    g_env.addModel(g_resourcesPath + "maps/de_aztec/de_aztec.obj");
+//    g_env.m_scene.push_back(model);
+//    view->setScene(model);
+//    view2->setScene(model);
+
+//    qDebug() << QThread::currentThreadId() << "[MainWindow][CONTEXT]" << QOpenGLContext::currentContext()->functions();
+//    qDebug() << "[MainWindow][GROUP]" << QOpenGLContext::currentContext()->shareGroup()->shares().size();
+//    for (const auto & ctx : QOpenGLContext::currentContext()->shareGroup()->shares()) {
+//        qDebug() << "\t" << ctx->functions();
+//    }
+
     //    setCentralWidget(&m_systemBrowser);
     ui->stackedWidget->setCurrentWidget(ui->page_systemBrowser);
     //    centralWidget() = &m_systemBrowser;
@@ -261,12 +318,12 @@ void MainWindow::keyPressEvent(QKeyEvent* ev)
     case Qt::Key_Escape:
 //        loadFile("temp.dat");
         //            ui->stackedWidget->setCurrentWidget(&m_splitterRoot);
-//        ui->stackedWidget->setCurrentWidget(ui->page_splitterRoot);
+        ui->stackedWidget->setCurrentWidget(ui->page_splitterRoot);
         //            ui->stackedWidget->setCurrentIndex(ui->page);
         //            setCentralWidget(m_splitterRoot);
         //        QOpenGLContext * ctx = QOpenGLContext::currentContext();
-        QOpenGLContext* ctx = QOpenGLContext::currentContext();
-        qDebug() << "[CONTEXT] mainWindow loadFile : " << ctx->functions();
+//        QOpenGLContext* ctx = QOpenGLContext::currentContext();
+//        qDebug() << "[CONTEXT] mainWindow loadFile : " << ctx->functions();
 
 
         //        qDebug() << "[CONTEXT] mainWindow : " << ctx;
@@ -308,7 +365,7 @@ void MainWindow::on_actionSave_As_triggered()
     //    for (auto pair : g_env.m_sizes.toStdMap()) {
     //        qDebug() << "pair : " << pair;
     //    }
-    saveFile("current.dat");
+//    saveFile("current.dat");
 
     //    file.open("temp.dat", std::t
     //    file.write(&g_env, sizeof(&g_env));
@@ -320,7 +377,7 @@ void MainWindow::on_actionSave_As_triggered()
 
 void MainWindow::on_actionOpen_triggered()
 {
-    loadFile("temp.dat");
+//    loadFile("temp.dat");
 
     //    //    qDebug() << "------------------------------ open conf ------------------------------";
     //    std::ifstream file;
@@ -332,7 +389,7 @@ void MainWindow::on_actionOpen_triggered()
     //        g_env.load(file);
     //        file.close();
     //    }
-    //    setCentralWidget(m_splitterRoot);
+//        setCentralWidget(m_splitterRoot);
 
     //    //    for (auto pair : g_env.m_sizes.toStdMap()) {
     //    //        qDebug() << "pair : " << pair;
@@ -350,12 +407,12 @@ void MainWindow::on_actionOpen_triggered()
 
 void MainWindow::on_actionLoad_Factory_Settings_triggered()
 {
-    loadFile("factory.dat");
+//    loadFile("factory.dat");
 }
 
 void MainWindow::on_actionSave_Startup_File_triggered()
 {
-    saveFile("startup.dat");
+//    saveFile("startup.dat");
 }
 
 void MainWindow::on_actionNew_triggered()
@@ -373,15 +430,16 @@ void MainWindow::on_systemBrowserCanceled()
 {
 //    ui->stackedWidget->setCurrentWidget(ui->page_splitterRoot);
 //    ui->stackedWidget->setCurrentWidget()
-    ui->stackedWidget->setCurrentWidget(view);
+//    ui->stackedWidget->setCurrentWidget(view);
 }
 
 void MainWindow::on_systemBrowserLoaded(QString filename)
 {
-    ui->stackedWidget->setCurrentWidget(view);
+//    ui->stackedWidget->setCurrentWidget(view);
 //    ui->stackedWidget->setCurrentWidget(ui->page_splitterRoot);
 
-    Model model(g_resourcesPath + filename.toStdString());
+//    qDebug() << QThread::currentThreadId() << "[MainWindow][CONTEXT]" << QOpenGLContext::currentContext()->functions();
+//    Model model(g_resourcesPath + filename.toStdString());
 
-    g_env.m_scene.push_back(model);
+//    g_env.m_scene.push_back(model);
 }

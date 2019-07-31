@@ -4,11 +4,12 @@
 
 Environment g_env;
 
+
 Environment::Environment() : m_settings("Goliath", "Goliath-Engine")
 {
 //    m_settings.beginGroup()
 
-    qDebug() << g_resourcesPath.c_str();
+//    qDebug() << g_resourcesPath.c_str();
 //        Model scene = Model(g_resourcesPath + "maps/de_aztec/de_aztec.obj");
 //        m_scene.push_back(scene);
 }
@@ -58,6 +59,22 @@ void Environment::load(std::ifstream& file)
     //            m_SplitterNodes.load(file);
     //        }
 }
+
+//void Environment::addModel(string file)
+//{
+//    m_models.push_back(file);
+
+//    qDebug() << "view size = " << m_3dViews.size();
+//    for (QOpenGLWidget_3dView * view : m_3dViews) {
+//        view->addModel(file);
+//    }
+
+//}
+
+//void Environment::add3dView(QOpenGLWidget_3dView *view)
+//{
+//    m_3dViews.push_back(view);
+//}
 
 //std::ostream& operator<<(std::ostream& out, const Environment& env)
 //{

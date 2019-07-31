@@ -32,22 +32,11 @@
    <property name="styleSheet">
     <string notr="true">background-color: lightgrey;</string>
    </property>
-   <layout class="QVBoxLayout" name="verticalLayout">
+   <layout class="QHBoxLayout" name="horizontalLayout">
     <item>
      <widget class="QStackedWidget" name="stackedWidget">
-      <property name="currentIndex">
-       <number>1</number>
-      </property>
-      <widget class="QSplitterNode" name="page_splitterRoot">
-       <property name="styleSheet">
-        <string notr="true">background-color: red;</string>
-       </property>
-      </widget>
-      <widget class="FormSystemBrowser" name="page_systemBrowser">
-       <property name="styleSheet">
-        <string notr="true"/>
-       </property>
-      </widget>
+      <widget class="QSplitterNode" name="page_splitterRoot"/>
+      <widget class="FormSystemBrowser" name="page_systemBrowser"/>
      </widget>
     </item>
    </layout>

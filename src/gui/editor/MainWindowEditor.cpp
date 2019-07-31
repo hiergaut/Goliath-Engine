@@ -6,6 +6,9 @@
 
 #include <QOpenGLContext>
 //#include <gui/editor/MainWindowEditor.h>
+#include <fstream>
+//#include <iostream>
+#include <QDebug>
 
 MainWindowEditor::MainWindowEditor(QWidget* parent)
     : QMainWindow(parent)
@@ -63,7 +66,7 @@ void MainWindowEditor::setEditor(WidgetEditorId id)
     m_id = id;
 }
 
-void MainWindowEditor::save(ofstream& file)
+void MainWindowEditor::save(std::ofstream& file)
 {
     //        WidgetEditorId id = static_cast<MainWindowEditor*>(widget(0))->id();
     file.write(reinterpret_cast<const char*>(&m_id), sizeof(m_id));
@@ -71,7 +74,7 @@ void MainWindowEditor::save(ofstream& file)
     return;
 }
 
-void MainWindowEditor::load(ifstream& file)
+void MainWindowEditor::load(std::ifstream& file)
 {
 //        WidgetEditorId id;
         file.read(reinterpret_cast<char*>(&m_id), sizeof (m_id));

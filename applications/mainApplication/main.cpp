@@ -1,39 +1,48 @@
 #include "MainWindow.h"
+//#include "QOpenGLWindow_Application.h"
 #include <QApplication>
 
-#include <QDebug>
+//#include <QDebug>
 #include <QSurfaceFormat>
-#include <opengl/OpenglContext.h>
-#include <opengl/version.h>
+//#include <opengl/OpenglContext.h>
+//#include <opengl/version.h>
 
+//#include <QThread>
 //#include <QOpenGLFunctionsCokk>
 
 int main(int argc, char* argv[])
 {
+//    QCoreApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
+
     QSurfaceFormat format;
-    format.setVersion(3, 3);
+    format.setVersion(4, 1);
     format.setProfile(QSurfaceFormat::CoreProfile);
     format.setDepthBufferSize(24);
     format.setSamples(4);
     QSurfaceFormat::setDefaultFormat(format);
-    QCoreApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
+
     //    g_openglContext = new OpenglContext;
 
     //    qDebug() << "[CONTEXT] main : " << QOpenGLContext::globalShareContext();
     QApplication a(argc, argv);
+
 
     //    QOpenGLContext::globalShareContext()->
 //    QOpenGLFunctionsCore* fun = QOpenGLContext::globalShareContext()->versionFunctions<QOpenGLFunctionsCore>();
 //    fun->initializeOpenGLFunctions();
 
     MainWindow w;
-    qDebug() << "[CONTEXT] main : " << QOpenGLContext::globalShareContext()->functions();
+//    QOpenGLWindow_Application w;
+//    qDebug() << QThread::currentThreadId() <<"[main][SHARED CONTEXT]" << QOpenGLContext::globalShareContext()->functions();
+
+//    qDebug() << "[main][CONTEXT] " << QOpenGLContext::currentContext()->functions();
     //    qDebug() << "[CONTEXT] main : " << QOpenGLContext::globalShareContext()->extraFunctions();
 
     //        QOpenGLContext * ctx = QOpenGLContext::currentContext();
     //        qDebug() << "[CONTEXT] mainWindow : " << ctx;
 
     w.show();
+//    w.showSystemBrowser();
 //    w.loadFile("temp.dat");
 
     return a.exec();
