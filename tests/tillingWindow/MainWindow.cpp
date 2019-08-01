@@ -54,7 +54,7 @@ MainWindow::MainWindow(QWidget* parent)
 //    node->addWidget(new widgetTemplate);
 //    QWidget * w = new widgetTemplate;
 //    node->addWidget(node2);
-    node->addWidget(new widgetTemplate);
+//    node->addWidget(new widgetTemplate);
 
     setCentralWidget(m_splitterRoot);
 

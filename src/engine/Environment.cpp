@@ -46,6 +46,10 @@ void Environment::load(std::ifstream& file)
     if (*m_splitterRoot != nullptr) {
         delete *m_splitterRoot;
     }
+    m_views.clear();
+//    for (const QOpenGLWidget_3dView * view : *m_views) {
+//        delete view;
+//    }
     *m_splitterRoot = new QSplitterNode;
     (*m_splitterRoot)->load(file);
     //    m_SplitterNodes.clear();

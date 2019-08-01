@@ -57,6 +57,7 @@ MainWindow::MainWindow(QWidget* parent)
     //    fun->initializeOpenGLFunctions();
     //    QOpenGLFunctions * fun = context.functions();
     //    fun->initializeOpenGLFunctions();
+//    setAttribute(Qt::WA_TranslucentBackground);
 
     //    QOpenGLFunctionsCore * fun = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
     //    fun->initializeOpenGLFunctions();
@@ -93,10 +94,14 @@ MainWindow::MainWindow(QWidget* parent)
     //    g_env.m_splitterRoot = &m_splitterRoot;
 
     g_env.m_splitterRoot = &ui->page_splitterRoot;
+    g_env.m_mainWindow = this;
 
 
     editor = new QOpenGLWidget_Editor(centralWidget());
 
+//    editor->resize(300, 900);
+//    editor->resize(this->size());
+//    editor->resize(500, 1080);
 //    g_env.m_views = editor->views();
 //    ui->stackedWidget->addWidget(new QOpenGLWidget_3dView(this));
     //    ui->stackedWidget->addWidget(&m_splitterRoot);
@@ -265,8 +270,10 @@ void MainWindow::loadFile(std::string filename)
 
 
 //    editor->resize(ui->stackedWidget->size());
-    editor->resize(500, 500);
+//    editor->resize(500, 500);
 //    setCentralWidget(editor);
+//    qDebug() << centralWidget()->size() << centralWidget()->sizeHint();
+//    qDebug() << ui->page_systemBrowser->size() << ui->page_systemBrowser->sizeHint();
 
     //    std::cout << "str : '" << g_env.str << "'" << std::endl;
     //    std::cout << g_env;
@@ -341,6 +348,14 @@ void MainWindow::focusInEvent(QFocusEvent*)
     qDebug() << this << ": focusInEvent";
 }
 
+void MainWindow::resizeEvent(QResizeEvent * ev)
+{
+    qDebug() << "[MAIN APPLICATION] : resizeEvent" << ev;
+
+    qDebug() << ui->centralWidget->size();
+    editor->resize(ui->centralWidget->width(), ui->centralWidget->height());
+}
+
 void MainWindow::on_actionQuit_triggered()
 {
     //    ui->splitter_root->saveSetting();
@@ -377,7 +392,7 @@ void MainWindow::on_actionSave_As_triggered()
 
 void MainWindow::on_actionOpen_triggered()
 {
-//    loadFile("temp.dat");
+    loadFile("temp.dat");
 
     //    //    qDebug() << "------------------------------ open conf ------------------------------";
     //    std::ifstream file;
@@ -442,4 +457,9 @@ void MainWindow::on_systemBrowserLoaded(QString filename)
 //    Model model(g_resourcesPath + filename.toStdString());
 
 //    g_env.m_scene.push_back(model);
+}
+
+void MainWindow::on_actionSave_triggered()
+{
+   saveFile("temp.dat");
 }

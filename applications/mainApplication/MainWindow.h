@@ -35,6 +35,8 @@ protected:
     void keyPressEvent(QKeyEvent *);
     void focusInEvent(QFocusEvent *);
 
+    void resizeEvent(QResizeEvent *);
+
 private slots:
     void on_actionQuit_triggered();
     void on_actionSave_As_triggered();
@@ -46,6 +48,8 @@ private slots:
 
     void on_systemBrowserCanceled();
     void on_systemBrowserLoaded(QString filename);
+
+    void on_actionSave_triggered();
 
 private:
     Ui::MainWindow *ui;

@@ -29,7 +29,7 @@ public:
 
 //using widgetTemplate = QWidgetTemplate;
 //using widgetTemplate = QWidget;
-using widgetTemplate = MainWindowEditor;
+//using widgetTemplate = MainWindowEditor;
 
 class QSplitterNode : public QSplitter
 {

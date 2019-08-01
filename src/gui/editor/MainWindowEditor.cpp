@@ -9,6 +9,7 @@
 #include <fstream>
 //#include <iostream>
 #include <QDebug>
+#include <engine/Environment.h>
 
 MainWindowEditor::MainWindowEditor(QWidget* parent)
     : QMainWindow(parent)
@@ -42,8 +43,8 @@ MainWindowEditor::MainWindowEditor(QWidget* parent)
 
 MainWindowEditor::~MainWindowEditor()
 {
-    delete ui;
     delete centralWidget();
+    delete ui;
 }
 
 void MainWindowEditor::setEditor(WidgetEditorId id)
@@ -97,6 +98,9 @@ void MainWindowEditor::focusInEvent(QFocusEvent*)
 
 void MainWindowEditor::on_action3D_View_triggered()
 {
+//    if (m_id == VIEW) {
+////        g_env.m_views.remov
+//    }
     setEditor(VIEW);
     //    QOpenGLWidget_3dView * widget = new QOpenGLWidget_3dView;
     ////    centralWidget()->setFocus();

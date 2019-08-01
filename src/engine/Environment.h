@@ -12,14 +12,18 @@
 #include <QSettings>
 #include <opengl/model.h>
 #include <gui/editor/3dview/QOpenGLWidget_3dView.h>
+#include <list>
+#include <engine/Scene.h>
 
 class Environment
 {
 public:
     QSettings m_settings;
     QSplitterNode ** m_splitterRoot;
+    QMainWindow * m_mainWindow;
+    Scene m_scene;
 
-    std::vector<const QOpenGLWidget_3dView *> * m_views;
+    std::list<const QOpenGLWidget_3dView *> m_views;
 //    std::map<std::string, std::list<int>> m_sizes;
 //    QMap<QString, QList<int>> m_sizes;
 //    std::vector<QSplitterNode> m_SplitterNodes;

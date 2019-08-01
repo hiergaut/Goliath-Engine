@@ -41,21 +41,25 @@ QOpenGLWidget_3dView::QOpenGLWidget_3dView(QWidget* parent)
     //    fun = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
     //    fun = g_openglContext.m_fun;
     //    fun = g_fun;
-    setFocusPolicy(Qt::ClickFocus);
+//    setFocusPolicy(Qt::ClickFocus);
 
     //    setAutoFillBackground(false);
     m_camera = new CameraWorld(glm::vec3(10, -10, 10), glm::vec3(0, 0, 0));
+    m_projectionMatrix = glm::perspective(glm::radians(m_camera->getFov()), (float)width() / height(), l_near, l_far);
     //    setMouseTracking(true);
     //    setFocus();
     //    initializeOpenGLFunctions();
     //    setFocus();
-    g_env.m_views->push_back(this);
+    g_env.m_views.push_back(this);
     qDebug() << "[3dview] add " << this << "to " << g_env.m_views;
 }
 
 QOpenGLWidget_3dView::~QOpenGLWidget_3dView()
 {
 //    makeCurrent();
+
+    g_env.m_views.remove(this);
+    qDebug() << "[3dView] " << this << "remove in views " << g_env.m_views;
 
 //    delete m_grid;
 //    delete m_shader;

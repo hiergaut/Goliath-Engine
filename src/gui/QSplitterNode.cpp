@@ -572,6 +572,7 @@ void QSplitterNode::load(std::ifstream& file)
 void QSplitterNode::mousePressEvent(QMouseEvent* ev)
 {
     qDebug() << this << ": depth = " << m_depth << ", parent = " << parentWidget();
+    qDebug() << rect();
     Q_ASSERT(count() == 1);
 
     //    if (m_depth == 0) {

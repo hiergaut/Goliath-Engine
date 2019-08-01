@@ -2,6 +2,11 @@
 
 #include <QDateTime>
 #include <engine/Environment.h>
+//#include <QMainWindow>
+
+#include <QThread>
+//#include <QMainWindow>
+//#include "qmainwindow.h"
 
 QOpenGLWidget_Editor::QOpenGLWidget_Editor(QWidget* parent)
     : QOpenGLWidget(parent)
@@ -9,8 +14,13 @@ QOpenGLWidget_Editor::QOpenGLWidget_Editor(QWidget* parent)
 
     //    g_env.m_splitterRoot = & m_splitterRoot;
 
+    setAutoFillBackground(false);
+    //    setStyleSheet("background-color: transparent");
+    //    setAttribute(Qt::WA_TranslucentBackground);
+    setAttribute(Qt::WA_TransparentForMouseEvents);
+    setAttribute(Qt::WA_AlwaysStackOnTop);
     //    loadEnv("temp.dat");
-    g_env.m_views = &m_views;
+    //    g_env.m_views = &m_views;
 }
 
 //std::vector<const QOpenGLWidget_3dView *> *QOpenGLWidget_Editor::views()
@@ -81,6 +91,8 @@ void QOpenGLWidget_Editor::initializeGL()
     glEnable(GL_CULL_FACE);
     glEnable(GL_MULTISAMPLE);
 
+//    glEnable(GL_LINE_SMOOTH);
+
     //    glFrontFace(GL_CW);
     //    glCullFace(GL_BACK);
     //    glEnable(GL_STENCIL_TEST);
@@ -97,7 +109,7 @@ void QOpenGLWidget_Editor::initializeGL()
 
     //        shaderCube = Shader("../Goliath-Engine/shader/first.vsh", "../Goliath-Engine/shader/first.fsh");
 
-    m_shader = new Shader(g_shaderPath + "model_loading.vsh", g_shaderPath + "model_loading.fsh");
+//    m_shader = new Shader(g_shaderPath + "model_loading.vsh", g_shaderPath + "model_loading.fsh");
 
     //    shader = Shader(":/resources/shader/model_loading.vsh", ":/resources/shader/model_loading.fsh");
     //    QOpenGLShader vertexShader(QOpenGLShader::Vertex);
@@ -128,14 +140,14 @@ void QOpenGLWidget_Editor::initializeGL()
     //    model =  Model("../Goliath-Engine/model/cube/cube.obj");
     //    scene = Model(":/maps/de_aztec/de_aztec.obj");
 
-    m_scene = new Model(g_resourcesPath + "maps/de_aztec/de_aztec.obj");
+//    m_scene = new Model(g_resourcesPath + "maps/de_aztec/de_aztec.obj");
 
     //    scene = Model("../Goliath-Engine/model/nanosuit/nanosuit.obj");
     //    camera = new CameraWorld(glm::vec3(10, -10, 10), glm::vec3(0, 0, 0));
-    //    m_projection = glm::perspective(glm::radians(camera->getFov()), width() / float(height()), l_near, l_far);
+    //        m_projection = glm::perspective(glm::radians(camera->getFov()), width() / float(height()), l_near, l_far);
     //    m_projection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 0.1f, 100.0f);
 
-    m_grid = new Grid;
+//    m_grid = new Grid;
 
     m_axis = new Axis();
 
@@ -144,6 +156,7 @@ void QOpenGLWidget_Editor::initializeGL()
     //      glFormat.setSamples(4);
 
     //    shaderAxis = new Shader(shaderPath + "axis.vsh", shaderPath + "axis.fsh");
+    g_env.m_scene.initialize();
 
     //      widget = new GLWidget(glFormat, ui->centralWidget);
     //      widget->setObjectName(QStringLiteral("widget"));
@@ -161,8 +174,9 @@ void QOpenGLWidget_Editor::initializeGL()
 
 void QOpenGLWidget_Editor::resizeGL(int w, int h)
 {
+    qDebug() << "[GL EDITOR] : resize " << w << h;
     //    QOpenGLWidget::makeCurrent();
-        glViewport(0, 0, w, h);
+    //    glViewport(0, 0, w, h);
     //    updateProjection();
 }
 
@@ -175,79 +189,104 @@ void QOpenGLWidget_Editor::paintGL()
     //    QOpenGLFunctions *fun = QOpenGLContext::currentContext()->functions();
     //    QOpenGLExtraFunctions * fun = QOpenGLContext::currentContext()->extraFunctions();
 
-    uint64_t currentFrame = QDateTime::currentMSecsSinceEpoch();
-    m_deltaTime = currentFrame - m_lastFrame;
-    m_lastFrame = currentFrame;
-    m_fps += 1000.0 / m_deltaTime;
-    if (m_cpt % 60 == 0) {
-        qDebug() << "fps : " << m_fps / 60.0;
-        m_fps = 0.0;
-    }
+    //    uint64_t currentFrame = QDateTime::currentMSecsSinceEpoch();
+    //    m_deltaTime = currentFrame - m_lastFrame;
+    //    m_lastFrame = currentFrame;
+    //    m_fps += 1000.0 / m_deltaTime;
+    //    if (m_cpt % 60 == 0) {
+    //        qDebug() << "fps : " << m_fps / 60.0;
+    //        m_fps = 0.0;
+    //    }
 
     //    cameraMove();
 
-        glViewport(100, 100, 100, 100);
-    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+    //    glClearColor(0.2f, 0.3f, 0.3f, 0.5f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
     //    glDepthMask(GL_FALSE);
 
+    //    glViewport(100, 100, 100, 100);
+    //    glClearColor(0.0f, 1.0f, 0.0f, 1.0f);
     // -------------------------------------------------------------------------------
 
     //    glm::mat4 view = camera->getViewMatrix();
-//    //    glm::mat4 projection = m_projection;
-//    glm::mat4 model(1.0);
-//    //    model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0, 0, 0));
-//    //    model = glm::scale(model, glm::vec3(0.01f));
+    //    //    glm::mat4 projection = m_projection;
+    glm::mat4 model(1.0);
+    //            model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0, 0, 0));
+    //            model = glm::scale(model, glm::vec3(0.01f));
+    //            m_shader->use();
 
-//    m_shader->use();
-//    m_shader->setMat4("model", model);
+    for (const QOpenGLWidget_3dView* v : g_env.m_views) {
+        Q_ASSERT(v);
+        //        qDebug() << v << v->rect();
+        //            QRect vRect = v->geometry();
+        if (v->height() < 10 || v->width() < 10)
+            continue;
 
-//    for (auto v : m_views) {
-//        int x = v->x();
-//        int y = v->y();
-//        int width = v->width();
-//        int height = v->height();
-//        qDebug() << "[EDITOR] view " << v << x << y << width << height;
+        QPoint point = v->mapTo(g_env.m_mainWindow, v->pos());
 
-////        glViewport(x, y, width, height);
+        //            qDebug() << v << point;
+        //            vRect.moveTopLeft(this->mapToGlobal(vRect.topLeft()));
+        //    //        auto g = v->geometry();
+        //            int x = vRect.x();
+        //            int y = vRect.y();
+        //            int width = vRect.width();
+        //            int height = vRect.height();
+        ////            qDebug() << "[EDITOR] view " << v << x << y << width << height;
 
-////        glm::mat4 viewMatrix = v->viewMatrix();
-////        glm::mat4 projectionMatrix = v->projectionMatrix();
+        int x = point.x();
+        int y = g_env.m_mainWindow->height() - point.y() - v->height();
+        glViewport(x, y, v->width(), v->height());
+        //            glViewport(x, y, width, height);
+        //        glClearColor(1.0f, 0.3f, 0.3f, 1.0f);
+        //        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-////        m_shader->setMat4("view", viewMatrix);
-////        m_shader->setMat4("projection", projectionMatrix);
-////        //        qDebug() << "[3dView] " << this << "nb model = " << g_env.m_scene.size();
-////        //        for (int i =0; i <g_env.m_scene.size(); ++i) {
-////        //            g_env.m_scene[i].Draw(*m_shader);
-////        ////            m_scene = g_env.m_scene.at(0);
-////        ////            Model & model = g_env.m_scene.at(0);
-////        ////            model.Draw(*m_shader);
-////        //        }
+        glm::mat4 viewMatrix = v->viewMatrix();
+        glm::mat4 projectionMatrix = v->projectionMatrix();
 
-////        //    for (Model & model : m_models) {
-////        //        model.Draw(*m_shader);
-////        //    }
-////        m_scene->Draw(*m_shader);
+//        m_shader->use();
+//        m_shader->setMat4("model", model);
+//        m_shader->setMat4("view", viewMatrix);
+//        m_shader->setMat4("projection", projectionMatrix);
+//        //        qDebug() << "[3dView] " << this << "nb model = " << g_env.m_scene.size();
+        //        for (int i =0; i <g_env.m_scene.size(); ++i) {
+        //            g_env.m_scene[i].Draw(*m_shader);
+        ////            m_scene = g_env.m_scene.at(0);
+        ////            Model & model = g_env.m_scene.at(0);
+        ////            model.Draw(*m_shader);
+        //        }
 
-////        m_grid->draw(model, viewMatrix, projectionMatrix);
-////        //    m_grid->draw();
+        //    for (Model & model : m_models) {
+        //        model.Draw(*m_shader);
+        //    }
+//        m_scene->Draw(*m_shader);
+//        g_env.m_scene.draw(m_shader);
+        g_env.m_scene.draw(projectionMatrix, viewMatrix);
+//        for (Model * model : g_env.m_scene) {
+//            model->Draw(*m_shader);
+//        }
 
-////        //    shader.setVec3("viewPos", camera.Position);
-////        //    glDrawArrays(GL_TRIANGLES, 0, 36);
-////        glViewport(x +5, y +5, x +55, y +55);
-////        //    glEnable(GL_LINE_SMOOTH);
-////        //    glDisable(GL_LINE_SMOOTH);
-////        //    glEnable(GL_LINE_SMOOTH);
+//        m_grid->draw(model, viewMatrix, projectionMatrix);
 
-////        //    glLineWidth(10);
-////        //    GLfloat lineWidgthRange[2] ={0.0f, 0.0f};
-////        //    glGetFloatv(GL_ALIASED_LINE_WIDTH_RANGE, lineWidgthRange);
-////        //    qDebug() << lineWidgthRange[0] << lineWidgthRange[1];
-////        m_axis->draw(viewMatrix);
-//    }
+        //    m_grid->draw();
+
+        //    shader.setVec3("viewPos", camera.Position);
+        //    glDrawArrays(GL_TRIANGLES, 0, 36);
+        glViewport(x + 5, y + 5, 55, 55);
+        //    glEnable(GL_LINE_SMOOTH);
+        //    glDisable(GL_LINE_SMOOTH);
+        //    glEnable(GL_LINE_SMOOTH);
+
+        //    glLineWidth(10);
+        //    GLfloat lineWidgthRange[2] ={0.0f, 0.0f};
+        //    glGetFloatv(GL_ALIASED_LINE_WIDTH_RANGE, lineWidgthRange);
+        //    qDebug() << lineWidgthRange[0] << lineWidgthRange[1];
+        m_axis->draw(viewMatrix);
+    }
 
     // ----------------------------------------------------------------
 
     ++m_cpt;
+//    QThread::msleep(1000);
     update();
 }

@@ -4,7 +4,7 @@
 #include <QMainWindow>
 
 enum WidgetEditorId {
-    START = 0, VIEW, OUTLINER
+    VIEW = 1, OUTLINER = 2
 };
 
 namespace Ui {
