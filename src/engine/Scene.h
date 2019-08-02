@@ -5,6 +5,7 @@
 #include <opengl/model.h>
 #include <opengl/shader.h>
 #include <opengl/grid.h>
+#include <gui/editor/3dview/QOpenGLWidget_3dView.h>
 
 class Scene {
 public:
@@ -36,16 +37,23 @@ private:
 private:
 //    std::vector<std::string> m_modelPaths;
     QStandardItemModel m_itemModel;
-    std::vector<Model> m_models;
 
-    Model* m_camera;
+    std::vector<Model> m_models;
+    Shader* m_shader;
+
+//    std::vector<QOpenGLWidget_3dView *> m_views;
+
+    Model* m_cameraModel;
+    Shader* m_shaderCamera;
+    std::vector<const CameraWorld*> m_cameras;
+
     Grid * m_grid;
 
-    Shader* m_shaderCamera;
-    Shader* m_shader;
 
 public:
     QStandardItemModel* itemModel();
+//    std::vector<QOpenGLWidget_3dView *> views() const;
+//    std::vector<const CameraWorld &> & cameras() const;
 };
 
 //static Scene g_scene;

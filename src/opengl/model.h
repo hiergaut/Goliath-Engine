@@ -52,7 +52,7 @@ public:
 //    qDebug() << QThread::currentThreadId() << "[MODEL]" << this << "[CONTEXT]" << fun;
 
         loadModel(path);
-        std::cout << "model loaded" << std::endl;
+        std::cout << "[MODEL] " << path << " loaded" << std::endl;
     }
 
     // draws the model, and thus all its meshes

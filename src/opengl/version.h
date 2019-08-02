@@ -11,6 +11,14 @@ using QOpenGLFunctionsCore = QOpenGLFunctions_4_1_Core;
 static std::string g_resourcesPath = "../../../Goliath-Engine/resources/";
 static std::string g_shaderPath = g_resourcesPath + "shader/";
 
+//#include "CameraWorld.h"
+//static std::vector<CameraWorld*> * g_cameras;
+
+//#include <gui/editor/3dview/QOpenGLWidget_3dView.h>
+//static std::list<QOpenGLWidget_3dView *> g_views;
+//#include <list>
+//static std::list<QOpenGLWidget_3dView> * m_views = nullptr;
+
 //#define RESOURCES_PATH ../../../Goliath-Engine/resources/
 
 #endif // VERSION_H

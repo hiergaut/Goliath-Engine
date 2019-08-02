@@ -14,6 +14,7 @@
 
 #include <gui/editor/3dview/QOpenGLWidget_3dView.h>
 #include <gui/QOpenGLWidget_Editor.h>
+#include <engine/Scene.h>
 
 namespace Ui {
 class MainWindow;
@@ -27,14 +28,16 @@ public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-    void loadFile(std::string filename);
-    void saveFile(std::string filename);
+    void loadEnv(std::string filename);
+    void saveEnv(std::string filename);
     void showSystemBrowser();
     void showEditors();
 
+//    std::list<const QOpenGLWidget_3dView *> views() const;
+
 protected:
     void keyPressEvent(QKeyEvent *);
-    void focusInEvent(QFocusEvent *);
+//    void focusInEvent(QFocusEvent *);
 
     void resizeEvent(QResizeEvent *);
 
@@ -56,8 +59,12 @@ private:
     Ui::MainWindow *ui;
 
     QOpenGLWidget_Editor * editor;
+
+    std::list<const QOpenGLWidget_3dView *> m_views;
+
 //    QOpenGLWidget_3dView * view;
 //    QOpenGLWidget_3dView * view2;
+//    Scene m_scene;
 
 //    Model * m_scene;
 //    QFileSystemModel * m_model;

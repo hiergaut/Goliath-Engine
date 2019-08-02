@@ -25,6 +25,7 @@
 //#include <opengl/model.h>
 #include <QWidget>
 
+
 class QOpenGLWidget_3dView : public QWidget {
     Q_OBJECT
 
@@ -35,6 +36,8 @@ public:
 
 //    void setScene(Model *scene);
 //    void addModel(std::string file);
+    void load(std::ifstream & file);
+    void save(std::ofstream & file);
 
 
 signals:
@@ -59,62 +62,12 @@ private:
 //    void updateProjection();
 
 private:
-//    QOpenGLFunctionsCore * fun;
-
-//    int cpt = 0;
-//    float fps;
 
     bool m_middleClicked = false;
-    //    QOpenGLBuffer m_vbo;
-    //    QOpenGLBuffer m_ebo;
-//    Shader * m_shader;
-//    Model * m_scene;
-
-//    std::vector<Model> m_models;
-
-//    Shader shaderLight;
-//    Grid * m_grid;
-
-//    Axis * m_axis;
 
     bool m_ortho = false;
     float orthoSize = 10.0f;
 
-//    Shader * shaderAxis;
-//    QOpenGLShaderProgram m_shader;
-//    QOpenGLVertexArrayObject m_vao;
-    //    QOpenGLVertexArrayObject m_vaoLight;
-
-    //    QOpenGLShaderProgram m_program;
-    //    QOpenGLShaderProgram m_programLight;
-
-    //    QOpenGLShader * m_shader;
-    //    QOpenGLTexture * m_texture;
-//    QOpenGLTexture* m_texture;
-//    QOpenGLTexture* m_texture2;
-
-//    glm::vec3 cubePositions[10] = {
-//        glm::vec3(0.0f, 0.0f, 0.0f),
-//        glm::vec3(2.0f, 5.0f, -15.0f),
-//        glm::vec3(-1.5f, -2.2f, -2.5f),
-//        glm::vec3(-3.8f, -2.0f, -12.3f),
-//        glm::vec3(2.4f, -0.4f, -3.5f),
-//        glm::vec3(-1.7f, 3.0f, -7.5f),
-//        glm::vec3(1.3f, -2.0f, -2.5f),
-//        glm::vec3(1.5f, 2.0f, -2.5f),
-//        glm::vec3(1.5f, 0.2f, -1.5f),
-//        glm::vec3(-1.3f, 1.0f, -1.5f)
-//    };
-
-//    glm::vec3 pointLightPositions[4] = {
-//        glm::vec3(0.7f, 0.2f, 2.0f),
-//        glm::vec3(2.3f, -3.3f, -4.0f),
-//        glm::vec3(-4.0f, 2.0f, -12.0f),
-//        glm::vec3(0.0f, 0.0f, -3.0f)
-//    };
-
-//    uint64_t deltaTime;
-//    uint64_t lastFrame;
 
     int frontDir = 0;
     int sideDir = 0;
@@ -123,14 +76,21 @@ private:
     bool m_shiftPressed = false;
 
 //    Camera camera;
-    CameraWorld * m_camera;
+    CameraWorld m_camera;
 
     glm::mat4 m_projectionMatrix;
+
+    static std::list<const QOpenGLWidget_3dView*> * m_views;
+
 //    glm::mat4 m_viewMatrix;
 
 public:
     glm::mat4 projectionMatrix() const;
     glm::mat4 viewMatrix() const;
+    static void setViews(std::list<const QOpenGLWidget_3dView *> *views);
 };
+
+
+//std::list<const QOpenGLWidget_3dView *> * l_views;
 
 #endif // QOPENGLWIDGET_WORLD_H

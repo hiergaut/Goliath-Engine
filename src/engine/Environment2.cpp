@@ -1,8 +1,8 @@
-#include "Environment.h"
+#include "Environment2.h"
 
 #include <opengl/version.h>
 
-Environment2 g_env;
+//Environment2 g_env;
 
 
 Environment2::Environment2() : m_settings("Goliath", "Goliath-Engine")
@@ -48,7 +48,7 @@ void Environment2::load(std::ifstream& file)
     if (*m_splitterRoot != nullptr) {
         delete *m_splitterRoot;
     }
-    m_views.clear();
+//    m_views.clear();
 //    for (const QOpenGLWidget_3dView * view : *m_views) {
 //        delete view;
 //    }

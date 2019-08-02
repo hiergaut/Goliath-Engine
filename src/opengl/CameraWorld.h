@@ -3,6 +3,10 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <fstream>
+#include <QDebug>
+#include <iostream>
 
 namespace  {
     float accuracyRotate = 0.005f;
@@ -21,7 +25,7 @@ public:
 //        updateCameraVectors();
     }
 
-    glm::mat4 getViewMatrix() {
+    glm::mat4 getViewMatrix() const {
         return glm::lookAt(m_position, m_target, glm::vec3(0, 0, 1));
     }
 
@@ -57,6 +61,41 @@ public:
 
     float getFov() const {
         return m_fov;
+    }
+
+    void load(std::ifstream & file) {
+        float data[7];
+//        size_t size;
+//        size = sizeof(m_position);
+        file.read(reinterpret_cast<char *>(&data), sizeof(data));
+
+        m_position = glm::make_vec3(data);
+        m_target = glm::make_vec3(&data[3]);
+        m_fov = data[6];
+
+        qDebug() << "[CAMERA WORLD] load" << this;
+        qDebug() << m_position.x << m_position.y << m_position.z;
+        qDebug() << m_target.x << m_target.y << m_target.z;
+        qDebug() << m_fov;
+
+    }
+    void save(std::ofstream & file) {
+//        m_position.x = 1.0f;
+        glm::vec3 position = glm::vec3(-10, -10, -10);
+//        m_position.x = 1.0;
+        qDebug() << "[CAMERA WORLD] write" << this;
+        qDebug() << position.x << position.y << position.z;
+        qDebug() << m_target.x << m_target.y << m_target.z;
+        qDebug() << m_fov << "loaded";
+
+        float data[7];
+        std::memcpy(data, glm::value_ptr(position), 3 *sizeof(float));
+        std::memcpy(&data[3], glm::value_ptr(m_target), 3 *sizeof(float));
+        data[6] = m_fov;
+//        size_t size;
+//        size = sizeof(m_position);
+        file.write(reinterpret_cast<const char *>(&data), sizeof(data));
+
     }
 
 private:

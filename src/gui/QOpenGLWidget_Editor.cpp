@@ -1,15 +1,16 @@
 #include "QOpenGLWidget_Editor.h"
 
 #include <QDateTime>
-#include <engine/Environment.h>
+//#include <engine/Environment.h>
 //#include <QMainWindow>
 
 #include <QThread>
 //#include <QMainWindow>
 //#include "qmainwindow.h"
 
-QOpenGLWidget_Editor::QOpenGLWidget_Editor(QWidget* parent)
+QOpenGLWidget_Editor::QOpenGLWidget_Editor(QWidget* parent, QMainWindow * mainWindow)
     : QOpenGLWidget(parent)
+    , m_mainWindow(mainWindow)
 {
 
     //    g_env.m_splitterRoot = & m_splitterRoot;
@@ -28,7 +29,7 @@ void QOpenGLWidget_Editor::loadNewModel(std::string filename)
     makeCurrent();
 //    Model newModel(filename);
 //    m_models.push_back(std::move(newModel));
-    g_env.m_scene.addModel(filename);
+    m_scene.addModel(filename);
 
 }
 
@@ -36,7 +37,8 @@ void QOpenGLWidget_Editor::load(ifstream & filename)
 {
 
     makeCurrent();
-    g_env.load(filename);
+//    g_env.load(filename);
+    m_scene.load(filename);
 //    std::ifstream file;
 //    file.open(filename, std::ios::binary | std::ios::in);
 //    if (!file.is_open()) {
@@ -53,7 +55,8 @@ void QOpenGLWidget_Editor::load(ifstream & filename)
 void QOpenGLWidget_Editor::save(ofstream &filename)
 {
     makeCurrent();
-    g_env.save(filename);
+//    g_env.save(filename);
+    m_scene.save(filename);
 
 }
 
@@ -93,33 +96,7 @@ void QOpenGLWidget_Editor::save(ofstream &filename)
 
 void QOpenGLWidget_Editor::initializeGL()
 {
-    //    fun = context()->versionFunctions<QOpenGLFunctionsCore>();
-    //    QOpenGLWidget::makeCurrent();
-    //    qDebug() << QThread::currentThreadId() << "[3dView]" << this << "[CONTEXT]" << QOpenGLContext::currentContext()->functions();
-
-    //    qDebug() << "[GROUP] " << this << " 3dView : " << context()->shareGroup()->shares().size();
-    //    for (const auto & ctx : context()->shareGroup()->shares()) {
-    //        qDebug() << "\t" << ctx->functions();
-    //    }
-
-    //    QOpenGLContext * ctx = QOpenGLContext::currentContext();
-    //    ctx->setShareContext(g_ctx);
-    //    qDebug() << "[CONTEXT] 3dView : " << ctx;
-
-    //    QOpenGLFunctionsCore * fun = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
-    //    QOpenGLWidget::makeCurrent();
-    //    fun->initializeOpenGLFunctions();
-    //    QOpenGLExtraFunctions * fun = QOpenGLContext::globalShareContext()->extraFunctions();
-    //    Q_ASSERT(fun);
-    //    qDebug() << "[CONTEXT] 3dView : " << fun;
-
-    //        QOpenGLFunctionsCore * fun = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
-    //        qDebug() << "3dview " << fun;
-
-    //        fun->initializeOpenGLFunctions();
-    //    QOpenGLFunctions *fun = QOpenGLContext::currentContext()->functions();
-    //    initializeOpenGLFunctions();
-    //    makeCurrent();
+    QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
@@ -138,50 +115,6 @@ void QOpenGLWidget_Editor::initializeGL()
     //    glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
     //    glEnable(GL_COLOR_MATERIAL);
     //    glEnable(GL_MULTISAMPLE);
-    // ---------------------------------------------------------------------
-    //    m_program.bind();
-
-    //        shaderCube = Shader("../Goliath-Engine/shader/first.vsh", "../Goliath-Engine/shader/first.fsh");
-
-//    m_shader = new Shader(g_shaderPath + "model_loading.vsh", g_shaderPath + "model_loading.fsh");
-
-    //    shader = Shader(":/resources/shader/model_loading.vsh", ":/resources/shader/model_loading.fsh");
-    //    QOpenGLShader vertexShader(QOpenGLShader::Vertex);
-    //    vertexShader.compileSourceFile(":/shader/model_loading.vsh");
-
-    //    QOpenGLShader fragmentShader(QOpenGLShader::Fragment);
-    //    fragmentShader.compileSourceFile(":/shader/model_loading.fsh");
-
-    //    m_shader.addShader(&vertexShader);
-    //    m_shader.addShader(&fragmentShader);
-    //    m_shader.link();
-
-    //    m_shader = Q
-    //    qDebug() << QCoreApplication::applicationDirPath();
-
-    //    QFile file(":/resources/shader/model_loading.vsh");
-    //    QFile file("qrc:/resources/shader/model_loading.vsh");
-    //    QFile file(":/resources/shader/model_loading.vsh");
-    //    QFile file(":/shader/model_loading.fsh");
-    //    qDebug() << file.exists() << file.fileName();
-
-    //    shader = Shader(":/model_loading.vsh", ":/shader/model_loading.fsh");
-
-    //        shader = Shader("../Goliath-Engine/shader/model_loading.vsh", "../Goliath-Engine/shader/depthTesting.fsh");
-
-    //    shaderLight = Shader("../Goliath-Engine/resources/shader/light.vsh", "../../Goliath-Engine/resources/shader/light.fsh");
-    //    Model
-    //    model =  Model("../Goliath-Engine/model/cube/cube.obj");
-    //    scene = Model(":/maps/de_aztec/de_aztec.obj");
-
-//    m_scene = new Model(g_resourcesPath + "maps/de_aztec/de_aztec.obj");
-
-    //    scene = Model("../Goliath-Engine/model/nanosuit/nanosuit.obj");
-    //    camera = new CameraWorld(glm::vec3(10, -10, 10), glm::vec3(0, 0, 0));
-    //        m_projection = glm::perspective(glm::radians(camera->getFov()), width() / float(height()), l_near, l_far);
-    //    m_projection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 0.1f, 100.0f);
-
-//    m_grid = new Grid;
 
     m_axis = new Axis();
 
@@ -190,32 +123,23 @@ void QOpenGLWidget_Editor::initializeGL()
     //      glFormat.setSamples(4);
 
     //    shaderAxis = new Shader(shaderPath + "axis.vsh", shaderPath + "axis.fsh");
-    g_env.m_scene.initialize();
+//    g_env.m_scene.initialize();
+    m_scene.initialize();
 
-    //      widget = new GLWidget(glFormat, ui->centralWidget);
-    //      widget->setObjectName(QStringLiteral("widget"));
-    //      ui->horizontalLayout->addWidget(widget);
-    //    QSurfaceFormat glFormat;
-    //    glFormat.setSamples(4);
-    //    this->setFormat(glFormat);
-
-    //    GLint flags; glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
-    //    if (flags & GL_CONTEXT_FLAG_DEBUG_BIT)
-    //    {
-    //        // initialisation de la sortie de débogage
-    //    }
 }
 
-void QOpenGLWidget_Editor::resizeGL(int w, int h)
-{
-    qDebug() << "[GL EDITOR] : resize " << w << h;
-    //    QOpenGLWidget::makeCurrent();
-    //    glViewport(0, 0, w, h);
-    //    updateProjection();
-}
+//void QOpenGLWidget_Editor::resizeGL(int w, int h)
+//{
+//    qDebug() << "[GL EDITOR] : resize " << w << h;
+//    //    QOpenGLWidget::makeCurrent();
+//    //    glViewport(0, 0, w, h);
+//    //    updateProjection();
+//}
 
 void QOpenGLWidget_Editor::paintGL()
 {
+    QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
+
     //    QOpenGLWidget::makeCurrent();
 
     //        QOpenGLFunctionsCore * fun = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
@@ -250,14 +174,15 @@ void QOpenGLWidget_Editor::paintGL()
     //            model = glm::scale(model, glm::vec3(0.01f));
     //            m_shader->use();
 
-    for (const QOpenGLWidget_3dView* v : g_env.m_views) {
-        Q_ASSERT(v);
+    for (const QOpenGLWidget_3dView * v : *m_views) {
+//    for (const CameraWorld & camera : m_scene.cameras) {
+//        Q_ASSERT(v);
         //        qDebug() << v << v->rect();
         //            QRect vRect = v->geometry();
         if (v->height() < 20 || v->width() < 20)
             continue;
 
-        QPoint point = v->mapTo(g_env.m_mainWindow, v->pos());
+        QPoint point = v->mapTo(m_mainWindow, v->pos());
 
         //            qDebug() << v << point;
         //            vRect.moveTopLeft(this->mapToGlobal(vRect.topLeft()));
@@ -266,10 +191,10 @@ void QOpenGLWidget_Editor::paintGL()
         //            int y = vRect.y();
         //            int width = vRect.width();
         //            int height = vRect.height();
-        ////            qDebug() << "[EDITOR] view " << v << x << y << width << height;
+        //            qDebug() << "[EDITOR] view " << v << x << y << width << height;
 
         int x = point.x();
-        int y = g_env.m_mainWindow->height() - point.y() - v->height();
+        int y = m_mainWindow->height() - point.y() - v->height();
         glViewport(x, y, v->width(), v->height());
         //            glViewport(x, y, width, height);
         //        glClearColor(1.0f, 0.3f, 0.3f, 1.0f);
@@ -295,7 +220,7 @@ void QOpenGLWidget_Editor::paintGL()
         //    }
 //        m_scene->Draw(*m_shader);
 //        g_env.m_scene.draw(m_shader);
-        g_env.m_scene.draw(projectionMatrix, viewMatrix);
+        m_scene.draw(projectionMatrix, viewMatrix);
 //        for (Model * model : g_env.m_scene) {
 //            model->Draw(*m_shader);
 //        }
@@ -323,4 +248,9 @@ void QOpenGLWidget_Editor::paintGL()
     ++m_cpt;
 //    QThread::msleep(1000);
     update();
+}
+
+void QOpenGLWidget_Editor::setViews(std::list<const QOpenGLWidget_3dView *> *views)
+{
+    m_views = views;
 }

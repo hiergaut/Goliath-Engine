@@ -8,7 +8,7 @@
 //#include <Gui/TillingWindow/QSplitterNode.h>
 
 //#include <QVariant>
-#include <engine/Environment.h>
+//#include <engine/Environment.h>
 #include <opengl/version.h>
 //#include <QOpengl
 //Q_DECLARE_METATYPE(QList<QList<int>>);
@@ -43,7 +43,7 @@ MainWindow::MainWindow(QWidget* parent)
     //    ui->splitter_root->setParent(ui->splitter_root);
 //    g_env.m_splitterRoot = &ui->splitter_root;
 //    m_splitterRoot = new QSplitterNode;
-    g_env.m_splitterRoot = &m_splitterRoot;
+//    g_env.m_splitterRoot = &m_splitterRoot;
 
     m_splitterRoot = new QSplitterNode;
 
@@ -164,7 +164,7 @@ void MainWindow::on_actionSave_As_triggered()
         std::cerr << "cannot open file" << std::endl;
         exit(1);
     }
-    g_env.save(file);
+//    g_env.save(file);
     file.close();
 
     //    file.open("temp.dat", std::t
@@ -184,7 +184,7 @@ void MainWindow::on_actionOpen_triggered()
         std::cerr << "cannot open file" << std::endl;
         //        exit(1);
     } else {
-        g_env.load(file);
+//        g_env.load(file);
         file.close();
     }
     setCentralWidget(m_splitterRoot);

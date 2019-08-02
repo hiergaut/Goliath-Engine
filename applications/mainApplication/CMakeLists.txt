@@ -11,6 +11,8 @@ project (MainApplication)
 find_package(Qt5 COMPONENTS Core Widgets OpenGL REQUIRED)
 find_package(OpenGL REQUIRED)
 
+#add_definitions(-DGL_SILENCE_DEPRECATION)
+
 #INCLUDE(${QT_USE_FILE})
 #ADD_DEFINITIONS(${QT_DEFINITIONS})
 

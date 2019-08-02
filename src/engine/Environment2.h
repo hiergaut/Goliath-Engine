@@ -23,7 +23,7 @@ public:
     QMainWindow * m_mainWindow;
     Scene m_scene;
 
-    std::list<const QOpenGLWidget_3dView *> m_views;
+//    std::list<const QOpenGLWidget_3dView *> m_views;
 //    std::map<std::string, std::list<int>> m_sizes;
 //    QMap<QString, QList<int>> m_sizes;
 //    std::vector<QSplitterNode> m_SplitterNodes;
@@ -49,6 +49,6 @@ private:
 //    size_t m_sizesBytes;
 };
 
-extern Environment2 g_env;
+//extern Environment2 g_env;
 
 #endif // ENVIRONMENT_H

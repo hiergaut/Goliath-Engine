@@ -6,7 +6,7 @@
 #include <QMetaType>
 #include <QSettings>
 #include <QVariant>
-#include <engine/Environment.h>
+//#include <engine/Environment.h>
 #include <opengl/version.h>
 //Q_DECLARE_METATYPE(QList<QString>);
 
@@ -65,24 +65,24 @@ FormSystemBrowser::~FormSystemBrowser()
 
 void FormSystemBrowser::openFile()
 {
-    QSettings& settings = g_env.m_settings;
-    QStringList paths = settings.value(::settingsPath).value<QStringList>();
+//    QSettings& settings = g_env.m_settings;
+//    QStringList paths = settings.value(::settingsPath).value<QStringList>();
 
-    QString newPath = ui->lineEdit_currentPath->text();
-    if (!paths.contains(newPath)) {
-        paths += newPath;
+//    QString newPath = ui->lineEdit_currentPath->text();
+//    if (!paths.contains(newPath)) {
+//        paths += newPath;
 
-    } else {
-        int idx = paths.indexOf(newPath);
-        paths.move(idx, 0);
-    }
+//    } else {
+//        int idx = paths.indexOf(newPath);
+//        paths.move(idx, 0);
+//    }
 
-    settings.setValue(::settingsPath, QVariant::fromValue(paths));
-    qDebug() << "save setting " << paths;
+//    settings.setValue(::settingsPath, QVariant::fromValue(paths));
+//    qDebug() << "save setting " << paths;
 
-    updateRecent();
+//    updateRecent();
 
-    emit openned(newPath + ui->lineEdit_currentFile->text());
+//    emit openned(newPath + ui->lineEdit_currentFile->text());
 
 }
 
@@ -178,8 +178,8 @@ void FormSystemBrowser::on_pushButton_cancel_clicked()
 
 void FormSystemBrowser::updateRecent()
 {
-    QSettings& settings = g_env.m_settings;
-    QStringList paths = settings.value(::settingsPath).value<QStringList>();
+//    QSettings& settings = g_env.m_settings;
+//    QStringList paths = settings.value(::settingsPath).value<QStringList>();
 
-    m_recent->setStringList(paths);
+//    m_recent->setStringList(paths);
 }

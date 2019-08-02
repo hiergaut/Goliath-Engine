@@ -3,32 +3,35 @@
 
 #include <QMainWindow>
 
-enum WidgetEditorId {
-    VIEW = 1, OUTLINER = 2
+namespace Editor {
+enum id {
+    ZERO = 0,
+    VIEW,
+    OUTLINER
 };
+}
 
 namespace Ui {
 class MainWindowEditor;
 }
 
-class MainWindowEditor : public QMainWindow
-{
+class MainWindowEditor : public QMainWindow {
     Q_OBJECT
 
 public:
-    explicit MainWindowEditor(QWidget *parent = nullptr);
+    explicit MainWindowEditor(QWidget* parent = nullptr);
     ~MainWindowEditor();
 
-    void setEditor(WidgetEditorId id);
+    void setEditor(Editor::id id);
 
-    void save(std::ofstream & file);
-    void load(std::ifstream & file);
+    void save(std::ofstream& file);
+    void load(std::ifstream& file);
 
-    WidgetEditorId id() const;
+//    Editor::id id() const;
 
 protected:
-    void keyPressEvent(QKeyEvent *);
-    void focusInEvent(QFocusEvent *);
+    void keyPressEvent(QKeyEvent*);
+    void focusInEvent(QFocusEvent*);
 
 private slots:
     void on_action3D_View_triggered();
@@ -36,8 +39,10 @@ private slots:
     void on_actionOutliner_triggered();
 
 private:
-    WidgetEditorId m_id;
-    Ui::MainWindowEditor *ui;
+    Editor::id m_id = Editor::id::ZERO;
+    Ui::MainWindowEditor* ui;
+
+    QWidget * m_centralWidget;
 };
 
 #endif // MAINWINDOWEDITOR_H
