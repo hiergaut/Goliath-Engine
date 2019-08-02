@@ -63,6 +63,29 @@ FormSystemBrowser::~FormSystemBrowser()
     delete m_recent;
 }
 
+void FormSystemBrowser::openFile()
+{
+    QSettings& settings = g_env.m_settings;
+    QStringList paths = settings.value(::settingsPath).value<QStringList>();
+
+    QString newPath = ui->lineEdit_currentPath->text();
+    if (!paths.contains(newPath)) {
+        paths += newPath;
+
+    } else {
+        int idx = paths.indexOf(newPath);
+        paths.move(idx, 0);
+    }
+
+    settings.setValue(::settingsPath, QVariant::fromValue(paths));
+    qDebug() << "save setting " << paths;
+
+    updateRecent();
+
+    emit openned(newPath + ui->lineEdit_currentFile->text());
+
+}
+
 void FormSystemBrowser::on_changeSystemSelected(const QItemSelection& selected, const QItemSelection& deselected)
 {
     qDebug() << "on_changeSystemSelected" << selected << deselected;
@@ -132,9 +155,10 @@ void FormSystemBrowser::keyPressEvent(QKeyEvent* event)
     switch (event->key()) {
     case Qt::Key_Return:
         if (ui->pushButton_openFile->isEnabled()) {
-            QString path = ui->lineEdit_currentPath->text();
-            QString file = ui->lineEdit_currentFile->text();
-            emit openned(path + file);
+            openFile();
+//            QString path = ui->lineEdit_currentPath->text();
+//            QString file = ui->lineEdit_currentFile->text();
+//            emit openned(path + file);
         }
         break;
     }
@@ -144,24 +168,7 @@ void FormSystemBrowser::keyPressEvent(QKeyEvent* event)
 
 void FormSystemBrowser::on_pushButton_openFile_clicked()
 {
-    QSettings& settings = g_env.m_settings;
-    QStringList paths = settings.value(::settingsPath).value<QStringList>();
-
-    QString newPath = ui->lineEdit_currentPath->text();
-    if (!paths.contains(newPath)) {
-        paths += newPath;
-
-    } else {
-        int idx = paths.indexOf(newPath);
-        paths.move(idx, 0);
-    }
-
-    settings.setValue(::settingsPath, QVariant::fromValue(paths));
-    qDebug() << "save setting " << paths;
-
-    updateRecent();
-
-    emit openned(newPath + ui->lineEdit_currentFile->text());
+    openFile();
 }
 
 void FormSystemBrowser::on_pushButton_cancel_clicked()

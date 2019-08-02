@@ -15,7 +15,7 @@
 #include <list>
 #include <engine/Scene.h>
 
-class Environment
+class Environment2
 {
 public:
     QSettings m_settings;
@@ -31,7 +31,7 @@ public:
 
 
 public:
-    Environment();
+    Environment2();
 
 //    void clear();
     void save(std::ofstream & file);
@@ -49,6 +49,6 @@ private:
 //    size_t m_sizesBytes;
 };
 
-extern Environment g_env;
+extern Environment2 g_env;
 
 #endif // ENVIRONMENT_H

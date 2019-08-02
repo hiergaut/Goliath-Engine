@@ -10,10 +10,13 @@ Scene::Scene()
 
     //    m_itemModel = new QStandardItemModel;
 
-    QStandardItem* item0 = new QStandardItem("Scene");
+//    QStandardItem* item0 = new QStandardItem("Scene");
     //    QStandardItem * item1 = new QStandardItem("World");
     //    item0->appendRow(item1);
-    m_itemModel.appendRow(item0);
+//    m_itemModel.appendRow(item0);
+
+
+//    m_itemModel.appendColumn();
     //    model->appendColumn(item0);
 }
 
@@ -53,6 +56,72 @@ void Scene::draw(glm::mat4 projectionMatrix, glm::mat4 viewMatrix)
 
         m_camera->Draw(*m_shaderCamera);
     }
+}
+
+void Scene::addModel(std::string file)
+{
+    Model newModel(g_resourcesPath + file);
+    QStandardItem * item = new QStandardItem(file.c_str());
+    m_itemModel.appendRow(item);
+//    m_itemModel.appendColumn(item);
+    m_models.push_back(std::move(newModel));
+
+}
+
+void Scene::load(ifstream &file)
+{
+    clear();
+
+   size_t size;
+//   size = m_itemModel.rowCount();
+   file.read(reinterpret_cast<char *>(&size), sizeof(size));
+
+
+   for (int i =0; i <size; ++i) {
+//       std::string path = m_itemModel.data(m_itemModel.index(i, 0)).toString().toStdString();
+//       qDebug() << "[SCENE]" <<  path.c_str();
+
+       size_t sizePath;
+       file.read(reinterpret_cast<char*>(&sizePath), sizeof(sizePath));
+
+       char path[sizePath +1];
+       path[sizePath] = 0;
+//       std::string path();
+       file.read(reinterpret_cast<char*>(path), sizePath * sizeof(char));
+
+       std::string file(path);
+       addModel(file);
+   }
+
+
+
+}
+
+void Scene::clear()
+{
+    m_itemModel.clear();
+    m_models.clear();
+
+}
+
+void Scene::save(ofstream &file)
+{
+//    qDebug() << "[SCENE] " << m_itemModel.rowCount();
+   size_t size;
+   size = m_itemModel.rowCount();
+   file.write(reinterpret_cast<const char *>(&size), sizeof(size));
+
+
+   for (int i =0; i <size; ++i) {
+       std::string path = m_itemModel.data(m_itemModel.index(i, 0)).toString().toStdString();
+       qDebug() << "[SCENE]" <<  path.c_str();
+
+       size = path.size();
+       file.write(reinterpret_cast<const char*>(&size), sizeof(size));
+
+       file.write(reinterpret_cast<const char*>(path.data()), size * sizeof(char));
+   }
+
 }
 
 QStandardItemModel* Scene::itemModel()

@@ -43,11 +43,11 @@
         </size>
        </property>
        <property name="title">
-        <string>System</string>
+        <string>Recent</string>
        </property>
        <layout class="QHBoxLayout" name="horizontalLayout_2">
         <item>
-         <widget class="QListView" name="listView_system">
+         <widget class="QListView" name="listView_recent">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
             <horstretch>0</horstretch>
@@ -78,11 +78,11 @@
         </size>
        </property>
        <property name="title">
-        <string>Recent</string>
+        <string>System</string>
        </property>
        <layout class="QHBoxLayout" name="horizontalLayout_3">
         <item>
-         <widget class="QListView" name="listView_recent">
+         <widget class="QListView" name="listView_system">
           <property name="maximumSize">
            <size>
             <width>16777215</width>
@@ -94,7 +94,7 @@
        </layout>
       </widget>
      </widget>
-     <widget class="QWidget" name="">
+     <widget class="QWidget" name="layoutWidget">
       <layout class="QVBoxLayout" name="verticalLayout">
        <item>
         <layout class="QGridLayout" name="gridLayout">

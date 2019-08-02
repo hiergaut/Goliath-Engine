@@ -23,6 +23,40 @@ QOpenGLWidget_Editor::QOpenGLWidget_Editor(QWidget* parent)
     //    g_env.m_views = &m_views;
 }
 
+void QOpenGLWidget_Editor::loadNewModel(std::string filename)
+{
+    makeCurrent();
+//    Model newModel(filename);
+//    m_models.push_back(std::move(newModel));
+    g_env.m_scene.addModel(filename);
+
+}
+
+void QOpenGLWidget_Editor::load(ifstream & filename)
+{
+
+    makeCurrent();
+    g_env.load(filename);
+//    std::ifstream file;
+//    file.open(filename, std::ios::binary | std::ios::in);
+//    if (!file.is_open()) {
+//        std::cerr << "cannot open file" << std::endl;
+//        //        exit(1);
+//    } else {
+
+//        g_env.load(file);
+//        file.close();
+//    }
+
+}
+
+void QOpenGLWidget_Editor::save(ofstream &filename)
+{
+    makeCurrent();
+    g_env.save(filename);
+
+}
+
 //std::vector<const QOpenGLWidget_3dView *> *QOpenGLWidget_Editor::views()
 //{
 //    return & m_views;
@@ -220,7 +254,7 @@ void QOpenGLWidget_Editor::paintGL()
         Q_ASSERT(v);
         //        qDebug() << v << v->rect();
         //            QRect vRect = v->geometry();
-        if (v->height() < 10 || v->width() < 10)
+        if (v->height() < 20 || v->width() < 20)
             continue;
 
         QPoint point = v->mapTo(g_env.m_mainWindow, v->pos());

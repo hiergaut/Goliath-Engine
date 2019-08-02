@@ -18,6 +18,8 @@ public:
     explicit FormSystemBrowser(QWidget *parent = nullptr);
     ~FormSystemBrowser();
 
+    void openFile();
+
 protected:
     void keyPressEvent(QKeyEvent *event) override;
 

@@ -30,6 +30,7 @@ public:
     void loadFile(std::string filename);
     void saveFile(std::string filename);
     void showSystemBrowser();
+    void showEditors();
 
 protected:
     void keyPressEvent(QKeyEvent *);

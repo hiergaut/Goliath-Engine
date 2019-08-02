@@ -61,6 +61,9 @@ void MainWindowEditor::setEditor(WidgetEditorId id)
     case OUTLINER:
         widget = new QTreeView_outliner;
         break;
+
+    default:
+        Q_ASSERT(false);
     }
     widget->setFocusPolicy(Qt::ClickFocus);
     setCentralWidget(widget);

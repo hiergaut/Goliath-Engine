@@ -2,10 +2,10 @@
 
 #include <opengl/version.h>
 
-Environment g_env;
+Environment2 g_env;
 
 
-Environment::Environment() : m_settings("Goliath", "Goliath-Engine")
+Environment2::Environment2() : m_settings("Goliath", "Goliath-Engine")
 {
 //    m_settings.beginGroup()
 
@@ -20,7 +20,7 @@ Environment::Environment() : m_settings("Goliath", "Goliath-Engine")
 ////    m_SplitterNodes.clear();
 //}
 
-void Environment::save(std::ofstream& file)
+void Environment2::save(std::ofstream& file)
 {
     //        file.write(&m_sizesBytes, sizeof(m_sizesBytes));
     //        long bytes;
@@ -34,10 +34,12 @@ void Environment::save(std::ofstream& file)
     //    }
     (*m_splitterRoot)->save(file);
 
+    m_scene.save(file);
+
     //        file.write(reinterpret_cast<const char *>(str.data()), size);
 }
 
-void Environment::load(std::ifstream& file)
+void Environment2::load(std::ifstream& file)
 {
     //    size_t size;
     //    file.read(reinterpret_cast<char*>(&size), sizeof(size));
@@ -52,6 +54,10 @@ void Environment::load(std::ifstream& file)
 //    }
     *m_splitterRoot = new QSplitterNode;
     (*m_splitterRoot)->load(file);
+
+
+//    m_scene.clear();
+    m_scene.load(file);
     //    m_SplitterNodes.clear();
     //    m_SplitterNodes = std::vector<QSplitterNode>(size);
     //    m_iSplitterNode = 0;

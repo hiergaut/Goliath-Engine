@@ -20,6 +20,9 @@ public:
 
 
 //    std::vector<const QOpenGLWidget_3dView *> * views();
+    void loadNewModel(std::string filename);
+    void load(std::ifstream & filename);
+    void save(std::ofstream & filename);
 
 protected:
     void initializeGL() override;
@@ -36,7 +39,7 @@ private:
 
 private:
 //    std::vector<const QOpenGLWidget_3dView *> m_views;
-    std::vector<Model> m_models;
+//    std::vector<Model> m_models;
     Grid * m_grid;
     Axis * m_axis;
 

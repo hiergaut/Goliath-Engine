@@ -25,12 +25,17 @@ public:
     //        return m_models.begin();
     //    }
     void draw(glm::mat4 projectionMatrix, glm::mat4 viewMatrix);
+    void addModel(std::string file);
 
-    QStandardItemModel* itemModel();
+    void load(std::ifstream & file);
+    void save(std::ofstream & file);
 
 private:
-    QStandardItemModel m_itemModel;
+    void clear();
 
+private:
+//    std::vector<std::string> m_modelPaths;
+    QStandardItemModel m_itemModel;
     std::vector<Model> m_models;
 
     Model* m_camera;
@@ -38,6 +43,9 @@ private:
 
     Shader* m_shaderCamera;
     Shader* m_shader;
+
+public:
+    QStandardItemModel* itemModel();
 };
 
 //static Scene g_scene;
