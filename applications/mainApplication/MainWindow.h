@@ -33,6 +33,8 @@ public:
     void showSystemBrowser();
     void showEditors();
 
+    void loadLastSession();
+    void saveSession();
 //    std::list<const QOpenGLWidget_3dView *> views() const;
 
 protected:
@@ -60,7 +62,10 @@ private:
 
     QOpenGLWidget_Editor * editor;
 
-    std::list<const QOpenGLWidget_3dView *> m_views;
+    std::list<const QOpenGLWidget_3dView *> * m_views;
+
+
+//    QStandardItemModel m_fileOpennedModel;
 
 //    QOpenGLWidget_3dView * view;
 //    QOpenGLWidget_3dView * view2;

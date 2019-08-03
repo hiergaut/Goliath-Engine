@@ -61,6 +61,8 @@
      <addaction name="actionProperties"/>
      <addaction name="actionFile_Browser"/>
      <addaction name="actionUser_Preferences"/>
+     <addaction name="separator"/>
+     <addaction name="actionFile_Openned"/>
     </widget>
     <addaction name="menuGeneral"/>
     <addaction name="menuAnimation"/>
@@ -112,6 +114,11 @@
   <action name="actionUser_Preferences">
    <property name="text">
     <string>User Preferences</string>
+   </property>
+  </action>
+  <action name="actionFile_Openned">
+   <property name="text">
+    <string>File Openned</string>
    </property>
   </action>
  </widget>

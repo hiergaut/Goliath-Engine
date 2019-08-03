@@ -55,7 +55,7 @@ QOpenGLWidget_3dView::QOpenGLWidget_3dView(QWidget* parent)
     //    initializeOpenGLFunctions();
     //    setFocus();
     m_views->push_back(this);
-    qDebug() << "[3dView]" << this << "created";
+//    qDebug() << "[3dView]" << this << "created";
 //    g_env.m_views.push_back(this);
 //    qDebug() << "[3dview] add " << this << "to " << g_env.m_views;
 }
@@ -63,10 +63,11 @@ QOpenGLWidget_3dView::QOpenGLWidget_3dView(QWidget* parent)
 QOpenGLWidget_3dView::~QOpenGLWidget_3dView()
 {
 //    makeCurrent();
-    qDebug() << "[3dView]" << this << "deleted";
+//    qDebug() << "[3dView]" << this << "deleted";
 
 //    g_env.m_views.remove(this);
 //    qDebug() << "[3dView] " << this << "remove in views " << g_env.m_views;
+    Q_ASSERT(m_views);
     m_views->remove(this);
 
 //    delete m_grid;
@@ -162,6 +163,7 @@ void QOpenGLWidget_3dView::keyReleaseEvent(QKeyEvent* event)
 
 void QOpenGLWidget_3dView::mousePressEvent(QMouseEvent* event)
 {
+//    qDebug() << "[3dView]" << QWidget::mapToGlobal(pos());
     //    setMouseTracking(true);
     //    setFocus();
     if (event->button() == Qt::MiddleButton) {
@@ -215,6 +217,7 @@ void QOpenGLWidget_3dView::wheelEvent(QWheelEvent* event)
 
 void QOpenGLWidget_3dView::focusInEvent(QFocusEvent* event)
 {
+    m_shiftPressed = false;
 //    qDebug() << this << ": focusInEvent";
     //    setCursorToCenter();
     //    setCursor(Qt::BlankCursor);
@@ -225,6 +228,11 @@ void QOpenGLWidget_3dView::focusInEvent(QFocusEvent* event)
     //    glGetIntegerv(GL_SAMPLE_BUFFERS, &bufs);
     //    glGetIntegerv(GL_SAMPLES, &samples);
     //    qDebug("Have %d buffers and %d samples", bufs, samples);
+}
+
+const CameraWorld * QOpenGLWidget_3dView::camera() const
+{
+    return &m_camera;
 }
 
 //void QOpenGLWidget_3dView::setViews(std::list<const QOpenGLWidget_3dView *> *views)

@@ -10,6 +10,7 @@
 //#include <iostream>
 #include <QDebug>
 //#include <engine/Environment.h>
+#include "fileOpenned/QListView_FileOpenned.h"
 
 MainWindowEditor::MainWindowEditor(QWidget* parent)
     : QMainWindow(parent)
@@ -23,12 +24,14 @@ MainWindowEditor::MainWindowEditor(QWidget* parent)
     setStyleSheet(QString("background-color: rgb(%1,%2,%3);").arg(rand1).arg(rand2).arg(rand3));
 
     //    setCentralWidget(widget);
+//    qDebug() << "[MainWindowEditor]" << this << "created";
 }
 
 MainWindowEditor::~MainWindowEditor()
 {
+//    qDebug() << "[MainWindowEditor]" << this << "deleted";
     delete m_centralWidget;
-//    delete centralWidget();
+    //    delete centralWidget();
     delete ui;
 }
 
@@ -37,7 +40,7 @@ void MainWindowEditor::setEditor(Editor::id id)
     //    QOpenGLContext* ctx = QOpenGLContext::currentContext();
     //    qDebug() << "[CONTEXT] Editor : " << ctx;
 
-//    QWidget* widget;
+    //    QWidget* widget;
     switch (id) {
     case Editor::id::VIEW:
         m_centralWidget = new QOpenGLWidget_3dView;
@@ -47,22 +50,35 @@ void MainWindowEditor::setEditor(Editor::id id)
         m_centralWidget = new QTreeView_outliner;
         break;
 
+    case Editor::id::FILE_OPENNED:
+        m_centralWidget = new QListView_FileOpenned;
+        break;
+
     default:
         Q_ASSERT(false);
     }
+
     m_centralWidget->setFocusPolicy(Qt::ClickFocus);
     setCentralWidget(m_centralWidget);
     m_id = id;
+    ui->menuEditor_Type->setTitle(text());
 }
 
 void MainWindowEditor::save(std::ofstream& file)
 {
-        qDebug() << "save " << this;
+        Q_ASSERT(m_centralWidget != nullptr);
+//    qDebug() << "[MainWindowEditor]" << this << "save";
     //        Editor::id id = static_cast<MainWindowEditor*>(widget(0))->id();
     file.write(reinterpret_cast<const char*>(&m_id), sizeof(m_id));
     switch (m_id) {
     case Editor::id::VIEW:
         static_cast<QOpenGLWidget_3dView*>(m_centralWidget)->save(file);
+        break;
+
+    case Editor::id::OUTLINER:
+        break;
+
+    case Editor::id::FILE_OPENNED:
         break;
 
     default:
@@ -86,11 +102,35 @@ void MainWindowEditor::load(std::ifstream& file)
         static_cast<QOpenGLWidget_3dView*>(m_centralWidget)->load(file);
         break;
 
+    case Editor::id::OUTLINER:
+        break;
+
+    case Editor::id::FILE_OPENNED:
+        break;
+
     default:
         Q_ASSERT(false);
     }
     //    qDebug() << "save " << m_id;
     //    return;
+}
+
+QString MainWindowEditor::text()
+{
+    switch (m_id) {
+    case Editor::VIEW:
+        return "3dView";
+
+    case Editor::OUTLINER:
+        return "Outliner";
+
+    case Editor::id::FILE_OPENNED:
+        return "File Openned";
+
+    default:
+        Q_ASSERT(false);
+    }
+
 }
 
 void MainWindowEditor::keyPressEvent(QKeyEvent*)
@@ -116,7 +156,17 @@ void MainWindowEditor::on_actionOutliner_triggered()
     setEditor(Editor::id::OUTLINER);
 }
 
+QWidget* MainWindowEditor::centralWidget()
+{
+    return m_centralWidget;
+}
+
 //Editor::id MainWindowEditor::id() const
 //{
 //    return m_id;
 //}
+
+void MainWindowEditor::on_actionFile_Openned_triggered()
+{
+    setEditor(Editor::id::FILE_OPENNED);
+}

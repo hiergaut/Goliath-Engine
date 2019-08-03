@@ -26,6 +26,8 @@ QOpenGLWidget_Editor::QOpenGLWidget_Editor(QWidget* parent, QMainWindow * mainWi
 
 void QOpenGLWidget_Editor::loadNewModel(std::string filename)
 {
+    Q_ASSERT(QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>());
+//    qDebug() << "[GL_CONTEXT]" << QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
     makeCurrent();
 //    Model newModel(filename);
 //    m_models.push_back(std::move(newModel));
@@ -35,6 +37,8 @@ void QOpenGLWidget_Editor::loadNewModel(std::string filename)
 
 void QOpenGLWidget_Editor::load(ifstream & filename)
 {
+    Q_ASSERT(QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>());
+//    qDebug() << "[GL_CONTEXT]" << QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
 
     makeCurrent();
 //    g_env.load(filename);
@@ -54,6 +58,8 @@ void QOpenGLWidget_Editor::load(ifstream & filename)
 
 void QOpenGLWidget_Editor::save(ofstream &filename)
 {
+    Q_ASSERT(QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>());
+//    qDebug() << "[GL_CONTEXT]" << QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
     makeCurrent();
 //    g_env.save(filename);
     m_scene.save(filename);
@@ -96,7 +102,8 @@ void QOpenGLWidget_Editor::save(ofstream &filename)
 
 void QOpenGLWidget_Editor::initializeGL()
 {
-    QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
+//    qDebug() << "[GL_CONTEXT]" << QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
+    Q_ASSERT(QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>());
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
@@ -138,7 +145,7 @@ void QOpenGLWidget_Editor::initializeGL()
 
 void QOpenGLWidget_Editor::paintGL()
 {
-    QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
+    Q_ASSERT(QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>());
 
     //    QOpenGLWidget::makeCurrent();
 
@@ -179,9 +186,21 @@ void QOpenGLWidget_Editor::paintGL()
 //        Q_ASSERT(v);
         //        qDebug() << v << v->rect();
         //            QRect vRect = v->geometry();
-        if (v->height() < 20 || v->width() < 20)
-            continue;
+//        if (v->height() < 20 || v->width() < 20)
+//            continue;
 
+        Q_ASSERT(v->parent()->parent());
+//        QObject * object = v->parent();
+//        while (object !=  || object != nullptr) object = object->parent();
+//        if (object != m_mainWindow) {
+//            continue;
+//        }
+//        qDebug() << QWidget::mapToGlobal(v->pos());
+//        qDebug() << QWidget::mapToGlobal(m_mainWindow->pos());
+        Q_ASSERT(m_mainWindow->isAncestorOf(v));
+//        if (! m_mainWindow->isAncestorOf(v)) {
+//            continue;
+//        }
         QPoint point = v->mapTo(m_mainWindow, v->pos());
 
         //            qDebug() << v << point;
@@ -250,7 +269,13 @@ void QOpenGLWidget_Editor::paintGL()
     update();
 }
 
+//const Scene * QOpenGLWidget_Editor::scene() const
+//{
+//    return &m_scene;
+//}
+
 void QOpenGLWidget_Editor::setViews(std::list<const QOpenGLWidget_3dView *> *views)
 {
     m_views = views;
+    m_scene.setViews(views);
 }

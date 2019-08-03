@@ -44,6 +44,9 @@ int main(int argc, char* argv[])
     w.show();
 //    w.showSystemBrowser();
 //    w.loadFile("temp.dat");
+//    w.loadLastSession();
+    w.saveEnv("factory.dat");
+    w.loadLastSession();
 
     return a.exec();
 }

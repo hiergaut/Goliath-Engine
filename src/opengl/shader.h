@@ -40,7 +40,7 @@ public:
         gShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
         try {
             // open files
-            vShaderFile.open(vertexPath);
+            vShaderFile.open(g_shaderPath + vertexPath);
             std::stringstream vShaderStream;
             // read file's buffer contents into streams
             vShaderStream << vShaderFile.rdbuf();
@@ -55,7 +55,7 @@ public:
         }
         try {
             // open files
-            fShaderFile.open(fragmentPath);
+            fShaderFile.open(g_shaderPath + fragmentPath);
             std::stringstream fShaderStream;
             // read file's buffer contents into streams
             fShaderStream << fShaderFile.rdbuf();
@@ -115,6 +115,8 @@ public:
 //        if (geometryPath != nullptr)
         if (!geometryPath.empty())
             m_fun->glDeleteShader(geometry);
+
+        std::cout << "[SHADER] load : " << vertexPath << std::endl;
     }
     // activate the shader
     // ------------------------------------------------------------------------

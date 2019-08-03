@@ -29,6 +29,8 @@ public:
 
     void setViews(std::list<const QOpenGLWidget_3dView *> *views);
 
+//    const Scene * scene() const;
+
 protected:
     void initializeGL() override;
 //    void resizeGL(int w, int h) override;

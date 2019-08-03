@@ -7,9 +7,11 @@ namespace Editor {
 enum id {
     ZERO = 0,
     VIEW,
-    OUTLINER
+    OUTLINER,
+    FILE_OPENNED,
 };
 }
+
 
 namespace Ui {
 class MainWindowEditor;
@@ -27,6 +29,7 @@ public:
     void save(std::ofstream& file);
     void load(std::ifstream& file);
 
+    QString text();
 //    Editor::id id() const;
 
 protected:
@@ -38,11 +41,16 @@ private slots:
 
     void on_actionOutliner_triggered();
 
+    void on_actionFile_Openned_triggered();
+
 private:
     Editor::id m_id = Editor::id::ZERO;
     Ui::MainWindowEditor* ui;
 
-    QWidget * m_centralWidget;
+    QWidget * m_centralWidget = nullptr;
+
+public:
+    QWidget * centralWidget();
 };
 
 #endif // MAINWINDOWEDITOR_H

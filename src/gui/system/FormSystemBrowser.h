@@ -5,6 +5,7 @@
 #include <QFileSystemModel>
 #include <QItemSelection>
 #include <QStringListModel>
+#include <QSettings>
 
 namespace Ui {
 class FormSystemBrowser;
@@ -45,6 +46,8 @@ private:
 
     QFileSystemModel * m_model;
     QStringListModel * m_recent;
+
+    QSettings m_settings;
 };
 
 #endif // FORMSYSTEMBROWSER_H

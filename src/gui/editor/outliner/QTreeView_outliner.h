@@ -3,6 +3,7 @@
 
 #include <QWidget>
 #include <QTreeView>
+#include <QStandardItemModel>
 
 class QTreeView_outliner : public QTreeView
 {
@@ -10,12 +11,19 @@ class QTreeView_outliner : public QTreeView
 public:
     explicit QTreeView_outliner(QWidget *parent = nullptr);
 
+
+    static void setModelScene(QStandardItemModel *modelScene);
+
 protected:
     void mousePressEvent(QMouseEvent *event) override;
 
 signals:
 
 public slots:
+
+
+private:
+    static QStandardItemModel * m_modelScene;
 };
 
 #endif // QTREEVIEW_OUTLINER_H

@@ -29,7 +29,7 @@ public:
         setup();
 
 
-        m_shader = new Shader(g_shaderPath + "axis.vsh", g_shaderPath + "axis.fsh");
+        m_shader = new Shader("axis.vsh", "axis.fsh");
 
 
         m_projection = glm::ortho(-1.0f, 1.0f, -1.0f, 1.0f, -1.0f, 1.0f);

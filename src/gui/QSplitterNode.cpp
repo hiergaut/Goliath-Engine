@@ -35,27 +35,25 @@ QSplitterNode::QSplitterNode(QWidget* parent)
     connect(this, &QSplitterNode::splitterMoved, this, &QSplitterNode::onSplitterMoved);
     setSizePolicy(::defaultPolicy);
     setOrientation(Qt::Horizontal);
-
 }
 
 QSplitterNode::~QSplitterNode()
 {
     if (count() == 1) {
         //        addWidget(new widgetTemplate);
-//        widget(0)->setParent(nullptr);
+        //        widget(0)->setParent(nullptr);
         delete widget(0);
 
     } else {
         for (int i = 0; i < count(); ++i) {
             QSplitterNode* node = static_cast<QSplitterNode*>(widget(i));
-//            node->setParent(nullptr);
+            //            node->setParent(nullptr);
             delete node;
             //            connect(w, &FormEditor::addingNewHSplit, this, &QSplitterNode::onNewHSplitAdded);
         }
     }
     //    m_sizes = sizes();
 }
-
 
 void QSplitterNode::save(std::ofstream& file) const
 {
@@ -66,11 +64,23 @@ void QSplitterNode::save(std::ofstream& file) const
     Q_ASSERT(count() == sizes().size());
 
     size_t size;
+
+    //    if (m_depth == 0) {
+    //        size = 0;
+    //        file.write(reinterpret_cast<const char*>(&size), sizeof(size));
+
+    //        static_cast<QSplitterNode*>(widget(0))->save(file);
+
+    //        return;
+    //    }
     size = count();
     file.write(reinterpret_cast<const char*>(&size), sizeof(size));
 
     if (size == 1) {
-        static_cast<MainWindowEditor*>(widget(0))->save(file);
+        //        static_cast<MainWindowEditor*>(widget(0))->save(file);
+        MainWindowEditor* win = static_cast<MainWindowEditor*>(widget(0));
+        qDebug() << "[SplitterNode] save mainWindowEditor" << win;
+        win->save(file);
         //        WidgetEditorId id = static_cast<MainWindowEditor*>(widget(0))->id();
         //        file.write(reinterpret_cast<const char*>(&id), sizeof (id));
         //        qDebug() << "save " << id;
@@ -101,8 +111,15 @@ void QSplitterNode::load(std::ifstream& file)
     size_t size;
     Q_ASSERT(!file.eof());
     file.read(reinterpret_cast<char*>(&size), sizeof(size));
-//    std::cout << "size = " << size << " " << std::endl;
+    //    std::cout << "size = " << size << " " << std::endl;
     //    int sizes[size];
+    //    if (size == 0) {
+    //        QSplitterNode * node = new QSplitterNode;
+    //        addWidget(node);
+    //        node->load(file);
+
+    //        return;
+    //    }
     //    m_sizes = std::vector<int>(size);
     if (size == 1) {
         //        WidgetEditorId id;
@@ -129,7 +146,7 @@ void QSplitterNode::load(std::ifstream& file)
         if (file.bad()) {
             perror("error reading ptr");
         }
-//        std::cout << "ptr[" << i << "] = " << ptr << " " << std::endl;
+        //        std::cout << "ptr[" << i << "] = " << ptr << " " << std::endl;
         //        m_sizes.push_back(*ptr);
         localSizes.push_back(ptr);
     }
@@ -150,11 +167,11 @@ void QSplitterNode::load(std::ifstream& file)
     //    m_sizes = std::list<int>(sizes);
 }
 
-
 void QSplitterNode::mousePressEvent(QMouseEvent* ev)
 {
-//    qDebug() << this << ": depth = " << m_depth << ", parent = " << parentWidget();
-//    qDebug() << rect();
+//    std::cout << *this;
+    //    qDebug() << this << ": depth = " << m_depth << ", parent = " << parentWidget();
+    //    qDebug() << rect();
     Q_ASSERT(count() == 1);
 
     int width = this->width();
@@ -247,12 +264,12 @@ void QSplitterNode::mouseReleaseEvent(QMouseEvent*)
 
 void QSplitterNode::focusInEvent(QFocusEvent*)
 {
-//    qDebug() << this << ": focusInEvent";
+    //    qDebug() << this << ": focusInEvent";
 }
 
 void QSplitterNode::keyPressEvent(QKeyEvent* ev)
 {
-//    qDebug() << this << ": keyPressEvent" << ev;
+    //    qDebug() << this << ": keyPressEvent" << ev;
 
     //    ev->ignore();
 }
@@ -281,6 +298,56 @@ void QSplitterNode::onSplitterMoved(int pos, int index)
             delete widget(index);
         }
     }
+
+    if (count() == 1) {
+
+        //        QWidget * widget = widget(0);
+        //        QSplitterNode * parent =  static_cast<QSplitterNode*>(this->parent());
+        QSplitterNode* son = static_cast<QSplitterNode*>(widget(0));
+
+        //        if (m_depth == 0) {
+        ////            this = son;
+        //        son->setParent(nullptr);
+
+        setOrientation(son->orientation());
+        //        int n = son->count();
+        //        for (int i = 0; i < n; ++i) {
+        while (son->count() > 0) {
+            static_cast<QSplitterNode*>(son->widget(0))->setParent(this);
+//            addWidget(static_cast<QSplitterNode*>(son->widget(0)));
+            //            son->widget(i)->setParent(this);
+            //                addWidget(son->widget(i));
+        }
+        delete son;
+        //        son->setParent(nullptr);
+        ////            son->setParent(nullptr);
+        //        }
+        //        else {
+        //            parent->addWidget(son);
+        ////            this->setParent(nullptr);
+        //        }
+
+        //        delete son;
+        //        delete this;
+        //        parent->addWidget(son);
+        //        setOrientation(son->orientation());
+
+        //        for (int i =0; i <son->count(); ++i) {
+        //            QWidget * widget = std::move(son->widget(i));
+
+        //            addWidget(widget);
+        //        }
+
+        //        son->setParent(nullptr);
+        //        delete son;
+
+        //        Q_ASSERT(son->count() == 1);
+
+        //        son->setParent(nullptr);
+        //        addWidget(widget);
+
+        //        Q_ASSERT(count() == 1);
+    }
 }
 
 //void QSplitterNode::setName(const QString& name)
@@ -294,22 +361,35 @@ std::ostream& operator<<(std::ostream& out, const QSplitterNode& node)
     Q_ASSERT(node.sizes().size() == node.count());
     //        out << node.m_name.toStdString() << " ";
     //    out << "[NODE] nb splits: " << node.m_sizes.size() << std::endl;
+    //    if (node.m_depth == 0) {
+    ////        Q_ASSERT(node.count() == 1);
+    //        out << "(root)" << std::endl;
+    //        QSplitterNode* son = static_cast<QSplitterNode*>(node.widget(0));
+    //        out << *son;
+
+    //    } else {
     for (int i = 0; i < node.m_depth; ++i) {
         out << "     ";
     }
+    if (node.orientation() == Qt::Horizontal) {
+        out << "(" << node.width() << ") " << &node << " ";
+    } else {
+        out << "(" << node.height() << ") " << &node << " ";
+    }
     if (node.count() == 1) {
         //                out << "(" << node.widget(0) << ")";
-        out << "(widget)" << std::endl;
+        out << "(widget) " << node.widget(0) << std::endl;
         //        qDebug() << "(" << node.widget(0) << ")";
         //        qDebug() << node;
 
     } else {
+        //            out << "(splitter) " << &node << " ";
         for (int size : node.sizes()) {
             out << "(";
             out << size << " ";
             out << ")";
         }
-//        std::cout << std::endl;
+        //        std::cout << std::endl;
         out << std::endl;
 
         for (int i = 0; i < node.count(); ++i) {
@@ -317,5 +397,6 @@ std::ostream& operator<<(std::ostream& out, const QSplitterNode& node)
             out << *son;
         }
     }
+    //    }
     return out;
 }

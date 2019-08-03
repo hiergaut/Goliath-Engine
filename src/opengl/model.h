@@ -51,8 +51,8 @@ public:
     m_fun = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
 //    qDebug() << QThread::currentThreadId() << "[MODEL]" << this << "[CONTEXT]" << fun;
 
-        loadModel(path);
-        std::cout << "[MODEL] " << path << " loaded" << std::endl;
+        loadModel(g_resourcesPath + path);
+        std::cout << "[MODEL] load : " << path << std::endl;
     }
 
     // draws the model, and thus all its meshes

@@ -27,6 +27,9 @@
 
 //#include <opengl/version.h>
 //#include <QOpenGLFunctionsCore>
+#include <gui/editor/fileOpenned/QListView_FileOpenned.h>
+
+
 
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent)
@@ -38,32 +41,41 @@ MainWindow::MainWindow(QWidget* parent)
     connect(ui->page_systemBrowser, &FormSystemBrowser::canceled, this, &MainWindow::on_systemBrowserCanceled);
     connect(ui->page_systemBrowser, &FormSystemBrowser::openned, this, &MainWindow::on_systemBrowserLoaded);
 
+    m_views = new std::list<const QOpenGLWidget_3dView*>;
+    QOpenGLWidget_3dView::setViews(m_views);
+
     editor = new QOpenGLWidget_Editor(centralWidget(), this);
-    editor->setViews(&m_views);
-    QOpenGLWidget_3dView::setViews(&m_views);
+    editor->setViews(m_views);
 
+//    QListView_FileOpenned::setModelFileOpenned(&m_fileOpennedModel);
 
-    QSplitterNode* node = new QSplitterNode(ui->page_splitterRoot);
-    //        QWidgetTemplate * w = new QWidgetTemplate;
+    //        ui->page_splitterRoot->load(file);
     MainWindowEditor* w = new MainWindowEditor;
+    //    qDebug() << "[mainApplication] create mainWindowEditor" << w;
     w->setEditor(Editor::id::VIEW);
     //        w->setEditor(VIEW);
-    node->addWidget(w);
+    //    node->addWidget(w);
     //        setCentralWidget(ui->page_splitterRoot);
-    ui->page_splitterRoot->addWidget(node);
+    //    ui->page_splitterRoot->addWidget(node);
+    ui->page_splitterRoot->addWidget(w);
 
-    //    g_env.m_scene.initialize();
-    //    loadEnv("temp.dat");
+    //    on_actionLoad_Factory_Settings_triggered();
+    //    loadLastSession();
+//    saveEnv("factory.dat");
 }
 
 MainWindow::~MainWindow()
 {
+    delete editor;
     delete ui;
+    //    delete m_views;
     //    delete m_splitterRoot;
 }
 
 void MainWindow::loadEnv(std::string filename)
 {
+
+    //    std::cout << *ui->page_splitterRoot;
 
     std::ifstream file;
     file.open(filename, std::ios::binary | std::ios::in);
@@ -73,22 +85,36 @@ void MainWindow::loadEnv(std::string filename)
     } else {
         ui->stackedWidget->removeWidget(ui->page_splitterRoot);
         delete ui->page_splitterRoot;
-        ui->page_splitterRoot = new QSplitterNode(ui->stackedWidget);
+        //        ui->page_splitterRoot = new QSplitterNode(ui->stackedWidget);
+        ui->page_splitterRoot = new QSplitterNode;
+        //        QSplitterNode * node = new QSplitterNode;
+        //        node->load(file);
         ui->page_splitterRoot->load(file);
         ui->stackedWidget->addWidget(ui->page_splitterRoot);
         ui->stackedWidget->setCurrentWidget(ui->page_splitterRoot);
 
         //        g_env.load(file);
         editor->load(file);
+//        m_fileOpennedModel.load(file);
+
         file.close();
     }
 
     //        ui->page_splitterRoot->setParent(ui->stackedWidget);
-
 }
 
 void MainWindow::saveEnv(std::string filename)
 {
+    //    std::cout << *ui->page_splitterRoot;
+    //    const CameraWorld * camera = static_cast<QOpenGLWidget_3dView*>(static_cast<MainWindowEditor*>(ui->page_splitterRoot->widget(0))->centralWidget())->camera();
+    //    const CameraWorld * camera2 = m_views.front()->camera();
+    //    Q_ASSERT(camera == camera2);
+    //    for (const QOpenGLWidget_3dView * view : m_views) {
+
+    //        const CameraWorld * camera = view->camera();
+    //        qDebug() << camera;
+
+    //    }
     std::ofstream file;
     file.open(filename, std::ios::binary | std::ios::out);
     if (!file.is_open()) {
@@ -98,6 +124,8 @@ void MainWindow::saveEnv(std::string filename)
     ui->page_splitterRoot->save(file);
     //    g_env.save(file);
     editor->save(file);
+//    m_fileOpennedModel.save(file);
+
     file.close();
 }
 
@@ -117,6 +145,16 @@ void MainWindow::showEditors()
     editor->update();
 }
 
+void MainWindow::loadLastSession()
+{
+    loadEnv("temp.dat");
+}
+
+void MainWindow::saveSession()
+{
+    saveEnv("temp.dat");
+}
+
 void MainWindow::keyPressEvent(QKeyEvent* ev)
 {
     //    qDebug() << this << ": keyPressEvent";
@@ -124,6 +162,7 @@ void MainWindow::keyPressEvent(QKeyEvent* ev)
     switch (ev->key()) {
     case Qt::Key_Escape:
         //        loadFile("temp.dat");
+        //        std::cout << *ui->page_splitterRoot;
         showEditors();
         break;
     }
@@ -138,6 +177,7 @@ void MainWindow::keyPressEvent(QKeyEvent* ev)
 void MainWindow::resizeEvent(QResizeEvent* ev)
 {
     //    qDebug() << "[MAIN APPLICATION] : resizeEvent" << ev;
+    //        qDebug() << "[MainApplication]" << QWidget::mapToGlobal(ui->stackedWidget->pos());
 
     //    qDebug() << ui->centralWidget->size();
     editor->resize(ui->centralWidget->width(), ui->centralWidget->height());
@@ -145,6 +185,7 @@ void MainWindow::resizeEvent(QResizeEvent* ev)
 
 void MainWindow::on_actionQuit_triggered()
 {
+//    saveSession();
     //    ui->splitter_root->saveSetting();
     //    std::cout << std::flush;
     QCoreApplication::quit();
@@ -156,12 +197,13 @@ void MainWindow::on_actionSave_As_triggered()
 
 void MainWindow::on_actionOpen_triggered()
 {
-    loadEnv("temp.dat");
+    loadLastSession();
+    //    loadEnv("temp.dat");
 }
 
 void MainWindow::on_actionLoad_Factory_Settings_triggered()
 {
-    //    loadEnv("factory.dat");
+    loadEnv("factory.dat");
 }
 
 void MainWindow::on_actionSave_Startup_File_triggered()
@@ -204,7 +246,8 @@ void MainWindow::on_systemBrowserLoaded(QString filename)
 
 void MainWindow::on_actionSave_triggered()
 {
-    saveEnv("temp.dat");
+    saveSession();
+    //    saveEnv("temp.dat");
 }
 
 //std::list<const QOpenGLWidget_3dView *> MainWindow::views() const

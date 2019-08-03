@@ -37,23 +37,25 @@ private:
 private:
 //    std::vector<std::string> m_modelPaths;
     QStandardItemModel m_itemModel;
+    QStandardItemModel m_fileOpennedModel;
 
     std::vector<Model> m_models;
     Shader* m_shader;
 
-//    std::vector<QOpenGLWidget_3dView *> m_views;
+    std::list<const QOpenGLWidget_3dView *> * m_views;
 
     Model* m_cameraModel;
     Shader* m_shaderCamera;
-    std::vector<const CameraWorld*> m_cameras;
+//    std::vector<const CameraWorld*> m_cameras;
 
     Grid * m_grid;
 
 
 public:
-    QStandardItemModel* itemModel();
+//    QStandardItemModel* itemModel();
 //    std::vector<QOpenGLWidget_3dView *> views() const;
 //    std::vector<const CameraWorld &> & cameras() const;
+    void setViews(std::list<const QOpenGLWidget_3dView *> *views);
 };
 
 //static Scene g_scene;

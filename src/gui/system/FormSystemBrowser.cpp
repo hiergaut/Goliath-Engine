@@ -17,6 +17,7 @@ QString settingsPath = "systemBrowser/previousGoliathLoad";
 FormSystemBrowser::FormSystemBrowser(QWidget* parent)
     : QWidget(parent)
     , ui(new Ui::FormSystemBrowser)
+    , m_settings("Goliath-Engine", "systemBrowser")
 {
     //    qRegisterMetaTypeStreamOperators<QList<QString>>("QList<QString>");
 
@@ -66,35 +67,35 @@ FormSystemBrowser::~FormSystemBrowser()
 void FormSystemBrowser::openFile()
 {
 //    QSettings& settings = g_env.m_settings;
-//    QStringList paths = settings.value(::settingsPath).value<QStringList>();
+    QStringList paths = m_settings.value(::settingsPath).value<QStringList>();
 
-//    QString newPath = ui->lineEdit_currentPath->text();
-//    if (!paths.contains(newPath)) {
-//        paths += newPath;
+    QString newPath = ui->lineEdit_currentPath->text();
+    if (!paths.contains(newPath)) {
+        paths += newPath;
 
-//    } else {
-//        int idx = paths.indexOf(newPath);
-//        paths.move(idx, 0);
-//    }
+    } else {
+        int idx = paths.indexOf(newPath);
+        paths.move(idx, 0);
+    }
 
-//    settings.setValue(::settingsPath, QVariant::fromValue(paths));
+    m_settings.setValue(::settingsPath, QVariant::fromValue(paths));
 //    qDebug() << "save setting " << paths;
 
-//    updateRecent();
+    updateRecent();
 
-//    emit openned(newPath + ui->lineEdit_currentFile->text());
+    emit openned(newPath + ui->lineEdit_currentFile->text());
 
 }
 
 void FormSystemBrowser::on_changeSystemSelected(const QItemSelection& selected, const QItemSelection& deselected)
 {
-    qDebug() << "on_changeSystemSelected" << selected << deselected;
+//    qDebug() << "on_changeSystemSelected" << selected << deselected;
     Q_ASSERT(selected.indexes().size() == 1);
     QModelIndex index = selected.indexes().first();
     QString filename = m_model->data(index).toString();
     QFileInfo fileInfo(g_resourcesPath.c_str() + filename);
-    qDebug() << "fileInfo : " << fileInfo;
-    qDebug() << "filename : " << filename;
+//    qDebug() << "fileInfo : " << fileInfo;
+//    qDebug() << "filename : " << filename;
 
     if (fileInfo.isDir()) {
         ui->listView_current->setRootIndex(index);
@@ -119,7 +120,7 @@ void FormSystemBrowser::on_changeCurrentSelected(const QItemSelection& selected,
     QString path = ui->lineEdit_currentPath->text();
     QString filename = m_model->data(index).toString();
     QFileInfo fileInfo(g_resourcesPath.c_str() + path + filename);
-    qDebug() << fileInfo;
+//    qDebug() << fileInfo;
 
     if (fileInfo.isDir()) {
         ui->listView_current->setRootIndex(index);
@@ -137,9 +138,9 @@ void FormSystemBrowser::on_changeRecentSelected(const QItemSelection& selected, 
 {
     QModelIndex index = selected.indexes().first();
     QString dir = m_recent->data(index).toString();
-    qDebug() << "recent change" << dir;
+//    qDebug() << "recent change" << dir;
     QFileInfo fileInfo(g_resourcesPath.c_str() + dir);
-    qDebug() << fileInfo;
+//    qDebug() << fileInfo;
     Q_ASSERT(fileInfo.isDir());
 
     QModelIndex index2 = m_model->index(g_resourcesPath.c_str() + dir);
@@ -179,7 +180,7 @@ void FormSystemBrowser::on_pushButton_cancel_clicked()
 void FormSystemBrowser::updateRecent()
 {
 //    QSettings& settings = g_env.m_settings;
-//    QStringList paths = settings.value(::settingsPath).value<QStringList>();
+    QStringList paths = m_settings.value(::settingsPath).value<QStringList>();
 
-//    m_recent->setStringList(paths);
+    m_recent->setStringList(paths);
 }
