@@ -27,7 +27,7 @@
 
 //#include <opengl/version.h>
 //#include <QOpenGLFunctionsCore>
-#include <gui/editor/fileOpenned/QListView_FileOpenned.h>
+//#include <gui/editor/fileOpenned/QListView_FileOpenned.h>
 
 
 

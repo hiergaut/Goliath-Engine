@@ -61,8 +61,6 @@
      <addaction name="actionProperties"/>
      <addaction name="actionFile_Browser"/>
      <addaction name="actionUser_Preferences"/>
-     <addaction name="separator"/>
-     <addaction name="actionFile_Openned"/>
     </widget>
     <addaction name="menuGeneral"/>
     <addaction name="menuAnimation"/>

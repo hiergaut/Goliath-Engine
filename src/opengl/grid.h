@@ -25,19 +25,27 @@ public:
         //        Vertex a;
         //        Vertex b;
         vertex v;
+        int nbLine = 10;
+        int sizeLine = 10;
         //        Line l;
-        for (int i = -10; i < 11; ++i) {
+        for (int i = -nbLine; i < nbLine +1; ++i) {
             //            for (int j = -10; j < 10; ++j) {
-            v.Position = glm::vec3(i, -10, 0);
+            v.Position = glm::vec3(i *sizeLine, -nbLine *sizeLine, 0);
             m_vertices.push_back(v);
-            v.Position = glm::vec3(i, 10, 0);
+            v.Position = glm::vec3(i * sizeLine, nbLine *sizeLine, 0);
             m_vertices.push_back(v);
             //            }
-            v.Position = glm::vec3(-10, i, 0);
+            v.Position = glm::vec3(-nbLine *sizeLine, i * sizeLine, 0);
             m_vertices.push_back(v);
-            v.Position = glm::vec3(10, i, 0);
+            v.Position = glm::vec3(nbLine *sizeLine, i * sizeLine, 0);
             m_vertices.push_back(v);
         }
+//        v.Position = glm::vec3(-10, 10, 0);
+//            m_vertices.push_back(v);
+//        v.Position = glm::vec3(-10, -10, 0);
+//            m_vertices.push_back(v);
+//        v.Position = glm::vec3(10, 10, 0);
+//            m_vertices.push_back(v);
         //        m_vertices.push_back(glm::vec3(10, ))
         //        fun = QOpenGLContext
         fun = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
@@ -59,6 +67,8 @@ public:
 
         fun->glBindVertexArray(m_vao);
         fun->glDrawArrays(GL_LINES, 0, m_vertices.size());
+//        fun->glDrawArrays(GL_TRIANGLES, 0, m_vertices.size());
+
         fun->glBindVertexArray(0);
     }
 

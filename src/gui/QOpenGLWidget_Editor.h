@@ -45,7 +45,7 @@ public slots:
 //    void on_rowInsertedInFileOpennedModel(const QModelIndex & parent, int start, int end);
 //    void on_rowRemovedInFileOpennedModel(const QModelIndex & parent, int start, int end);
 
-    void on_sceneModelChanged();
+//    void on_sceneModelChanged();
 
 private:
 //    void loadEnv(std::string filename);

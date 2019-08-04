@@ -31,7 +31,7 @@ float l_far = 1000.0f;
 QOpenGLWidget_3dView::QOpenGLWidget_3dView(QWidget* parent)
     : QWidget(parent),
 
-    m_camera(glm::vec3(10, -10, 10), glm::vec3(0, 0, 0))
+    m_camera(glm::vec3(200, -200, 200), glm::vec3(0, 0, 0))
 //    , m_scene { scene }
 //    , m_vbo(QOpenGLBuffer::VertexBuffer)
 //    , shaderCube(":/shader/first.vsh", ":/shader/first.fsh")

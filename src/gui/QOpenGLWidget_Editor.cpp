@@ -9,7 +9,7 @@
 //#include "qmainwindow.h"
 #include <QStandardItem>
 #include <assimp/Importer.hpp>
-#include <gui/editor/fileOpenned/QListView_FileOpenned.h>
+//#include <gui/editor/fileOpenned/QListView_FileOpenned.h>
 #include <gui/editor/outliner/QTreeView_outliner.h>
 
 QOpenGLWidget_Editor::QOpenGLWidget_Editor(QWidget* parent, QMainWindow* mainWindow)
@@ -49,7 +49,7 @@ void QOpenGLWidget_Editor::loadNewModel(std::string filename)
 //    QStandardItem* item = new QStandardItem(filename.c_str());
 //    m_fileOpennedModel.appendRow(item);
 
-    //    m_scene.addModel(filename);
+        m_scene.addModel(filename);
 }
 
 void QOpenGLWidget_Editor::load(ifstream& file)
@@ -62,29 +62,29 @@ void QOpenGLWidget_Editor::load(ifstream& file)
 
     //    QThread::sleep(1);
     //    g_env.load(filename);
-    size_t size;
-    //   size = m_sceneModel.rowCount();
-    file.read(reinterpret_cast<char*>(&size), sizeof(size));
+//    size_t size;
+//    //   size = m_sceneModel.rowCount();
+//    file.read(reinterpret_cast<char*>(&size), sizeof(size));
 
-    for (int i = 0; i < size; ++i) {
-        //       std::string path = m_sceneModel.data(m_sceneModel.index(i, 0)).toString().toStdString();
-        //       qDebug() << "[SCENE]" <<  path.c_str();
+//    for (int i = 0; i < size; ++i) {
+//        //       std::string path = m_sceneModel.data(m_sceneModel.index(i, 0)).toString().toStdString();
+//        //       qDebug() << "[SCENE]" <<  path.c_str();
 
-        size_t sizePath;
-        file.read(reinterpret_cast<char*>(&sizePath), sizeof(sizePath));
+//        size_t sizePath;
+//        file.read(reinterpret_cast<char*>(&sizePath), sizeof(sizePath));
 
-        char path[sizePath + 1];
-        path[sizePath] = 0;
-        //       std::string path();
-        file.read(reinterpret_cast<char*>(path), sizePath * sizeof(char));
+//        char path[sizePath + 1];
+//        path[sizePath] = 0;
+//        //       std::string path();
+//        file.read(reinterpret_cast<char*>(path), sizePath * sizeof(char));
 
-        std::string file(path);
+//        std::string file(path);
 
-        loadNewModel(file);
-        //        QStandardItem item = new QStandardItem(file.c_str());
-        //    QStandardItem* item = new QStandardItem(filename.c_str());
-        //       addModel(file);
-    }
+//        loadNewModel(file);
+//        //        QStandardItem item = new QStandardItem(file.c_str());
+//        //    QStandardItem* item = new QStandardItem(filename.c_str());
+//        //       addModel(file);
+//    }
 
     //    m_scene.load(filename);
     //    std::ifstream file;
@@ -349,20 +349,20 @@ void QOpenGLWidget_Editor::paintGL()
 //    on_sceneModelChanged();
 //}
 
-void QOpenGLWidget_Editor::on_sceneModelChanged()
-{
-//    Assimp::Importer importer;
-//    const aiScene* scene = importer.GetScene();
-//    qDebug() << "[EDITOR] scene : " << scene;
+//void QOpenGLWidget_Editor::on_sceneModelChanged()
+//{
+////    Assimp::Importer importer;
+////    const aiScene* scene = importer.GetScene();
+////    qDebug() << "[EDITOR] scene : " << scene;
 
-//    qDebug() << "[EDITOR]" << importer.GetImporterCount();
-//    for (int i =0; i <importer.GetImporterCount(); ++i) {
-//        qDebug() << "[EDITOR]" << importer.GetImporter(i);
-//    }
+////    qDebug() << "[EDITOR]" << importer.GetImporterCount();
+////    for (int i =0; i <importer.GetImporterCount(); ++i) {
+////        qDebug() << "[EDITOR]" << importer.GetImporter(i);
+////    }
 
 
 
-}
+//}
 
 
 //const Scene * QOpenGLWidget_Editor::scene() const

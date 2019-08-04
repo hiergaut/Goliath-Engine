@@ -10,7 +10,7 @@
 //#include <iostream>
 #include <QDebug>
 //#include <engine/Environment.h>
-#include "fileOpenned/QListView_FileOpenned.h"
+//#include "fileOpenned/QListView_FileOpenned.h"
 
 MainWindowEditor::MainWindowEditor(QWidget* parent)
     : QMainWindow(parent)

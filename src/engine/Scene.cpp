@@ -50,8 +50,8 @@ void Scene::draw(glm::mat4 projectionMatrix, glm::mat4 viewMatrix)
     m_shader->setMat4("view", viewMatrix);
     m_shader->setMat4("projection", projectionMatrix);
     //        qDebug() << "[3dView] " << this << "nb model = " << g_env.m_scene.size();
-    for (auto & pair : m_models) {
-        pair.second.Draw(*m_shader);
+    for (auto & model : m_models) {
+        model.Draw(*m_shader);
     }
 
 
@@ -82,18 +82,19 @@ void Scene::addModel(std::string file)
     //    m_itemModel.appendColumn(item);
 //    m_models.push_back(std::move(newModel));
 //    m_models.push_back(std::make_pair(file, std::move(newModel)));
-    Q_ASSERT(m_models.find(file) == m_models.end());
+//    Q_ASSERT(m_models.find(file) == m_models.end());
 //    m_models[file] = std::move(newModel);
-    m_models.insert(std::make_pair(file, std::move(newModel)));
+//    m_models.insert(std::make_pair(file, std::move(newModel)));
+    m_models.push_back(std::move(newModel));
 }
 
 void Scene::delModel(string file)
 {
 
     qDebug() << "[SCENE] delete model : " << file.c_str();
-    const auto & it = m_models.find(file);
-    Q_ASSERT(it != m_models.end());
-    m_models.erase(it);
+//    const auto & it = m_models.find(file);
+//    Q_ASSERT(it != m_models.end());
+//    m_models.erase(it);
 
 //    m_models.remove(file);
 //    std::pair<std::string, Model> & pair =

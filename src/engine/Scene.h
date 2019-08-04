@@ -46,7 +46,8 @@ private:
 //    std::vector<std::string> m_modelPaths;
 
 //    std::list<std::pair<std::string, Model>> m_models;
-    std::map<std::string, Model> m_models;
+//    std::map<std::string, Model> m_models;
+    std::vector<Model> m_models;
     Shader* m_shader;
 
     std::list<const QOpenGLWidget_3dView *> * m_views;
