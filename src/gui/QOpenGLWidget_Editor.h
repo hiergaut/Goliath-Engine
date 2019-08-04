@@ -22,14 +22,16 @@ public:
 
 
 //    std::vector<const QOpenGLWidget_3dView *> * views();
-    void loadNewModel(std::string filename);
-    void load(std::ifstream & filename);
-    void save(std::ofstream & filename);
+    void loadNewModel(std::string file);
+    void load(std::ifstream & file);
+    void save(std::ofstream & file);
 
 
     void setViews(std::list<const QOpenGLWidget_3dView *> *views);
 
 //    const Scene * scene() const;
+
+    void clear();
 
 protected:
     void initializeGL() override;
@@ -40,6 +42,10 @@ protected:
 signals:
 
 public slots:
+//    void on_rowInsertedInFileOpennedModel(const QModelIndex & parent, int start, int end);
+//    void on_rowRemovedInFileOpennedModel(const QModelIndex & parent, int start, int end);
+
+    void on_sceneModelChanged();
 
 private:
 //    void loadEnv(std::string filename);
@@ -54,6 +60,8 @@ private:
     Shader * m_shader;
     Scene m_scene;
 //    Model * m_scene;
+    QStandardItemModel m_sceneModel;
+//    QStandardItemModel m_fileOpennedModel;
 
     uint64_t m_deltaTime;
     uint64_t m_lastFrame;

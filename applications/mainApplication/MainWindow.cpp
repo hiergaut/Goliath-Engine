@@ -94,6 +94,7 @@ void MainWindow::loadEnv(std::string filename)
         ui->stackedWidget->setCurrentWidget(ui->page_splitterRoot);
 
         //        g_env.load(file);
+//        editor->clear();
         editor->load(file);
 //        m_fileOpennedModel.load(file);
 

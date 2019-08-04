@@ -79,7 +79,7 @@ void QSplitterNode::save(std::ofstream& file) const
     if (size == 1) {
         //        static_cast<MainWindowEditor*>(widget(0))->save(file);
         MainWindowEditor* win = static_cast<MainWindowEditor*>(widget(0));
-        qDebug() << "[SplitterNode] save mainWindowEditor" << win;
+//        qDebug() << "[SplitterNode] save mainWindowEditor" << win;
         win->save(file);
         //        WidgetEditorId id = static_cast<MainWindowEditor*>(widget(0))->id();
         //        file.write(reinterpret_cast<const char*>(&id), sizeof (id));

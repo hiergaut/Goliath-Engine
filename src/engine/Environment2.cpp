@@ -34,7 +34,7 @@ void Environment2::save(std::ofstream& file)
     //    }
     (*m_splitterRoot)->save(file);
 
-    m_scene.save(file);
+//    m_scene.save(file);
 
     //        file.write(reinterpret_cast<const char *>(str.data()), size);
 }
@@ -57,7 +57,7 @@ void Environment2::load(std::ifstream& file)
 
 
 //    m_scene.clear();
-    m_scene.load(file);
+//    m_scene.load(file);
     //    m_SplitterNodes.clear();
     //    m_SplitterNodes = std::vector<QSplitterNode>(size);
     //    m_iSplitterNode = 0;

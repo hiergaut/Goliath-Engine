@@ -7,7 +7,12 @@
 #include <opengl/grid.h>
 #include <gui/editor/3dview/QOpenGLWidget_3dView.h>
 
+//#include <QObject>
+//#include <QWidget>
+#include <map>
+
 class Scene {
+//    Q_OBJECT
 public:
     Scene();
     //    QStandardItemModel *model() const;
@@ -27,19 +32,21 @@ public:
     //    }
     void draw(glm::mat4 projectionMatrix, glm::mat4 viewMatrix);
     void addModel(std::string file);
+    void delModel(std::string file);
 
-    void load(std::ifstream & file);
-    void save(std::ofstream & file);
+    void modelChanged();
+
+//    void load(std::ifstream & file);
+//    void save(std::ofstream & file);
 
 private:
-    void clear();
+//    void clear();
 
 private:
 //    std::vector<std::string> m_modelPaths;
-    QStandardItemModel m_itemModel;
-    QStandardItemModel m_fileOpennedModel;
 
-    std::vector<Model> m_models;
+//    std::list<std::pair<std::string, Model>> m_models;
+    std::map<std::string, Model> m_models;
     Shader* m_shader;
 
     std::list<const QOpenGLWidget_3dView *> * m_views;
@@ -56,6 +63,8 @@ public:
 //    std::vector<QOpenGLWidget_3dView *> views() const;
 //    std::vector<const CameraWorld &> & cameras() const;
     void setViews(std::list<const QOpenGLWidget_3dView *> *views);
+    const QStandardItemModel & itemModel() const;
+    QStandardItemModel * fileOpennedModel();
 };
 
 //static Scene g_scene;

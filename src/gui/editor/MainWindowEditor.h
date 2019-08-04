@@ -8,7 +8,7 @@ enum id {
     ZERO = 0,
     VIEW,
     OUTLINER,
-    FILE_OPENNED,
+//    FILE_OPENNED,
 };
 }
 
@@ -41,7 +41,7 @@ private slots:
 
     void on_actionOutliner_triggered();
 
-    void on_actionFile_Openned_triggered();
+//    void on_actionFile_Openned_triggered();
 
 private:
     Editor::id m_id = Editor::id::ZERO;

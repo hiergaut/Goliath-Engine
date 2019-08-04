@@ -50,9 +50,9 @@ void MainWindowEditor::setEditor(Editor::id id)
         m_centralWidget = new QTreeView_outliner;
         break;
 
-    case Editor::id::FILE_OPENNED:
-        m_centralWidget = new QListView_FileOpenned;
-        break;
+//    case Editor::id::FILE_OPENNED:
+//        m_centralWidget = new QListView_FileOpenned;
+//        break;
 
     default:
         Q_ASSERT(false);
@@ -78,8 +78,8 @@ void MainWindowEditor::save(std::ofstream& file)
     case Editor::id::OUTLINER:
         break;
 
-    case Editor::id::FILE_OPENNED:
-        break;
+//    case Editor::id::FILE_OPENNED:
+//        break;
 
     default:
         Q_ASSERT(false);
@@ -105,8 +105,8 @@ void MainWindowEditor::load(std::ifstream& file)
     case Editor::id::OUTLINER:
         break;
 
-    case Editor::id::FILE_OPENNED:
-        break;
+//    case Editor::id::FILE_OPENNED:
+//        break;
 
     default:
         Q_ASSERT(false);
@@ -124,8 +124,8 @@ QString MainWindowEditor::text()
     case Editor::OUTLINER:
         return "Outliner";
 
-    case Editor::id::FILE_OPENNED:
-        return "File Openned";
+//    case Editor::id::FILE_OPENNED:
+//        return "File Openned";
 
     default:
         Q_ASSERT(false);
@@ -166,7 +166,7 @@ QWidget* MainWindowEditor::centralWidget()
 //    return m_id;
 //}
 
-void MainWindowEditor::on_actionFile_Openned_triggered()
-{
-    setEditor(Editor::id::FILE_OPENNED);
-}
+//void MainWindowEditor::on_actionFile_Openned_triggered()
+//{
+//    setEditor(Editor::id::FILE_OPENNED);
+//}

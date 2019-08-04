@@ -15,6 +15,9 @@ public:
 
     static void setModelFileOpenned(QStandardItemModel *modelFileOpenned);
 
+protected:
+    void keyPressEvent(QKeyEvent * ev);
+
 
 signals:
 
