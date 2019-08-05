@@ -60,7 +60,7 @@ private:
     Shader * m_shader;
     Scene m_scene;
 //    Model * m_scene;
-    QStandardItemModel m_sceneModel;
+//    QStandardItemModel m_sceneModel;
 //    QStandardItemModel m_fileOpennedModel;
 
     uint64_t m_deltaTime;

@@ -10,16 +10,29 @@
 #include <QStandardItem>
 #include <assimp/Importer.hpp>
 //#include <gui/editor/fileOpenned/QListView_FileOpenned.h>
-#include <gui/editor/outliner/QTreeView_outliner.h>
+//#include <gui/editor/outliner/QTreeView_outliner.h>
 
 QOpenGLWidget_Editor::QOpenGLWidget_Editor(QWidget* parent, QMainWindow* mainWindow)
     : QOpenGLWidget(parent)
     , m_mainWindow(mainWindow)
 {
-    QTreeView_outliner::setModelScene(&m_sceneModel);
-//    QListView_FileOpenned::setModelFileOpenned(&m_fileOpennedModel);
+//    m_sceneModel = QStandardItemModel(4, 4);
+//    QTreeView_outliner::setModelScene(&m_sceneModel);
+    //    QStandardItem item("Scene");
+    //    QListView_FileOpenned::setModelFileOpenned(&m_fileOpennedModel);
+    //        QStandardItemModel model;
+//    QStandardItem* parentItem = m_sceneModel.invisibleRootItem();
+//    for (int i = 0; i < 4; ++i) {
+//        QStandardItem* item = new QStandardItem(QString("item %0").arg(i));
+//        item->setData(QVariant("fuck"));
+//        parentItem->appendRow(item);
+//        parentItem = item;
+//    }
+//     m_sceneModel.setHorizontalHeaderItem( 0, new QStandardItem( "Scene" ) );
+//     m_sceneModel.setHorizontalHeaderItem( 1, new QStandardItem( "Bar-Baz" ) );
 
-    //    g_env.m_splitterRoot = & m_splitterRoot;
+
+
 
     setAutoFillBackground(false);
     //    setStyleSheet("background-color: transparent");
@@ -28,11 +41,11 @@ QOpenGLWidget_Editor::QOpenGLWidget_Editor(QWidget* parent, QMainWindow* mainWin
     setAttribute(Qt::WA_AlwaysStackOnTop);
     //    loadEnv("temp.dat");
     //    g_env.m_views = &m_views;
-//    connect(&m_fileOpennedModel, &QAbstractItemModel::rowsInserted, this, &QOpenGLWidget_Editor::on_rowInsertedInFileOpennedModel);
-//    connect(&m_fileOpennedModel, &QAbstractItemModel::rowsAboutToBeRemoved, this, &QOpenGLWidget_Editor::on_rowRemovedInFileOpennedModel);
-//    connect(&m_fileOpennedModel, &QAbstractItemModel::dataChanged, this, &QOpenGLWidget_Editor::on_fileOpennedModelChanged);
+    //    connect(&m_fileOpennedModel, &QAbstractItemModel::rowsInserted, this, &QOpenGLWidget_Editor::on_rowInsertedInFileOpennedModel);
+    //    connect(&m_fileOpennedModel, &QAbstractItemModel::rowsAboutToBeRemoved, this, &QOpenGLWidget_Editor::on_rowRemovedInFileOpennedModel);
+    //    connect(&m_fileOpennedModel, &QAbstractItemModel::dataChanged, this, &QOpenGLWidget_Editor::on_fileOpennedModelChanged);
     //    connect(m_scene.fileOpennedModel(), SIGNAL(rowsInserted(const QModelIndex& parent, int start, int end)), this, SLOT(on_rowInsertedInFileOpennedModel(const QModelIndex& parent, int start, int end)));
-//    connect(&m_scene, &Scene::modelChanged, this, &QOpenGLWidget_Editor::on_fileOpennedModelChanged);
+    //    connect(&m_scene, &Scene::modelChanged, this, &QOpenGLWidget_Editor::on_fileOpennedModelChanged);
 }
 
 void QOpenGLWidget_Editor::loadNewModel(std::string filename)
@@ -42,17 +55,17 @@ void QOpenGLWidget_Editor::loadNewModel(std::string filename)
     makeCurrent();
     //    Model newModel(filename);
     //    m_models.push_back(std::move(newModel));
-//    if (m_fileOpennedModel.match(m_fileOpennedModel.index(0, 0), Qt::DisplayRole, filename.c_str()).size() > 0) {
-//        qDebug() << "[SCENE] file already loaded";
-//        return;
-//    }
-//    QStandardItem* item = new QStandardItem(filename.c_str());
-//    m_fileOpennedModel.appendRow(item);
+    //    if (m_fileOpennedModel.match(m_fileOpennedModel.index(0, 0), Qt::DisplayRole, filename.c_str()).size() > 0) {
+    //        qDebug() << "[SCENE] file already loaded";
+    //        return;
+    //    }
+    //    QStandardItem* item = new QStandardItem(filename.c_str());
+    //    m_fileOpennedModel.appendRow(item);
 
-        m_scene.addModel(filename);
+    m_scene.addModel(filename);
 }
 
-void QOpenGLWidget_Editor::load(ifstream& file)
+void QOpenGLWidget_Editor::load(std::ifstream& file)
 {
     clear();
     Q_ASSERT(QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>());
@@ -62,29 +75,29 @@ void QOpenGLWidget_Editor::load(ifstream& file)
 
     //    QThread::sleep(1);
     //    g_env.load(filename);
-//    size_t size;
-//    //   size = m_sceneModel.rowCount();
-//    file.read(reinterpret_cast<char*>(&size), sizeof(size));
+    //    size_t size;
+    //    //   size = m_sceneModel.rowCount();
+    //    file.read(reinterpret_cast<char*>(&size), sizeof(size));
 
-//    for (int i = 0; i < size; ++i) {
-//        //       std::string path = m_sceneModel.data(m_sceneModel.index(i, 0)).toString().toStdString();
-//        //       qDebug() << "[SCENE]" <<  path.c_str();
+    //    for (int i = 0; i < size; ++i) {
+    //        //       std::string path = m_sceneModel.data(m_sceneModel.index(i, 0)).toString().toStdString();
+    //        //       qDebug() << "[SCENE]" <<  path.c_str();
 
-//        size_t sizePath;
-//        file.read(reinterpret_cast<char*>(&sizePath), sizeof(sizePath));
+    //        size_t sizePath;
+    //        file.read(reinterpret_cast<char*>(&sizePath), sizeof(sizePath));
 
-//        char path[sizePath + 1];
-//        path[sizePath] = 0;
-//        //       std::string path();
-//        file.read(reinterpret_cast<char*>(path), sizePath * sizeof(char));
+    //        char path[sizePath + 1];
+    //        path[sizePath] = 0;
+    //        //       std::string path();
+    //        file.read(reinterpret_cast<char*>(path), sizePath * sizeof(char));
 
-//        std::string file(path);
+    //        std::string file(path);
 
-//        loadNewModel(file);
-//        //        QStandardItem item = new QStandardItem(file.c_str());
-//        //    QStandardItem* item = new QStandardItem(filename.c_str());
-//        //       addModel(file);
-//    }
+    //        loadNewModel(file);
+    //        //        QStandardItem item = new QStandardItem(file.c_str());
+    //        //    QStandardItem* item = new QStandardItem(filename.c_str());
+    //        //       addModel(file);
+    //    }
 
     //    m_scene.load(filename);
     //    std::ifstream file;
@@ -99,25 +112,25 @@ void QOpenGLWidget_Editor::load(ifstream& file)
     //    }
 }
 
-void QOpenGLWidget_Editor::save(ofstream& file)
+void QOpenGLWidget_Editor::save(std::ofstream& file)
 {
     Q_ASSERT(QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>());
     //    qDebug() << "[GL_CONTEXT]" << QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
     makeCurrent();
     //    g_env.save(filename);
-//    size_t size;
-//    size = m_fileOpennedModel.rowCount();
-//    file.write(reinterpret_cast<const char*>(&size), sizeof(size));
+    //    size_t size;
+    //    size = m_fileOpennedModel.rowCount();
+    //    file.write(reinterpret_cast<const char*>(&size), sizeof(size));
 
-//    for (int i = 0; i < size; ++i) {
-//        std::string path = m_fileOpennedModel.data(m_fileOpennedModel.index(i, 0)).toString().toStdString();
-//        qDebug() << "[SCENE]" << path.c_str();
+    //    for (int i = 0; i < size; ++i) {
+    //        std::string path = m_fileOpennedModel.data(m_fileOpennedModel.index(i, 0)).toString().toStdString();
+    //        qDebug() << "[SCENE]" << path.c_str();
 
-//        size = path.size();
-//        file.write(reinterpret_cast<const char*>(&size), sizeof(size));
+    //        size = path.size();
+    //        file.write(reinterpret_cast<const char*>(&size), sizeof(size));
 
-//        file.write(reinterpret_cast<const char*>(path.data()), size * sizeof(char));
-//    }
+    //        file.write(reinterpret_cast<const char*>(path.data()), size * sizeof(char));
+    //    }
     //    m_scene.save(filename);
 }
 
@@ -360,10 +373,7 @@ void QOpenGLWidget_Editor::paintGL()
 ////        qDebug() << "[EDITOR]" << importer.GetImporter(i);
 ////    }
 
-
-
 //}
-
 
 //const Scene * QOpenGLWidget_Editor::scene() const
 //{
@@ -378,11 +388,12 @@ void QOpenGLWidget_Editor::setViews(std::list<const QOpenGLWidget_3dView*>* view
 
 void QOpenGLWidget_Editor::clear()
 {
-    m_sceneModel.clear();
+//    m_sceneModel.clear();
+
     //    m_fileOpennedModel.clear();
-//    while (m_fileOpennedModel.rowCount() > 0) {
-//        m_fileOpennedModel.removeRows(0, 1);
-//    }
-//    //    m_fileOpennedModel.removeRows(0, m_fileOpennedModel.rowCount());
+    //    while (m_fileOpennedModel.rowCount() > 0) {
+    //        m_fileOpennedModel.removeRows(0, 1);
+    //    }
+    //    //    m_fileOpennedModel.removeRows(0, m_fileOpennedModel.rowCount());
     //    m_fileOpennedModel.clear();
 }

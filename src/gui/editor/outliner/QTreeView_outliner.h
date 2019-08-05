@@ -20,6 +20,7 @@ protected:
 signals:
 
 public slots:
+    void on_changingData();
 
 
 private:

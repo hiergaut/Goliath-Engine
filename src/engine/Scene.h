@@ -34,7 +34,8 @@ public:
     void addModel(std::string file);
     void delModel(std::string file);
 
-    void modelChanged();
+    void updateSceneModel();
+//    void modelChanged();
 
 //    void load(std::ifstream & file);
 //    void save(std::ofstream & file);
@@ -45,6 +46,7 @@ private:
 private:
 //    std::vector<std::string> m_modelPaths;
 
+    QStandardItemModel m_sceneModel;
 //    std::list<std::pair<std::string, Model>> m_models;
 //    std::map<std::string, Model> m_models;
     std::vector<Model> m_models;

@@ -1,11 +1,15 @@
 #include "Scene.h"
 
 //#include <engine/Environment.h>
+#include <gui/editor/outliner/QTreeView_outliner.h>
 #include <opengl/model.h>
 #include <opengl/version.h>
 
 Scene::Scene()
 {
+    QTreeView_outliner::setModelScene(&m_sceneModel);
+    m_sceneModel.setHorizontalHeaderItem(0, new QStandardItem("Scene"));
+//    m_sceneModel.setHorizontalHeaderItem(1, new QStandardItem("Bonus"));
 
     //    m_itemModel = new QStandardItemModel;
 
@@ -50,10 +54,9 @@ void Scene::draw(glm::mat4 projectionMatrix, glm::mat4 viewMatrix)
     m_shader->setMat4("view", viewMatrix);
     m_shader->setMat4("projection", projectionMatrix);
     //        qDebug() << "[3dView] " << this << "nb model = " << g_env.m_scene.size();
-    for (auto & model : m_models) {
+    for (auto& model : m_models) {
         model.Draw(*m_shader);
     }
-
 
     m_shaderCamera->use();
     //    m_shaderCamera->setMat4("model", model);
@@ -76,28 +79,51 @@ void Scene::draw(glm::mat4 projectionMatrix, glm::mat4 viewMatrix)
 
 void Scene::addModel(std::string file)
 {
-//    qDebug() << "[SCENE] add model : " << file.c_str();
+    //    qDebug() << "[SCENE] add model : " << file.c_str();
     Model newModel(file);
     //    m_itemModel.appendRow(item);
     //    m_itemModel.appendColumn(item);
-//    m_models.push_back(std::move(newModel));
-//    m_models.push_back(std::make_pair(file, std::move(newModel)));
-//    Q_ASSERT(m_models.find(file) == m_models.end());
-//    m_models[file] = std::move(newModel);
-//    m_models.insert(std::make_pair(file, std::move(newModel)));
+    //    m_models.push_back(std::move(newModel));
+    //    m_models.push_back(std::make_pair(file, std::move(newModel)));
+    //    Q_ASSERT(m_models.find(file) == m_models.end());
+    //    m_models[file] = std::move(newModel);
+    //    m_models.insert(std::make_pair(file, std::move(newModel)));
     m_models.push_back(std::move(newModel));
+    updateSceneModel();
 }
 
-void Scene::delModel(string file)
+void Scene::delModel(std::string file)
 {
 
     qDebug() << "[SCENE] delete model : " << file.c_str();
-//    const auto & it = m_models.find(file);
-//    Q_ASSERT(it != m_models.end());
-//    m_models.erase(it);
+    //    const auto & it = m_models.find(file);
+    //    Q_ASSERT(it != m_models.end());
+    //    m_models.erase(it);
 
-//    m_models.remove(file);
-//    std::pair<std::string, Model> & pair =
+    //    m_models.remove(file);
+    //    std::pair<std::string, Model> & pair =
+}
+
+void Scene::updateSceneModel()
+{
+    m_sceneModel.clear();
+
+//    QStandardItemModel model;
+    QStandardItem* parentItem = m_sceneModel.invisibleRootItem();
+    for (const Model & model : m_models) {
+        QStandardItem * item = new QStandardItem(model.filename().c_str());
+        parentItem->appendRow(item);
+
+        model.modelBuild(item);
+    }
+
+    emit m_sceneModel.dataChanged(m_sceneModel.index(0, 0), m_sceneModel.index(0, 0));
+//    for (int i = 0; i < 4; ++i) {
+//        QStandardItem* item = new QStandardItem(QString("item %0").arg(i));
+//        item->setData(QVariant("fuck"));
+//        parentItem->appendRow(item);
+//        parentItem = item;
+//    }
 }
 
 //void Scene::load(ifstream &file)
