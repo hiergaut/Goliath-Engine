@@ -36,7 +36,7 @@
    </property>
    <widget class="QMenu" name="menuEditor_Type">
     <property name="title">
-     <string>Editor Type</string>
+     <string/>
     </property>
     <widget class="QMenu" name="menuGeneral">
      <property name="title">
@@ -66,10 +66,20 @@
     <addaction name="menuAnimation"/>
     <addaction name="menuData"/>
    </widget>
+   <widget class="QMenu" name="menuEditor_Type_2">
+    <property name="title">
+     <string>Editor Type</string>
+    </property>
+   </widget>
    <addaction name="menuEditor_Type"/>
+   <addaction name="menuEditor_Type_2"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="action3D_View">
+   <property name="icon">
+    <iconset resource="../../../resources/resources.qrc">
+     <normaloff>:/icons/3dview.png</normaloff>:/icons/3dview.png</iconset>
+   </property>
    <property name="text">
     <string>3D View</string>
    </property>
@@ -95,11 +105,19 @@
    </property>
   </action>
   <action name="actionOutliner">
+   <property name="icon">
+    <iconset resource="../../../resources/resources.qrc">
+     <normaloff>:/icons/outliner.png</normaloff>:/icons/outliner.png</iconset>
+   </property>
    <property name="text">
     <string>Outliner</string>
    </property>
   </action>
   <action name="actionProperties">
+   <property name="icon">
+    <iconset resource="../../../resources/resources.qrc">
+     <normaloff>:/icons/properties.png</normaloff>:/icons/properties.png</iconset>
+   </property>
    <property name="text">
     <string>Properties</string>
    </property>
@@ -120,6 +138,8 @@
    </property>
   </action>
  </widget>
- <resources/>
+ <resources>
+  <include location="../../../resources/resources.qrc"/>
+ </resources>
  <connections/>
 </ui>

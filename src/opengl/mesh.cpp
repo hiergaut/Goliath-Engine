@@ -31,9 +31,9 @@ Mesh::Mesh(std::string name)
 //}
 
 // render the mesh
-void Mesh::Draw(const Shader& shader)
-{
-//            QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
+//void Mesh::Draw(const Shader& shader, const Model& model)
+//{
+    //            QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
     //        qDebug() << "mesh.h : " << fun;
 
     //        QOpenGLFunctionsCore * fun = QOpenGLContext::currentContext()->extraFunctions<QOpenGLFunctionsCore>();
@@ -42,38 +42,58 @@ void Mesh::Draw(const Shader& shader)
     //        QOpenGLExtraFunctions * fun = QOpenGLContext::currentContext()->extraFunctions();
     //        QOpenGLFunctionsCore * fun = QOpenGLContext::currentContext();
     // bind appropriate textures
-    unsigned int diffuseNr = 1;
-    unsigned int specularNr = 1;
-    unsigned int normalNr = 1;
-    unsigned int heightNr = 1;
-    for (unsigned int i = 0; i < textures.size(); i++) {
-        m_fun->glActiveTexture(GL_TEXTURE0 + i); // active proper texture unit before binding
-        // retrieve texture number (the N in diffuse_textureN)
-        std::string number;
-        std::string name = textures[i].type;
-        if (name == "texture_diffuse")
-            number = std::to_string(diffuseNr++);
-        else if (name == "texture_specular")
-            number = std::to_string(specularNr++); // transfer unsigned int to stream
-        else if (name == "texture_normal")
-            number = std::to_string(normalNr++); // transfer unsigned int to stream
-        else if (name == "texture_height")
-            number = std::to_string(heightNr++); // transfer unsigned int to stream
+//    unsigned int diffuseNr = 1;
+//    unsigned int specularNr = 1;
+//    unsigned int normalNr = 1;
+//    unsigned int heightNr = 1;
 
-        // now set the sampler to the correct texture unit
-        m_fun->glUniform1i(m_fun->glGetUniformLocation(shader.ID, (name + number).c_str()), i);
-        // and finally bind the texture
-        m_fun->glBindTexture(GL_TEXTURE_2D, textures[i].id);
-    }
+//    for (unsigned int i = 0; i < textures.size(); i++) {
+//        m_fun->glActiveTexture(GL_TEXTURE0 + i); // active proper texture unit before binding
+//        // retrieve texture number (the N in diffuse_textureN)
+//        std::string number;
+//        std::string name = textures[i].type;
+//        if (name == "texture_diffuse")
+//            number = std::to_string(diffuseNr++);
+//        else if (name == "texture_specular")
+//            number = std::to_string(specularNr++); // transfer unsigned int to stream
+//        else if (name == "texture_normal")
+//            number = std::to_string(normalNr++); // transfer unsigned int to stream
+//        else if (name == "texture_height")
+//            number = std::to_string(heightNr++); // transfer unsigned int to stream
 
-    // draw mesh
-    m_fun->glBindVertexArray(VAO);
-    m_fun->glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
-    m_fun->glBindVertexArray(0);
+//        // now set the sampler to the correct texture unit
+//        m_fun->glUniform1i(m_fun->glGetUniformLocation(shader.ID, (name + number).c_str()), i);
+//        // and finally bind the texture
+//        m_fun->glBindTexture(GL_TEXTURE_2D, textures[i].id);
+//    }
 
-    // always good practice to set everything back to defaults once configured.
-    m_fun->glActiveTexture(GL_TEXTURE0);
-}
+//    const Material& material = model.m_materials[m_material];
+//    uint cpt = 0;
+//    //    for (uint diffuse : material.m_diffuseMaps) {
+//    //    for (uint i = 0; i < material.m_diffuseMaps.size();++i) {
+//    for (uint i = 0; i < Texture::e_type::nbTypes; ++i) {
+//        for (uint j = 0; j < material.m_textures[i].size(); ++j) {
+//            const Texture& texture = model.m_textures[material.m_textures[i][j]];
+
+//            m_fun->glActiveTexture(GL_TEXTURE0 + cpt);
+//            std::string number = std::to_string(j);
+//            std::string name = texture;
+//            m_fun->glUniform1i(m_fun->glGetUniformLocation(shader.ID, (name + number).c_str()), cpt);
+//            m_fun->glBindTexture(GL_TEXTURE_2D, texture.id);
+
+//            ++cpt;
+//        }
+//    }
+//    //    for (uint i =0; i <m_material)
+
+//    // draw mesh
+//    m_fun->glBindVertexArray(VAO);
+//    m_fun->glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+//    m_fun->glBindVertexArray(0);
+
+//    // always good practice to set everything back to defaults once configured.
+//    m_fun->glActiveTexture(GL_TEXTURE0);
+//}
 
 /*  Functions    */
 // initializes all the buffer objects/arrays
@@ -97,24 +117,32 @@ void Mesh::setupMesh()
     m_fun->glBufferData(GL_ARRAY_BUFFER, m_vertices.size() * sizeof(Vertex), &m_vertices[0], GL_STATIC_DRAW);
 
     m_fun->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    m_fun->glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
+
+//    std::vector<uint> indices;
+//    for (int i =0; i <m_faces.size(); ++i) {
+//        const Face & face = m_faces[i];
+//        indices.insert(indices.end(), face.m_indices.begin(), face.m_indices.end());
+//    }
+
+    m_fun->glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indices.size() * sizeof(unsigned int), &m_indices[0], GL_STATIC_DRAW);
+//    m_fun->glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indices.size() * sizeof(unsigned int), &m_faces[0], GL_STATIC_DRAW);
 
     // set the vertex attribute pointers
     // vertex Positions
     m_fun->glEnableVertexAttribArray(0);
     m_fun->glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
     // vertex normals
-//    m_fun->glEnableVertexAttribArray(1);
-//    m_fun->glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Normal));
-//    // vertex texture coords
-//    m_fun->glEnableVertexAttribArray(2);
-//    m_fun->glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, TexCoords));
-//    // vertex tangent
-//    m_fun->glEnableVertexAttribArray(3);
-//    m_fun->glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Tangent));
-//    // vertex bitangent
-//    m_fun->glEnableVertexAttribArray(4);
-//    m_fun->glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Bitangent));
+        m_fun->glEnableVertexAttribArray(1);
+        m_fun->glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Normal));
+        // vertex texture coords
+        m_fun->glEnableVertexAttribArray(2);
+        m_fun->glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, TexCoords));
+        // vertex tangent
+    //    m_fun->glEnableVertexAttribArray(3);
+    //    m_fun->glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Tangent));
+    //    // vertex bitangent
+    //    m_fun->glEnableVertexAttribArray(4);
+    //    m_fun->glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Bitangent));
 
     m_fun->glBindVertexArray(0);
 }

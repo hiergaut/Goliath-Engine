@@ -8,6 +8,7 @@ enum id {
     ZERO = 0,
     VIEW,
     OUTLINER,
+    PROPERTIES,
 //    FILE_OPENNED,
 };
 }
@@ -29,7 +30,7 @@ public:
     void save(std::ofstream& file);
     void load(std::ifstream& file);
 
-    QString text();
+//    QString text();
 //    Editor::id id() const;
 
 protected:
@@ -38,10 +39,11 @@ protected:
 
 private slots:
     void on_action3D_View_triggered();
-
     void on_actionOutliner_triggered();
 
 //    void on_actionFile_Openned_triggered();
+
+    void on_actionProperties_triggered();
 
 private:
     Editor::id m_id = Editor::id::ZERO;

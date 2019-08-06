@@ -29,10 +29,16 @@
 //#include <QOpenGLExtraFunctions>
 #include "Node.h"
 #include <QStandardItem>
+#include "Material.h"
 
 //namespace  {
+//#include "mesh.h"
 
 class Model {
+public:
+    std::vector<Material> m_materials;
+    std::vector<Texture> m_textures;
+
 private:
     QOpenGLFunctionsCore* m_fun;
 
@@ -41,7 +47,6 @@ private:
     //    const aiScene * m_scene = nullptr;
     std::vector<Mesh> m_meshes;
     Node* m_rootNode;
-    std::vector<Texture> m_textures;
 
     //    Node m_rootNode;
 
@@ -73,8 +78,8 @@ private:
     //    static Assimp::Importer m_importer;
     void assimpLoadModel(std::string const& path);
     Node* assimpProcessNode(aiNode* node, const aiScene* scene, int depth);
-    Mesh assimpProcessMesh(aiMesh* mesh, const aiScene* scene, int depth);
-    std::vector<Texture> assimpLoadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName);
+    Mesh assimpProcessMesh(const aiMesh* mesh, const aiScene* scene, int depth);
+    std::vector<uint> assimpLoadMaterialTextures(aiMaterial* mat, aiTextureType ai_type, Texture::e_type type);
 
     unsigned int TextureFromFile(const char* path, const std::string& directory);
 

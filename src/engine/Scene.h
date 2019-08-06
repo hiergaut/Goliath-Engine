@@ -11,8 +11,12 @@
 //#include <QWidget>
 #include <map>
 
+
 class Scene {
 //    Q_OBJECT
+public:
+    static QStandardItemModel m_sceneModel;
+
 public:
     Scene();
     //    QStandardItemModel *model() const;
@@ -46,7 +50,7 @@ private:
 private:
 //    std::vector<std::string> m_modelPaths;
 
-    QStandardItemModel m_sceneModel;
+//    QStandardItemModel m_materialModel;
 //    std::list<std::pair<std::string, Model>> m_models;
 //    std::map<std::string, Model> m_models;
     std::vector<Model> m_models;

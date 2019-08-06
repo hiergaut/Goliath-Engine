@@ -20,37 +20,44 @@
 #include <QOpenGLFunctions>
 //#include <ostream>
 #include <sstream>
+//#include "model.h"
 
-//struct Vertex {
-//    // position
-//    glm::vec3 Position;
-//    // normal
-//    glm::vec3 Normal;
-//    // texCoords
-//    glm::vec2 TexCoords;
-//    // tangent
+struct Vertex {
+    // position
+    glm::vec3 Position;
+    // normal
+    glm::vec3 Normal;
+    // texCoords
+    glm::vec2 TexCoords;
+    // tangent
 //    glm::vec3 Tangent;
-//    // bitangent
+    // bitangent
 //    glm::vec3 Bitangent;
-//};
-using Vertex = glm::vec3;
+    operator QString() const {
+        std::string str = "";
+        str += std::to_string(Position.x) + " " + std::to_string(Position.y) + " " + std::to_string(Position.z) + " ";
+        str += std::to_string(Normal.x) + " " + std::to_string(Normal.y)+ " "  + std::to_string(Normal.z)+ " " ;
+        str += std::to_string(TexCoords.x)+ " "  + std::to_string(TexCoords.y);
+//        return "fuck";
+        return str.c_str();
+    }
+};
+
+
+//using Vertex = glm::vec3;
 //struct Vertex {
 //    glm::vec3 ;
 //};
 
-struct Texture {
-    unsigned int id;
-    std::string type;
-    std::string path;
-};
 
-struct Face {
-    std::vector<uint> m_indices;
-};
+//struct Face {
+//    std::vector<uint> m_indices;
+//};
 
 //struct Face {
 
 //};
+using Face = std::vector<uint>;
 
 class Mesh {
 public:
@@ -58,12 +65,18 @@ public:
     QOpenGLFunctionsCore* m_fun;
 
     std::string m_name;
-    std::vector<Face> m_faces;
+//    std::vector<Face> m_faces;
+    std::vector<uint> m_indices;
     std::vector<Vertex> m_vertices;
+    uint m_material;
 
 //    std::vector<Vertex> vertices;
-    std::vector<unsigned int> indices;
-    std::vector<Texture> textures;
+//    std::vector<unsigned int> indices;
+    uint m_numFaces;
+//    std::vector<uint> m_lenFaces;
+
+
+//    std::vector<Texture> textures;
     unsigned int VAO;
 
     /*  Functions  */
@@ -71,7 +84,7 @@ public:
 //    Mesh(std::string name, std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures) : m_name(name)
     Mesh(std::string name);
 //    operator QString() const;
-    void Draw(const Shader& shader);
+//    void Draw(const Shader& shader, const Model & model);
 
     void setupMesh();
 private:

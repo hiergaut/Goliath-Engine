@@ -5,6 +5,8 @@
 #include <opengl/model.h>
 #include <opengl/version.h>
 
+QStandardItemModel Scene::m_sceneModel;
+
 Scene::Scene()
 {
     QTreeView_outliner::setModelScene(&m_sceneModel);

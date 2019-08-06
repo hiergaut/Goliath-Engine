@@ -149,6 +149,7 @@ void MainWindow::showEditors()
 void MainWindow::loadLastSession()
 {
     loadEnv("temp.dat");
+    editor->loadNewModel("models/camera/camera.obj");
 }
 
 void MainWindow::saveSession()
