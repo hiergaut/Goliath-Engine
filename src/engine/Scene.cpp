@@ -2,8 +2,9 @@
 
 //#include <engine/Environment.h>
 #include <gui/editor/outliner/QTreeView_outliner.h>
-#include <opengl/model.h>
+//#include <opengl/model.h>
 #include <opengl/version.h>
+//#include <opengl/shader.h>
 
 QStandardItemModel Scene::m_sceneModel;
 
@@ -82,7 +83,7 @@ void Scene::draw(glm::mat4 projectionMatrix, glm::mat4 viewMatrix)
 void Scene::addModel(std::string file)
 {
     //    qDebug() << "[SCENE] add model : " << file.c_str();
-    Model newModel(file);
+//    Model newModel(file);
     //    m_itemModel.appendRow(item);
     //    m_itemModel.appendColumn(item);
     //    m_models.push_back(std::move(newModel));
@@ -90,7 +91,8 @@ void Scene::addModel(std::string file)
     //    Q_ASSERT(m_models.find(file) == m_models.end());
     //    m_models[file] = std::move(newModel);
     //    m_models.insert(std::make_pair(file, std::move(newModel)));
-    m_models.push_back(std::move(newModel));
+//    m_models.push_back(std::move(newModel));
+    m_models.push_back(Model(file));
     updateSceneModel();
 }
 

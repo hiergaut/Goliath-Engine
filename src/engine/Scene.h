@@ -2,7 +2,8 @@
 #define SCENE_H
 
 #include <QStandardItemModel>
-#include <opengl/model.h>
+//#include <opengl/model.h>
+#include "scene/model.h"
 #include <opengl/shader.h>
 #include <opengl/grid.h>
 #include <gui/editor/3dview/QOpenGLWidget_3dView.h>

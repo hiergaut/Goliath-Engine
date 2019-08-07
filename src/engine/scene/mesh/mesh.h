@@ -6,8 +6,10 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "shader.h"
-#include "version.h"
+//#include "shader.h"
+#include <opengl/shader.h>
+//#include "version.h"
+#include <opengl/version.h>
 
 #include <fstream>
 #include <iostream>
@@ -21,43 +23,11 @@
 //#include <ostream>
 #include <sstream>
 //#include "model.h"
+//#include "Bone.h"
+#include "bone/Bone.h"
+#include <assimp/scene.h>
+#include "Vertex.h"
 
-struct Vertex {
-    // position
-    glm::vec3 Position;
-    // normal
-    glm::vec3 Normal;
-    // texCoords
-    glm::vec2 TexCoords;
-    // tangent
-//    glm::vec3 Tangent;
-    // bitangent
-//    glm::vec3 Bitangent;
-    operator QString() const {
-        std::string str = "";
-        str += std::to_string(Position.x) + " " + std::to_string(Position.y) + " " + std::to_string(Position.z) + " ";
-        str += std::to_string(Normal.x) + " " + std::to_string(Normal.y)+ " "  + std::to_string(Normal.z)+ " " ;
-        str += std::to_string(TexCoords.x)+ " "  + std::to_string(TexCoords.y);
-//        return "fuck";
-        return str.c_str();
-    }
-};
-
-
-//using Vertex = glm::vec3;
-//struct Vertex {
-//    glm::vec3 ;
-//};
-
-
-//struct Face {
-//    std::vector<uint> m_indices;
-//};
-
-//struct Face {
-
-//};
-using Face = std::vector<uint>;
 
 class Mesh {
 public:
@@ -68,7 +38,9 @@ public:
 //    std::vector<Face> m_faces;
     std::vector<uint> m_indices;
     std::vector<Vertex> m_vertices;
-    uint m_material;
+    uint m_iMaterial;
+
+    std::vector<Bone> m_bones;
 
 //    std::vector<Vertex> vertices;
 //    std::vector<unsigned int> indices;
@@ -82,7 +54,7 @@ public:
     /*  Functions  */
     // constructor
 //    Mesh(std::string name, std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures) : m_name(name)
-    Mesh(std::string name);
+    Mesh(const aiMesh * ai_mesh);
 //    operator QString() const;
 //    void Draw(const Shader& shader, const Model & model);
 

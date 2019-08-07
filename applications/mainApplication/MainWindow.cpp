@@ -23,7 +23,7 @@
 #include <QLayout>
 #include <QThread>
 #include <gui/editor/MainWindowEditor.h>
-#include <opengl/OpenglContext.h>
+//#include <opengl/OpenglContext.h>
 
 //#include <opengl/version.h>
 //#include <QOpenGLFunctionsCore>
@@ -149,7 +149,9 @@ void MainWindow::showEditors()
 void MainWindow::loadLastSession()
 {
     loadEnv("temp.dat");
-    editor->loadNewModel("models/camera/camera.obj");
+//    editor->loadNewModel("models/camera/camera.obj");
+//    editor->loadNewModel("maps/de_aztec/de_aztec.obj");
+//    editor->loadNewModel("models/player/gign/gign.smd");
 }
 
 void MainWindow::saveSession()

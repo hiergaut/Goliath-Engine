@@ -3,7 +3,8 @@
 
 //#include <QWidget>
 #include <QOpenGLWidget>
-#include <opengl/model.h>
+//#include <opengl/model.h>
+#include <engine/scene/model.h>
 #include <vector>
 #include <opengl/grid.h>
 #include <opengl/axis.h>
@@ -54,10 +55,10 @@ private:
     std::list<const QOpenGLWidget_3dView*> * m_views;
 //    std::vector<Model> m_models;
     QMainWindow * m_mainWindow;
-    Grid * m_grid;
+//    Grid * m_grid;
     Axis * m_axis;
 
-    Shader * m_shader;
+//    Shader * m_shader;
     Scene m_scene;
 //    Model * m_scene;
 //    QStandardItemModel m_sceneModel;
