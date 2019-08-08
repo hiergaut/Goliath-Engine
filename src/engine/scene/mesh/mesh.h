@@ -40,7 +40,7 @@ public:
     std::vector<Vertex> m_vertices;
     uint m_iMaterial;
 
-    std::vector<Bone> m_bones;
+//    std::vector<Bone> m_bones;
 
 //    std::vector<Vertex> vertices;
 //    std::vector<unsigned int> indices;
@@ -55,6 +55,10 @@ public:
     // constructor
 //    Mesh(std::string name, std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures) : m_name(name)
     Mesh(const aiMesh * ai_mesh);
+//    Mesh(const Mesh & mesh) = delete ;
+//    Mesh(Mesh && mesh) noexcept;
+    ~Mesh();
+//    Mesh(const & mesh)
 //    operator QString() const;
 //    void Draw(const Shader& shader, const Model & model);
 

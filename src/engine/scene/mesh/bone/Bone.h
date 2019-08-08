@@ -11,6 +11,7 @@ public:
 
 public:
     Bone(const aiBone * ai_bone);
+    ~Bone();
 };
 
 #endif // BONE_H

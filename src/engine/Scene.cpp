@@ -10,11 +10,16 @@ QStandardItemModel Scene::m_sceneModel;
 
 Scene::Scene()
 {
+    m_models.reserve(10);
+
     QTreeView_outliner::setModelScene(&m_sceneModel);
     m_sceneModel.setHorizontalHeaderItem(0, new QStandardItem("Scene"));
 //    m_sceneModel.setHorizontalHeaderItem(1, new QStandardItem("Bonus"));
 
     //    m_itemModel = new QStandardItemModel;
+//    m_models.resize(10);
+
+//    m_models.reserve(10);
 
     //    QStandardItem* item0 = new QStandardItem("Scene");
     //        QStandardItem * item1 = new QStandardItem("World");
@@ -39,16 +44,21 @@ Scene::Scene()
 
 void Scene::initialize()
 {
+//    std::cout << "fuck" << std::endl;
     m_cameraModel = new Model("models/camera/camera.obj");
+//    std::cout << "bitch" << std::endl;
 
     m_shaderCamera = new Shader("camera.vsh", "camera.fsh");
     m_shader = new Shader("model_loading.vsh", "model_loading.fsh");
 
     m_grid = new Grid;
+    initialized = true;
 }
 
 void Scene::draw(glm::mat4 projectionMatrix, glm::mat4 viewMatrix)
 {
+    Q_ASSERT(initialized);
+
     glm::mat4 model(1.0);
     m_grid->draw(model, viewMatrix, projectionMatrix);
 
@@ -57,7 +67,7 @@ void Scene::draw(glm::mat4 projectionMatrix, glm::mat4 viewMatrix)
     m_shader->setMat4("view", viewMatrix);
     m_shader->setMat4("projection", projectionMatrix);
     //        qDebug() << "[3dView] " << this << "nb model = " << g_env.m_scene.size();
-    for (auto& model : m_models) {
+    for (const Model& model : m_models) {
         model.Draw(*m_shader);
     }
 
@@ -82,6 +92,7 @@ void Scene::draw(glm::mat4 projectionMatrix, glm::mat4 viewMatrix)
 
 void Scene::addModel(std::string file)
 {
+    Q_ASSERT(initialized);
     //    qDebug() << "[SCENE] add model : " << file.c_str();
 //    Model newModel(file);
     //    m_itemModel.appendRow(item);
@@ -92,7 +103,10 @@ void Scene::addModel(std::string file)
     //    m_models[file] = std::move(newModel);
     //    m_models.insert(std::make_pair(file, std::move(newModel)));
 //    m_models.push_back(std::move(newModel));
-    m_models.push_back(Model(file));
+//    m_models.push_back(std::move(Model(file)));
+    m_models.emplace_back(file);
+
+//    std::cout << &m_models[0] << std::endl;
     updateSceneModel();
 }
 

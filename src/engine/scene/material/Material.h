@@ -40,6 +40,10 @@ public:
 
 public:
     Material(const aiMaterial * ai_material, Textures & textures, std::string directory);
+//    Material(const Material &&);
+//    Material(const Material &);
+    ~Material();
+
     std::vector<uint> assimpLoadMaterialTextures(const aiMaterial* mat, aiTextureType ai_type, Texture::Type type);
 unsigned int TextureFromFile(const char* path, const std::string& directory);
 

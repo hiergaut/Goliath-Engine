@@ -1,15 +1,18 @@
 #ifndef TEXTURE_H
 #define TEXTURE_H
 
-#include <vector>
-#include <iostream>
 #include <QPixmap>
+#include <iostream>
+#include <opengl/version.h>
+#include <vector>
 
-struct Texture;
+//struct Texture;
+class Texture;
 using Textures = std::vector<Texture>;
 
-struct Texture {
-    unsigned int id;
+class Texture {
+public:
+    unsigned int m_id;
     //    std::string type;
     enum Type {
         DIFFUSE = 0,
@@ -17,35 +20,24 @@ struct Texture {
         NORMAL,
         HEIGHT,
         size
-    } type;
+    } m_type;
 
-    std::string directory;
-    std::string filename;
+    std::string m_directory;
+    std::string m_filename;
 
-    QPixmap pixmap;
+    QPixmap m_pixmap;
 
+    Texture(std::string path, std::string filename, Texture::Type type);
+    //    Texture(const Texture & texture);
+    Texture(Texture&& texture) = default;
+    ~Texture();
 
+    unsigned int TextureFromFile(const char* path, const std::string& directory);
 
-    operator const char*() const
-    {
-        switch (type) {
-        case DIFFUSE:
-            return "diffuse";
+    operator const char*() const;
 
-        case SPECULAR:
-            return "specular";
-
-        case NORMAL:
-            return "normal";
-
-        case HEIGHT:
-            return "height";
-
-        default:
-            throw std::out_of_range("no texture type");
-        }
-    }
+private:
+    QOpenGLFunctionsCore* m_fun = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
 };
-
 
 #endif // TEXTURE_H

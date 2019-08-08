@@ -22,6 +22,7 @@ Mesh::Mesh(const aiMesh * ai_mesh)
     m_numFaces = ai_mesh->mNumFaces;
     m_iMaterial = ai_mesh->mMaterialIndex;
 
+    m_indices.clear();
     for (int i = 0; i < ai_mesh->mNumFaces; ++i) {
         aiFace* ai_face = &ai_mesh->mFaces[i];
         //        Face face;
@@ -31,11 +32,14 @@ Mesh::Mesh(const aiMesh * ai_mesh)
         for (int j = 0; j < ai_face->mNumIndices; ++j) {
             uint indice = ai_face->mIndices[j];
             //            face.m_indices.push_back(indice);
-            m_indices.push_back(indice);
+//            m_indices.push_back(indice);
+            m_indices.emplace_back(indice);
         }
         //        mesh.m_faces.push_back(face);
     }
+    Q_ASSERT(m_indices.size() == 3 * ai_mesh->mNumFaces);
 
+    m_vertices.clear();
     for (uint i = 0; i < ai_mesh->mNumVertices; ++i) {
         Vertex v;
         //        const aiVector3D* ai_vertex = &ai_mesh->mVertices[i];
@@ -58,11 +62,43 @@ Mesh::Mesh(const aiMesh * ai_mesh)
             v.TexCoords = glm::vec2(0.0f, 0.0f);
         }
 
-        m_vertices.push_back(std::move(v));
+//        m_vertices.push_back(std::move(v));
+        m_vertices.emplace_back(v);
     }
+    Q_ASSERT(m_vertices.size() == ai_mesh->mNumVertices);
 
     setupMesh();
 //    return std::move(mesh);
+//    std::cout << "\033[32m";
+//    std::cout << "[MESH] " << m_name << " created " << this << std::endl;
+//    std::cout << "\033[0m";
+}
+
+//Mesh::Mesh(Mesh &&mesh) noexcept
+//{
+//    m_fun = mesh.m_fun;
+//    m_name = mesh.m_name;
+//    m_indices = std::move(mesh.m_indices);
+//    m_vertices = std::move(mesh.m_vertices);
+//    m_iMaterial = mesh.m_iMaterial;
+//    VAO = mesh.VAO;
+//    VBO = mesh.VBO;
+//    EBO = mesh.EBO;
+
+//}
+
+Mesh::~Mesh()
+{
+    //    qDebug() << "[Model] destruct " << this;
+    std::cout << "\033[31m";
+    std::cout << "[MESH] " << m_name << " deleted " << this << std::endl;
+    std::cout << "\033[0m";
+
+//    delete m_rootNode;
+
+//    if (m_rootNode != nullptr)
+
+
 }
 
 

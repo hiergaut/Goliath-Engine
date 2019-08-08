@@ -1,9 +1,12 @@
 project (Goliath-Engine)
 
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 3.14.0)
+set(CMAKE_CXX_STANDARD 14)
+
 #project (src)
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall -pedantic -Wextra -lassimp -O0 -g -Wfatal-errors")
+#set(CMAKE_CXX_STANDARD 11)
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Wall -pedantic -Wextra -lassimp -O0 -g -Wfatal-errors")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic -Wextra -lassimp -O0 -g -Wfatal-errors")
 
 
 #set(CMAKE_AUTORCC ON)

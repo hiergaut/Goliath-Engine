@@ -12,18 +12,19 @@ class Node
 public:
 
 
-    std::vector<Node*> m_children;
+    std::vector<Node> m_children;
 //    Mesh * mMesh;
 //    std::vector<const Mesh*> m_meshes;
     std::vector<uint> m_iMeshes;
     const std::string m_name;
-    uint m_numChildren = 0;
-    uint m_numMeshes = 0;
+//    uint m_numChildren = 0;
+//    uint m_numMeshes = 0;
 
     glm::mat4 m_transformation;
 
 public:
     Node(const aiNode * ai_node);
+//    Node(const Node & node);
 //    ~Node();
 
 //public:

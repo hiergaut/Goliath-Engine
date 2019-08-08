@@ -150,6 +150,8 @@ void MainWindow::loadLastSession()
 {
     loadEnv("temp.dat");
 //    editor->loadNewModel("models/camera/camera.obj");
+//    editor->loadNewModel("models/camera/camera.obj");
+//    editor->loadNewModel("models/camera/camera.obj");
 //    editor->loadNewModel("maps/de_aztec/de_aztec.obj");
 //    editor->loadNewModel("models/player/gign/gign.smd");
 }

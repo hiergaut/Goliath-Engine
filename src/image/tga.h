@@ -4,13 +4,13 @@
 #include <QImage>
 #include <fstream>
 
-QImage loadTga(const char* filePath, bool& success)
+QImage loadTga(std::string file, bool& success)
 {
     QImage img;
-    if (!img.load(filePath)) {
+    if (!img.load(file.c_str())) {
 
         // open the file
-        std::fstream fsPicture(filePath, std::ios::in | std::ios::binary);
+        std::fstream fsPicture(file.c_str(), std::ios::in | std::ios::binary);
 
         if (!fsPicture.is_open()) {
             img = QImage(1, 1, QImage::Format_RGB32);

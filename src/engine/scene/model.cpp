@@ -5,10 +5,21 @@
 //#include "Assimp.h"
 #include <assimp/Assimp.h>
 
+//#include <iostream>
+//#include <vector>
+#include <memory>
+//#include <cstdio>
+//#include <fstream>
+//#include <cassert>
+#include <functional>
+
 Model::Model(const std::string& path)
 //        : gammaCorrection(gamma),
 //        : m_file(path)
 {
+    m_meshes.reserve(50);
+    m_materials.reserve(50);
+    m_textures.reserve(100);
 
     //        initializeOpenGLFunctions();
     //    fun = QOpenGLContext::globalShareContext()->versionFunctions<QOpenGLFunctionsCore>();
@@ -19,12 +30,95 @@ Model::Model(const std::string& path)
     //    qDebug() << QThread::currentThreadId() << "[MODEL]" << this << "[CONTEXT]" << fun;
 
     assimpLoadModel(g_resourcesPath + path);
-    std::cout << "[MODEL] load : " << path << std::endl;
+    //    std::cout << "[MODEL] load : " << path << std::endl;
     //        }
+    //    std::cout << "[Model] create " << this << std::endl;
+    //    std::cout << "\033[32m";
+    //    std::cout << "[Model] " << m_filename << " created " << this << std::endl;
+    //    std::cout << "\033[0m";
 }
+
+//Model::Model(const Model &model)
+////    : m_meshes(model.m_meshes)
+////    : m_rootNode = std::make_uni
+//    : m_rootNode(std::make_unique<Node>(*model.m_rootNode))
+////    : m_rootNode(std::move(model.m_rootNode))
+////    : m_rootNode(std::move(model.m_rootNode))
+//{
+//    std::cout << "\033[35m";
+//    std::cout << "[Model] " << m_filename << " " << &model << " left moving to " << this << std::endl;
+//    std::cout << "m_fun : " << model.m_fun << ", m_meshes : " << &model.m_meshes << " " << model.m_meshes.size() << ", m_rootNode : " << &model.m_rootNode << " " << model.m_rootNode.get() << " " << model.m_rootNode.get()->m_name <<  ", m_filename : " << model.m_filename <<  std::endl;
+//    m_fun = model.m_fun;
+
+////    m_rootNode = std::move(model.m_rootNode);
+////    m_rootNode = std::move(model.m_rootNode);
+////    m_rootNode = std::make_unique<Node>();
+////    m_rootNode = std::make_unique<Node>(model.m_rootNode.get());
+
+//    m_filename = model.m_filename;
+//    directory = model.directory;
+//    std::cout << "m_fun : " << m_fun << ", m_meshes : " << &m_meshes << " " << m_meshes.size() << ", m_rootNode : " << &m_rootNode << " " << m_rootNode.get() << " " << m_rootNode.get()->m_name <<  ", m_filename : " << m_filename <<  std::endl;
+//    std::cout << "\033[0m";
+////    m_rootNode = model.m_rootNode;
+////    m_rootNode = model.m_rootNode;
+////    model.m_rootNode = nullptr;
+
+//}
+
+//Model::Model(Model &model)
+//{
+//    std::cout << "fuck" << std::endl;
+
+//}
+
+//Model::Model(Model &&model) noexcept
+////    : m_meshes(std::move(model.m_meshes))
+////    , m_rootNode(std::move(model.m_rootNode))
+//    : m_fun(model.m_fun)
+//{
+////    m_meshes.reserve(100);
+////    std::cout << "\033[33m";
+////    std::cout << "[Model] " << m_filename << " moving " << this << std::endl;
+////    std::cout << "\033[0m";
+//    std::cout << "\033[34m";
+//    std::cout << "[Model] " << model.m_filename << " " << &model << " right moving to " << this << std::endl;
+//    std::cout << "m_fun : " << model.m_fun << ", m_meshes : " << &model.m_meshes << " " << model.m_meshes.size() << ", m_rootNode : " << &model.m_rootNode << " " << model.m_rootNode.get() << " " << model.m_rootNode.get()->m_name <<  ", m_filename : " << model.m_filename <<  std::endl;
+////    m_fun = model.m_fun;
+
+//    m_rootNode = std::move(model.m_rootNode);
+//    m_meshes = std::move(model.m_meshes);
+//    m_materials = std::move(model.m_materials);
+////    m_rootNode = std::move(model.m_rootNode);
+////    m_rootNode = std::make_unique<Node>();
+////    m_rootNode = std::make_unique<Node>(model.m_rootNode.get());
+
+//    m_filename = model.m_filename;
+//    directory = model.directory;
+//    std::cout << "m_fun : " << m_fun << ", m_meshes : " << &m_meshes << " " << m_meshes.size() << ", m_rootNode : " << &m_rootNode << " " << m_rootNode.get() << " " << m_rootNode.get()->m_name <<  ", m_filename : " << m_filename <<  std::endl;
+//    std::cout << "\033[0m";
+////    m_rootNode = model.m_rootNode;
+////    m_rootNode = model.m_rootNode;
+////    m_rootNode = model.m_rootNode;
+
+//}
+
+//Model::Model(const Model &&model)
+//{
+//    std::cout << "bitch" << std::endl;
+
+//}
+
 Model::~Model()
 {
-    delete m_rootNode;
+    //    qDebug() << "[Model] destruct " << this;
+    std::cout << "\033[31m";
+    std::cout << "[Model] '" << m_filename << "' destruct " << this << std::endl;
+    std::cout << "\033[0m";
+
+    //    delete m_rootNode;
+
+    //    if (m_rootNode != nullptr)
+    //        delete m_rootNode;
 }
 
 //    static Assimp::Importer m_importer;
@@ -44,7 +138,7 @@ void Model::assimpLoadModel(std::string const& path)
     //    m_scene = m_importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
     //        const aiScene* scene = m_importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace | aiProcess_FlipWindingOrder);
     //            const aiScene* scene = m_importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace | aiProcess_MakeLeftHanded);
-    qDebug() << "[MODEL]" << path.c_str() << "aiScene : " << scene << "importer" << &m_importer << "numMeshes" << scene->mNumMeshes;
+    //    qDebug() << "[MODEL]" << directory.c_str() << "aiScene : " << scene << "importer" << &m_importer << "numMeshes" << scene->mNumMeshes;
     //        const aiScene* scene = m_importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace | aiProcess_GenNormals);
     // check for errors
     if (!scene || !scene->mRootNode) // if is Not Zero
@@ -65,109 +159,47 @@ void Model::assimpLoadModel(std::string const& path)
     QFileInfo fileInfo(path.c_str());
     m_filename = fileInfo.baseName().toStdString();
 
-    //            std::cout << "scene:";
-    //            std::cout << ", numLights: " << scene->mNumLights;
-    //            std::cout << ", numMeshes: " << scene->mNumMeshes;
-    //            std::cout << ", numCameras: " << scene->mNumCameras;
-    //            std::cout << ", numTextures: " << scene->mNumTextures;
-    //            std::cout << ", numMaterials: " << scene->mNumMaterials;
-    //                std::cout << ", numAnimations: " << scene->mNumAnimations << std::endl;
-    //    for (uint i =0; i <scene->mNumTextures; ++i) {
-
-    //    }
-    //    for (uint i =0; i <scene->mNumAnimations; ++i) {
-    //        const aiAnimation * ai_animation = scene->mAnimations[i];
-
-    //        m_animations.push_back(Animation(ai_animation));
-
-    //    }
+    //    m_materials.reserve(100);
     for (uint i = 0; i < scene->mNumMaterials; ++i) {
         //        const aiMaterial * scene->mMaterials[i];
         const aiMaterial* ai_material = scene->mMaterials[i];
+        //        std::cout << "load material " << i << std::endl;
         //        Material material(ai_material);
         //        Material material(ai_material, m_textures, directory);
         //        m_materials.push_back(material);
-        m_materials.push_back(Material(ai_material, m_textures, directory));
+        //        m_materials.push_back(std::move(Material(ai_material, m_textures, directory)));
+        m_materials.emplace_back(ai_material, m_textures, directory);
         //        m_materials.push_back({ai_material, m_textures, directory});
 
         //        m_materials.push_back(std::move(material));
     }
+    Q_ASSERT(scene->mNumMaterials == m_materials.size());
 
+    m_meshes.clear();
     for (uint i = 0; i < scene->mNumMeshes; ++i) {
         const aiMesh* ai_mesh = scene->mMeshes[i];
         //        m_meshes.push_back(assimpProcessMesh(ai_mesh, scene, 0));
-        m_meshes.push_back(std::move(Mesh(ai_mesh)));
+        //        m_meshes.push_back(std::move(Mesh(ai_mesh)));
+        m_meshes.emplace_back(ai_mesh);
     }
+    Q_ASSERT(scene->mNumMeshes == m_meshes.size());
 
-    //    for (int i =0; i <scene->mNumTextures; ++i) {
+    //    m_rootNode = new Node(scene->mRootNode);
+    //    m_rootNode = std::make_unique<
+    m_rootNode = std::make_unique<Node>(scene->mRootNode);
 
-    //    }
+    //    std::make_unique<Node>();
 
-    // process ASSIMP's root node recursively
-    //    m_rootNode = scene->mRootNode;
+    //    m_nodes.push_back(Node(scene->mRootNode));
 
-    //    processNode(scene->mRootNode, scene, 0);
-    //    Q_ASSERT(scene->mRootNode);
-    //    Q_ASSERT(scene->HasMeshes());
-        m_rootNode = assimpProcessNode(scene->mRootNode, scene, 0);
-//    m_rootNode = new Node(scene->mRootNode);
-        Q_ASSERT(m_rootNode);
+    //    m_rootNode = new Node(scene->mRootNode);
+    //    Q_ASSERT(m_rootNode);
     //    std::cout << "root node : " << m_rootNode << std::endl;
+    //    std::cout << "assimpProcessNode root node " << m_rootNode <<  " " <<m_rootNode->m_children.size() << std::endl;
 }
-
-
-Node* Model::assimpProcessNode(aiNode* node, const aiScene* scene, int depth)
-{
-    Node* newNode = new Node(node);
-
-    //            for (int i = 0; i < depth; ++i) {
-    //                std::cout << "\t";
-    //            }
-    //            std::cout << "node: " << node->mName.C_Str();
-    //            std::cout << ", numMeshes: " << node->mNumMeshes;
-    //            std::cout << ", numChildren: " << node->mNumChildren;
-    //            std::cout << std::endl;
-
-    newNode->m_numMeshes = node->mNumMeshes;
-    newNode->m_iMeshes.resize(newNode->m_numMeshes);
-    // process each mesh located at the current node
-    for (unsigned int i = 0; i < node->mNumMeshes; i++) {
-        // the node object only contains indices to index the actual objects in the scene.
-        // the scene contains all the data, node is just to keep stuff organized (like relations between nodes).
-        //        aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
-        //        newNode->m_meshes.push_back(1);
-        //        m_meshes.push_back(assimpProcessMesh(mesh, scene, depth + 1));
-
-        //        newNode->m_meshes[i] = m_meshes.size() - 1;
-        newNode->m_iMeshes[i] = node->mMeshes[i];
-        //        newNode->m_meshes.push_back(&m_meshes.back());
-        //        newNode->m_transformation = node->mTransformation
-    }
-    // after we've processed all of the m_meshes (if any) we then recursively process each of the children nodes
-    newNode->m_numChildren = node->mNumChildren;
-    newNode->m_children.resize(newNode->m_numChildren);
-    for (unsigned int i = 0; i < node->mNumChildren; i++) {
-        newNode->m_children[i] = assimpProcessNode(node->mChildren[i], scene, depth + 1);
-    }
-
-    newNode->m_transformation = aiMatrix4x4ToGlm(node->mTransformation);
-
-    return newNode;
-}
-
-
-//Node::~Node()
-//{
-
-//}
-
-//    bool operator==(const Model& model)
-//    {
-//        return m_file == model.m_file;
-//    }
 
 // draws the model, and thus all its meshes
-void Model::Draw(const Shader& shader)
+void Model::Draw(const Shader& shader) const
 {
 
     for (const Mesh& mesh : m_meshes) {
@@ -192,23 +224,12 @@ void Model::Draw(const Shader& shader)
                 std::string number = std::to_string(j);
                 std::string name = std::string(texture);
                 m_fun->glUniform1i(m_fun->glGetUniformLocation(shader.ID, (name + number).c_str()), cpt);
-                m_fun->glBindTexture(GL_TEXTURE_2D, texture.id);
+                m_fun->glBindTexture(GL_TEXTURE_2D, texture.m_id);
 
                 ++cpt;
                 //            }
             }
         }
-
-        //        shader.setVec3("material.ambient", material.m_colors[Color::Etype::AMBIENT]);
-        //        qDebug() << material.m_colorAmbient.x << material.m_colorAmbient.y << material.m_colorAmbient.z;
-        //        shader.setVec3("material.diffuse", material.m_colors[Color::Etype::DIFFUSE]);
-        //        shader.setVec3("material.specular", material.m_colors[Color::Etype::SPECULAR]);
-        //        shader.setFloat("material.shininess", material.m_shininess);
-
-        //        qDebug() << material.m_colorAmbient.x << material.m_colorAmbient.y << material.m_colorAmbient.z;
-
-        //        shader.setVec3()
-        //    for (uint i =0; i <m_material)
 
         // draw mesh
         m_fun->glBindVertexArray(mesh.VAO);
@@ -223,79 +244,68 @@ void Model::Draw(const Shader& shader)
 // -------------------------------------------------------------------
 void Model::modelBuild(QStandardItem* parent) const
 {
-    //    Q_ASSERT(scene != nullptr);
-    //            std::cout << std::flush;
+    modelRecurseNode(*m_rootNode, parent);
 
-    //    for (int i =0; i <m_materials.size(); ++i) {
-    //    const Material& material = m_materials[i];
-    //    QStandardItem* item = new QStandardItem(QIcon(":/icons/material.png"), material.m_name.c_str());
-    //    parent->appendRow(item);
-    //    }
-    //    for (int i =0; i <m_animations.size(); ++i) {
-    for (const Animation& animation : m_animations) {
-        QStandardItem* item = new QStandardItem(animation.m_name.c_str());
-        parent->appendRow(item);
+    QStandardItem* item = new QStandardItem("materials");
+    parent->appendRow(item);
+    for (const Material& material : m_materials) {
+        modelRecurseMaterial(material, item);
     }
-
-    Q_ASSERT(m_rootNode != nullptr);
-    std::cout << "node nbchildren : " << m_rootNode->m_numChildren << std::endl;
-//    modelRecurseNode(m_rootNode, parent);
-
-    //    QStandardItem* item2 = new QStandardItem("fuck");
-    //    parent->appendColumn({item2});
 }
 
-void Model::modelRecurseNode(const Node* node, QStandardItem* parent) const
+void Model::modelRecurseNode(const Node& node, QStandardItem* parent) const
 {
-    //    Q_ASSERT(scene != nullptr);
-    Q_ASSERT(node != nullptr);
-
-    //    std::cout << "opennode : " << node << std::endl;
-
-    //    qDebug() << "node : '" << node->m_name.c_str() << "'";
-    //    Q_ASSERT(!node->m_name.empty());
-    //    Q_ASSERT(node->m_name.c_str());
-    QStandardItem* item = new QStandardItem(QIcon(":/icons/node.png"), QString(node->m_name.c_str()));
+    QStandardItem* item = new QStandardItem(QIcon(":/icons/node.png"), QString(node.m_name.c_str()));
     parent->appendRow(item);
 
     //    QStandardItem* item2 = new QStandardItem("fuck");
     //    parent->appendColumn({item2});
 
-    const glm::mat4& m = node->m_transformation;
-    modelMat4(node->m_transformation, item);
+    const glm::mat4& m = node.m_transformation;
+    modelMat4(node.m_transformation, item);
 
-    for (int i = 0; i < node->m_numMeshes; ++i) {
+    for (ulong i = 0; i < node.m_iMeshes.size(); ++i) {
         //        QStandardItem * item2 = new QStandardItem("mesh:" + QString::number(node->m_meshes[i]) + ", " + m_meshes[node->m_meshes[i]]);
         //        QStandardItem * item2 = new QStandardItem(QString::number(node->m_meshes[i]) + "  " + m_meshes[node->m_meshes[i]]);
 
-        Q_ASSERT(node->m_iMeshes[i] < node->m_numMeshes);
-        Q_ASSERT(node->m_numMeshes == node->m_iMeshes.size());
-        modelRecurseMesh(&m_meshes[node->m_iMeshes[i]], item);
+        Q_ASSERT(node.m_iMeshes[i] < m_meshes.size());
+        //        Q_ASSERT(node->m_numMeshes == node->m_iMeshes.size());
+        const Mesh& mesh = m_meshes[node.m_iMeshes[i]];
+        modelRecurseMesh(mesh, item);
         //        QStandardItem * item2 = new QStandardItem("mesh : " + QString::number(node->m_meshes[i]));
         //        item->appendRow(item2);
     }
 
-    std::cout << "node nbchildren : " << node->m_numChildren << std::endl;
-    for (int i = 0; i < node->m_numChildren; ++i) {
-        modelRecurseNode(node->m_children[i], item);
+    //    std::cout << "node nbchildren : " << node->m_numChildren << std::endl;
+    for (int i = 0; i < node.m_children.size(); ++i) {
+        modelRecurseNode(node.m_children[i], item);
     }
 
     //    parent->appendRow(new QStandardItem(str));
 }
 
-void Model::modelRecurseMesh(const Mesh* mesh, QStandardItem* parent) const
+void Model::modelRecurseMesh(const Mesh& mesh, QStandardItem* parent) const
 {
     //    QStandardItem * item = new QStandardItem(mesh->m_name.c_str());
-    QStandardItem* item = new QStandardItem(QIcon(":/icons/mesh.png"), QString(mesh->m_name.c_str()) + "  f:" + QString::number(mesh->m_numFaces) + "  v:" + QString::number(mesh->m_vertices.size()));
+    QStandardItem* item = new QStandardItem(QIcon(":/icons/mesh.png"), QString(mesh.m_name.c_str()) + "  f:" + QString::number(mesh.m_numFaces) + "  v:" + QString::number(mesh.m_vertices.size()));
     parent->appendRow(item);
 
-    //    QStandardItem * item2 = new QStandardItem(QIcon)
-    for (const Bone& bone : mesh->m_bones) {
-        QStandardItem* item2 = new QStandardItem(QIcon(":/icons/bone.png"), bone.m_name.c_str());
-        item->appendRow(item2);
-    }
+    const Material& material = m_materials[mesh.m_iMaterial];
+    //    modelRecurseMaterial(material, item);
 
-    const Material& material = m_materials[mesh->m_iMaterial];
+//    QStandardItem* item2 = new QStandardItem(material.m_name.c_str());
+    QStandardItem* item2 = new QStandardItem(QIcon(":/icons/material.png"), material.m_name.c_str());
+    item->appendRow(item2);
+
+    //    QStandardItem * item2 = new QStandardItem(QIcon)
+    //    for (const Bone& bone : mesh->m_bones) {
+    //        QStandardItem* item2 = new QStandardItem(QIcon(":/icons/bone.png"), bone.m_name.c_str());
+    //        item->appendRow(item2);
+    //    }
+}
+
+void Model::modelRecurseMaterial(const Material& material, QStandardItem* parent) const
+{
     QStandardItem* item2 = new QStandardItem(QIcon(":/icons/material.png"), material.m_name.c_str());
 
     QStandardItem* itemAmbient = new QStandardItem("ambient");
@@ -332,27 +342,16 @@ void Model::modelRecurseMesh(const Mesh* mesh, QStandardItem* parent) const
         for (int j = 0; j < material.m_iTextures[i].size(); ++j) {
             const Texture& texture = m_textures[material.m_iTextures[i][j]];
 
-            //            QString path = QString(texture.path.c_str());
-            //            QPixmap pixmap(texture.path.c_str());
-            //            bool success;
-            //            QImage image = loadTga(texture.path.c_str(), success);
-            //            Q_ASSERT(success);
-            ////            Q_ASSERT(! image.isNull());
-            ////            QPixmap pixmap(image);
-            //            QPixmap pixmap(QPixmap::fromImage(image));
-
-            //            qDebug() << "path = " << path;
-            //            item2->appendRow(item3);
             if (i == 0) {
-                QStandardItem* item3 = new QStandardItem(QIcon(texture.pixmap), texture.filename.c_str());
+                QStandardItem* item3 = new QStandardItem(QIcon(texture.m_pixmap), texture.m_filename.c_str());
                 itemAmbient->appendRow(item3);
             } else {
-                QStandardItem* item3 = new QStandardItem(QIcon(texture.pixmap), QString(texture) + texture.filename.c_str());
+                QStandardItem* item3 = new QStandardItem(QIcon(texture.m_pixmap), QString(texture) + texture.m_filename.c_str());
                 item2->appendRow(item3);
             }
         }
     }
-    item->appendRow(item2);
+    parent->appendRow(item2);
 }
 
 void Model::modelMat4(const glm::mat4 matrix, QStandardItem* parent) const

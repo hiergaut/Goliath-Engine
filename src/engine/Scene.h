@@ -64,6 +64,7 @@ private:
 //    std::vector<const CameraWorld*> m_cameras;
 
     Grid * m_grid;
+    bool initialized = false;
 
 
 public:

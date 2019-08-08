@@ -180,7 +180,7 @@ void QSplitterNode::mousePressEvent(QMouseEvent* ev)
     int x = ev->x();
     int y = ev->y();
 
-    int border = 5;
+    int border = 10;
 
     //    qDebug() << this->sizePolicy() << parent->orientation();
 

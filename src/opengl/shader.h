@@ -116,7 +116,15 @@ public:
         if (!geometryPath.empty())
             m_fun->glDeleteShader(geometry);
 
-        std::cout << "[SHADER] load : " << vertexPath << std::endl;
+//        std::cout << "[SHADER] load : " << vertexPath << std::endl;
+    }
+
+    ~Shader() {
+        std::cout << "\033[31m";
+        std::cout << "[SHADER] '" << ID << "' destruct " << this << std::endl;
+        std::cout << "\033[0m";
+
+
     }
     // activate the shader
     // ------------------------------------------------------------------------
