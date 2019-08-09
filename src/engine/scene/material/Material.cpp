@@ -11,6 +11,7 @@
 //#include "stb_image.h"
 //#include <image/tga.h>
 //#include <fstream>
+#include <QPainter>
 
 Material::Material(const aiMaterial* ai_material, Textures& textures, std::string directory)
      : m_directory(directory),
@@ -93,6 +94,57 @@ Material::~Material()
     std::cout << "[Material] " << m_name << " destruct " << this << std::endl;
 //    std::cout << "m_textures : " << m_colors << std::endl;
     std::cout << "\033[0m";
+}
+
+void Material::buildItemModel(QStandardItem *parent) const
+{
+    QStandardItem* item2 = new QStandardItem(QIcon(":/icons/material.png"), m_name.c_str());
+
+    QStandardItem* itemAmbient = new QStandardItem("ambient");
+    item2->appendRow(itemAmbient);
+
+    //    material.
+    //    QPainter * paint = new QPainter(&pixmap);
+    QPixmap pixmap(":/icons/disk.png");
+    QPainter painter(&pixmap);
+    painter.setCompositionMode(QPainter::CompositionMode_SourceIn);
+    //    painter.fillRect(pixmap.rect(), Qt::red);
+    for (int i = 0; i < Color::Etype::size; ++i) {
+        const Color& color(m_colors[i]);
+        //    for ()
+        painter.fillRect(pixmap.rect(), color);
+        //        painter.end();
+        //    paint->setBrush(QBrush(Qt::black));
+        //    paint->drawPie(pixmap.rect(), 0, 1);
+        //    pixmap.fill(QColor(material.m_colorDiffuse.x * 255.0f, material.m_colorDiffuse.y * 255.0f, material.m_colorDiffuse.z * 255.0f));
+
+        QIcon icon(pixmap);
+
+        if (i == 0) {
+            QStandardItem* item3 = new QStandardItem(icon, "");
+            itemAmbient->appendRow(item3);
+        } else {
+            QStandardItem* item3 = new QStandardItem(icon, color.to_string());
+            item2->appendRow(item3);
+        }
+    }
+    painter.end();
+
+    for (int i = 0; i < Texture::size; ++i) {
+        for (int j = 0; j < m_iTextures[i].size(); ++j) {
+            const Texture& texture = m_textures[m_iTextures[i][j]];
+
+            if (i == 0) {
+                QStandardItem* item3 = new QStandardItem(QIcon(texture.m_pixmap), texture.m_filename.c_str());
+                itemAmbient->appendRow(item3);
+            } else {
+                QStandardItem* item3 = new QStandardItem(QIcon(texture.m_pixmap), QString(texture) + texture.m_filename.c_str());
+                item2->appendRow(item3);
+            }
+        }
+    }
+    parent->appendRow(item2);
+
 }
 
 

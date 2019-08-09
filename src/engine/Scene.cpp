@@ -132,7 +132,7 @@ void Scene::updateSceneModel()
         QStandardItem * item = new QStandardItem(model.filename().c_str());
         parentItem->appendRow(item);
 
-        model.modelBuild(item);
+        model.buildItemModel(item);
     }
 
     emit m_sceneModel.dataChanged(m_sceneModel.index(0, 0), m_sceneModel.index(0, 0));

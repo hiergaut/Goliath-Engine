@@ -12,6 +12,7 @@
 #include <opengl/version.h>
 #include "Color.h"
 #include "Texture.h"
+#include <QStandardItem>
 
 class Material;
 using Materials = std::vector<Material>;
@@ -43,6 +44,8 @@ public:
 //    Material(const Material &&);
 //    Material(const Material &);
     ~Material();
+
+    void buildItemModel(QStandardItem * parent) const;
 
     std::vector<uint> assimpLoadMaterialTextures(const aiMaterial* mat, aiTextureType ai_type, Texture::Type type);
 unsigned int TextureFromFile(const char* path, const std::string& directory);

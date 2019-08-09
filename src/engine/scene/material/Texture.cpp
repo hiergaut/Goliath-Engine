@@ -11,9 +11,10 @@
 unsigned int TextureFromFile(const std::string& filename, const std::string& directory);
 
 Texture::Texture(std::string  path, std::string  filename, Texture::Type type)
-    : m_directory(path)
-    , m_filename(filename)
+    : m_filename(filename)
+    , m_directory(path)
 {
+    m_fun = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
 
     //    std::cout << "\033[32m";
     //    std::cout << "[Texture] " << m_filename << " created " << this << std::endl;

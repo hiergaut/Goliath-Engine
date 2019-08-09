@@ -13,19 +13,18 @@ using Textures = std::vector<Texture>;
 class Texture {
 public:
     unsigned int m_id;
-    //    std::string type;
+    QPixmap m_pixmap;
+    std::string m_filename;
+    std::string m_directory;
+
+public:
     enum Type {
         DIFFUSE = 0,
         SPECULAR,
         NORMAL,
         HEIGHT,
         size
-    } m_type;
-
-    std::string m_directory;
-    std::string m_filename;
-
-    QPixmap m_pixmap;
+    };
 
     Texture(std::string path, std::string filename, Texture::Type type);
     //    Texture(const Texture & texture);
@@ -37,7 +36,12 @@ public:
     operator const char*() const;
 
 private:
-    QOpenGLFunctionsCore* m_fun = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
+    QOpenGLFunctionsCore* m_fun;
+
+    Type m_type;
+    //    std::string type;
+
+
 };
 
 #endif // TEXTURE_H

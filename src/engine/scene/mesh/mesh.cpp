@@ -2,20 +2,28 @@
 
 #include <assimp/Assimp.h>
 
-Mesh::Mesh(const aiMesh * ai_mesh)
+Mesh::Mesh(const aiMesh * ai_mesh, const Materials & materials)
     : m_name(ai_mesh->mName.C_Str())
+    , m_materials(materials)
 {
+    m_fun = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
+    m_bones.reserve(50);
     //        fun = QOpenGLContext::globalShareContext()->versionFunctions<QOpenGLFunctionsCore>();
     //        m_fun = ctx->versionFunctions<QOpenGLFunctionsCore>();
     //        m_fun = fun;
-    m_fun = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
+//    m_fun = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
     //        fun =
     //        initializeOpenGLFunctions();
+//    m_numAnimMesh = ai_mesh->mNumAnimMeshes;
+    Q_ASSERT(ai_mesh->mNumAnimMeshes == 0);
 
-//    for (uint i =0; i <ai_mesh->mNumBones; ++i) {
-//        const aiBone * ai_bone = ai_mesh->mBones[i];
+    m_sumBoneWeights = 0;
+    for (uint i =0; i <ai_mesh->mNumBones; ++i) {
+        const aiBone * ai_bone = ai_mesh->mBones[i];
+        m_sumBoneWeights += ai_bone->mNumWeights;
 //        m_bones.push_back(Bone(ai_bone));
-//    }
+        m_bones.emplace_back(ai_bone);
+    }
 
     //        std::cout << std::endl;
 //    Mesh mesh(ai_mesh->mName.C_Str());
@@ -101,6 +109,31 @@ Mesh::~Mesh()
 
 }
 
+void Mesh::buildItemModel(QStandardItem *parent) const
+{
+
+    //    QStandardItem * item = new QStandardItem(mesh->m_name.c_str());
+    QStandardItem* item = new QStandardItem(QIcon(":/icons/mesh.png"), QString(m_name.c_str()) + "  f:" + QString::number(m_numFaces) + "  v:" + QString::number(m_vertices.size()));
+    parent->appendRow(item);
+
+//    QStandardItem * item2 = new QStandardItem("num anim mesh " + QString::number(mesh.m_numAnimMesh));
+//    item->appendRow(item2);
+
+    const Material& material = m_materials[m_iMaterial];
+    //    modelRecurseMaterial(material, item);
+    //    QStandardItem* item2 = new QStandardItem(material.m_name.c_str());
+//    QStandardItem * item2 = new QStandardItem(QIcon(":/icons/material.png"), material.m_name.c_str());
+//    item->appendRow(item2);
+    material.buildItemModel(item);
+
+    //        QStandardItem * item2 = new QStandardItem(QIcon)
+    QStandardItem * item3 = new QStandardItem("bones:" + QString::number(m_bones.size()) + "  sumBoneWeights:" + QString::number(m_sumBoneWeights));
+    item->appendRow(item3);
+    for (const Bone& bone : m_bones) {
+        bone.buildItemModel(item3);
+    }
+}
+
 
 /*  Functions    */
 // initializes all the buffer objects/arrays
@@ -111,11 +144,11 @@ void Mesh::setupMesh()
     //        QOpenGLExtraFunctions * fun = QOpenGLContext::currentContext()->extraFunctions();
 
     // create buffers/arrays
-    m_fun->glGenVertexArrays(1, &VAO);
+    m_fun->glGenVertexArrays(1, &m_vao);
     m_fun->glGenBuffers(1, &VBO);
     m_fun->glGenBuffers(1, &EBO);
 
-    m_fun->glBindVertexArray(VAO);
+    m_fun->glBindVertexArray(m_vao);
     // load data into vertex buffers
     m_fun->glBindBuffer(GL_ARRAY_BUFFER, VBO);
     // A great thing about structs is that their memory layout is sequential for all its items.

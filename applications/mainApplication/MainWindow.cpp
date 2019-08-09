@@ -153,7 +153,7 @@ void MainWindow::loadLastSession()
 //    editor->loadNewModel("models/camera/camera.obj");
 //    editor->loadNewModel("models/camera/camera.obj");
 //    editor->loadNewModel("maps/de_aztec/de_aztec.obj");
-//    editor->loadNewModel("models/player/gign/gign.smd");
+    editor->loadNewModel("models/player/gign/gign.fbx");
 }
 
 void MainWindow::saveSession()

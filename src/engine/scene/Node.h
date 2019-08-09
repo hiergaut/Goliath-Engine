@@ -11,6 +11,17 @@ class Node
 {
 public:
 
+public:
+    Node(const aiNode * ai_node, const Meshes & meshes);
+    void buildItemModel(QStandardItem * parent) const;
+//    Node(const Node & node);
+//    ~Node();
+
+//public:
+//    std::string name() const;
+//    int numChildren() const;
+private:
+    const Meshes & m_meshes;
 
     std::vector<Node> m_children;
 //    Mesh * mMesh;
@@ -22,14 +33,6 @@ public:
 
     glm::mat4 m_transformation;
 
-public:
-    Node(const aiNode * ai_node);
-//    Node(const Node & node);
-//    ~Node();
-
-//public:
-//    std::string name() const;
-//    int numChildren() const;
 };
 
 #endif // NODE_H

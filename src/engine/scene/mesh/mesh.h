@@ -24,47 +24,59 @@
 #include <sstream>
 //#include "model.h"
 //#include "Bone.h"
-#include "bone/Bone.h"
-#include <assimp/scene.h>
 #include "Vertex.h"
+#include "bone/Bone.h"
+#include <QStandardItem>
+#include <assimp/scene.h>
 
+#include "../material/Material.h"
+
+class Mesh;
+using Meshes = std::vector<Mesh>;
 
 class Mesh {
 public:
-    /*  Mesh Data  */
-    QOpenGLFunctionsCore* m_fun;
-
-    std::string m_name;
-//    std::vector<Face> m_faces;
-    std::vector<uint> m_indices;
-    std::vector<Vertex> m_vertices;
     uint m_iMaterial;
+    unsigned int m_vao;
+    std::vector<uint> m_indices;
 
-//    std::vector<Bone> m_bones;
-
-//    std::vector<Vertex> vertices;
-//    std::vector<unsigned int> indices;
-    uint m_numFaces;
-//    std::vector<uint> m_lenFaces;
-
-
-//    std::vector<Texture> textures;
-    unsigned int VAO;
-
+public:
     /*  Functions  */
     // constructor
-//    Mesh(std::string name, std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures) : m_name(name)
-    Mesh(const aiMesh * ai_mesh);
-//    Mesh(const Mesh & mesh) = delete ;
-//    Mesh(Mesh && mesh) noexcept;
+    //    Mesh(std::string name, std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures) : m_name(name)
+    Mesh(const aiMesh* ai_mesh, const Materials& materials);
+    //    Mesh(const Mesh & mesh) = delete ;
+    //    Mesh(Mesh && mesh) noexcept;
     ~Mesh();
-//    Mesh(const & mesh)
-//    operator QString() const;
-//    void Draw(const Shader& shader, const Model & model);
+    //    Mesh(const & mesh)
+    //    operator QString() const;
+    //    void Draw(const Shader& shader, const Model & model);
+    void buildItemModel(QStandardItem* parent) const;
 
     void setupMesh();
+
 private:
     /*  Render data  */
+    QOpenGLFunctionsCore* m_fun;
+
+    /*  Mesh Data  */
+    //    uint m_numAnimMesh;
+
+    std::string m_name;
+    //    std::vector<Face> m_faces;
+    std::vector<Vertex> m_vertices;
+
+    std::vector<Bone> m_bones;
+    uint m_sumBoneWeights;
+
+    //    std::vector<Vertex> vertices;
+    //    std::vector<unsigned int> indices;
+    uint m_numFaces;
+    //    std::vector<uint> m_lenFaces;
+
+    //    std::vector<Texture> textures;
+
+    const Materials& m_materials;
     unsigned int VBO, EBO;
 
     /*  Functions    */
