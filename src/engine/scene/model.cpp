@@ -138,6 +138,15 @@ void Model::assimpLoadModel(std::string const& path)
 void Model::Draw(const Shader& shader) const
 {
 
+//    shader.use();
+
+//    m_fun->glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
+    m_boneGeometry.draw(shader, glm::vec3(0, 0, 0), glm::vec3(10, 10, 10));
+//    m_fun->glBindVertexArray()
+
+
+//    shader.use();
     for (const Mesh& mesh : m_meshes) {
         //        const Mesh& mesh = m_meshes[i];
 

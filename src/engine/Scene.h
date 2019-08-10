@@ -60,7 +60,7 @@ private:
     std::list<const QOpenGLWidget_3dView *> * m_views;
 
     Model* m_cameraModel;
-    Shader* m_shaderCamera;
+//    Shader* m_shaderCamera;
 //    std::vector<const CameraWorld*> m_cameras;
 
     Grid * m_grid;

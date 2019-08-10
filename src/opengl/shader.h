@@ -128,7 +128,7 @@ public:
     }
     // activate the shader
     // ------------------------------------------------------------------------
-    void use()
+    void use() const
     {
         m_fun->glUseProgram(ID);
     }

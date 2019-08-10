@@ -56,6 +56,8 @@ protected:
 
     void focusInEvent(QFocusEvent* event) override;
 
+    void resizeEvent(QResizeEvent *event) override;
+
 private:
 //    void setCursorToCenter();
 //    void cameraMove();

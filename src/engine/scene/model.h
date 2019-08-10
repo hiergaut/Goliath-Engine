@@ -38,6 +38,7 @@
 
 #include "animation/Animation.h"
 #include <memory>
+#include <opengl/geometry/boneGeometry.h>
 
 class Model {
 public:
@@ -79,6 +80,8 @@ private:
 
     std::vector<Animation> m_animations;
     Meshes m_meshes;
+
+    BoneGeometry m_boneGeometry;
 
     //    const Node * m_rootNode = nullptr;
     std::unique_ptr<Node> m_rootNode;

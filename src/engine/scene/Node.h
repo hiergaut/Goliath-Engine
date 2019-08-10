@@ -16,6 +16,7 @@ public:
     void buildItemModel(QStandardItem * parent) const;
 //    Node(const Node & node);
 //    ~Node();
+    void draw(const Shader & shader) const;
 
 //public:
 //    std::string name() const;

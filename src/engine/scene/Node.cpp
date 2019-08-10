@@ -41,6 +41,9 @@ void Node::buildItemModel(QStandardItem *parent) const
     QStandardItem* item = new QStandardItem(QIcon(":/icons/node.png"), "'" + QString(m_name.c_str()) + "'  " + QString::number(m_children.size()));
     parent->appendRow(item);
 
+
+    mat4BuildItemModel(m_transformation, item);
+
     for (ulong i = 0; i < m_iMeshes.size(); ++i) {
         //        QStandardItem * item2 = new QStandardItem("mesh:" + QString::number(node->m_meshes[i]) + ", " + m_meshes[node->m_meshes[i]]);
         //        QStandardItem * item2 = new QStandardItem(QString::number(node->m_meshes[i]) + "  " + m_meshes[node->m_meshes[i]]);
@@ -61,5 +64,10 @@ void Node::buildItemModel(QStandardItem *parent) const
     }
 
     //    parent->appendRow(new QStandardItem(str));
+
+}
+
+void Node::draw(const Shader &shader) const
+{
 
 }

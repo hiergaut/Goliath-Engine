@@ -230,6 +230,12 @@ void QOpenGLWidget_3dView::focusInEvent(QFocusEvent* event)
     //    qDebug("Have %d buffers and %d samples", bufs, samples);
 }
 
+void QOpenGLWidget_3dView::resizeEvent(QResizeEvent *event)
+{
+    m_projectionMatrix = glm::perspective(glm::radians(m_camera.getFov()), (float)width() / height(), l_near, l_far);
+
+}
+
 const CameraWorld * QOpenGLWidget_3dView::camera() const
 {
     return &m_camera;
