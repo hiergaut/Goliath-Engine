@@ -6,6 +6,9 @@
 //#include "mesh.h"
 #include "mesh/mesh.h"
 
+#include <opengl/geometry/uvSphereGeometry.h>
+#include <opengl/geometry/boneGeometry.h>
+
 
 class Node
 {
@@ -16,7 +19,7 @@ public:
     void buildItemModel(QStandardItem * parent) const;
 //    Node(const Node & node);
 //    ~Node();
-    void draw(const Shader & shader) const;
+    void draw(const Shader & shader, glm::mat4 model) const;
 
 //public:
 //    std::string name() const;
@@ -25,6 +28,10 @@ private:
     const Meshes & m_meshes;
 
     std::vector<Node> m_children;
+
+    BoneGeometry m_boneGeometry;
+
+//    UvSphereGeometry m_sphere;
 //    Mesh * mMesh;
 //    std::vector<const Mesh*> m_meshes;
     std::vector<uint> m_iMeshes;

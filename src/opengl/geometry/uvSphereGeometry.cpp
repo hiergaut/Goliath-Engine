@@ -1,12 +1,14 @@
 #include "uvSphereGeometry.h"
 
 #include <assert.h>
-#define GL_GLEXT_PROTOTYPES 1
-#include <GL/gl.h>
-#include <GL/glext.h>
+#include <opengl/version.h>
+//#define GL_GLEXT_PROTOTYPES 1
+//#include <GL/gl.h>
+//#include <GL/glext.h>
 
-UvSphereGeometry::UvSphereGeometry(uint nbSlices)
-    : m_nbSlices(nbSlices)
+UvSphereGeometry::UvSphereGeometry(float radius, uint nbSlices)
+    : m_radius(radius)
+    , m_nbSlices(nbSlices)
     , m_nbRings(nbSlices)
 
 {
@@ -174,7 +176,7 @@ UvSphereGeometry::UvSphereGeometry(uint nbSlices)
 void UvSphereGeometry::draw() const
 {
     m_fun->glBindVertexArray(m_vao);
-    glDrawElements(GL_TRIANGLES, m_indices.size(), GL_UNSIGNED_INT, nullptr);
+    m_fun->glDrawElements(GL_TRIANGLES, m_indices.size(), GL_UNSIGNED_INT, nullptr);
     m_fun->glBindVertexArray(0);
 
 

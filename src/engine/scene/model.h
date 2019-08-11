@@ -71,7 +71,7 @@ private:
 
     //    unsigned int TextureFromFile(const char* path, const std::string& directory);
 private:
-    QOpenGLFunctionsCore* m_fun;
+//    QOpenGLFunctionsCore* m_fun;
 
     Materials m_materials;
     //    std::vector<Texture> m_textures;
@@ -81,7 +81,7 @@ private:
     std::vector<Animation> m_animations;
     Meshes m_meshes;
 
-    BoneGeometry m_boneGeometry;
+//    BoneGeometry m_boneGeometry;
 
     //    const Node * m_rootNode = nullptr;
     std::unique_ptr<Node> m_rootNode;

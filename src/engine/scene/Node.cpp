@@ -5,6 +5,7 @@
 Node::Node(const aiNode * ai_node, const Meshes & meshes)
     : m_meshes(meshes)
     , m_name(ai_node->mName.C_Str())
+//    , m_sphere(0.001)
 {
     // process each mesh located at the current node
     m_iMeshes.clear();
@@ -67,7 +68,34 @@ void Node::buildItemModel(QStandardItem *parent) const
 
 }
 
-void Node::draw(const Shader &shader) const
+void Node::draw(const Shader &shader, glm::mat4 model) const
 {
+//    shader.setMat4("model", model);
+//    shader.setMat4("model", m_transformation);
+//    model = glm::translate(model, glm::vec3(1, 1, 1));
+//    glm::vec3 pos = model[3];
+
+    model = model * m_transformation;
+
+    shader.setMat4("model", model);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    for (uint i = 0; i <m_iMeshes.size(); ++i) {
+        const Mesh & mesh = m_meshes[m_iMeshes[i]];
+
+        mesh.draw(shader);
+    }
+//    m_boneGeometry.draw(model, shader, glm::vec3(0, 0, 0), glm::vec3(0, 0, 0.1));
+
+//    m_sphere.draw();
+
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    for (const Node & node : m_children) {
+//        node.draw(shader, m_transformation * model);
+        glm::vec3 childPos = glm::vec3(node.m_transformation[3]);
+        m_boneGeometry.draw(model, shader, glm::vec3(0), childPos);
+
+
+        node.draw(shader, model);
+    }
 
 }

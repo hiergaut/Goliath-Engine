@@ -27,7 +27,7 @@ Animation::Animation(const aiAnimation* ai_animation)
 
 void Animation::buildItemModel(QStandardItem *parent) const
 {
-        QStandardItem* item = new QStandardItem(QIcon(":/icons/animation.png"), QString(m_name.c_str()) + "  duration:" + QString::number(m_duration) + "  ticksPerSecond:" + QString::number(m_ticksPerSecond));
+        QStandardItem* item = new QStandardItem(QIcon(":/icons/animation.png"), QString("'") + m_name.c_str() + "'  duration:" + QString::number(m_duration) + "  ticksPerSecond:" + QString::number(m_ticksPerSecond));
         parent->appendRow(item);
 
 

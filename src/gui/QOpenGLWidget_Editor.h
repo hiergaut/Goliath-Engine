@@ -13,6 +13,8 @@
 #include <engine/Scene.h>
 #include <QMainWindow>
 
+#include <opengl/TextRendering.h>
+
 class QOpenGLWidget_Editor : public QOpenGLWidget
 {
     Q_OBJECT
@@ -58,16 +60,22 @@ private:
 //    Grid * m_grid;
     Axis * m_axis;
 
+    TextRendering m_textRender;
+
 //    Shader * m_shader;
     Scene m_scene;
+
+//    std::ostringstream m_stream;
+//    std::stringstream m_stream;
 //    Model * m_scene;
 //    QStandardItemModel m_sceneModel;
 //    QStandardItemModel m_fileOpennedModel;
 
     uint64_t m_deltaTime;
     uint64_t m_lastFrame;
+    float m_duration = 0;
     float m_fps;
-    int m_cpt = 0;
+    int m_cpt = 1;
 //    QSplitterNode * m_splitterRoot;
 
 

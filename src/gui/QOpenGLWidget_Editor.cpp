@@ -12,33 +12,41 @@
 //#include <gui/editor/fileOpenned/QListView_FileOpenned.h>
 //#include <gui/editor/outliner/QTreeView_outliner.h>
 
+//#include <freetype2/ft2build.h>
+//#include <freetype2/freetype/freetype.h>
+//#include <freetype2/freetype/ftglyph.h>
+//#include <freetype2/freetype/ftoutln.h>
+//#include <freetype2/freetype/fttrigon.h>
+//#include <ft2build.h>
+//#include FT_FREETYPE_H
+
+#include <iomanip>
+
 QOpenGLWidget_Editor::QOpenGLWidget_Editor(QWidget* parent, QMainWindow* mainWindow)
     : QOpenGLWidget(parent)
     , m_mainWindow(mainWindow)
 {
-//    m_sceneModel = QStandardItemModel(4, 4);
-//    QTreeView_outliner::setModelScene(&m_sceneModel);
+    //    m_sceneModel = QStandardItemModel(4, 4);
+    //    QTreeView_outliner::setModelScene(&m_sceneModel);
     //    QStandardItem item("Scene");
     //    QListView_FileOpenned::setModelFileOpenned(&m_fileOpennedModel);
     //        QStandardItemModel model;
-//    QStandardItem* parentItem = m_sceneModel.invisibleRootItem();
-//    for (int i = 0; i < 4; ++i) {
-//        QStandardItem* item = new QStandardItem(QString("item %0").arg(i));
-//        item->setData(QVariant("fuck"));
-//        parentItem->appendRow(item);
-//        parentItem = item;
-//    }
-//     m_sceneModel.setHorizontalHeaderItem( 0, new QStandardItem( "Scene" ) );
-//     m_sceneModel.setHorizontalHeaderItem( 1, new QStandardItem( "Bar-Baz" ) );
-
-
-
+    //    QStandardItem* parentItem = m_sceneModel.invisibleRootItem();
+    //    for (int i = 0; i < 4; ++i) {
+    //        QStandardItem* item = new QStandardItem(QString("item %0").arg(i));
+    //        item->setData(QVariant("fuck"));
+    //        parentItem->appendRow(item);
+    //        parentItem = item;
+    //    }
+    //     m_sceneModel.setHorizontalHeaderItem( 0, new QStandardItem( "Scene" ) );
+    //     m_sceneModel.setHorizontalHeaderItem( 1, new QStandardItem( "Bar-Baz" ) );
 
     setAutoFillBackground(false);
     //    setStyleSheet("background-color: transparent");
     //    setAttribute(Qt::WA_TranslucentBackground);
     setAttribute(Qt::WA_TransparentForMouseEvents);
     setAttribute(Qt::WA_AlwaysStackOnTop);
+
     //    loadEnv("temp.dat");
     //    g_env.m_views = &m_views;
     //    connect(&m_fileOpennedModel, &QAbstractItemModel::rowsInserted, this, &QOpenGLWidget_Editor::on_rowInsertedInFileOpennedModel);
@@ -46,6 +54,8 @@ QOpenGLWidget_Editor::QOpenGLWidget_Editor(QWidget* parent, QMainWindow* mainWin
     //    connect(&m_fileOpennedModel, &QAbstractItemModel::dataChanged, this, &QOpenGLWidget_Editor::on_fileOpennedModelChanged);
     //    connect(m_scene.fileOpennedModel(), SIGNAL(rowsInserted(const QModelIndex& parent, int start, int end)), this, SLOT(on_rowInsertedInFileOpennedModel(const QModelIndex& parent, int start, int end)));
     //    connect(&m_scene, &Scene::modelChanged, this, &QOpenGLWidget_Editor::on_fileOpennedModelChanged);
+
+//    m_stream << std::setprecision(2) << std::fixed;
 }
 
 void QOpenGLWidget_Editor::loadNewModel(std::string filename)
@@ -200,6 +210,10 @@ void QOpenGLWidget_Editor::initializeGL()
     //    shaderAxis = new Shader(shaderPath + "axis.vsh", shaderPath + "axis.fsh");
     //    g_env.m_scene.initialize();
     m_scene.initialize();
+
+    m_textRender.initialize();
+
+    m_lastFrame = QDateTime::currentMSecsSinceEpoch();
 }
 
 //void QOpenGLWidget_Editor::resizeGL(int w, int h)
@@ -221,21 +235,44 @@ void QOpenGLWidget_Editor::paintGL()
     //    QOpenGLFunctions *fun = QOpenGLContext::currentContext()->functions();
     //    QOpenGLExtraFunctions * fun = QOpenGLContext::currentContext()->extraFunctions();
 
-    //    uint64_t currentFrame = QDateTime::currentMSecsSinceEpoch();
-    //    m_deltaTime = currentFrame - m_lastFrame;
-    //    m_lastFrame = currentFrame;
-    //    m_fps += 1000.0 / m_deltaTime;
-    //    if (m_cpt % 60 == 0) {
-    //        qDebug() << "fps : " << m_fps / 60.0;
-    //        m_fps = 0.0;
-    //    }
+    //        m_fps += 1000.0 / m_deltaTime;
+    //        m_duration += m_deltaTime;
+
+//    int period = 30;
+
+    if (m_cpt % 10 == 0) {
+        uint64_t currentFrame = QDateTime::currentMSecsSinceEpoch();
+        m_deltaTime = currentFrame - m_lastFrame;
+        m_lastFrame = currentFrame;
+
+        m_fps = 10000.0f / m_deltaTime;
+        ////            qDebug() << "fps : " << m_fps / period;
+        //            m_fps = 0.0;
+//        m_stream.clear();
+//        m_stream << m_fps;
+//        std::string str;
+//    m_stream << m_fps << "\n";
+//        std::cout << "fps : " << m_fps << std::endl;
+
+
+    }
 
     //    cameraMove();
 
     //    glClearColor(0.2f, 0.3f, 0.3f, 0.5f);
+//        glClearColor(0.0f, 1.0f, 0.0f, 0.5f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    glViewport(width() - 100, 10, 100, 100);
+    //    m_stream.clear();
+//    m_stream << m_fps;
     //    glDepthMask(GL_FALSE);
+//    std::stringstream stream;
+//    stream << std::fixed << std::setprecision(2) << m_fps;
+    std::string str = "fps " + std::to_string(m_fps);
+    str.resize(9);
+    m_textRender.RenderText(str , 0.0f, 0.0f, 2.0f, glm::vec3(1.0f, 0.0f, 0.0f));
+//    m_textRender.RenderText(str , 0.0f, 0.0f, 2.0f, glm::vec3(1.0f, 1.0f, 1.0f));
 
     //    glViewport(100, 100, 100, 100);
     //    glClearColor(0.0f, 1.0f, 0.0f, 1.0f);
@@ -388,7 +425,7 @@ void QOpenGLWidget_Editor::setViews(std::list<const QOpenGLWidget_3dView*>* view
 
 void QOpenGLWidget_Editor::clear()
 {
-//    m_sceneModel.clear();
+    //    m_sceneModel.clear();
 
     //    m_fileOpennedModel.clear();
     //    while (m_fileOpennedModel.rowCount() > 0) {

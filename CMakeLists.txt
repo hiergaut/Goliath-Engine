@@ -8,6 +8,7 @@ set(CMAKE_CXX_STANDARD 14)
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Wall -pedantic -Wextra -lassimp -O0 -g -Wfatal-errors")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic -Wextra -lassimp -O0 -g -Wfatal-errors")
 
+find_package(Freetype REQUIRED)
 
 #set(CMAKE_AUTORCC ON)
 
@@ -17,6 +18,16 @@ set (M_SRC_DIR ${PROJECT_SOURCE_DIR}/src/)
 set (M_Qt5_LIBRARIES Qt5::Core Qt5::Widgets Qt5::OpenGL)
 
 #include_directories()
+include_directories(
+        #    /usr/include/freetype2/
+        ${FREETYPE_INCLUDE_DIRS}
+        #    .
+        ##    ${M_INCLUDE_DIR}
+        #    ${CMAKE_CURRENT_BINARY_DIR} #Moc
+        ##    ${CMAKE_SOURCE_DIR}/src/
+        ##    ${CMAKE_SOURCE_DIR}/src/opengl/
+        )
+
 
 #add_subdirectory(src)
 #add_subdirectory(tests)
@@ -37,9 +48,9 @@ file(GLOB resources ${PROJECT_SOURCE_DIR}/resources/resources.qrc)
 
 
 
-add_subdirectory(src)
 add_subdirectory(applications)
-add_subdirectory(tests)
+add_subdirectory(src)
+#add_subdirectory(tests)
 #add_subdirectory(resources)
 
 

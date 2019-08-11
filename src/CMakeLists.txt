@@ -10,6 +10,8 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 find_package(Qt5 COMPONENTS Core Widgets OpenGL REQUIRED)
 find_package(OpenGL REQUIRED)
+find_package(Freetype REQUIRED)
+
 
 #INCLUDE(${QT_USE_FILE})
 #ADD_DEFINITIONS(${QT_DEFINITIONS})
@@ -31,13 +33,15 @@ file(GLOB_RECURSE headers *.h)
 #INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
 
 
-#include_directories(
-#    .
-##    ${M_INCLUDE_DIR}
-#    ${CMAKE_CURRENT_BINARY_DIR} #Moc
-##    ${CMAKE_SOURCE_DIR}/src/
-##    ${CMAKE_SOURCE_DIR}/src/opengl/
-#    )
+include_directories(
+        #    /usr/include/freetype2/
+        ${FREETYPE_INCLUDE_DIRS}
+        #    .
+        ##    ${M_INCLUDE_DIR}
+        #    ${CMAKE_CURRENT_BINARY_DIR} #Moc
+        ##    ${CMAKE_SOURCE_DIR}/src/
+        ##    ${CMAKE_SOURCE_DIR}/src/opengl/
+        )
 
 #add_dependencies(${PROJECT_NAME} Gui)
 

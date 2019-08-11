@@ -25,7 +25,7 @@ std::list<const QOpenGLWidget_3dView *> * QOpenGLWidget_3dView::m_views;
 
 namespace {
 float l_near = 0.1f;
-float l_far = 1000.0f;
+float l_far = 100000.0f;
 }
 
 QOpenGLWidget_3dView::QOpenGLWidget_3dView(QWidget* parent)

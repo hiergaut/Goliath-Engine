@@ -12,7 +12,7 @@ class BoneGeometry
 public:
     BoneGeometry();
 
-    void draw(const Shader & shader, glm::vec3 source, glm::vec3 destination) const;
+    void draw(glm::mat4 model, const Shader & shader, glm::vec3 source, glm::vec3 destination) const;
 
 private:
     void setup();
@@ -23,10 +23,16 @@ private:
     UvSphereGeometry m_sphere;
 
     uint m_vao;
+    uint m_vbo;
+    uint m_ebo;
+    uint m_nbo;
 //    Shader * m_shader;
 
 
     std::vector<glm::vec3> m_vertices;
+    std::vector<glm::vec3> m_normals;
+//    std::vector<uint> m_indices;
+    std::vector<glm::uvec3> m_indices;
 };
 
 #endif // BONEGEOMETRY_H

@@ -28,6 +28,6 @@ NodeAnim::NodeAnim(const aiNodeAnim* ai_nodeAnim)
 
 void NodeAnim::buildItemModel(QStandardItem* parent) const
 {
-    QStandardItem* item = new QStandardItem(QString(m_nodeName.c_str()) + "  nbPositionKeys:" + QString::number(m_positionKeys.size()) + "  nbRotationKeys:" + QString::number(m_rotationKeys.size()) + "  nbScaleKeys:" + QString::number(m_scalingKeys.size()));
+    QStandardItem* item = new QStandardItem(QString("'") + m_nodeName.c_str() + "'  nbPositionKeys:" + QString::number(m_positionKeys.size()) + "  nbRotationKeys:" + QString::number(m_rotationKeys.size()) + "  nbScaleKeys:" + QString::number(m_scalingKeys.size()));
     parent->appendRow(item);
 }

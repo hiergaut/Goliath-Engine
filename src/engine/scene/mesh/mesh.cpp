@@ -2,9 +2,10 @@
 
 #include <assimp/Assimp.h>
 
-Mesh::Mesh(const aiMesh * ai_mesh, const Materials & materials)
+Mesh::Mesh(const aiMesh * ai_mesh, const Materials & materials, const Textures &textures)
     : m_name(ai_mesh->mName.C_Str())
     , m_materials(materials)
+    , m_textures(textures)
 {
     m_fun = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
     m_bones.reserve(50);
@@ -184,5 +185,43 @@ void Mesh::setupMesh()
     //    m_fun->glEnableVertexAttribArray(4);
     //    m_fun->glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Bitangent));
 
-    m_fun->glBindVertexArray(0);
+        m_fun->glBindVertexArray(0);
+}
+
+void Mesh::draw(const Shader &shader) const
+{
+        const Material& material = m_materials[m_iMaterial];
+        //        const Material& material = mesh.m_material;
+        //        const Material& material = mesh.m_material;
+
+        uint cpt = 0;
+        //    for (uint diffuse : material.m_diffuseMaps) {
+        //    for (uint i = 0; i < material.m_diffuseMaps.size();++i) {
+        //        for (uint i =0; i <material.m_iTextures->size(); ++i) {
+        //                const Texture& texture = m_textures[material.m_iTextures[i]];
+
+        //        }
+        for (uint i = 0; i < Texture::size; ++i) {
+            for (uint j = 0; j < material.m_iTextures[i].size(); ++j) {
+                const Texture& texture = m_textures[material.m_iTextures[i][j]];
+
+                m_fun->glActiveTexture(GL_TEXTURE0 + cpt);
+                std::string number = std::to_string(j);
+                std::string name = std::string(texture);
+                m_fun->glUniform1i(m_fun->glGetUniformLocation(shader.ID, (name + number).c_str()), cpt);
+                m_fun->glBindTexture(GL_TEXTURE_2D, texture.m_id);
+
+                ++cpt;
+                //            }
+            }
+        }
+
+        // draw mesh
+        m_fun->glBindVertexArray(m_vao);
+        m_fun->glDrawElements(GL_TRIANGLES, m_indices.size(), GL_UNSIGNED_INT, 0);
+        m_fun->glBindVertexArray(0);
+
+        // always good practice to set everything back to defaults once configured.
+        m_fun->glActiveTexture(GL_TEXTURE0);
+
 }

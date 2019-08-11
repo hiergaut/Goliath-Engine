@@ -30,8 +30,9 @@ void Bone::buildItemModel(QStandardItem* parent) const
 //    QStandardItem * item2 = new QStandardItem("offsetMatrix");
 //    item->appendRow(item2);
 
+//    mat4BuildItemModel(m_offsetMatrix, item);
+
 //    for (const auto & pair : m_weights) {
-//    mat4BuildItemModel(m_offsetMatrix, item2);
 
 //    for (const auto & pair : m_weights) {
 //        QStandardItem * item3 = new QStandardItem(QString("vertexId:" +QString::number(pair.first) + "  weight:" + QString::number(pair.second)));

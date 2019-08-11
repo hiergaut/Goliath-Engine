@@ -12,12 +12,13 @@
 //#include <fstream>
 //#include <cassert>
 #include <functional>
+#include <glm/gtc/matrix_transform.hpp>
 
 Model::Model(const std::string& path)
 //        : gammaCorrection(gamma),
 //        : m_file(path)
 {
-    m_fun = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
+//    m_fun = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
 
     m_meshes.reserve(50);
     m_materials.reserve(50);
@@ -64,7 +65,8 @@ void Model::assimpLoadModel(std::string const& path)
     Assimp::Importer m_importer;
     //        qDebug() << "[MODEL] m_importer : " << &m_importer;
     //    const aiScene* scene = m_importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenSmoothNormals);
-    const aiScene* scene = m_importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace | aiProcess_SplitByBoneCount);
+//    const aiScene* scene = m_importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace | aiProcess_SplitByBoneCount);
+    const aiScene* scene = m_importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
     //    const aiScene* scene = m_importer.ReadFile(path, aiProcess_FlipUVs);
     //    m_scene = m_importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
     //        const aiScene* scene = m_importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace | aiProcess_FlipWindingOrder);
@@ -116,7 +118,7 @@ void Model::assimpLoadModel(std::string const& path)
         const aiMesh* ai_mesh = scene->mMeshes[i];
         //        m_meshes.push_back(assimpProcessMesh(ai_mesh, scene, 0));
         //        m_meshes.push_back(std::move(Mesh(ai_mesh)));
-        m_meshes.emplace_back(ai_mesh, m_materials);
+        m_meshes.emplace_back(ai_mesh, m_materials, m_textures);
     }
     Q_ASSERT(scene->mNumMeshes == m_meshes.size());
 
@@ -140,50 +142,26 @@ void Model::Draw(const Shader& shader) const
 
 //    shader.use();
 
-//    m_fun->glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+//    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-    m_boneGeometry.draw(shader, glm::vec3(0, 0, 0), glm::vec3(10, 10, 10));
+//    m_boneGeometry.draw(shader, glm::vec3(0, 0, 0), glm::vec3(10, 10, 10));
+//    for (const Mesh& mesh : m_meshes) {
+//        //        const Mesh& mesh = m_meshes[i];
+//        mesh.draw(shader);
+
+//    }
+
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 //    m_fun->glBindVertexArray()
+    glm::mat4 model(1.0);
+    model = glm::scale(model, glm::vec3(0.01));
+    model = glm::rotate(model, 1.57f, glm::vec3(1, 0, 0));
+
+    m_rootNode->draw(shader, model);
+
 
 
 //    shader.use();
-    for (const Mesh& mesh : m_meshes) {
-        //        const Mesh& mesh = m_meshes[i];
-
-        const Material& material = m_materials[mesh.m_iMaterial];
-        //        const Material& material = mesh.m_material;
-        //        const Material& material = mesh.m_material;
-
-        uint cpt = 0;
-        //    for (uint diffuse : material.m_diffuseMaps) {
-        //    for (uint i = 0; i < material.m_diffuseMaps.size();++i) {
-        //        for (uint i =0; i <material.m_iTextures->size(); ++i) {
-        //                const Texture& texture = m_textures[material.m_iTextures[i]];
-
-        //        }
-        for (uint i = 0; i < Texture::size; ++i) {
-            for (uint j = 0; j < material.m_iTextures[i].size(); ++j) {
-                const Texture& texture = m_textures[material.m_iTextures[i][j]];
-
-                m_fun->glActiveTexture(GL_TEXTURE0 + cpt);
-                std::string number = std::to_string(j);
-                std::string name = std::string(texture);
-                m_fun->glUniform1i(m_fun->glGetUniformLocation(shader.ID, (name + number).c_str()), cpt);
-                m_fun->glBindTexture(GL_TEXTURE_2D, texture.m_id);
-
-                ++cpt;
-                //            }
-            }
-        }
-
-        // draw mesh
-        m_fun->glBindVertexArray(mesh.m_vao);
-        m_fun->glDrawElements(GL_TRIANGLES, mesh.m_indices.size(), GL_UNSIGNED_INT, 0);
-        m_fun->glBindVertexArray(0);
-
-        // always good practice to set everything back to defaults once configured.
-        m_fun->glActiveTexture(GL_TEXTURE0);
-    }
 }
 
 // -------------------------------------------------------------------

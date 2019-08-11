@@ -36,15 +36,12 @@ using Meshes = std::vector<Mesh>;
 
 class Mesh {
 public:
-    uint m_iMaterial;
-    unsigned int m_vao;
-    std::vector<uint> m_indices;
 
 public:
     /*  Functions  */
     // constructor
     //    Mesh(std::string name, std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures) : m_name(name)
-    Mesh(const aiMesh* ai_mesh, const Materials& materials);
+    Mesh(const aiMesh* ai_mesh, const Materials& materials, const Textures & textures);
     //    Mesh(const Mesh & mesh) = delete ;
     //    Mesh(Mesh && mesh) noexcept;
     ~Mesh();
@@ -55,8 +52,11 @@ public:
 
     void setupMesh();
 
+    void draw(const Shader & shader) const;
+
 private:
     /*  Render data  */
+    uint m_iMaterial;
     QOpenGLFunctionsCore* m_fun;
 
     /*  Mesh Data  */
@@ -77,6 +77,10 @@ private:
     //    std::vector<Texture> textures;
 
     const Materials& m_materials;
+    const Textures & m_textures;
+    unsigned int m_vao;
+    std::vector<uint> m_indices;
+
     unsigned int VBO, EBO;
 
     /*  Functions    */
