@@ -36,10 +36,9 @@ using Meshes = std::vector<Mesh>;
 
 class Mesh {
 public:
+    std::vector<Bone> m_bones;
 
 public:
-    /*  Functions  */
-    // constructor
     //    Mesh(std::string name, std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures) : m_name(name)
     Mesh(const aiMesh* ai_mesh, const Materials& materials, const Textures & textures);
     //    Mesh(const Mesh & mesh) = delete ;
@@ -47,11 +46,8 @@ public:
     ~Mesh();
     //    Mesh(const & mesh)
     //    operator QString() const;
-    //    void Draw(const Shader& shader, const Model & model);
     void buildItemModel(QStandardItem* parent) const;
-
     void setupMesh();
-
     void draw(const Shader & shader) const;
 
 private:
@@ -65,8 +61,9 @@ private:
     std::string m_name;
     //    std::vector<Face> m_faces;
     std::vector<Vertex> m_vertices;
+//    std::vector<uint> m_boneOfVertice;
+    std::vector<VertexBoneData> m_bonesData;
 
-    std::vector<Bone> m_bones;
     uint m_sumBoneWeights;
 
     //    std::vector<Vertex> vertices;
@@ -81,6 +78,7 @@ private:
     unsigned int m_vao;
     std::vector<uint> m_indices;
 
+    uint m_bbo;
     unsigned int VBO, EBO;
 
     /*  Functions    */

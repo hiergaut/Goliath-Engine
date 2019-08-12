@@ -10,6 +10,11 @@
 class Bone
 {
 public:
+    std::string m_name;
+    std::vector<std::pair<uint, float>> m_weights;
+    glm::mat4 m_offsetMatrix;
+
+    mutable glm::mat4 m_transform;
 
 public:
     Bone(const aiBone * ai_bone);
@@ -18,9 +23,6 @@ public:
     void buildItemModel(QStandardItem * parent) const;
 
 private:
-    std::string m_name;
-    std::vector<std::pair<uint, float>> m_weights;
-    glm::mat4 m_offsetMatrix;
 
 };
 

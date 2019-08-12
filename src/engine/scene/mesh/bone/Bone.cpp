@@ -24,7 +24,7 @@ Bone::~Bone()
 
 void Bone::buildItemModel(QStandardItem* parent) const
 {
-    QStandardItem* item = new QStandardItem(QIcon(":/icons/bone.png"), QString("'") + m_name.c_str() + "'  weights:" + QString::number(m_weights.size()));
+    QStandardItem* item = new QStandardItem(QIcon(":/icons/vertex.png"), QString("'") + m_name.c_str() + "'  weights:" + QString::number(m_weights.size()));
     parent->appendRow(item);
 
 //    QStandardItem * item2 = new QStandardItem("offsetMatrix");

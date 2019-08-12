@@ -7,8 +7,15 @@
 #include <vector>
 #include <QStandardItem>
 
+
 class Animation
 {
+public:
+    std::string m_skeletonName;
+    std::string m_name;
+    double m_duration;
+    double m_ticksPerSecond;
+    std::vector<NodeAnim> m_channels;
 
 public:
     Animation(const aiAnimation * ai_animation);
@@ -16,12 +23,11 @@ public:
     void buildItemModel(QStandardItem * parent) const;
 
 private:
-    std::vector<NodeAnim> m_channels;
-    double m_duration;
     std::vector<MeshAnim> m_meshChannels;
-    std::string m_name;
-    double m_ticksPerSecond;
+
 
 };
+
+using Animations = std::vector<Animation>;
 
 #endif // ANIMATION_H

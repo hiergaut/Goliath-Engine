@@ -26,5 +26,12 @@ struct Vertex {
     }
 };
 
+//using NUM_BONES_PER_VEREX = 4;
+
+struct VertexBoneData {
+    uint IDs[4];
+    float Weights[4];
+};
+
 
 #endif // VERTEX_H

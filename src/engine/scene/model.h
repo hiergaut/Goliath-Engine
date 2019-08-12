@@ -55,7 +55,7 @@ public:
     //    Model(Model&& model) = default;
     //    Model(Model & model);
     ~Model();
-    void Draw(const Shader& shader) const;
+    void Draw(glm::mat4 modelMatrix, const Shader& shader) const;
     void buildItemModel(QStandardItem* parent) const;
 
 private:
@@ -78,7 +78,8 @@ private:
     Textures m_textures;
 
 
-    std::vector<Animation> m_animations;
+//    std::vector<Animation> m_animations;
+    Animations m_animations;
     Meshes m_meshes;
 
 //    BoneGeometry m_boneGeometry;

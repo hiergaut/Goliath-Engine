@@ -69,8 +69,12 @@ void Scene::draw(glm::mat4 projectionMatrix, glm::mat4 viewMatrix)
     //        qDebug() << "[3dView] " << this << "nb model = " << g_env.m_scene.size();
     for (const Model& model : m_models) {
 //	    glm::mat4 model(1.0);
+//        glm::mat4 modelMatrix(1.0);
+        modelMatrix = glm::scale(modelMatrix, glm::vec3(0.01));
+        modelMatrix = glm::rotate(modelMatrix, 1.57f, glm::vec3(1, 0, 0));
         m_shader->setMat4("model", modelMatrix);
-        model.Draw(*m_shader);
+
+        model.Draw(modelMatrix, *m_shader);
     }
 
 //    m_shaderCamera->use();
@@ -82,13 +86,14 @@ void Scene::draw(glm::mat4 projectionMatrix, glm::mat4 viewMatrix)
         const CameraWorld* camera = view->camera();
 
         //        for (const CameraWorld * camera : m_cameras) {
-        glm::mat4 model;
+        glm::mat4 modelMatrix;
         //        //        model = glm::translate(model, glm::vec3(10, 0, 0));
         //        model = glm::inverse(view->viewMatrix());
-        model = glm::inverse(camera->getViewMatrix());
-        m_shader->setMat4("model", model);
+        modelMatrix = glm::inverse(camera->getViewMatrix());
+        m_shader->setMat4("model", modelMatrix);
 
-        m_cameraModel->Draw(*m_shader);
+//        m_shader->setBool("isSkeleton", false);
+        m_cameraModel->Draw(modelMatrix, *m_shader);
     }
 }
 

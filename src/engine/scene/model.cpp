@@ -18,7 +18,7 @@ Model::Model(const std::string& path)
 //        : gammaCorrection(gamma),
 //        : m_file(path)
 {
-//    m_fun = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
+    //    m_fun = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
 
     m_meshes.reserve(50);
     m_materials.reserve(50);
@@ -65,7 +65,7 @@ void Model::assimpLoadModel(std::string const& path)
     Assimp::Importer m_importer;
     //        qDebug() << "[MODEL] m_importer : " << &m_importer;
     //    const aiScene* scene = m_importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenSmoothNormals);
-//    const aiScene* scene = m_importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace | aiProcess_SplitByBoneCount);
+    //    const aiScene* scene = m_importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace | aiProcess_SplitByBoneCount);
     const aiScene* scene = m_importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
     //    const aiScene* scene = m_importer.ReadFile(path, aiProcess_FlipUVs);
     //    m_scene = m_importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
@@ -124,7 +124,7 @@ void Model::assimpLoadModel(std::string const& path)
 
     //    m_rootNode = new Node(scene->mRootNode);
     //    m_rootNode = std::make_unique<
-    m_rootNode = std::make_unique<Node>(scene->mRootNode, m_meshes);
+    m_rootNode = std::make_unique<Node>(scene->mRootNode, m_meshes, m_animations);
 
     //    std::make_unique<Node>();
 
@@ -137,31 +137,38 @@ void Model::assimpLoadModel(std::string const& path)
 }
 
 // draws the model, and thus all its meshes
-void Model::Draw(const Shader& shader) const
+void Model::Draw(glm::mat4 modelMatrix, const Shader& shader) const
 {
 
-//    shader.use();
+    //    shader.use();
 
-//    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    //    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    ////    m_fun->glBindVertexArray()
+    ///
+    /////
+    /// i
+    if (m_animations.size() > 0) {
+        m_rootNode->draw(shader, modelMatrix);
+        shader.setMat4("model", glm::mat4(1));
+        shader.setBool("isSkeleton", true);
+    }
+    else {
+        shader.setBool("isSkeleton", false);
+    }
 
-//    m_boneGeometry.draw(shader, glm::vec3(0, 0, 0), glm::vec3(10, 10, 10));
-//    for (const Mesh& mesh : m_meshes) {
-//        //        const Mesh& mesh = m_meshes[i];
-//        mesh.draw(shader);
+    //    model = glm::mat4(1.0f);
+    //    model = glm::scale(model, glm::vec3(0.01));
+    //    model = glm::rotate(model, 1.57f, glm::vec3(1, 0, 0));
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    //    m_boneGeometry.draw(shader, glm::vec3(0, 0, 0), glm::vec3(10, 10, 10));
+    //    shader.setBool("isSkeleton", true);
+    for (const Mesh& mesh : m_meshes) {
+//        shader.setMat4("model", modelMatrix);
+        //        const Mesh& mesh = m_meshes[i];
+        mesh.draw(shader);
+    }
 
-//    }
-
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-//    m_fun->glBindVertexArray()
-    glm::mat4 model(1.0);
-    model = glm::scale(model, glm::vec3(0.01));
-    model = glm::rotate(model, 1.57f, glm::vec3(1, 0, 0));
-
-    m_rootNode->draw(shader, model);
-
-
-
-//    shader.use();
+    //    shader.use();
 }
 
 // -------------------------------------------------------------------
@@ -170,18 +177,18 @@ void Model::buildItemModel(QStandardItem* parent) const
     //    modelRecurseNode(*m_rootNode, parent);
     m_rootNode->buildItemModel(parent);
 
-    QStandardItem* item = new QStandardItem(QIcon(":/icons/animations.png"), "animations  " + QString::number(m_animations.size()));
-    parent->appendRow(item);
-    for (const Animation& animation : m_animations) {
-        animation.buildItemModel(item);
-    }
+    //    QStandardItem* item = new QStandardItem(QIcon(":/icons/animations.png"), "animations  " + QString::number(m_animations.size()));
+    //    parent->appendRow(item);
+    //    for (const Animation& animation : m_animations) {
+    //        animation.buildItemModel(item);
+    //    }
 
-//    item = new QStandardItem("materials  " + QString::number(m_materials.size()));
-//    parent->appendRow(item);
-//    for (const Material& material : m_materials) {
-//        //        modelRecurseMaterial(material, item);
-//        material.buildItemModel(item);
-//    }
+    //    item = new QStandardItem("materials  " + QString::number(m_materials.size()));
+    //    parent->appendRow(item);
+    //    for (const Material& material : m_materials) {
+    //        //        modelRecurseMaterial(material, item);
+    //        material.buildItemModel(item);
+    //    }
 }
 
 //void Model::modelRecurseMaterial(const Material& material, QStandardItem* parent) const
