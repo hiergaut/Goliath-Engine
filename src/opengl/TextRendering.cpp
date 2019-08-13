@@ -28,7 +28,9 @@ void TextRendering::initialize()
 
     // Load font as face
     FT_Face face;
-    if (FT_New_Face(ft, (g_resourcesPath + "fonts/Ubuntu.ttf").c_str(), 0, &face))
+    std::string fontFile = "Ubuntu.ttf";
+//    std::string fontFile = "LiberationMono-Regular.ttf";
+    if (FT_New_Face(ft, (g_resourcesPath + "fonts/" + fontFile).c_str(), 0, &face))
         std::cout << "ERROR::FREETYPE: Failed to load font" << std::endl;
 
     // Set size to load glyphs as

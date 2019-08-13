@@ -126,6 +126,8 @@ void Model::assimpLoadModel(std::string const& path)
     //    m_rootNode = std::make_unique<
     m_rootNode = std::make_unique<Node>(scene->mRootNode, m_meshes, m_animations);
 
+    //    m_rootNode->m_transformation = glm::inverse(m_rootNode->m_transformation);
+
     //    std::make_unique<Node>();
 
     //    m_nodes.push_back(Node(scene->mRootNode));
@@ -137,7 +139,7 @@ void Model::assimpLoadModel(std::string const& path)
 }
 
 // draws the model, and thus all its meshes
-void Model::Draw(glm::mat4 modelMatrix, const Shader& shader) const
+void Model::Draw(glm::mat4 modelMatrix, const Shader& shader, ulong frameTime) const
 {
 
     //    shader.use();
@@ -146,24 +148,29 @@ void Model::Draw(glm::mat4 modelMatrix, const Shader& shader) const
     ////    m_fun->glBindVertexArray()
     ///
     /////
-    /// i
+    ///
     if (m_animations.size() > 0) {
-        m_rootNode->draw(shader, modelMatrix);
-        shader.setMat4("model", glm::mat4(1));
-        shader.setBool("isSkeleton", true);
-    }
-    else {
-        shader.setBool("isSkeleton", false);
+        const Animation* animation = &m_animations[0];
+        double ticksPerSecond = animation->m_ticksPerSecond;
+        double timeInTicks = (double)frameTime / 10000.0 * ticksPerSecond;
+        double animationTime = fmod(timeInTicks, animation->m_duration);
+//            std::cout << "animationTime " << animationTime << std::endl;
+
+        m_rootNode->draw(shader, modelMatrix, animation, animationTime);
+        //        shader.setMat4("model", glm::mat4(1));
+        //        shader.setBool("isSkeleton", true);
+    } else {
+        m_rootNode->draw(shader, modelMatrix, nullptr, 0);
+        //        shader.setBool("isSkeleton", false);
     }
 
     //    model = glm::mat4(1.0f);
     //    model = glm::scale(model, glm::vec3(0.01));
-    //    model = glm::rotate(model, 1.57f, glm::vec3(1, 0, 0));
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    //    m_boneGeometry.draw(shader, glm::vec3(0, 0, 0), glm::vec3(10, 10, 10));
-    //    shader.setBool("isSkeleton", true);
+    //    //    model = glm::rotate(model, 1.57f, glm::vec3(1, 0, 0));
+    //    //    m_boneGeometry.draw(shader, glm::vec3(0, 0, 0), glm::vec3(10, 10, 10));
+    //    //    shader.setBool("isSkeleton", true);
     for (const Mesh& mesh : m_meshes) {
-//        shader.setMat4("model", modelMatrix);
+        //        shader.setMat4("model", modelMatrix);
         //        const Mesh& mesh = m_meshes[i];
         mesh.draw(shader);
     }

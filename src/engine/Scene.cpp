@@ -55,7 +55,7 @@ void Scene::initialize()
     initialized = true;
 }
 
-void Scene::draw(glm::mat4 projectionMatrix, glm::mat4 viewMatrix)
+void Scene::draw(glm::mat4 projectionMatrix, glm::mat4 viewMatrix, ulong frameTime)
 {
     Q_ASSERT(initialized);
 
@@ -63,18 +63,18 @@ void Scene::draw(glm::mat4 projectionMatrix, glm::mat4 viewMatrix)
     m_grid->draw(modelMatrix, viewMatrix, projectionMatrix);
 
     m_shader->use();
-    m_shader->setMat4("model", modelMatrix);
+//    m_shader->setMat4("model", modelMatrix);
     m_shader->setMat4("view", viewMatrix);
     m_shader->setMat4("projection", projectionMatrix);
     //        qDebug() << "[3dView] " << this << "nb model = " << g_env.m_scene.size();
     for (const Model& model : m_models) {
 //	    glm::mat4 model(1.0);
 //        glm::mat4 modelMatrix(1.0);
-        modelMatrix = glm::scale(modelMatrix, glm::vec3(0.01));
-        modelMatrix = glm::rotate(modelMatrix, 1.57f, glm::vec3(1, 0, 0));
-        m_shader->setMat4("model", modelMatrix);
+//        modelMatrix = glm::scale(modelMatrix, glm::vec3(0.01));
+//        modelMatrix = glm::rotate(modelMatrix, 1.57f, glm::vec3(1, 0, 0));
+//        m_shader->setMat4("model", modelMatrix);
 
-        model.Draw(modelMatrix, *m_shader);
+        model.Draw(modelMatrix, *m_shader, frameTime);
     }
 
 //    m_shaderCamera->use();
@@ -90,7 +90,9 @@ void Scene::draw(glm::mat4 projectionMatrix, glm::mat4 viewMatrix)
         //        //        model = glm::translate(model, glm::vec3(10, 0, 0));
         //        model = glm::inverse(view->viewMatrix());
         modelMatrix = glm::inverse(camera->getViewMatrix());
-        m_shader->setMat4("model", modelMatrix);
+
+//        m_shader->setMat4("view", viewMatrix * modelMatrix);
+//        m_shader->setMat4("model", modelMatrix);
 
 //        m_shader->setBool("isSkeleton", false);
         m_cameraModel->Draw(modelMatrix, *m_shader);

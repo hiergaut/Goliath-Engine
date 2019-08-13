@@ -154,6 +154,7 @@ void MainWindow::loadLastSession()
 //    editor->loadNewModel("models/camera/camera.obj");
 //    editor->loadNewModel("maps/de_aztec/de_aztec.obj");
     editor->loadNewModel("models/player/gign/gign.fbx");
+//    editor->loadNewModel("models/Dana.fbx");
 }
 
 void MainWindow::saveSession()

@@ -55,7 +55,7 @@ public:
     //    Model(Model&& model) = default;
     //    Model(Model & model);
     ~Model();
-    void Draw(glm::mat4 modelMatrix, const Shader& shader) const;
+    void Draw(glm::mat4 modelMatrix, const Shader& shader, ulong frameTime = 0) const;
     void buildItemModel(QStandardItem* parent) const;
 
 private:

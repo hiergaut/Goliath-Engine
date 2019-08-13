@@ -37,18 +37,18 @@ void Animation::buildItemModel(QStandardItem *parent) const
         parent->appendRow(item);
 
 
-//        QStandardItem* item2 = new QStandardItem("nodeAnim  " + QString::number(m_channels.size()));
-////        parent->appendRow(item);
-//        item->appendRow(item2);
-//        for (const NodeAnim & nodeAnim : m_channels) {
-//            nodeAnim.buildItemModel(item2);
-//        }
+        QStandardItem* item2 = new QStandardItem("nodeAnim  " + QString::number(m_channels.size()));
+//        parent->appendRow(item);
+        item->appendRow(item2);
+        for (const NodeAnim & nodeAnim : m_channels) {
+            nodeAnim.buildItemModel(item2);
+        }
 
-//        item2 = new QStandardItem("meshAnim  " + QString::number(m_meshChannels.size()));
-//        item->appendRow(item2);
-//        for (const MeshAnim & meshAnim : m_meshChannels) {
-//            meshAnim.buildItemModel(item2);
-//        }
+        item2 = new QStandardItem("meshAnim  " + QString::number(m_meshChannels.size()));
+        item->appendRow(item2);
+        for (const MeshAnim & meshAnim : m_meshChannels) {
+            meshAnim.buildItemModel(item2);
+        }
 
 
 }

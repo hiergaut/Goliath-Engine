@@ -240,10 +240,11 @@ void QOpenGLWidget_Editor::paintGL()
 
 //    int period = 30;
 
+        uint64_t currentFrameTime = QDateTime::currentMSecsSinceEpoch();
+
     if (m_cpt % 10 == 0) {
-        uint64_t currentFrame = QDateTime::currentMSecsSinceEpoch();
-        m_deltaTime = currentFrame - m_lastFrame;
-        m_lastFrame = currentFrame;
+        m_deltaTime = currentFrameTime - m_lastFrame;
+        m_lastFrame = currentFrameTime;
 
         m_fps = 10000.0f / m_deltaTime;
         ////            qDebug() << "fps : " << m_fps / period;
@@ -263,7 +264,9 @@ void QOpenGLWidget_Editor::paintGL()
 //        glClearColor(0.0f, 1.0f, 0.0f, 0.5f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+
     glViewport(width() - 100, 10, 100, 100);
+//    glViewport(0, 0, 100, 100);
     //    m_stream.clear();
 //    m_stream << m_fps;
     //    glDepthMask(GL_FALSE);
@@ -271,9 +274,11 @@ void QOpenGLWidget_Editor::paintGL()
 //    stream << std::fixed << std::setprecision(2) << m_fps;
     std::string str = "fps " + std::to_string(m_fps);
     str.resize(9);
-    m_textRender.RenderText(str , 0.0f, 0.0f, 2.0f, glm::vec3(1.0f, 0.0f, 0.0f));
-//    m_textRender.RenderText(str , 0.0f, 0.0f, 2.0f, glm::vec3(1.0f, 1.0f, 1.0f));
+    m_textRender.RenderText(str , 1.0f, 1.0f, 2.0f, glm::vec3(1.0f, 0.0f, 0.0f));
+//    update();
+//    return;
 
+//    m_textRender.RenderText(str , 0.0f, 0.0f, 2.0f, glm::vec3(1.0f, 1.0f, 1.0f));
     //    glViewport(100, 100, 100, 100);
     //    glClearColor(0.0f, 1.0f, 0.0f, 1.0f);
     // -------------------------------------------------------------------------------
@@ -325,6 +330,7 @@ void QOpenGLWidget_Editor::paintGL()
 
         glm::mat4 viewMatrix = v->viewMatrix();
         glm::mat4 projectionMatrix = v->projectionMatrix();
+//        glm::mat4 projectionViewMatrix = v->projectionViewMatrix();
 
         //        m_shader->use();
         //        m_shader->setMat4("model", model);
@@ -343,7 +349,7 @@ void QOpenGLWidget_Editor::paintGL()
         //    }
         //        m_scene->Draw(*m_shader);
         //        g_env.m_scene.draw(m_shader);
-        m_scene.draw(projectionMatrix, viewMatrix);
+        m_scene.draw(projectionMatrix,  viewMatrix, currentFrameTime);
         //        for (Model * model : g_env.m_scene) {
         //            model->Draw(*m_shader);
         //        }

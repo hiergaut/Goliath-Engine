@@ -35,7 +35,7 @@ public:
     ////        return iterator(*this);
     //        return m_models.begin();
     //    }
-    void draw(glm::mat4 projectionMatrix, glm::mat4 viewMatrix);
+    void draw(glm::mat4 projectionMatrix, glm::mat4 viewMatrix, ulong frameTime);
     void addModel(std::string file);
     void delModel(std::string file);
 

@@ -252,6 +252,12 @@ glm::mat4 QOpenGLWidget_3dView::viewMatrix() const
     return m_camera.getViewMatrix();
 }
 
+glm::mat4 QOpenGLWidget_3dView::projectionViewMatrix() const
+{
+    return m_projectionMatrix * m_camera.getViewMatrix();
+
+}
+
 void QOpenGLWidget_3dView::setViews(std::list<const QOpenGLWidget_3dView *> *views)
 {
     m_views = views;

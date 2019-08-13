@@ -37,6 +37,7 @@ using Meshes = std::vector<Mesh>;
 class Mesh {
 public:
     std::vector<Bone> m_bones;
+    mutable glm::mat4 m_transform;
 
 public:
     //    Mesh(std::string name, std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures) : m_name(name)

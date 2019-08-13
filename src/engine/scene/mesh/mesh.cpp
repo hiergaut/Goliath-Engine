@@ -20,11 +20,11 @@ Mesh::Mesh(const aiMesh* ai_mesh, const Materials& materials, const Textures& te
     //    m_numAnimMesh = ai_mesh->mNumAnimMeshes;
     Q_ASSERT(ai_mesh->mNumAnimMeshes == 0);
 
-//    m_bonesData.resize(numVertices);
-    VertexBoneData vBone = {{0}, {0}};
+    //    m_bonesData.resize(numVertices);
+    VertexBoneData vBone = { { 0 }, { 0 } };
     m_bonesData = std::vector<VertexBoneData>(numVertices, vBone);
 
-//    int cpt[ai_mesh->mNumVertices] = {0};
+    //    int cpt[ai_mesh->mNumVertices] = {0};
     std::vector<uint> cpts(numVertices, 0);
 
     m_sumBoneWeights = 0;
@@ -34,12 +34,11 @@ Mesh::Mesh(const aiMesh* ai_mesh, const Materials& materials, const Textures& te
         //        m_bones.push_back(Bone(ai_bone));
         m_bones.emplace_back(ai_bone);
 
-
         for (uint j = 0; j < ai_bone->mNumWeights; ++j) {
             const aiVertexWeight& ai_vertexWeight = ai_bone->mWeights[j];
 
             const uint vid = ai_vertexWeight.mVertexId;
-            uint & cpt = cpts[vid];
+            uint& cpt = cpts[vid];
 
             m_bonesData[vid].IDs[cpt] = i;
             m_bonesData[vid].Weights[cpt] = ai_vertexWeight.mWeight;
@@ -71,7 +70,7 @@ Mesh::Mesh(const aiMesh* ai_mesh, const Materials& materials, const Textures& te
     Q_ASSERT(m_indices.size() == 3 * ai_mesh->mNumFaces);
 
     m_vertices.clear();
-    for (uint i = 0; i <numVertices; ++i) {
+    for (uint i = 0; i < numVertices; ++i) {
         Vertex v;
         //        const aiVector3D* ai_vertex = &ai_mesh->mVertices[i];
         //        glm::vec3 vertex(ai_vertice->x, ai_vertice->y, ai_vertice->z);
@@ -97,7 +96,6 @@ Mesh::Mesh(const aiMesh* ai_mesh, const Materials& materials, const Textures& te
         m_vertices.emplace_back(v);
     }
     Q_ASSERT(m_vertices.size() == numVertices);
-
 
     setupMesh();
     //    return std::move(mesh);
@@ -214,30 +212,26 @@ void Mesh::setupMesh()
     m_fun->glEnableVertexAttribArray(4);
     m_fun->glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(VertexBoneData), (void*)16);
 
-
     m_fun->glBindVertexArray(0);
 }
 
 void Mesh::draw(const Shader& shader) const
 {
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    shader.setMat4("model", m_transform);
+    //    shader.setMat4("model", glm::mat4(1));
+
     const Material& material = m_materials[m_iMaterial];
     //        const Material& material = mesh.m_material;
     //        const Material& material = mesh.m_material;
 
-    uint cpt = 0;
     //    for (uint diffuse : material.m_diffuseMaps) {
     //    for (uint i = 0; i < material.m_diffuseMaps.size();++i) {
     //        for (uint i =0; i <material.m_iTextures->size(); ++i) {
     //                const Texture& texture = m_textures[material.m_iTextures[i]];
 
-    for (uint i =0; i < m_bones.size(); ++i) {
-        const Bone & bone = m_bones[i];
-
-        shader.setMat4("gBones[" + std::to_string(i) +"]", bone.m_transform);
-//        shader.setMat4("gBones[" + std::to_string(i) +"]", bone.m_transform * bone.m_offsetMatrix);
-    }
-
     //        }
+    uint cpt = 0;
     for (uint i = 0; i < Texture::size; ++i) {
         for (uint j = 0; j < material.m_iTextures[i].size(); ++j) {
             const Texture& texture = m_textures[material.m_iTextures[i][j]];
@@ -253,18 +247,27 @@ void Mesh::draw(const Shader& shader) const
         }
     }
 
-//    shader.setBool("isSkeleton", true);
-//    // draw mesh
-//    m_fun->glBindVertexArray(m_vao);
-//    m_fun->glDrawElements(GL_TRIANGLES, m_indices.size(), GL_UNSIGNED_INT, 0);
-//    m_fun->glBindVertexArray(0);
+    if (m_bones.size() > 0) {
+        for (uint i = 0; i < m_bones.size(); ++i) {
+            const Bone& bone = m_bones[i];
 
-//    shader.setBool("isSkeleton", false);
+            shader.setMat4("gBones[" + std::to_string(i) + "]", bone.m_transform);
+            //        shader.setMat4("gBones[" + std::to_string(i) +"]", bone.m_transform * bone.m_offsetMatrix);
+        }
+        shader.setBool("isSkeleton", true);
+    } else {
+        shader.setBool("isSkeleton", false);
+    }
+    //    // draw mesh
+    //    m_fun->glBindVertexArray(m_vao);
+    //    m_fun->glDrawElements(GL_TRIANGLES, m_indices.size(), GL_UNSIGNED_INT, 0);
+    //    m_fun->glBindVertexArray(0);
+
+    //    shader.setBool("isSkeleton", true);
     // draw mesh
     m_fun->glBindVertexArray(m_vao);
     m_fun->glDrawElements(GL_TRIANGLES, m_indices.size(), GL_UNSIGNED_INT, 0);
     m_fun->glBindVertexArray(0);
-
     // always good practice to set everything back to defaults once configured.
     m_fun->glActiveTexture(GL_TEXTURE0);
 }
