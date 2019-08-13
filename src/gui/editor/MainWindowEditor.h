@@ -9,6 +9,7 @@ enum id {
     VIEW,
     OUTLINER,
     PROPERTIES,
+    TIMELINE,
 //    FILE_OPENNED,
 };
 }
@@ -44,6 +45,8 @@ private slots:
 //    void on_actionFile_Openned_triggered();
 
     void on_actionProperties_triggered();
+
+    void on_actionTimeline_triggered();
 
 private:
     Editor::id m_id = Editor::id::ZERO;

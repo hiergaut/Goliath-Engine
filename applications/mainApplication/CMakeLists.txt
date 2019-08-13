@@ -74,7 +74,7 @@ add_executable(${PROJECT_NAME}
 
 
 #set(EXT_LIBS Qt5::OpenGL ${OPENGL_LIBRARIES})
-target_link_libraries(${PROJECT_NAME} ${M_Qt5_LIBRARIES} src)
+target_link_libraries(${PROJECT_NAME} ${M_Qt5_LIBRARIES} Qt5::OpenGL src)
 
 #add_dependencies(${PROJECT_NAME} src)
 

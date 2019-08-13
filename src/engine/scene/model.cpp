@@ -149,7 +149,7 @@ void Model::Draw(glm::mat4 modelMatrix, const Shader& shader, ulong frameTime) c
     ///
     /////
     ///
-    if (m_animations.size() > 0) {
+    if (m_animations.size() > 5) {
         const Animation* animation = &m_animations[0];
         double ticksPerSecond = animation->m_ticksPerSecond;
         double timeInTicks = (double)frameTime / 10000.0 * ticksPerSecond;

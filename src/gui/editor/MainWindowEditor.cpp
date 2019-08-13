@@ -15,6 +15,7 @@
 //#include <QThread>
 //#include <QTime>
 #include <QDateTime>
+#include <AnimTimeline/FormAnimTimeline.h>
 
 MainWindowEditor::MainWindowEditor(QWidget* parent)
     : QMainWindow(parent)
@@ -75,6 +76,13 @@ void MainWindowEditor::setEditor(Editor::id id)
         ui->menuEditor_Type_2->setTitle("Properties");
         break;
 
+    case Editor::id::TIMELINE:
+        m_centralWidget = new FormAnimTimeline;
+        ui->menuEditor_Type->setIcon(ui->actionTimeline->icon());
+        ui->menuEditor_Type_2->setTitle("Timeline");
+        break;
+
+
     default:
         Q_ASSERT(false);
     }
@@ -106,6 +114,9 @@ void MainWindowEditor::save(std::ofstream& file)
     case Editor::id::PROPERTIES:
         break;
 
+    case Editor::id::TIMELINE:
+        break;
+
     default:
         Q_ASSERT(false);
     }
@@ -135,6 +146,10 @@ void MainWindowEditor::load(std::ifstream& file)
 
     case Editor::id::PROPERTIES:
 //        static_cast<MainWindowProperties*>(centralWidget())->setContext(Properties::e_context::MATERIAL);
+        break;
+
+    case Editor::id::TIMELINE:
+//        static_cast<FormAnimTimeline*>(m_centralWidget)->;
         break;
 
     default:
@@ -208,4 +223,10 @@ void MainWindowEditor::on_actionProperties_triggered()
     setEditor(Editor::id::PROPERTIES);
 //    ui->menuEditor_Type->setIcon(ui->action3D_View->icon());
 //    ui->menuEditor_Icon->setIcon(ui->action3D_View->icon());
+}
+
+void MainWindowEditor::on_actionTimeline_triggered()
+{
+    setEditor(Editor::id::TIMELINE);
+
 }

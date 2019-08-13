@@ -74,7 +74,6 @@
    <addaction name="menuEditor_Type"/>
    <addaction name="menuEditor_Type_2"/>
   </widget>
-  <widget class="QStatusBar" name="statusbar"/>
   <action name="action3D_View">
    <property name="icon">
     <iconset resource="../../../resources/resources.qrc">
@@ -95,6 +94,10 @@
    </property>
   </action>
   <action name="actionTimeline">
+   <property name="icon">
+    <iconset resource="../../../resources/resources.qrc">
+     <normaloff>:/icons/timeline.png</normaloff>:/icons/timeline.png</iconset>
+   </property>
    <property name="text">
     <string>Timeline</string>
    </property>

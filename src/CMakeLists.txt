@@ -36,6 +36,7 @@ file(GLOB_RECURSE headers *.h)
 include_directories(
         #    /usr/include/freetype2/
         ${FREETYPE_INCLUDE_DIRS}
+        ${M_ANIM_TIMELINE_DIR}
         #    .
         ##    ${M_INCLUDE_DIR}
         #    ${CMAKE_CURRENT_BINARY_DIR} #Moc
@@ -74,7 +75,7 @@ add_library(${PROJECT_NAME} SHARED
 
 #set(EXT_LIBS Qt5::OpenGL ${OPENGL_LIBRARIES})
 #target_link_libraries(${PROJECT_NAME} ${EXT_LIBS} ${M_GOLIATH_LIBRARIES})
-target_link_libraries(${PROJECT_NAME} ${M_Qt5_LIBRARIES} ${OPENGL_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} ${M_Qt5_LIBRARIES} ${OPENGL_LIBRARIES} AnimTimeline)
 
 
 #install(TARGETS ${PROJECT_NAME} DESTINATION ${M_LIB_DIR})

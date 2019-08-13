@@ -13,9 +13,10 @@ find_package(Freetype REQUIRED)
 #set(CMAKE_AUTORCC ON)
 
 set (M_SRC_DIR ${PROJECT_SOURCE_DIR}/src/)
+set (M_ANIM_TIMELINE_DIR ${PROJECT_SOURCE_DIR}/modules/AnimTimeline/src/)
 #set(M_LIB_DIR ${PROJECT_SOURCE_DIR}/lib/)
 #set (M_GOLIATH_LIBRARIES)
-set (M_Qt5_LIBRARIES Qt5::Core Qt5::Widgets Qt5::OpenGL)
+set (M_Qt5_LIBRARIES Qt5::Core Qt5::Widgets)
 
 #include_directories()
 include_directories(
@@ -53,6 +54,7 @@ add_subdirectory(src)
 #add_subdirectory(tests)
 #add_subdirectory(resources)
 
+add_subdirectory(modules/AnimTimeline)
 
 
 #configure_file(${resources} ${CMAKE_CURRENT_BINARY_DIR}/${resources} COPYONLY)
