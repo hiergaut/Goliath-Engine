@@ -1,0 +1,3 @@
+[submodule "modules/AnimTimeline"]
+	path = modules/AnimTimeline
+	url = https://github.com/hiergaut/AnimTimeline.git
