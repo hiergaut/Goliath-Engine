@@ -15,7 +15,8 @@
 //#include <QThread>
 //#include <QTime>
 #include <QDateTime>
-#include <AnimTimeline/FormAnimTimeline.h>
+//#include <AnimTimeline/FormAnimTimeline.h>
+#include "timeline/FormTimeline.h"
 
 MainWindowEditor::MainWindowEditor(QWidget* parent)
     : QMainWindow(parent)
@@ -77,7 +78,7 @@ void MainWindowEditor::setEditor(Editor::id id)
         break;
 
     case Editor::id::TIMELINE:
-        m_centralWidget = new FormAnimTimeline;
+        m_centralWidget = new FormTimeline;
         ui->menuEditor_Type->setIcon(ui->actionTimeline->icon());
         ui->menuEditor_Type_2->setTitle("Timeline");
         break;

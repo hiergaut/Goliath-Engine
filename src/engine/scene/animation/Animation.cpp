@@ -2,6 +2,11 @@
 
 //#include <QObject>
 #include <assert.h>
+#include <QDebug>
+
+
+#include <gui/editor/outliner/ItemModelPackage.h>
+#include <gui/editor/timeline/FormTimeline.h>
 
 Animation::Animation(const aiAnimation* ai_animation)
 //    : m_name(ai_animation->mName.C_Str())
@@ -36,20 +41,37 @@ void Animation::buildItemModel(QStandardItem *parent) const
         QStandardItem* item = new QStandardItem(QIcon(":/icons/animation.png"), QString("'") + m_name.c_str() + "'  duration:" + QString::number(m_duration) + "  ticksPerSecond:" + QString::number(m_ticksPerSecond) + "  nodeAnim:" + QString::number(m_channels.size()));
         parent->appendRow(item);
 
+//        ItemModelPackage * package = new ItemModelPackage(this);
+//        item->setData(QVariant::fromValue((void*)package), Qt::UserRole);
 
-        QStandardItem* item2 = new QStandardItem("nodeAnim  " + QString::number(m_channels.size()));
-//        parent->appendRow(item);
-        item->appendRow(item2);
-        for (const NodeAnim & nodeAnim : m_channels) {
-            nodeAnim.buildItemModel(item2);
-        }
 
-        item2 = new QStandardItem("meshAnim  " + QString::number(m_meshChannels.size()));
-        item->appendRow(item2);
-        for (const MeshAnim & meshAnim : m_meshChannels) {
-            meshAnim.buildItemModel(item2);
-        }
+        ItemModelPackage::store(this, *item);
+//        qDebug() << "store animation " << this << item->data(Qt::DisplayRole);
+//        qDebug() << "store animation " << this << item->data(Qt::DisplayRole);
 
+//        item->setData(QVariant(str));
+
+//        QStandardItem* item2 = new QStandardItem("nodeAnim  " + QString::number(m_channels.size()));
+////        parent->appendRow(item);
+//        item->appendRow(item2);
+//        for (const NodeAnim & nodeAnim : m_channels) {
+//            nodeAnim.buildItemModel(item2);
+//        }
+
+//        item2 = new QStandardItem("meshAnim  " + QString::number(m_meshChannels.size()));
+//        item->appendRow(item2);
+//        for (const MeshAnim & meshAnim : m_meshChannels) {
+//            meshAnim.buildItemModel(item2);
+//        }
+
+
+}
+
+void Animation::onClick() const
+{
+    qDebug() << "Animation::onClick " << this << m_name.c_str();
+
+    FormTimeline::setAnimation(this);
 
 }
 

@@ -21,6 +21,7 @@ signals:
 
 public slots:
     void on_changingData();
+    void on_click(const QModelIndex & index);
 
 
 private:

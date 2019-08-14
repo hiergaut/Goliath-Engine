@@ -34,7 +34,7 @@ private:
     const Meshes & m_meshes;
     const Bone * m_bone;
 
-    std::vector<const Animation*> m_animations; // only root
+    std::vector<const Animation*> m_animations; // only skeleton root
     uint m_nbNodes; // only root
     uint m_nbBones; // only root
     uint m_nbBonesVertex; // only root

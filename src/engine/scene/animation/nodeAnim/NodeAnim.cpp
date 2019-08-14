@@ -32,6 +32,7 @@ void NodeAnim::buildItemModel(QStandardItem* parent) const
     for (const auto & pair : m_positionKeys) {
         str += QString::number(pair.first) + " ";
     }
-    QStandardItem* item = new QStandardItem(QString("'") + m_nodeName.c_str() + "'  nbPositionKeys:" + QString::number(m_positionKeys.size()) + "  nbRotationKeys:" + QString::number(m_rotationKeys.size()) + "  nbScaleKeys:" + QString::number(m_scalingKeys.size()) + "\n" + str);
+//    QStandardItem* item = new QStandardItem(QString("'") + m_nodeName.c_str() + "'  nbPositionKeys:" + QString::number(m_positionKeys.size()) + "  nbRotationKeys:" + QString::number(m_rotationKeys.size()) + "  nbScaleKeys:" + QString::number(m_scalingKeys.size()) + "\n" + str);
+    QStandardItem* item = new QStandardItem(QString("nbPositionKeys:") + QString::number(m_positionKeys.size()) + "  nbRotationKeys:" + QString::number(m_rotationKeys.size()) + "  nbScaleKeys:" + QString::number(m_scalingKeys.size()) + "\n" + str);
     parent->appendRow(item);
 }

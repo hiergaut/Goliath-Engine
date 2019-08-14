@@ -21,6 +21,7 @@ public:
     Animation(const aiAnimation * ai_animation);
 
     void buildItemModel(QStandardItem * parent) const;
+    void onClick() const;
 
 private:
     std::vector<MeshAnim> m_meshChannels;

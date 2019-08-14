@@ -8,6 +8,7 @@
 #include <QList>
 
 #include <QLabel>
+#include "ItemModelPackage.h"
 
 QStandardItemModel * QTreeView_outliner::m_modelScene = nullptr;
 
@@ -21,12 +22,15 @@ QTreeView_outliner::QTreeView_outliner(QWidget *parent) : QTreeView(parent)
 //    setModel(m_model);
 
       this->setModel(m_modelScene);
+    this->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
 //    qDebug() << "[TreeView]" << this << m_modelScene << m_modelScene->rowCount() << m_modelScene->columnCount();
 
     connect(m_modelScene, &QStandardItemModel::dataChanged, this, &QTreeView_outliner::on_changingData);
 //    connect(m_modelScene, &QStandardItemModel::rowsInserted, this, &QTreeView_outliner::on_changingData);
 
+
+    connect(this, &QTreeView::clicked, this, &QTreeView_outliner::on_click);
 
 //    this->setRootIndex(m_modelScene->index(0, 0));
 //    this->setCurrentIndex(m_modelScene->index(0, 0));
@@ -49,6 +53,20 @@ void QTreeView_outliner::on_changingData()
 {
 //    qDebug() << "data changed";
     expandAll();
+
+}
+
+void QTreeView_outliner::on_click(const QModelIndex &index)
+{
+//    qDebug() << "outliner on_click " << m_modelScene->data(index, Qt::UserRole).data();
+
+    ItemModelPackage::click(m_modelScene->data(index, Qt::UserRole));
+//    void * package = m_modelScene->data(index, Qt::UserRole).data();
+//    if (package != nullptr) {
+//        auto data = ItemModelPackage::unpack(package);
+//        ItemModelPackage::click(package);
+//    }
+
 
 }
 

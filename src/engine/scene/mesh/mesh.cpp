@@ -149,9 +149,9 @@ void Mesh::buildItemModel(QStandardItem* parent) const
     //        QStandardItem * item2 = new QStandardItem(QIcon)
     QStandardItem* item3 = new QStandardItem(QIcon(":/icons/vertexGroups.png"), "Vertex Groups  bones:" + QString::number(m_bones.size()) + "  sumBoneWeights:" + QString::number(m_sumBoneWeights));
     item->appendRow(item3);
-    for (const Bone& bone : m_bones) {
-        bone.buildItemModel(item3);
-    }
+//    for (const Bone& bone : m_bones) {
+//        bone.buildItemModel(item3);
+//    }
 }
 
 /*  Functions    */

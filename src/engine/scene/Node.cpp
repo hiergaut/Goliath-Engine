@@ -119,12 +119,25 @@ void Node::buildItemModel(QStandardItem* parent) const
         item = new QStandardItem(QIcon(":/icons/bone.png"), "'" + QString(m_name.c_str()) + "'  " + QString::number(m_children.size()) + "  " + QString::number(m_nodeAnims.size()));
         parent->appendRow(item);
 
+
+
+
         //        item->appendRow(item2);
     } else {
         item = new QStandardItem(QIcon(":/icons/node.png"), "'" + QString(m_name.c_str()) + "'  " + QString::number(m_children.size()) + "  " + QString::number(m_nodeAnims.size()));
         parent->appendRow(item);
     }
     mat4BuildItemModel(m_transformation, item);
+
+    if (m_nodeAnims.size() > 0) {
+        QStandardItem* item2 = new QStandardItem("nodeAnim  " + QString::number(m_nodeAnims.size()));
+//        parent->appendRow(item);
+        item->appendRow(item2);
+        for (const auto & pair : m_nodeAnims) {
+            pair.second->buildItemModel(item2);
+        }
+
+    }
 
     for (ulong i = 0; i < m_iMeshes.size(); ++i) {
         //        QStandardItem * item2 = new QStandardItem("mesh:" + QString::number(node->m_meshes[i]) + ", " + m_meshes[node->m_meshes[i]]);
