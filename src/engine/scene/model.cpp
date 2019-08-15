@@ -13,6 +13,7 @@
 //#include <cassert>
 #include <functional>
 #include <glm/gtc/matrix_transform.hpp>
+#include <gui/editor/timeline/FormTimeline.h>
 
 Model::Model(const std::string& path)
 //        : gammaCorrection(gamma),
@@ -149,18 +150,40 @@ void Model::Draw(glm::mat4 modelMatrix, const Shader& shader, ulong frameTime) c
     ///
     /////
     ///
-    if (m_animations.size() > 5) {
-        const Animation* animation = &m_animations[0];
-        double ticksPerSecond = animation->m_ticksPerSecond;
-        double timeInTicks = (double)frameTime / 10000.0 * ticksPerSecond;
-        double animationTime = fmod(timeInTicks, animation->m_duration);
-//            std::cout << "animationTime " << animationTime << std::endl;
+    //    bool isAnimated = false;
+    const Animation* animation = nullptr;
+    const Animation& currentAnimation = *FormTimeline::animation();
+    for (const Animation& anim : m_animations) {
+        if (&currentAnimation == &anim) {
+            //            isAnimated = true;
+            animation = &anim;
+            break;
+        }
+    }
+
+    if (animation != nullptr) {
+        //        const Animation* animation = &m_animations[0];
+
+        if (FormTimeline::play()) {
+            double ticksPerSecond = animation->m_ticksPerSecond;
+            double timeInTicks = (double)frameTime / 1000.0 * ticksPerSecond;
+            double animationTime = fmod(timeInTicks, animation->m_duration);
+
+//            FormTimeline::animationTime = animationTime;
+            FormTimeline::setAnimationTime(animationTime);
+        }
+        //        else {
+
+        ////            std::cout << "animationTime " << animationTime << std::endl;
+        //        }
+
+        double animationTime = FormTimeline::animationTime();
 
         m_rootNode->draw(shader, modelMatrix, animation, animationTime);
         //        shader.setMat4("model", glm::mat4(1));
         //        shader.setBool("isSkeleton", true);
     } else {
-        m_rootNode->draw(shader, modelMatrix, nullptr, 0);
+        m_rootNode->draw(shader, modelMatrix);
         //        shader.setBool("isSkeleton", false);
     }
 

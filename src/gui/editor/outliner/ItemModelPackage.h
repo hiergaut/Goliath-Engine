@@ -2,22 +2,30 @@
 #define ITEMMODELPACKAGE_H
 
 #include <engine/scene/animation/Animation.h>
+#include <engine/scene/Node.h>
 
 class ItemModelPackage
 {
 public:
-    ItemModelPackage();
+//    ItemModelPackage();
     ItemModelPackage(const Animation * animation);
+    ItemModelPackage(const Node * node);
 
 
-    static void store(const Animation * animation, QStandardItem & itemModel);
+    template<class T>
+    static void store(const T * animation, QStandardItem & itemModel) {
+        ItemModelPackage * package = new ItemModelPackage(animation);
+    //    qDebug() << "store package " << package;
+        itemModel.setData(QVariant::fromValue((void*)package), Qt::UserRole);
+    }
 
     static void click(const QVariant & variant);
 
 
 private:
     enum Header {
-        ANIMATION = 1
+        ANIMATION = 1,
+        NODE,
     } header;
 
     const void * data;

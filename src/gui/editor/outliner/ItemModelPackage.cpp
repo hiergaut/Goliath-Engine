@@ -1,10 +1,10 @@
 #include "ItemModelPackage.h"
 #include <QDebug>
 
-ItemModelPackage::ItemModelPackage()
-{
+//ItemModelPackage::ItemModelPackage()
+//{
 
-}
+//}
 
 ItemModelPackage::ItemModelPackage(const Animation *animation)
     : header(ANIMATION)
@@ -14,17 +14,25 @@ ItemModelPackage::ItemModelPackage(const Animation *animation)
 
 }
 
-void ItemModelPackage::store(const Animation  *animation, QStandardItem &itemModel)
+ItemModelPackage::ItemModelPackage(const Node *node)
+    :header(NODE)
+    , data(node)
 {
-    ItemModelPackage * package = new ItemModelPackage(animation);
-//    qDebug() << "store package " << package;
-    itemModel.setData(QVariant::fromValue((void*)package), Qt::UserRole);
 
-//    qDebug() << "package after variant" << itemModel.data(Qt::UserRole).value<void*>();
-//    ItemModelPackage * packageTest = static_cast<ItemModelPackage*>(itemModel.data(Qt::UserRole).data());
-//    qDebug() << "packageTest " << packageTest;
-//    qDebug();
 }
+
+//template<class T>
+//void ItemModelPackage::store(const T  *animation, QStandardItem &itemModel)
+//{
+//    ItemModelPackage * package = new ItemModelPackage(animation);
+////    qDebug() << "store package " << package;
+//    itemModel.setData(QVariant::fromValue((void*)package), Qt::UserRole);
+
+////    qDebug() << "package after variant" << itemModel.data(Qt::UserRole).value<void*>();
+////    ItemModelPackage * packageTest = static_cast<ItemModelPackage*>(itemModel.data(Qt::UserRole).data());
+////    qDebug() << "packageTest " << packageTest;
+////    qDebug();
+//}
 
 void ItemModelPackage::click(const QVariant &variant)
 {
@@ -40,9 +48,11 @@ void ItemModelPackage::click(const QVariant &variant)
 
     switch (p->header) {
         case ANIMATION:
-            const Animation * a = static_cast<const Animation*>(p->data);
-//            qDebug() << "load animation " << a;
-            a->onClick();
+            static_cast<const Animation*>(p->data)->onClick();
+        break;
+
+    case NODE:
+        static_cast<const Node*>(p->data)->onClick();
         break;
 
     }

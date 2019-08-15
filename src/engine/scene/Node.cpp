@@ -5,6 +5,9 @@
 #include <glm/common.hpp>
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
+#include <gui/editor/outliner/ItemModelPackage.h>
+
+#include <gui/editor/timeline/FormTimeline.h>
 
 Node::Node(const aiNode* ai_node, const Meshes& meshes, const Animations& animations)
     : m_meshes(meshes)
@@ -102,6 +105,10 @@ void Node::buildItemModel(QStandardItem* parent) const
         item2 = new QStandardItem(QIcon(":/icons/pose.png"), "Pose '" + QString(m_name.c_str()) + "'  " + QString::number(m_children.size()) + "  " + QString::number(m_nodeAnims.size()) + "  nbNodes:" + QString::number(m_nbNodes) + "  nbBones:" + QString::number(m_nbBones) + "  nbBonesVertex:" + QString::number(m_nbBonesVertex));
         item->appendRow(item2);
 
+        ItemModelPackage::store(this, *item2);
+//        ItemModelPackage::store(*item2);
+
+
         parent->appendRow(item);
 
         item = item2;
@@ -119,9 +126,6 @@ void Node::buildItemModel(QStandardItem* parent) const
         item = new QStandardItem(QIcon(":/icons/bone.png"), "'" + QString(m_name.c_str()) + "'  " + QString::number(m_children.size()) + "  " + QString::number(m_nodeAnims.size()));
         parent->appendRow(item);
 
-
-
-
         //        item->appendRow(item2);
     } else {
         item = new QStandardItem(QIcon(":/icons/node.png"), "'" + QString(m_name.c_str()) + "'  " + QString::number(m_children.size()) + "  " + QString::number(m_nodeAnims.size()));
@@ -131,12 +135,11 @@ void Node::buildItemModel(QStandardItem* parent) const
 
     if (m_nodeAnims.size() > 0) {
         QStandardItem* item2 = new QStandardItem("nodeAnim  " + QString::number(m_nodeAnims.size()));
-//        parent->appendRow(item);
+        //        parent->appendRow(item);
         item->appendRow(item2);
-        for (const auto & pair : m_nodeAnims) {
+        for (const auto& pair : m_nodeAnims) {
             pair.second->buildItemModel(item2);
         }
-
     }
 
     for (ulong i = 0; i < m_iMeshes.size(); ++i) {
@@ -161,84 +164,106 @@ void Node::buildItemModel(QStandardItem* parent) const
     //    parent->appendRow(new QStandardItem(str));
 }
 
-glm::mat4 interpolatedRotation(const std::vector<std::pair<double, glm::quat>>&  rotationKeys, double animationTime) {
-    Q_ASSERT(rotationKeys.size() > 1);
-            uint iRotNext = 1;
-            while (rotationKeys[iRotNext].first < animationTime) ++iRotNext;
-            Q_ASSERT(iRotNext < rotationKeys.size());
-            Q_ASSERT(iRotNext > 0);
+glm::mat4 interpolatedRotation(const std::vector<std::pair<double, glm::quat>>& rotationKeys, double animationTime)
+{
+    const uint nbKeys = rotationKeys.size();
+    Q_ASSERT(nbKeys > 1);
+    uint iRotNext = 1;
+    while (iRotNext < nbKeys && rotationKeys[iRotNext].first < animationTime)
+        ++iRotNext;
+    if (iRotNext == nbKeys) {
+        return glm::mat4_cast(rotationKeys[nbKeys -1].second);
+    }
+    Q_ASSERT(iRotNext < nbKeys);
+    Q_ASSERT(iRotNext > 0);
 
-            uint iRot = iRotNext -1;
-//            std::cout << "iRot " << iRot << std::endl;
+    uint iRot = iRotNext - 1;
+    //            std::cout << "iRot " << iRot << std::endl;
 
-            const glm::quat& quat = rotationKeys[iRot].second;
-            const glm::quat& quatNext = rotationKeys[iRotNext].second;
+    const glm::quat& quat = rotationKeys[iRot].second;
+    const glm::quat& quatNext = rotationKeys[iRotNext].second;
+    //            const glm::quat& quat = glm::normalize(rotationKeys[iRot].second);
+    //            const glm::quat& quatNext = glm::normalize(rotationKeys[iRotNext].second);
 
-            double deltaTime = rotationKeys[iRotNext].first - rotationKeys[iRot].first;
-//            std::cout << "deltaTime " << deltaTime << std::endl;
-            double factor = (animationTime - rotationKeys[iRot].first) / deltaTime;
-//            double factor = animationTime / ;
-            Q_ASSERT(0.0 <= factor && factor <= 1.0);
-//            std::cout << "factor " << factor << std::endl;
-            glm::quat quatInterpolate = glm::lerp(quat, quatNext, static_cast<float>(factor));
+    double deltaTime = rotationKeys[iRotNext].first - rotationKeys[iRot].first;
+    //            std::cout << "deltaTime " << deltaTime << std::endl;
+    double factor = (animationTime - rotationKeys[iRot].first) / deltaTime;
+    //            double factor = animationTime / ;
+    Q_ASSERT(0.0 <= factor && factor <= 1.0);
+    //            std::cout << "factor " << factor << std::endl;
+    //            quat = glm::normalize(quat);
+    //            quatNext = glm::normalize(quatNext);
+    //            glm::quat quatInterpolate = glm::lerp(quat, quatNext, static_cast<float>(factor));
+    //            glm::quat quatInterpolate = glm::mix(quat, quatNext, static_cast<float>(factor));
+    glm::quat quatInterpolate = glm::slerp(quat, quatNext, static_cast<float>(factor));
+    //            quatInterpolate = glm::normalize(quatInterpolate);
 
-            return glm::mat4_cast(glm::normalize(quatInterpolate));
-
+    return glm::mat4_cast(quatInterpolate);
 }
 
-glm::vec3 interpolatedTranslation(const std::vector<std::pair<double, glm::vec3>>&  translationKeys, double animationTime) {
-    Q_ASSERT(translationKeys.size() > 1);
-            uint iTransNext = 1;
-            while (translationKeys[iTransNext].first < animationTime) ++iTransNext;
-            Q_ASSERT(iTransNext < translationKeys.size());
-            Q_ASSERT(iTransNext > 0);
+glm::vec3 interpolatedTranslation(const std::vector<std::pair<double, glm::vec3>>& translationKeys, double animationTime)
+{
+    const uint nbKeys = translationKeys.size();
+    Q_ASSERT(nbKeys > 1);
+    uint iTransNext = 1;
+    while (iTransNext < nbKeys && translationKeys[iTransNext].first < animationTime)
+        ++iTransNext;
+    if (iTransNext == nbKeys) {
+        return translationKeys[nbKeys - 1].second;
+    }
+    Q_ASSERT(iTransNext < nbKeys);
+    Q_ASSERT(iTransNext > 0);
 
-            uint iTrans = iTransNext -1;
-//            std::cout << "iTrans " << iRot << std::endl;
+    uint iTrans = iTransNext - 1;
+    //            std::cout << "iTrans " << iRot << std::endl;
 
-            const glm::vec3& trans = translationKeys[iTrans].second;
-            const glm::vec3& transNext = translationKeys[iTransNext].second;
+    const glm::vec3& trans = translationKeys[iTrans].second;
+    const glm::vec3& transNext = translationKeys[iTransNext].second;
 
-            double deltaTime = translationKeys[iTransNext].first - translationKeys[iTrans].first;
-//            std::cout << "deltaTime " << deltaTime << std::endl;
-            float factor = (animationTime - translationKeys[iTrans].first) / deltaTime;
-//            double factor = animationTime / ;
-            Q_ASSERT(0.0 <= factor && factor <= 1.0);
-//            std::cout << "factor " << factor << std::endl;
-//            glm::vec3 transIntepolate = glm::mix(trans, transNext, static_cast<float>(factor));
-            glm::vec3 transIntepolate = trans + factor * (transNext - trans);
+    double deltaTime = translationKeys[iTransNext].first - translationKeys[iTrans].first;
+    //            std::cout << "deltaTime " << deltaTime << std::endl;
+    float factor = (animationTime - translationKeys[iTrans].first) / deltaTime;
+    //            double factor = animationTime / ;
+    Q_ASSERT(0.0 <= factor && factor <= 1.0);
+    //            std::cout << "factor " << factor << std::endl;
+    //            glm::vec3 transIntepolate = glm::mix(trans, transNext, static_cast<float>(factor));
+    glm::vec3 transIntepolate = trans + factor * (transNext - trans);
 
-            return transIntepolate;
-//            return glm::mat4_cast(quatInterpolate);
-
+    return transIntepolate;
+    //            return glm::mat4_cast(quatInterpolate);
 }
 
-glm::vec3 interpolatedScale(const std::vector<std::pair<double, glm::vec3>>&  scaleKeys, double animationTime) {
-    Q_ASSERT(scaleKeys.size() > 1);
-            uint iScaleNext = 1;
-            while (scaleKeys[iScaleNext].first < animationTime) ++iScaleNext;
-            Q_ASSERT(iScaleNext < scaleKeys.size());
-            Q_ASSERT(iScaleNext > 0);
+glm::vec3 interpolatedScale(const std::vector<std::pair<double, glm::vec3>>& scaleKeys, double animationTime)
+{
+    uint nbKeys = scaleKeys.size();
 
-            uint iTrans = iScaleNext -1;
-//            std::cout << "iTrans " << iRot << std::endl;
+    Q_ASSERT(nbKeys > 1);
+    uint iScaleNext = 1;
+    while (iScaleNext < nbKeys && scaleKeys[iScaleNext].first < animationTime)
+        ++iScaleNext;
+    if (iScaleNext == nbKeys) {
+        return scaleKeys[nbKeys - 1].second;
+    }
+    Q_ASSERT(iScaleNext < nbKeys);
+    Q_ASSERT(iScaleNext > 0);
 
-            const glm::vec3& scale = scaleKeys[iTrans].second;
-            const glm::vec3& scaleNext = scaleKeys[iScaleNext].second;
+    uint iTrans = iScaleNext - 1;
+    //            std::cout << "iTrans " << iRot << std::endl;
 
-            double deltaTime = scaleKeys[iScaleNext].first - scaleKeys[iTrans].first;
-//            std::cout << "deltaTime " << deltaTime << std::endl;
-            double factor = (animationTime - scaleKeys[iTrans].first) / deltaTime;
-//            double factor = animationTime / ;
-            Q_ASSERT(0.0 <= factor && factor <= 1.0);
-//            std::cout << "factor " << factor << std::endl;
-            glm::vec3 scaleInterpolate = glm::mix(scale, scaleNext, static_cast<float>(factor));
+    const glm::vec3& scale = scaleKeys[iTrans].second;
+    const glm::vec3& scaleNext = scaleKeys[iScaleNext].second;
 
-            return scaleInterpolate;
-//            return glm::mat4_cast(quatInterpolate);
+    double deltaTime = scaleKeys[iScaleNext].first - scaleKeys[iTrans].first;
+    //            std::cout << "deltaTime " << deltaTime << std::endl;
+    double factor = (animationTime - scaleKeys[iTrans].first) / deltaTime;
+    //            double factor = animationTime / ;
+    Q_ASSERT(0.0 <= factor && factor <= 1.0);
+    //            std::cout << "factor " << factor << std::endl;
+    glm::vec3 scaleInterpolate = glm::mix(scale, scaleNext, static_cast<float>(factor));
 
+    return scaleInterpolate;
+    //            return glm::mat4_cast(quatInterpolate);
 }
-
 
 void Node::draw(const Shader& shader, glm::mat4 model, const Animation* animation, double animationTime) const
 {
@@ -252,29 +277,28 @@ void Node::draw(const Shader& shader, glm::mat4 model, const Animation* animatio
             const NodeAnim& nodeAnim = *it->second;
             Q_ASSERT(nodeAnim.m_rotationKeys.size() > 0);
 
-//            double animationTime = animation->m_duration;
-
+            //            double animationTime = animation->m_duration;
 
             glm::mat4 transformation(1.0f);
             //        glm::mat4 translation(1.0f);
             //        translation = glm::translate(translation, nodeAnim.m_positionKeys[0].second);
-//            transformation = glm::translate(transformation, nodeAnim.m_positionKeys[0].second);
+            //            transformation = glm::translate(transformation, nodeAnim.m_positionKeys[0].second);
             transformation = glm::translate(transformation, interpolatedTranslation(nodeAnim.m_positionKeys, animationTime));
 
             //        glm::mat4 rotation(1.0f);
-//            const auto & rotationKeys = nodeAnim.m_rotationKeys;
+            //            const auto & rotationKeys = nodeAnim.m_rotationKeys;
             //        transformation = glm::rotate(transformation, nodeAnim.m_rotationKeys[0].second);
             //        transformation =   transformation * glm::mat4_cast(quat);
             //        rotation =   glm::mat4_cast(quat) * rotation;
             //        transformation = glm::mat4_cast(quat) *  transformation;
-//            transformation = transformation * glm::mat4_cast(quat);
-//            transformation = transformation * glm::mat4_cast(quatInterpolate);
-//            transformation = transformation * interpolatedRotation(nodeAnim.m_rotationKeys, animationTime);
+            //            transformation = transformation * glm::mat4_cast(quat);
+            //            transformation = transformation * glm::mat4_cast(quatInterpolate);
+            //            transformation = transformation * interpolatedRotation(nodeAnim.m_rotationKeys, animationTime);
             transformation = transformation * interpolatedRotation(nodeAnim.m_rotationKeys, animationTime);
 
             //        glm::mat4 scale(1.0f);
             //        scale = glm::scale(scale, nodeAnim.m_scalingKeys[0].second);
-//            transformation = glm::scale(transformation, nodeAnim.m_scalingKeys[0].second);
+            //            transformation = glm::scale(transformation, nodeAnim.m_scalingKeys[0].second);
             transformation = glm::scale(transformation, interpolatedScale(nodeAnim.m_scalingKeys, animationTime));
 
             //        glm::mat4 translation(1.0f);
@@ -321,7 +345,7 @@ void Node::draw(const Shader& shader, glm::mat4 model, const Animation* animatio
         if (m_bone != nullptr) {
             m_boneGeometry.draw(model, shader, glm::vec3(0), childPos);
         } else {
-//            m_boneGeometry.draw(model, shader, glm::vec3(0), childPos);
+            //            m_boneGeometry.draw(model, shader, glm::vec3(0), childPos);
             m_boneGeometry.drawLine(model, shader, glm::vec3(0), childPos);
         }
 
@@ -357,4 +381,9 @@ uint Node::recurseNbBonesVertex() const
         nbBones += children.recurseNbBonesVertex();
     }
     return nbBones;
+}
+
+void Node::onClick() const
+{
+    FormTimeline::setAnimation(nullptr);
 }

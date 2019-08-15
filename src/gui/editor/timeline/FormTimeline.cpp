@@ -5,23 +5,27 @@
 #include <QList>
 
 //FormAnimTimeline FormTimeline::m_animTimeline;
-const Animation * FormTimeline::m_animation = nullptr;
+const Animation* FormTimeline::m_animation = nullptr;
 std::list<FormTimeline*> FormTimeline::m_timelines;
+double FormTimeline::m_animationTime = 0.0;
+bool FormTimeline::m_play = false;
 
-FormTimeline::FormTimeline(QWidget *parent) : QWidget(parent)
+FormTimeline::FormTimeline(QWidget* parent)
+    : QWidget(parent)
 {
-//    Q_ASSERT(m_animation != nullptr);
+    //    Q_ASSERT(m_animation != nullptr);
 
-//    QWidget * widget = new FormAnimTimeline(this);
+    //    QWidget * widget = new FormAnimTimeline(this);
     m_animTimeline = new FormAnimTimeline(this);
+    connect(m_animTimeline, &FormAnimTimeline::cursorChanged, this, &FormTimeline::onCursorChange);
+    connect(m_animTimeline, &FormAnimTimeline::playClicked, this, &FormTimeline::onPlay);
 
-    QLayout * layout = new QHBoxLayout;
+    QLayout* layout = new QHBoxLayout;
     layout->addWidget(m_animTimeline);
 
     layout->setMargin(0);
 
     setLayout(layout);
-
 
     m_timelines.push_back(this);
 }
@@ -30,26 +34,98 @@ FormTimeline::~FormTimeline()
 {
     m_timelines.remove(this);
     delete m_animTimeline;
-
 }
 
-void FormTimeline::setAnimation(const Animation *animation)
+void FormTimeline::setAnimation(const Animation* animation)
 {
     m_animation = animation;
 
+
     for (auto timeline : m_timelines) {
-//        timeline->setAnimation(animation);
-        FormAnimTimeline * animTimeline = timeline->m_animTimeline;
+        //        timeline->setAnimation(animation);
+        FormAnimTimeline* animTimeline = timeline->m_animTimeline;
         animTimeline->onClearKeyPoses();
 
-        animTimeline->onChangeDuration(animation->m_duration / animation->m_ticksPerSecond);
+        if (animation == nullptr)
+            continue;
 
-        for (uint i =0; i <animation->m_duration; ++i) {
-            animTimeline->onAddingKeyPose(i / animation->m_ticksPerSecond);
+        double duration = animation->m_duration / animation->m_ticksPerSecond;
+        animTimeline->onChangeDuration(duration);
+        animTimeline->onChangeStart(0.0);
+        animTimeline->onChangeEnd(duration);
+        animTimeline->onChangeCursor(m_animationTime);
+
+
+        std::set<double> keyPose;
+        for (const NodeAnim & nodeAnim : animation->m_channels) {
+            for (const auto & pair : nodeAnim.m_positionKeys) {
+                keyPose.insert(pair.first);
+            }
+            for (const auto & pair : nodeAnim.m_rotationKeys) {
+                keyPose.insert(pair.first);
+            }
+            for (const auto & pair : nodeAnim.m_scalingKeys) {
+                keyPose.insert(pair.first);
+            }
         }
 
-//        for ()
+        for (double d : keyPose) {
+            animTimeline->onAddingKeyPose(d / animation->m_ticksPerSecond);
+        }
 
+//        for (uint i = 0; i < animation->m_duration; ++i) {
+//            animTimeline->onAddingKeyPose(i / animation->m_ticksPerSecond);
+//        }
 
+        //        for ()
     }
+}
+
+void FormTimeline::onCursorChange(double time)
+{
+    if (m_animation != nullptr) {
+        m_animationTime = time * m_animation->m_ticksPerSecond;
+    }
+}
+
+void FormTimeline::onPlay()
+{
+    m_play = true;
+}
+
+double FormTimeline::animationTime()
+{
+    return m_animationTime;
+}
+
+const Animation* FormTimeline::animation()
+{
+    return m_animation;
+}
+
+void FormTimeline::setAnimationTime(double value)
+{
+    m_animationTime = value;
+    for (auto timeline : m_timelines) {
+        //        timeline->setAnimation(animation);
+        FormAnimTimeline* animTimeline = timeline->m_animTimeline;
+        //        animTimeline->onClearKeyPoses();
+
+        //        double duration = anim_duration / animation->m_ticksPerSecond;
+        //        animTimeline->onChangeDuration(duration);
+        //        animTimeline->onChangeStart(0.0);
+        //        animTimeline->onChangeEnd(duration);
+        animTimeline->onChangeCursor(m_animationTime / m_animation->m_ticksPerSecond);
+
+        //        for (uint i =0; i <animation->m_duration; ++i) {
+        //            animTimeline->onAddingKeyPose(i / animation->m_ticksPerSecond);
+        //        }
+
+        //        for ()
+    }
+}
+
+bool FormTimeline::play()
+{
+    return m_play;
 }

@@ -21,11 +21,13 @@ public:
     void buildItemModel(QStandardItem * parent) const;
 //    Node(const Node & node);
 //    ~Node();
-    void draw(const Shader & shader, glm::mat4 model, const Animation *animation, double animationTime) const;
+    void draw(const Shader & shader, glm::mat4 model, const Animation *animation = nullptr, double animationTime = 0.0) const;
 
     uint recurseNbBones() const;
     uint recurseNbNodes() const;
     uint recurseNbBonesVertex() const;
+
+    void onClick() const;
 
 //public:
 //    std::string name() const;
