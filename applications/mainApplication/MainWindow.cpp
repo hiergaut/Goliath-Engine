@@ -41,11 +41,12 @@ MainWindow::MainWindow(QWidget* parent)
     connect(ui->page_systemBrowser, &FormSystemBrowser::canceled, this, &MainWindow::on_systemBrowserCanceled);
     connect(ui->page_systemBrowser, &FormSystemBrowser::openned, this, &MainWindow::on_systemBrowserLoaded);
 
-    m_views = new std::list<const QOpenGLWidget_3dView*>;
-    QOpenGLWidget_3dView::setViews(m_views);
+    m_views = new std::list<const MainWindow3dView*>;
+    MainWindow3dView::setViews(m_views);
 
     editor = new QOpenGLWidget_Editor(centralWidget(), this);
     editor->setViews(m_views);
+    editor->setStatusBar(ui->statusBar);
 
 //    QListView_FileOpenned::setModelFileOpenned(&m_fileOpennedModel);
 
@@ -107,10 +108,10 @@ void MainWindow::loadEnv(std::string filename)
 void MainWindow::saveEnv(std::string filename)
 {
     //    std::cout << *ui->page_splitterRoot;
-    //    const CameraWorld * camera = static_cast<QOpenGLWidget_3dView*>(static_cast<MainWindowEditor*>(ui->page_splitterRoot->widget(0))->centralWidget())->camera();
+    //    const CameraWorld * camera = static_cast<MainWindow3dView*>(static_cast<MainWindowEditor*>(ui->page_splitterRoot->widget(0))->centralWidget())->camera();
     //    const CameraWorld * camera2 = m_views.front()->camera();
     //    Q_ASSERT(camera == camera2);
-    //    for (const QOpenGLWidget_3dView * view : m_views) {
+    //    for (const MainWindow3dView * view : m_views) {
 
     //        const CameraWorld * camera = view->camera();
     //        qDebug() << camera;
@@ -257,7 +258,13 @@ void MainWindow::on_actionSave_triggered()
     //    saveEnv("temp.dat");
 }
 
-//std::list<const QOpenGLWidget_3dView *> MainWindow::views() const
+//void MainWindow::on_setFps(float fps)
+//{
+//    ui->statusBar->showMessage(QString::number(fps));
+
+//}
+
+//std::list<const MainWindow3dView *> MainWindow::views() const
 //{
 //    return m_views;
 //}

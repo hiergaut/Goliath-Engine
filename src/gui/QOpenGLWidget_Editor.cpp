@@ -144,12 +144,12 @@ void QOpenGLWidget_Editor::save(std::ofstream& file)
     //    m_scene.save(filename);
 }
 
-//std::vector<const QOpenGLWidget_3dView *> *QOpenGLWidget_Editor::views()
+//std::vector<const MainWindow3dView *> *QOpenGLWidget_Editor::views()
 //{
 //    return & m_views;
 //}
 
-//void QOpenGLWidget_Editor::addView(const QOpenGLWidget_3dView *view)
+//void QOpenGLWidget_Editor::addView(const MainWindow3dView *view)
 //{
 ////    m_views.emplace_back(view);
 //    m_views.push_back(view);
@@ -242,11 +242,12 @@ void QOpenGLWidget_Editor::paintGL()
 
         uint64_t currentFrameTime = QDateTime::currentMSecsSinceEpoch();
 
-    if (m_cpt % 10 == 0) {
+    if (m_cpt % 24 == 0) {
         m_deltaTime = currentFrameTime - m_lastFrame;
         m_lastFrame = currentFrameTime;
 
-        m_fps = 10000.0f / m_deltaTime;
+        m_fps = 24000.0f / m_deltaTime;
+
         ////            qDebug() << "fps : " << m_fps / period;
         //            m_fps = 0.0;
 //        m_stream.clear();
@@ -254,6 +255,8 @@ void QOpenGLWidget_Editor::paintGL()
 //        std::string str;
 //    m_stream << m_fps << "\n";
 //        std::cout << "fps : " << m_fps << std::endl;
+        m_statusBar->showMessage("fps:" + QString::number(m_fps));
+
 
 
     }
@@ -272,9 +275,11 @@ void QOpenGLWidget_Editor::paintGL()
     //    glDepthMask(GL_FALSE);
 //    std::stringstream stream;
 //    stream << std::fixed << std::setprecision(2) << m_fps;
-    std::string str = "fps " + std::to_string(m_fps);
-    str.resize(9);
-    m_textRender.RenderText(str , 1.0f, 1.0f, 2.0f, glm::vec3(1.0f, 0.0f, 0.0f));
+
+//    std::string str = "fps " + std::to_string(m_fps);
+//    str.resize(9);
+//    m_textRender.RenderText(str , 1.0f, 1.0f, 2.0f, glm::vec3(1.0f, 0.0f, 0.0f));
+
 //    update();
 //    return;
 
@@ -290,7 +295,7 @@ void QOpenGLWidget_Editor::paintGL()
     //            model = glm::scale(model, glm::vec3(0.01f));
     //            m_shader->use();
 
-    for (const QOpenGLWidget_3dView* v : *m_views) {
+    for (const MainWindow3dView* v : *m_views) {
         //    for (const CameraWorld & camera : m_scene.cameras) {
         //        Q_ASSERT(v);
         //        qDebug() << v << v->rect();
@@ -375,8 +380,13 @@ void QOpenGLWidget_Editor::paintGL()
     // ----------------------------------------------------------------
 
     ++m_cpt;
-    //    QThread::msleep(1000);
+//        QThread::msleep(10);
     update();
+}
+
+void QOpenGLWidget_Editor::setStatusBar(QStatusBar *statusBar)
+{
+    m_statusBar = statusBar;
 }
 
 //void QOpenGLWidget_Editor::on_rowInsertedInFileOpennedModel(const QModelIndex& parent, int start, int end)
@@ -423,7 +433,7 @@ void QOpenGLWidget_Editor::paintGL()
 //    return &m_scene;
 //}
 
-void QOpenGLWidget_Editor::setViews(std::list<const QOpenGLWidget_3dView*>* views)
+void QOpenGLWidget_Editor::setViews(std::list<const MainWindow3dView*>* views)
 {
     m_views = views;
     m_scene.setViews(views);

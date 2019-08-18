@@ -46,7 +46,17 @@ void QTreeView_outliner::mousePressEvent(QMouseEvent *event)
 //    qDebug() << "[TreeView]" << this << m_modelScene << m_modelScene->rowCount() << m_modelScene->columnCount();
 //    qDebug() << m_modelScene->item(0, 0);
     event->ignore();
-//    expandAll();
+    //    expandAll();
+}
+
+void QTreeView_outliner::setFocusPolicy(Qt::FocusPolicy policy)
+{
+    QTreeView::setFocusPolicy(policy);
+}
+
+QWidget *QTreeView_outliner::widget()
+{
+    return this;
 }
 
 void QTreeView_outliner::on_changingData()

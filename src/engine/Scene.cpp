@@ -82,7 +82,7 @@ void Scene::draw(glm::mat4 projectionMatrix, glm::mat4 viewMatrix, ulong frameTi
 //    m_shaderCamera->setMat4("view", viewMatrix);
 //    m_shaderCamera->setMat4("projection", projectionMatrix);
 
-    for (const QOpenGLWidget_3dView* view : *m_views) {
+    for (const MainWindow3dView* view : *m_views) {
         const CameraWorld* camera = view->camera();
 
         //        for (const CameraWorld * camera : m_cameras) {
@@ -174,7 +174,7 @@ void Scene::updateSceneModel()
 //    return m_itemModel;
 //}
 
-void Scene::setViews(std::list<const QOpenGLWidget_3dView*>* views)
+void Scene::setViews(std::list<const MainWindow3dView*>* views)
 {
     m_views = views;
 }
@@ -184,7 +184,7 @@ void Scene::setViews(std::list<const QOpenGLWidget_3dView*>* views)
 //    return m_cameras;
 //}
 
-//std::vector<QOpenGLWidget_3dView *> Scene::views() const
+//std::vector<MainWindow3dView *> Scene::views() const
 //{
 //    return m_views;
 //}

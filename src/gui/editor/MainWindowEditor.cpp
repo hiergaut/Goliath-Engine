@@ -1,7 +1,7 @@
 #include "MainWindowEditor.h"
 #include "ui_MainWindowEditor.h"
 
-#include "3dview/QOpenGLWidget_3dView.h"
+#include "3dview/MainWindow3dView.h"
 #include "outliner/QTreeView_outliner.h"
 
 #include <QOpenGLContext>
@@ -34,6 +34,8 @@ MainWindowEditor::MainWindowEditor(QWidget* parent)
 
     //    setCentralWidget(widget);
 //    qDebug() << "[MainWindowEditor]" << this << "created";
+//    *m_defaultMenuBar = *ui->menubar;
+//    *m_defaultMenuBar = std::move(*(ui->menubar));
 }
 
 MainWindowEditor::~MainWindowEditor()
@@ -49,13 +51,28 @@ void MainWindowEditor::setEditor(Editor::id id)
     //    QOpenGLContext* ctx = QOpenGLContext::currentContext();
     //    qDebug() << "[CONTEXT] Editor : " << ctx;
     delete m_centralWidget;
+//    for (QMenu * menu : m_menus) {
+//        ui->menubar.d
+//    }
+//    m_menus.clear();
+//    QMenu * menu;
+
+//    bar->addMenu(menu);
+
+//    bar->resize(10, 10);
 
     //    QWidget* widget;
     switch (id) {
     case Editor::id::VIEW:
-        m_centralWidget = new QOpenGLWidget_3dView;
+        m_centralWidget = new MainWindow3dView;
         ui->menuEditor_Type->setIcon(ui->action3D_View->icon());
         ui->menuEditor_Type_2->setTitle("3dView");
+//        m_menus.push_back(menu);
+//        ui->menubar->addMenu(menu);
+//        menu->setParent(ui->menubar);
+//        for (QMenu & menu : m_centralWidget->menus()) {
+//        qDebug() << menu.title();
+//        }
         break;
 
     case Editor::id::OUTLINER:
@@ -88,9 +105,25 @@ void MainWindowEditor::setEditor(Editor::id id)
         Q_ASSERT(false);
     }
 
+//    for (QMenu * menu : m_menus) {
+//        ui->menubar->addMenu(menu);
+//    }
+//    QMenuBar * bar = new QMenuBar(this);
+    ui->menubar->clear();
+//    bar->setStyleSheet(ui->menubar->styleSheet());
+    ui->menubar->addMenu(ui->menuEditor_Type);
+    ui->menubar->addMenu(ui->menuEditor_Type_2);
+
+    for (QMenu * menu : m_centralWidget->menus()) {
+//        qDebug() << "add menu " << &menu;
+        ui->menubar->addMenu(menu);
+    }
+
+//    this->setMenuBar(bar);
+
 
     m_centralWidget->setFocusPolicy(Qt::ClickFocus);
-    setCentralWidget(m_centralWidget);
+    setCentralWidget(m_centralWidget->widget());
     m_id = id;
 //    ui->menuEditor_Type->setTitle(text());
 }
@@ -103,7 +136,7 @@ void MainWindowEditor::save(std::ofstream& file)
     file.write(reinterpret_cast<const char*>(&m_id), sizeof(m_id));
     switch (m_id) {
     case Editor::id::VIEW:
-        static_cast<QOpenGLWidget_3dView*>(m_centralWidget)->save(file);
+        static_cast<MainWindow3dView*>(m_centralWidget)->save(file);
         break;
 
     case Editor::id::OUTLINER:
@@ -136,7 +169,7 @@ void MainWindowEditor::load(std::ifstream& file)
     //        qDebug() << "load " << m_id;
     switch (m_id) {
     case Editor::id::VIEW:
-        static_cast<QOpenGLWidget_3dView*>(m_centralWidget)->load(file);
+        static_cast<MainWindow3dView*>(m_centralWidget)->load(file);
         break;
 
     case Editor::id::OUTLINER:
@@ -204,10 +237,10 @@ void MainWindowEditor::on_actionOutliner_triggered()
     setEditor(Editor::id::OUTLINER);
 }
 
-QWidget* MainWindowEditor::centralWidget()
-{
-    return m_centralWidget;
-}
+//QWidget* MainWindowEditor::centralWidget()
+//{
+//    return m_centralWidget;
+//}
 
 //Editor::id MainWindowEditor::id() const
 //{

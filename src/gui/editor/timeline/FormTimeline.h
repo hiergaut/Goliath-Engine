@@ -7,7 +7,9 @@
 
 #include <engine/scene/animation/Animation.h>
 
-class FormTimeline : public QWidget {
+#include "../TemplateMenuBar.h"
+
+class FormTimeline : public QWidget, public TemplateMenuBar {
     Q_OBJECT
 
 public:
@@ -26,6 +28,10 @@ public:
 
 
     static double animationTime();
+
+    void setFocusPolicy(Qt::FocusPolicy policy) override;
+    QWidget * widget() override;
+
 
 signals:
 

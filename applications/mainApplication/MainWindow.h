@@ -12,7 +12,7 @@
 
 //#include <QFileSystemModel>
 
-#include <gui/editor/3dview/QOpenGLWidget_3dView.h>
+#include <gui/editor/3dview/MainWindow3dView.h>
 #include <gui/QOpenGLWidget_Editor.h>
 #include <engine/Scene.h>
 
@@ -35,7 +35,7 @@ public:
 
     void loadLastSession();
     void saveSession();
-//    std::list<const QOpenGLWidget_3dView *> views() const;
+//    std::list<const MainWindow3dView *> views() const;
 
 protected:
     void keyPressEvent(QKeyEvent *);
@@ -57,18 +57,20 @@ private slots:
 
     void on_actionSave_triggered();
 
+//    void on_setFps(float fps);
+
 private:
     Ui::MainWindow *ui;
 
     QOpenGLWidget_Editor * editor;
 
-    std::list<const QOpenGLWidget_3dView *> * m_views;
+    std::list<const MainWindow3dView *> * m_views;
 
 
 //    QStandardItemModel m_fileOpennedModel;
 
-//    QOpenGLWidget_3dView * view;
-//    QOpenGLWidget_3dView * view2;
+//    MainWindow3dView * view;
+//    MainWindow3dView * view2;
 //    Scene m_scene;
 
 //    Model * m_scene;

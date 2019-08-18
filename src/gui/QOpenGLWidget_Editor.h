@@ -9,11 +9,12 @@
 #include <opengl/grid.h>
 #include <opengl/axis.h>
 #include <gui/QSplitterNode.h>
-#include <gui/editor/3dview/QOpenGLWidget_3dView.h>
+#include <gui/editor/3dview/MainWindow3dView.h>
 #include <engine/Scene.h>
 #include <QMainWindow>
 
 #include <opengl/TextRendering.h>
+#include <QStatusBar>
 
 class QOpenGLWidget_Editor : public QOpenGLWidget
 {
@@ -21,20 +22,22 @@ class QOpenGLWidget_Editor : public QOpenGLWidget
 public:
     explicit QOpenGLWidget_Editor(QWidget *parent = nullptr, QMainWindow * mainWindow = nullptr);
 
-//    void addView(const QOpenGLWidget_3dView * view);
+//    void addView(const MainWindow3dView * view);
 
 
-//    std::vector<const QOpenGLWidget_3dView *> * views();
+//    std::vector<const MainWindow3dView *> * views();
     void loadNewModel(std::string file);
     void load(std::ifstream & file);
     void save(std::ofstream & file);
 
 
-    void setViews(std::list<const QOpenGLWidget_3dView *> *views);
+    void setViews(std::list<const MainWindow3dView *> *views);
 
 //    const Scene * scene() const;
 
     void clear();
+
+    void setStatusBar(QStatusBar *statusBar);
 
 protected:
     void initializeGL() override;
@@ -54,9 +57,10 @@ private:
 //    void loadEnv(std::string filename);
 
 private:
-    std::list<const QOpenGLWidget_3dView*> * m_views;
+    std::list<const MainWindow3dView*> * m_views;
 //    std::vector<Model> m_models;
     QMainWindow * m_mainWindow;
+    QStatusBar * m_statusBar;
 //    Grid * m_grid;
     Axis * m_axis;
 

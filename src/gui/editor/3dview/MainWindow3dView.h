@@ -1,19 +1,23 @@
-#ifndef QOPENGLWIDGET_WORLD_H
-#define QOPENGLWIDGET_WORLD_H
+#ifndef MAINWINDOW3DVIEW_H
+#define MAINWINDOW3DVIEW_H
 
-//#include "version.h"
-//#include <opengl/version.h>
+#include <QMainWindow>
 
-//#include <QOpenGLBuffer>
-//#include <QOpenGLWidget>
+namespace Ui {
+class MainWindow3dView;
+}
 
-//#include <QOpenGLFunctions_3_3_Core>
+//class MainWindow3dView : public QMainWindow
+//{
+//    Q_OBJECT
 
-//#include <QOpenGLShaderProgram>
-//#include <QOpenGLTexture>
-//#include <QOpenGLVertexArrayObject>
-//#include <opengl/grid.h>
-//#include <opengl/axis.h>
+//public:
+//    explicit MainWindow3dView(QWidget *parent = nullptr);
+//    ~MainWindow3dView();
+
+//private:
+//    Ui::MainWindow3dView *ui;
+//};
 
 //#include "camera.h"
 //#include "camera.h"
@@ -24,14 +28,17 @@
 //#include "model.h"
 //#include <opengl/model.h>
 #include <QWidget>
+#include <QMenu>
+
+#include "../TemplateMenuBar.h"
 
 
-class QOpenGLWidget_3dView : public QWidget {
+class MainWindow3dView : public QMainWindow, public TemplateMenuBar {
     Q_OBJECT
 
 public:
-    explicit QOpenGLWidget_3dView(QWidget* parent = nullptr);
-    ~QOpenGLWidget_3dView();
+    explicit MainWindow3dView(QWidget* parent = nullptr);
+    ~MainWindow3dView() override;
 
 
 //    void setScene(Model *scene);
@@ -58,12 +65,16 @@ protected:
 
     void resizeEvent(QResizeEvent *event) override;
 
+    void setFocusPolicy(Qt::FocusPolicy policy) override;
+    QWidget * widget() override;
+
 private:
 //    void setCursorToCenter();
 //    void cameraMove();
 //    void updateProjection();
 
 private:
+    Ui::MainWindow3dView *ui;
 
     bool m_middleClicked = false;
 
@@ -82,20 +93,24 @@ private:
 
     glm::mat4 m_projectionMatrix;
 
-    static std::list<const QOpenGLWidget_3dView*> * m_views;
+    static std::list<const MainWindow3dView*> * m_views;
+
+//    std::list<QMenu> m_menus;
 
 //    glm::mat4 m_viewMatrix;
+//private:
 
 public:
     glm::mat4 projectionMatrix() const;
     glm::mat4 viewMatrix() const;
     glm::mat4 projectionViewMatrix() const;
-    static void setViews(std::list<const QOpenGLWidget_3dView *> *views);
+    static void setViews(std::list<const MainWindow3dView *> *views);
 
     const CameraWorld * camera() const;
+//    std::list<QMenu> menus() const;
+private slots:
+    void on_actionWireFrame_triggered();
 };
 
 
-//std::list<const QOpenGLWidget_3dView *> * l_views;
-
-#endif // QOPENGLWIDGET_WORLD_H
+#endif // MAINWINDOW3DVIEW_H

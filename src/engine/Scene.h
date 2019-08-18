@@ -6,7 +6,7 @@
 #include "scene/model.h"
 #include <opengl/shader.h>
 #include <opengl/grid.h>
-#include <gui/editor/3dview/QOpenGLWidget_3dView.h>
+#include <gui/editor/3dview/MainWindow3dView.h>
 
 //#include <QObject>
 //#include <QWidget>
@@ -57,7 +57,7 @@ private:
     std::vector<Model> m_models;
     Shader* m_shader;
 
-    std::list<const QOpenGLWidget_3dView *> * m_views;
+    std::list<const MainWindow3dView *> * m_views;
 
     Model* m_cameraModel;
 //    Shader* m_shaderCamera;
@@ -69,9 +69,9 @@ private:
 
 public:
 //    QStandardItemModel* itemModel();
-//    std::vector<QOpenGLWidget_3dView *> views() const;
+//    std::vector<MainWindow3dView *> views() const;
 //    std::vector<const CameraWorld &> & cameras() const;
-    void setViews(std::list<const QOpenGLWidget_3dView *> *views);
+    void setViews(std::list<const MainWindow3dView *> *views);
     const QStandardItemModel & itemModel() const;
     QStandardItemModel * fileOpennedModel();
 };

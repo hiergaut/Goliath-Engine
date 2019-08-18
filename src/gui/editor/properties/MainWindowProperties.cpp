@@ -30,6 +30,16 @@ void MainWindowProperties::setContext(Properties::e_context context)
 
 }
 
+void MainWindowProperties::setFocusPolicy(Qt::FocusPolicy policy)
+{
+    QWidget::setFocusPolicy(policy);
+}
+
+QWidget *MainWindowProperties::widget()
+{
+    return this;
+}
+
 void MainWindowProperties::on_actionMaterial_triggered()
 {
     setContext(Properties::e_context::MATERIAL);

@@ -98,6 +98,17 @@ double FormTimeline::animationTime()
     return m_animationTime;
 }
 
+void FormTimeline::setFocusPolicy(Qt::FocusPolicy policy)
+{
+    QWidget::setFocusPolicy(policy);
+
+}
+
+QWidget *FormTimeline::widget()
+{
+    return this;
+}
+
 const Animation* FormTimeline::animation()
 {
     return m_animation;

@@ -1,4 +1,6 @@
-#include "QOpenGLWidget_3dView.h"
+#include "MainWindow3dView.h"
+#include "ui_MainWindow3dView.h"
+
 
 #include <QTime>
 #include <QtMath>
@@ -21,17 +23,35 @@
 //#include <opengl/OpenglContext.h>
 //#include <opengl/grid.h>
 
-std::list<const QOpenGLWidget_3dView *> * QOpenGLWidget_3dView::m_views;
+std::list<const MainWindow3dView *> * MainWindow3dView::m_views;
 
 namespace {
 float l_near = 0.1f;
 float l_far = 100000.0f;
 }
 
-QOpenGLWidget_3dView::QOpenGLWidget_3dView(QWidget* parent)
-    : QWidget(parent),
+//MainWindow3dView::MainWindow3dView(QWidget *parent) :
+//    QMainWindow(parent),
+//    ui(new Ui::MainWindow3dView)
+//{
+//    ui->setupUi(this);
+//}
 
-    m_camera(glm::vec3(200, -200, 200), glm::vec3(0, 0, 0))
+//MainWindow3dView::~MainWindow3dView()
+//{
+//    delete ui;
+//}
+
+
+MainWindow3dView::MainWindow3dView(QWidget* parent)
+//    : QWidget(parent),
+    : QMainWindow(parent)
+    ,ui(new Ui::MainWindow3dView)
+//{
+//    ui->setupUi(this);
+//}
+
+    ,m_camera(glm::vec3(200, -200, 200), glm::vec3(0, 0, 0))
 //    , m_scene { scene }
 //    , m_vbo(QOpenGLBuffer::VertexBuffer)
 //    , shaderCube(":/shader/first.vsh", ":/shader/first.fsh")
@@ -42,6 +62,7 @@ QOpenGLWidget_3dView::QOpenGLWidget_3dView(QWidget* parent)
 //    , m_ebo(QOpenGLBuffer::IndexBuffer)
 {
 
+    ui->setupUi(this);
     //    g_openglContext.
     //    fun = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
     //    fun = g_openglContext.m_fun;
@@ -58,9 +79,27 @@ QOpenGLWidget_3dView::QOpenGLWidget_3dView(QWidget* parent)
 //    qDebug() << "[3dView]" << this << "created";
 //    g_env.m_views.push_back(this);
 //    qDebug() << "[3dview] add " << this << "to " << g_env.m_views;
+//    QMenu shading("Shading");
+//    m_views->emplace_back(shading);
+
+
+//    QMenu shading("Shading");
+//    m_menus.emplace_back("Shading");
+//    m_menus.emplace_back(std::move(shading));
+//    m_menus.push_back(std::move(shading));
+//    m_menus.emplace_back("Shading");
+
+    m_menus.push_back(ui->menuShading);
+
+    ui->menubar->hide();
+//    for (QMenu & menu : m_menus) {
+//        qDebug() << menu.title();
+//    }
+//    m_menus.push_back(shading);
+
 }
 
-QOpenGLWidget_3dView::~QOpenGLWidget_3dView()
+MainWindow3dView::~MainWindow3dView()
 {
 //    makeCurrent();
 //    qDebug() << "[3dView]" << this << "deleted";
@@ -75,13 +114,13 @@ QOpenGLWidget_3dView::~QOpenGLWidget_3dView()
     //    doneCurrent();
 }
 
-void QOpenGLWidget_3dView::load(std::ifstream &file)
+void MainWindow3dView::load(std::ifstream &file)
 {
     m_camera.load(file);
 
 }
 
-void QOpenGLWidget_3dView::save(std::ofstream &file)
+void MainWindow3dView::save(std::ofstream &file)
 {
     m_camera.save(file);
 
@@ -89,7 +128,7 @@ void QOpenGLWidget_3dView::save(std::ofstream &file)
 
 
 
-void QOpenGLWidget_3dView::keyPressEvent(QKeyEvent* event)
+void MainWindow3dView::keyPressEvent(QKeyEvent* event)
 {
 //            qDebug() << this << ": keyPressEvent" << event;
 
@@ -139,7 +178,7 @@ void QOpenGLWidget_3dView::keyPressEvent(QKeyEvent* event)
     }
 }
 
-void QOpenGLWidget_3dView::keyReleaseEvent(QKeyEvent* event)
+void MainWindow3dView::keyReleaseEvent(QKeyEvent* event)
 {
     switch (event->key()) {
     case Qt::Key_Shift:
@@ -161,7 +200,7 @@ void QOpenGLWidget_3dView::keyReleaseEvent(QKeyEvent* event)
     }
 }
 
-void QOpenGLWidget_3dView::mousePressEvent(QMouseEvent* event)
+void MainWindow3dView::mousePressEvent(QMouseEvent* event)
 {
 //    qDebug() << "[3dView]" << QWidget::mapToGlobal(pos());
     //    setMouseTracking(true);
@@ -176,14 +215,14 @@ void QOpenGLWidget_3dView::mousePressEvent(QMouseEvent* event)
     event->ignore(); // splitter node
 }
 
-void QOpenGLWidget_3dView::mouseReleaseEvent(QMouseEvent* event)
+void MainWindow3dView::mouseReleaseEvent(QMouseEvent* event)
 {
     if (event->button() == Qt::MiddleButton) {
         m_middleClicked = false;
     }
 }
 
-void QOpenGLWidget_3dView::mouseMoveEvent(QMouseEvent* event)
+void MainWindow3dView::mouseMoveEvent(QMouseEvent* event)
 {
     if (m_middleClicked) {
         float dx = event->x() - lastPos.x();
@@ -203,7 +242,7 @@ void QOpenGLWidget_3dView::mouseMoveEvent(QMouseEvent* event)
     }
 }
 
-void QOpenGLWidget_3dView::wheelEvent(QWheelEvent* event)
+void MainWindow3dView::wheelEvent(QWheelEvent* event)
 {
     float dy = event->delta();
 
@@ -215,7 +254,7 @@ void QOpenGLWidget_3dView::wheelEvent(QWheelEvent* event)
     //    updateProjection();
 }
 
-void QOpenGLWidget_3dView::focusInEvent(QFocusEvent* event)
+void MainWindow3dView::focusInEvent(QFocusEvent* event)
 {
     m_shiftPressed = false;
 //    qDebug() << this << ": focusInEvent";
@@ -230,40 +269,60 @@ void QOpenGLWidget_3dView::focusInEvent(QFocusEvent* event)
     //    qDebug("Have %d buffers and %d samples", bufs, samples);
 }
 
-void QOpenGLWidget_3dView::resizeEvent(QResizeEvent *event)
+void MainWindow3dView::resizeEvent(QResizeEvent *event)
 {
     m_projectionMatrix = glm::perspective(glm::radians(m_camera.getFov()), (float)width() / height(), l_near, l_far);
 
 }
 
-const CameraWorld * QOpenGLWidget_3dView::camera() const
+void MainWindow3dView::setFocusPolicy(Qt::FocusPolicy policy)
+{
+    QWidget::setFocusPolicy(policy);
+}
+
+QWidget *MainWindow3dView::widget()
+{
+    return this;
+}
+
+//std::list<QMenu> MainWindow3dView::menus() const
+//{
+//    return m_menus;
+//}
+
+const CameraWorld * MainWindow3dView::camera() const
 {
     return &m_camera;
 }
 
-//void QOpenGLWidget_3dView::setViews(std::list<const QOpenGLWidget_3dView *> *views)
+//void MainWindow3dView::setViews(std::list<const MainWindow3dView *> *views)
 //{
 //    m_views = views;
 //}
 
-glm::mat4 QOpenGLWidget_3dView::viewMatrix() const
+glm::mat4 MainWindow3dView::viewMatrix() const
 {
     //    return m_viewMatrix;
     return m_camera.getViewMatrix();
 }
 
-glm::mat4 QOpenGLWidget_3dView::projectionViewMatrix() const
+glm::mat4 MainWindow3dView::projectionViewMatrix() const
 {
     return m_projectionMatrix * m_camera.getViewMatrix();
 
 }
 
-void QOpenGLWidget_3dView::setViews(std::list<const QOpenGLWidget_3dView *> *views)
+void MainWindow3dView::setViews(std::list<const MainWindow3dView *> *views)
 {
     m_views = views;
 }
 
-glm::mat4 QOpenGLWidget_3dView::projectionMatrix() const
+glm::mat4 MainWindow3dView::projectionMatrix() const
 {
     return m_projectionMatrix;
+}
+
+void MainWindow3dView::on_actionWireFrame_triggered()
+{
+   qDebug() << "wireFrame";
 }

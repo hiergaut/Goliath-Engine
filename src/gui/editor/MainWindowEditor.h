@@ -2,6 +2,7 @@
 #define MAINWINDOWEDITOR_H
 
 #include <QMainWindow>
+#include "TemplateMenuBar.h"
 
 namespace Editor {
 enum id {
@@ -52,10 +53,16 @@ private:
     Editor::id m_id = Editor::id::ZERO;
     Ui::MainWindowEditor* ui;
 
-    QWidget * m_centralWidget = nullptr;
+//    QWidget * m_centralWidget = nullptr;
+    TemplateMenuBar * m_centralWidget = nullptr;
+
+//    QMenuBar * m_defaultMenuBar;
+
+//    QMenuBar * m_menuBar;
+    std::list<QMenu> m_defaultMenus;
 
 public:
-    QWidget * centralWidget();
+//    QWidget * centralWidget();
 };
 
 #endif // MAINWINDOWEDITOR_H

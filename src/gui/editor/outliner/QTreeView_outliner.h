@@ -4,8 +4,9 @@
 #include <QWidget>
 #include <QTreeView>
 #include <QStandardItemModel>
+#include "../TemplateMenuBar.h"
 
-class QTreeView_outliner : public QTreeView
+class QTreeView_outliner : public QTreeView, public  TemplateMenuBar
 {
     Q_OBJECT
 public:
@@ -16,6 +17,9 @@ public:
 
 protected:
     void mousePressEvent(QMouseEvent *event) override;
+
+    void setFocusPolicy(Qt::FocusPolicy policy) override;
+    QWidget *widget() override;
 
 signals:
 
