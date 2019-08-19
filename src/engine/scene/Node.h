@@ -21,7 +21,11 @@ public:
     void buildItemModel(QStandardItem * parent) const;
 //    Node(const Node & node);
 //    ~Node();
-    void draw(const Shader & shader, glm::mat4 model, const Animation *animation = nullptr, double animationTime = 0.0) const;
+//    void prepareHierarchy(glm::mat4 & model) const;
+//    void prepareHierarchy(glm::mat4 & model, const Animation & animation, double animationTime) const;
+    void prepareHierarchy(glm::mat4 model, const Animation *animation = nullptr, double animationTime = 0.0) const;
+//    void drawBones(const Shader & shader, glm::mat4 model, const Animation *animation = nullptr, double animationTime = 0.0) const;
+    void draw(const BoneGeometry &boneGeometry) const;
 
     uint recurseNbBones() const;
     uint recurseNbNodes() const;
@@ -31,7 +35,7 @@ public:
 
 //public:
 //    std::string name() const;
-//    int numChildren() const;
+    //    int numChildren() const;
 private:
     const Meshes & m_meshes;
     const Bone * m_bone;
@@ -47,7 +51,7 @@ private:
 
     std::vector<Node> m_children;
 
-    BoneGeometry m_boneGeometry;
+//    BoneGeometry m_boneGeometry;
 
 //    UvSphereGeometry m_sphere;
 //    Mesh * mMesh;
@@ -56,6 +60,7 @@ private:
     const std::string m_name;
 //    uint m_numChildren = 0;
 //    uint m_numMeshes = 0;
+    mutable glm::mat4 m_model;
 
 
 };

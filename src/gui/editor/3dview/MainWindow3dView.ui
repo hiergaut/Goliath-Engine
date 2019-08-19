@@ -25,18 +25,121 @@
    </property>
    <widget class="QMenu" name="menuShading">
     <property name="title">
+     <string/>
+    </property>
+    <addaction name="actionSolid"/>
+    <addaction name="actionLook_dev"/>
+    <addaction name="actionRendered"/>
+    <addaction name="actionNormal"/>
+    <addaction name="actionDepth"/>
+    <addaction name="separator"/>
+    <addaction name="actionWireFrame"/>
+    <addaction name="actionX_Rays"/>
+   </widget>
+   <widget class="QMenu" name="menuInteraction_Mode">
+    <property name="title">
+     <string>Interaction Mode</string>
+    </property>
+    <addaction name="actionObject_Mode"/>
+    <addaction name="actionEdit_Mode"/>
+    <addaction name="actionPose_Mode"/>
+   </widget>
+   <widget class="QMenu" name="menuShading_2">
+    <property name="title">
      <string>Shading</string>
     </property>
-    <addaction name="actionWireFrame"/>
    </widget>
+   <widget class="QMenu" name="menuWireFrame">
+    <property name="title">
+     <string>WireFrame</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menuX_Ray">
+    <property name="title">
+     <string>X-Ray</string>
+    </property>
+   </widget>
+   <addaction name="menuInteraction_Mode"/>
+   <addaction name="menuX_Ray"/>
+   <addaction name="menuWireFrame"/>
    <addaction name="menuShading"/>
+   <addaction name="menuShading_2"/>
   </widget>
   <action name="actionWireFrame">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../../../resources/resources.qrc">
+     <normaloff>:/icons/wireframe.png</normaloff>:/icons/wireframe.png</iconset>
+   </property>
    <property name="text">
     <string>Wireframe</string>
    </property>
   </action>
+  <action name="actionSolid">
+   <property name="icon">
+    <iconset resource="../../../../resources/resources.qrc">
+     <normaloff>:/icons/solid.png</normaloff>:/icons/solid.png</iconset>
+   </property>
+   <property name="text">
+    <string>Solid</string>
+   </property>
+  </action>
+  <action name="actionLook_dev">
+   <property name="icon">
+    <iconset resource="../../../../resources/resources.qrc">
+     <normaloff>:/icons/lookDev.png</normaloff>:/icons/lookDev.png</iconset>
+   </property>
+   <property name="text">
+    <string>Look Dev</string>
+   </property>
+  </action>
+  <action name="actionRendered">
+   <property name="icon">
+    <iconset resource="../../../../resources/resources.qrc">
+     <normaloff>:/icons/rendered.png</normaloff>:/icons/rendered.png</iconset>
+   </property>
+   <property name="text">
+    <string>Rendered</string>
+   </property>
+  </action>
+  <action name="actionObject_Mode">
+   <property name="text">
+    <string>Object Mode</string>
+   </property>
+  </action>
+  <action name="actionEdit_Mode">
+   <property name="text">
+    <string>Edit Mode</string>
+   </property>
+  </action>
+  <action name="actionPose_Mode">
+   <property name="text">
+    <string>Pose Mode</string>
+   </property>
+  </action>
+  <action name="actionX_Rays">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>X-Ray</string>
+   </property>
+  </action>
+  <action name="actionNormal">
+   <property name="text">
+    <string>Normal</string>
+   </property>
+  </action>
+  <action name="actionDepth">
+   <property name="text">
+    <string>Depth</string>
+   </property>
+  </action>
  </widget>
- <resources/>
+ <resources>
+  <include location="../../../../resources/resources.qrc"/>
+ </resources>
  <connections/>
 </ui>

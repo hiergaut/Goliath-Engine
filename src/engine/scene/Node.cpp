@@ -265,10 +265,10 @@ glm::vec3 interpolatedScale(const std::vector<std::pair<double, glm::vec3>>& sca
     //            return glm::mat4_cast(quatInterpolate);
 }
 
-void Node::draw(const Shader& shader, glm::mat4 model, const Animation* animation, double animationTime) const
+void Node::prepareHierarchy(glm::mat4 model, const Animation * animation, double animationTime) const
 {
     if (animation == nullptr) {
-        model = model * m_transformation;
+        m_model = model * m_transformation;
 
     } else {
         const auto& it = m_nodeAnims.find(animation->m_name);
@@ -303,55 +303,56 @@ void Node::draw(const Shader& shader, glm::mat4 model, const Animation* animatio
 
             //        glm::mat4 translation(1.0f);
             //        model = model * translation * rotation * scale;
-            model = model * transformation;
+            m_model = model * transformation;
         } else {
-            model = model * m_transformation;
+            m_model = model * m_transformation;
         }
     }
 
     if (m_bone != nullptr) {
         //        m_bone->m_transform = model * m_bone->m_offsetMatrix;
-        m_bone->m_transform = model * m_bone->m_offsetMatrix;
+        m_bone->m_transform = m_model * m_bone->m_offsetMatrix;
         //        m_bone->m_transform = m_bone->m_offsetMatrix;
     }
 
     for (uint iMesh : m_iMeshes) {
         const Mesh& mesh = m_meshes[iMesh];
 
-        mesh.m_transform = model;
+        mesh.m_transform = m_model;
     }
-    //        shader.setMat4("model", model);
-    //    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    //    for (uint i = 0; i < m_iMeshes.size(); ++i) {
-    //        const Mesh& mesh = m_meshes[m_iMeshes[i]];
 
-    //        mesh.draw(shader);
-    //    }
+//    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    for (const Node& node : m_children) {
+        node.prepareHierarchy(m_model, animation, animationTime);
+    }
 
-    //    if (m_bone != nullptr) {
 
-    //    }
+}
 
-    //    m_boneGeometry.draw(model, shader, glm::vec3(0, 0, 0), glm::vec3(0, 0, 0.1));
-
-    //    m_sphere.draw();
-    //    shader.setBool("isSkeleton", false);
-
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+void Node::draw(const BoneGeometry &boneGeometry) const
+{
     for (const Node& node : m_children) {
         //        node.draw(shader, m_transformation * model);
         glm::vec3 childPos = glm::vec3(node.m_transformation[3]);
 
         if (m_bone != nullptr) {
-            m_boneGeometry.draw(model, shader, glm::vec3(0), childPos);
+            boneGeometry.draw(m_model, glm::vec3(0), childPos);
         } else {
             //            m_boneGeometry.draw(model, shader, glm::vec3(0), childPos);
-            m_boneGeometry.drawLine(model, shader, glm::vec3(0), childPos);
+            boneGeometry.drawLine(m_model, glm::vec3(0), childPos);
         }
 
-        node.draw(shader, model, animation, animationTime);
+//        node.draw(shader, model, animation, animationTime);
+//        node.prepareHierarchy(m_model, animation, animationTime);
+        node.draw(boneGeometry);
     }
+
 }
+
+
+//void Node::draw(const Shader& shader, glm::mat4 model, const Animation* animation, double animationTime) const
+//{
+//}
 
 uint Node::recurseNbBones() const
 {

@@ -39,6 +39,7 @@
 #include "animation/Animation.h"
 #include <memory>
 #include <opengl/geometry/boneGeometry.h>
+#include <gui/editor/3dview/MainWindow3dView.h>
 
 class Model {
 public:
@@ -55,7 +56,8 @@ public:
     //    Model(Model&& model) = default;
     //    Model(Model & model);
     ~Model();
-    void Draw(glm::mat4 modelMatrix, const Shader& shader, ulong frameTime = 0) const;
+    void prepareHierarchy(ulong frameTime) const;
+    void Draw(const glm::mat4 &modelMatrix, const MainWindow3dView & view) const;
     void buildItemModel(QStandardItem* parent) const;
 
 private:
@@ -82,7 +84,7 @@ private:
     Animations m_animations;
     Meshes m_meshes;
 
-//    BoneGeometry m_boneGeometry;
+    BoneGeometry m_boneGeometry;
 
     //    const Node * m_rootNode = nullptr;
     std::unique_ptr<Node> m_rootNode;

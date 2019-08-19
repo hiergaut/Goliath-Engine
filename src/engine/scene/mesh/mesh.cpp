@@ -217,7 +217,7 @@ void Mesh::setupMesh()
 
 void Mesh::draw(const Shader& shader) const
 {
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+//    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 //    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     shader.setMat4("model", m_transform);
     //    shader.setMat4("model", glm::mat4(1));

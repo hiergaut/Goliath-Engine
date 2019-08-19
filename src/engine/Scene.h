@@ -35,7 +35,8 @@ public:
     ////        return iterator(*this);
     //        return m_models.begin();
     //    }
-    void draw(glm::mat4 projectionMatrix, glm::mat4 viewMatrix, ulong frameTime);
+    void prepareHierarchy(ulong frameTime);
+    void draw(const MainWindow3dView &view);
     void addModel(std::string file);
     void delModel(std::string file);
 
@@ -55,7 +56,7 @@ private:
 //    std::list<std::pair<std::string, Model>> m_models;
 //    std::map<std::string, Model> m_models;
     std::vector<Model> m_models;
-    Shader* m_shader;
+//    Shader* m_shader;
 
     std::list<const MainWindow3dView *> * m_views;
 

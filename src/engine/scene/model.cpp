@@ -139,10 +139,8 @@ void Model::assimpLoadModel(std::string const& path)
     //    std::cout << "assimpProcessNode root node " << m_rootNode <<  " " <<m_rootNode->m_children.size() << std::endl;
 }
 
-// draws the model, and thus all its meshes
-void Model::Draw(glm::mat4 modelMatrix, const Shader& shader, ulong frameTime) const
+void Model::prepareHierarchy(ulong frameTime) const
 {
-
     //    shader.use();
 
     //    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -169,7 +167,7 @@ void Model::Draw(glm::mat4 modelMatrix, const Shader& shader, ulong frameTime) c
             double timeInTicks = (double)frameTime / 1000.0 * ticksPerSecond;
             double animationTime = fmod(timeInTicks, animation->m_duration);
 
-//            FormTimeline::animationTime = animationTime;
+            //            FormTimeline::animationTime = animationTime;
             FormTimeline::setAnimationTime(animationTime);
         }
         //        else {
@@ -179,24 +177,45 @@ void Model::Draw(glm::mat4 modelMatrix, const Shader& shader, ulong frameTime) c
 
         double animationTime = FormTimeline::animationTime();
 
-        m_rootNode->draw(shader, modelMatrix, animation, animationTime);
+        //        m_rootNode->draw(shader, modelMatrix, animation, animationTime);
+        m_rootNode->prepareHierarchy(glm::mat4(1.0f), animation, animationTime);
+
         //        shader.setMat4("model", glm::mat4(1));
         //        shader.setBool("isSkeleton", true);
     } else {
-        m_rootNode->draw(shader, modelMatrix);
+        m_rootNode->prepareHierarchy(glm::mat4(1.0f));
+        //        m_rootNode->draw(shader, modelMatrix);
+
         //        shader.setBool("isSkeleton", false);
     }
+}
 
+void Model::Draw(const glm::mat4 &modelMatrix, const MainWindow3dView &view) const
+{
     //    model = glm::mat4(1.0f);
     //    model = glm::scale(model, glm::vec3(0.01));
     //    //    model = glm::rotate(model, 1.57f, glm::vec3(1, 0, 0));
     //    //    m_boneGeometry.draw(shader, glm::vec3(0, 0, 0), glm::vec3(10, 10, 10));
     //    //    shader.setBool("isSkeleton", true);
+
+    const Shader & shader = view.shader();
+    shader.use();
     for (const Mesh& mesh : m_meshes) {
         //        shader.setMat4("model", modelMatrix);
         //        const Mesh& mesh = m_meshes[i];
         mesh.draw(shader);
     }
+
+    //    m_rootNode.draw(m_boneGeometry);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+//    glDepthFunc(GL_ALWAYS);
+//    glClear()
+    glClear(GL_DEPTH_BUFFER_BIT);
+
+//    m_boneGeometry.setVP(viewMatrix, projectionMatrix);
+    m_boneGeometry.updateShader(view);
+    m_rootNode->draw(m_boneGeometry);
+//    glDepthFunc(GL_LESS);
 
     //    shader.use();
 }

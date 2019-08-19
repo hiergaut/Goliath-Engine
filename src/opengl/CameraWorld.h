@@ -27,6 +27,8 @@ public:
     void load(std::ifstream & file);
     void save(std::ofstream & file);
 
+    glm::vec3 getPosition() const;
+
 private:
 
 private:

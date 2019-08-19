@@ -35,7 +35,7 @@ public:
 
 //    const Scene * scene() const;
 
-    void clear();
+//    void clear();
 
     void setStatusBar(QStatusBar *statusBar);
 
@@ -64,7 +64,7 @@ private:
 //    Grid * m_grid;
     Axis * m_axis;
 
-    TextRendering m_textRender;
+//    TextRendering m_textRender;
 
 //    Shader * m_shader;
     Scene m_scene;

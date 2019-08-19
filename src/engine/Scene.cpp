@@ -49,24 +49,16 @@ void Scene::initialize()
 //    std::cout << "bitch" << std::endl;
 
 //    m_shaderCamera = new Shader("camera.vsh", "camera.fsh");
-    m_shader = new Shader("model_loading.vsh", "model_loading.fsh");
+//    m_shader = new Shader("model_loading.vsh", "model_loading.fsh");
 
     m_grid = new Grid;
     initialized = true;
+    MainWindow3dView::glInitialize();
+
 }
 
-void Scene::draw(glm::mat4 projectionMatrix, glm::mat4 viewMatrix, ulong frameTime)
+void Scene::prepareHierarchy(ulong frameTime)
 {
-    Q_ASSERT(initialized);
-
-    glm::mat4 modelMatrix(1.0);
-    m_grid->draw(modelMatrix, viewMatrix, projectionMatrix);
-
-    m_shader->use();
-//    m_shader->setMat4("model", modelMatrix);
-    m_shader->setMat4("view", viewMatrix);
-    m_shader->setMat4("projection", projectionMatrix);
-    //        qDebug() << "[3dView] " << this << "nb model = " << g_env.m_scene.size();
     for (const Model& model : m_models) {
 //	    glm::mat4 model(1.0);
 //        glm::mat4 modelMatrix(1.0);
@@ -74,7 +66,36 @@ void Scene::draw(glm::mat4 projectionMatrix, glm::mat4 viewMatrix, ulong frameTi
 //        modelMatrix = glm::rotate(modelMatrix, 1.57f, glm::vec3(1, 0, 0));
 //        m_shader->setMat4("model", modelMatrix);
 
-        model.Draw(modelMatrix, *m_shader, frameTime);
+//        model.Draw(modelMatrix, shader, frameTime);
+        model.prepareHierarchy(frameTime);
+    }
+}
+
+void Scene::draw(const MainWindow3dView & view)
+{
+    Q_ASSERT(initialized);
+    glm::mat4 viewMatrix = view.viewMatrix();
+    glm::mat4 projectionMatrix = view.projectionMatrix();
+
+    glm::mat4 modelMatrix(1.0);
+    m_grid->draw(modelMatrix, viewMatrix, projectionMatrix);
+
+//    const Shader & shader = view.shader();
+
+//    shader.use();
+//    m_shader->setMat4("model", modelMatrix);
+//    shader.setMat4("view", viewMatrix);
+//    shader.setMat4("projection", projectionMatrix);
+    //        qDebug() << "[3dView] " << this << "nb model = " << g_env.m_scene.size();
+
+    for (const Model& model : m_models) {
+//	    glm::mat4 model(1.0);
+//        glm::mat4 modelMatrix(1.0);
+//        modelMatrix = glm::scale(modelMatrix, glm::vec3(0.01));
+//        modelMatrix = glm::rotate(modelMatrix, 1.57f, glm::vec3(1, 0, 0));
+//        m_shader->setMat4("model", modelMatrix);
+
+        model.Draw(modelMatrix, view);
     }
 
 //    m_shaderCamera->use();
@@ -82,8 +103,8 @@ void Scene::draw(glm::mat4 projectionMatrix, glm::mat4 viewMatrix, ulong frameTi
 //    m_shaderCamera->setMat4("view", viewMatrix);
 //    m_shaderCamera->setMat4("projection", projectionMatrix);
 
-    for (const MainWindow3dView* view : *m_views) {
-        const CameraWorld* camera = view->camera();
+    for (const MainWindow3dView* otherViews : *m_views) {
+        const CameraWorld* camera = otherViews->camera();
 
         //        for (const CameraWorld * camera : m_cameras) {
         glm::mat4 modelMatrix;
@@ -91,11 +112,11 @@ void Scene::draw(glm::mat4 projectionMatrix, glm::mat4 viewMatrix, ulong frameTi
         //        model = glm::inverse(view->viewMatrix());
         modelMatrix = glm::inverse(camera->getViewMatrix());
 
-//        m_shader->setMat4("view", viewMatrix * modelMatrix);
+//        m_shader->setMat4("otherViews", viewMatrix * modelMatrix);
 //        m_shader->setMat4("model", modelMatrix);
 
 //        m_shader->setBool("isSkeleton", false);
-        m_cameraModel->Draw(modelMatrix, *m_shader);
+        m_cameraModel->Draw(modelMatrix, view);
     }
 }
 

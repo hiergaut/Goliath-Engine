@@ -35,15 +35,19 @@ BoneGeometry::BoneGeometry()
     m_indices.emplace_back(3, 2, 1);
     m_indices.emplace_back(2, 5, 1);
 
-//    m_indicesLine.emplace_back(0, 1);
+    //    m_indicesLine.emplace_back(0, 1);
     m_indices.emplace_back(0, 1, 0);
-
 
     //        assert(m_indices.size() == 8);
 
     setup();
 
-//        m_shader = new Shader("bone.vsh", "bone.fsh");
+    m_shader = new Shader("bone.vsh", "bone.fsh");
+    m_shader->use();
+    m_shader->setVec3("material.ambient", 0.5f, 0.5f, 0.5f);
+//    m_shader->setVec3("material.diffuse", 0.3f, 0.3f, 0.3f);
+    m_shader->setVec3("material.specular", 1.0f, 1.0f, 0.5f);
+    m_shader->setFloat("material.shininess", 1.0f);
 }
 
 void BoneGeometry::setup()
@@ -69,27 +73,26 @@ void BoneGeometry::setup()
     m_fun->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ebo);
     m_fun->glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indices.size() * sizeof(glm::uvec3), &m_indices[0], GL_STATIC_DRAW);
 
+    //    m_fun->glGenVertexArrays(1, &m_vao2);
+    //    m_fun->glBindVertexArray(m_vao2);
+    //    m_fun->glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+    //    m_fun->glBindBuffer(GL_ARRAY_BUFFER, m_nbo);
 
-//    m_fun->glGenVertexArrays(1, &m_vao2);
-//    m_fun->glBindVertexArray(m_vao2);
-//    m_fun->glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-//    m_fun->glBindBuffer(GL_ARRAY_BUFFER, m_nbo);
-
-//    m_fun->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ebo2);
-//    m_fun->glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indicesLine.size() * sizeof(glm::uvec2), &m_indicesLine[0], GL_STATIC_DRAW);
+    //    m_fun->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ebo2);
+    //    m_fun->glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indicesLine.size() * sizeof(glm::uvec2), &m_indicesLine[0], GL_STATIC_DRAW);
     //    m_fun->glEnableVertexAttribArray(1);
     //    m_fun->glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
 
     m_fun->glBindVertexArray(0);
 }
 
-void BoneGeometry::draw(glm::mat4 model, const Shader& shader, glm::vec3 source, glm::vec3 destination) const
+void BoneGeometry::draw(glm::mat4 model, glm::vec3 source, glm::vec3 destination) const
 {
-    shader.setBool("isSkeleton", false);
+    //    m_shader->use();
+//    m_shader->setBool("isSkeleton", false);
     //    shader.use();
     //    m_shader->use();
-//    shader.use();
-    shader.use();
+    //    shader.use();
 
     glm::mat4 identity(1.0);
     glm::vec3 vDir = destination - source;
@@ -97,10 +100,10 @@ void BoneGeometry::draw(glm::mat4 model, const Shader& shader, glm::vec3 source,
 
     float dirLength = glm::length(vDir);
     glm::mat4 m(1);
-        m = glm::translate(m, source);
+    m = glm::translate(m, source);
 
     glm::vec3 vRot = glm::cross(vX, vDir);
-//    std::cout << "vRot length : " << vRot.length() << std::endl;
+    //    std::cout << "vRot length : " << vRot.length() << std::endl;
     if (glm::length(vRot) > 0.01) {
         //        vRot = glm::vec3(0, -1, 0);
         //    }
@@ -113,7 +116,7 @@ void BoneGeometry::draw(glm::mat4 model, const Shader& shader, glm::vec3 source,
 
     m = glm::scale(m, glm::vec3(dirLength));
 
-    shader.setMat4("model", model * m);
+    m_shader->setMat4("model", model * m);
 
     m_fun->glBindVertexArray(m_vao);
     //    m_fun->glDrawArrays(GL_LINES, 0, m_vertices.size());
@@ -125,13 +128,13 @@ void BoneGeometry::draw(glm::mat4 model, const Shader& shader, glm::vec3 source,
     m_sphere.draw();
 
     //    shader.setMat4("model", m * glm::translate(glm::mat4(1), glm::vec3(1, 0, 0)));
-    shader.setMat4("model", model * glm::translate(m, glm::vec3(1, 0, 0)));
+    m_shader->setMat4("model", model * glm::translate(m, glm::vec3(1, 0, 0)));
     m_sphere.draw();
 }
 
-void BoneGeometry::drawLine(glm::mat4 model, const Shader &shader, glm::vec3 source, glm::vec3 destination) const
+void BoneGeometry::drawLine(glm::mat4 model, glm::vec3 source, glm::vec3 destination) const
 {
-    shader.setBool("isSkeleton", false);
+//    m_shader->setBool("isSkeleton", false);
 
     glm::mat4 identity(1.0);
     glm::vec3 vDir = destination - source;
@@ -139,11 +142,11 @@ void BoneGeometry::drawLine(glm::mat4 model, const Shader &shader, glm::vec3 sou
 
     float dirLength = glm::length(vDir);
     glm::mat4 m(1);
-        m = glm::translate(m, source);
+    m = glm::translate(m, source);
 
-//     m = glm::lookAt(source, destination, glm::vec3(0, 0, 1)) * m;
+    //     m = glm::lookAt(source, destination, glm::vec3(0, 0, 1)) * m;
     glm::vec3 vRot = glm::cross(vX, vDir);
-//    std::cout << "vRot length : " << vRot.length() << std::endl;
+    //    std::cout << "vRot length : " << vRot.length() << std::endl;
     if (glm::length(vRot) > 0.01) {
         //        vRot = glm::vec3(0, -1, 0);
         //    }
@@ -156,15 +159,31 @@ void BoneGeometry::drawLine(glm::mat4 model, const Shader &shader, glm::vec3 sou
 
     m = glm::scale(m, glm::vec3(dirLength));
 
-    shader.setMat4("model", model * m);
+    m_shader->setMat4("model", model * m);
 
     m_fun->glBindVertexArray(m_vao);
     m_fun->glDrawElements(GL_LINES, 100, GL_UNSIGNED_INT, (void*)(8 * sizeof(glm::vec3)));
     m_fun->glBindVertexArray(0);
 
-//    m_sphere.draw();
+    //    m_sphere.draw();
 
-//        shader.setMat4("model", m * glm::translate(glm::mat4(1), glm::vec3(1, 0, 0)));
-//    shader.setMat4("model", model * glm::translate(m, glm::vec3(1, 0, 0)));
-//    m_sphere.draw();
+    //        shader.setMat4("model", m * glm::translate(glm::mat4(1), glm::vec3(1, 0, 0)));
+    //    shader.setMat4("model", model * glm::translate(m, glm::vec3(1, 0, 0)));
+    //    m_sphere.draw();
+}
+
+//void BoneGeometry::setVP(const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix) const
+//{
+//    m_shader->use();
+//    m_shader->setMat4("view", viewMatrix);
+//    m_shader->setMat4("projection", projectionMatrix);
+//}
+
+void BoneGeometry::updateShader(const MainWindow3dView &view) const
+{
+    m_shader->use();
+    m_shader->setMat4("view", view.viewMatrix());
+    m_shader->setMat4("projection", view.projectionMatrix());
+
+    m_shader->setVec3("viewPos", view.camera()->getPosition());
 }

@@ -89,3 +89,8 @@ void CameraWorld::save(std::ofstream& file)
     //        size = sizeof(m_position);
     file.write(reinterpret_cast<const char*>(&data), sizeof(data));
 }
+
+glm::vec3 CameraWorld::getPosition() const
+{
+    return m_position;
+}
