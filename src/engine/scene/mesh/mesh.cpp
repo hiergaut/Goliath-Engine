@@ -97,6 +97,8 @@ Mesh::Mesh(const aiMesh* ai_mesh, const Materials& materials, const Textures& te
     }
     Q_ASSERT(m_vertices.size() == numVertices);
 
+    m_transform = glm::mat4(1.0f);
+
     setupMesh();
     //    return std::move(mesh);
     //    std::cout << "\033[32m";
@@ -219,7 +221,7 @@ void Mesh::draw(const Shader& shader) const
 {
 //    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 //    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    shader.setMat4("model", m_transform);
+//    shader.setMat4("model", m_transform);
     //    shader.setMat4("model", glm::mat4(1));
 
     const Material& material = m_materials[m_iMaterial];

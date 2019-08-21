@@ -7,34 +7,38 @@
 #include <fstream>
 #include <QDebug>
 #include <iostream>
+#include "Camera.h"
 
-namespace  {
-    float accuracyRotate = 0.005f;
-    float accuracyMove = 0.001f;
-    float accuracySlide = 0.05f;
 
-}
-
-class CameraWorld {
+class CameraWorld : public Camera {
 public:
     CameraWorld(glm::vec3 position, glm::vec3 target);
-    glm::mat4 getViewMatrix() const;
+
     void processMouseMovement(float xoffset, float yoffset);
     void processMouseScroll(float yoffset);
     void processSliding(float dx, float dy);
-    float getFov() const;
+//    float getFov() const;
 
-    void load(std::ifstream & file);
-    void save(std::ofstream & file);
 
-    glm::vec3 getPosition() const;
+
+protected:
+    void load(std::ifstream & file) override;
+    void save(std::ofstream & file) override;
+    glm::mat4 viewMatrix() const override;
+
+
+    void mousePressEvent(QMouseEvent *event) override;
+//    void mouseReleaseEvent(QMouseEvent *event);
+
+    void mouseMoveEvent(QMouseEvent *event) override;
+    void wheelEvent(QWheelEvent *event) override;
 
 private:
-
-private:
-    glm::vec3 m_position;
     glm::vec3 m_target;
-    float m_fov = 50.0f;
+
+    QPoint lastPos;
+
+public:
 };
 
 #endif // CAMERAWORLD_H

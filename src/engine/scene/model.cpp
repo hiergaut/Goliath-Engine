@@ -150,12 +150,14 @@ void Model::prepareHierarchy(ulong frameTime) const
     ///
     //    bool isAnimated = false;
     const Animation* animation = nullptr;
-    const Animation& currentAnimation = *FormTimeline::animation();
-    for (const Animation& anim : m_animations) {
-        if (&currentAnimation == &anim) {
-            //            isAnimated = true;
-            animation = &anim;
-            break;
+    const Animation* currentAnimation = FormTimeline::animation();
+    if (currentAnimation != nullptr) {
+        for (const Animation& anim : m_animations) {
+            if (currentAnimation == &anim) {
+                //            isAnimated = true;
+                animation = &anim;
+                break;
+            }
         }
     }
 
@@ -190,7 +192,7 @@ void Model::prepareHierarchy(ulong frameTime) const
     }
 }
 
-void Model::Draw(const glm::mat4 &modelMatrix, const MainWindow3dView &view) const
+void Model::Draw(const glm::mat4& modelMatrix, const MainWindow3dView& view) const
 {
     //    model = glm::mat4(1.0f);
     //    model = glm::scale(model, glm::vec3(0.01));
@@ -198,26 +200,34 @@ void Model::Draw(const glm::mat4 &modelMatrix, const MainWindow3dView &view) con
     //    //    m_boneGeometry.draw(shader, glm::vec3(0, 0, 0), glm::vec3(10, 10, 10));
     //    //    shader.setBool("isSkeleton", true);
 
-    const Shader & shader = view.shader();
+    const Shader& shader = view.shader();
     shader.use();
     for (const Mesh& mesh : m_meshes) {
         //        shader.setMat4("model", modelMatrix);
         //        const Mesh& mesh = m_meshes[i];
+        shader.setMat4("model", modelMatrix * mesh.m_transform);
         mesh.draw(shader);
     }
 
+        //    shader.use();
+}
+
+void Model::DrawHierarchy(const glm::mat4 &modelMatrix, const MainWindow3dView &view) const
+{
+    const Shader& shader = view.shader();
+    shader.use();
     //    m_rootNode.draw(m_boneGeometry);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-//    glDepthFunc(GL_ALWAYS);
-//    glClear()
+//        glDepthFunc(GL_ALWAYS);
+    //    glClear()
     glClear(GL_DEPTH_BUFFER_BIT);
 
-//    m_boneGeometry.setVP(viewMatrix, projectionMatrix);
+    //    m_boneGeometry.setVP(viewMatrix, projectionMatrix);
     m_boneGeometry.updateShader(view);
-    m_rootNode->draw(m_boneGeometry);
-//    glDepthFunc(GL_LESS);
+    m_rootNode->draw(m_boneGeometry, modelMatrix);
+//        glDepthFunc(GL_LESS);
 
-    //    shader.use();
+
 }
 
 // -------------------------------------------------------------------

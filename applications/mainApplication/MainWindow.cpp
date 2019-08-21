@@ -191,6 +191,12 @@ void MainWindow::resizeEvent(QResizeEvent* ev)
     editor->resize(ui->centralWidget->width(), ui->centralWidget->height());
 }
 
+//void MainWindow::mouseMoveEvent(QMouseEvent *event)
+//{
+//    qDebug() << "fuck";
+
+//}
+
 void MainWindow::on_actionQuit_triggered()
 {
 //    saveSession();

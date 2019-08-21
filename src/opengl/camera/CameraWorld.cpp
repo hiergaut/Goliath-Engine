@@ -1,16 +1,12 @@
 #include "CameraWorld.h"
 
 CameraWorld::CameraWorld(glm::vec3 position, glm::vec3 target)
-    : m_position { position }
+    : Camera(position)
+    //    : m_position { position }
     , m_target { target }
 {
 
     //        updateCameraVectors();
-}
-
-glm::mat4 CameraWorld::getViewMatrix() const
-{
-    return glm::lookAt(m_position, m_target, glm::vec3(0, 0, 1));
 }
 
 void CameraWorld::processMouseMovement(float xoffset, float yoffset)
@@ -46,11 +42,6 @@ void CameraWorld::processSliding(float dx, float dy)
     glm::vec3 slide = accuracySlide * (right * -dx + up * -dy);
     m_position += slide;
     m_target += slide;
-}
-
-float CameraWorld::getFov() const
-{
-    return m_fov;
 }
 
 void CameraWorld::load(std::ifstream& file)
@@ -90,7 +81,54 @@ void CameraWorld::save(std::ofstream& file)
     file.write(reinterpret_cast<const char*>(&data), sizeof(data));
 }
 
-glm::vec3 CameraWorld::getPosition() const
+glm::mat4 CameraWorld::viewMatrix() const
 {
-    return m_position;
+    return glm::lookAt(m_position, m_target, glm::vec3(0, 0, 1));
+}
+
+void CameraWorld::mousePressEvent(QMouseEvent *event)
+{
+    Camera::mousePressEvent(event);
+
+        lastPos = event->pos();
+}
+
+//void CameraWorld::mouseReleaseEvent(QMouseEvent *event)
+//{
+
+//    if (event->button() == Qt::MiddleButton) {
+//        m_middleClicked = false;
+//    }
+//}
+
+void CameraWorld::mouseMoveEvent(QMouseEvent* event)
+{
+    Camera::mouseMoveEvent(event);
+
+    if (m_middleClicked) {
+        float dx = event->x() - lastPos.x();
+        //    float dx = event->x();
+        float dy = event->y() - lastPos.y();
+        lastPos = event->pos();
+        //    float dy = event->y();
+
+        //    setCursorToCenter();
+        //    qDebug() << dx << dy;
+        if (m_shiftPressed) {
+            processSliding(dx, dy);
+
+        } else {
+            processMouseMovement(dx, dy);
+        }
+    }
+}
+
+void CameraWorld::wheelEvent(QWheelEvent* event)
+{
+    Camera::wheelEvent(event);
+
+    float dy = event->delta();
+
+    processMouseScroll(dy);
+    //    updateProjection();
 }

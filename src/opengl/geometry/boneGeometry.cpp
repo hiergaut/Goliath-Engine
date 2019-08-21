@@ -185,5 +185,5 @@ void BoneGeometry::updateShader(const MainWindow3dView &view) const
     m_shader->setMat4("view", view.viewMatrix());
     m_shader->setMat4("projection", view.projectionMatrix());
 
-    m_shader->setVec3("viewPos", view.camera()->getPosition());
+    m_shader->setVec3("viewPos", view.camera()->position());
 }

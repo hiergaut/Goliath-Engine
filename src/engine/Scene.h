@@ -37,6 +37,7 @@ public:
     //    }
     void prepareHierarchy(ulong frameTime);
     void draw(const MainWindow3dView &view);
+
     void addModel(std::string file);
     void delModel(std::string file);
 

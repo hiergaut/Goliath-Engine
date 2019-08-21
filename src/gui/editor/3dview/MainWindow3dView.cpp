@@ -18,6 +18,8 @@
 #include <glm/gtc/type_ptr.hpp>
 
 //#include <QOpenGLExtraFunctions>
+#include <opengl/camera/CameraFps.h>
+#include <opengl/camera/CameraWorld.h>
 
 //#include <opengl/OpenglContext.h>
 //#include <opengl/grid.h>
@@ -47,11 +49,13 @@ MainWindow3dView::MainWindow3dView(QWidget* parent)
     //    : QWidget(parent),
     : QMainWindow(parent)
     , ui(new Ui::MainWindow3dView)
-    //{
-    //    ui->setupUi(this);
-    //}
+//{
+//    ui->setupUi(this);
+//}
+//    , m_camera
 
-    , m_camera(glm::vec3(200, -200, 200), glm::vec3(0, 0, 0))
+//    , m_camera = new CameraWorld(glm::vec3(200, -200, 200), glm::vec3(0, 0, 0))
+
 //    , m_scene { scene }
 //    , m_vbo(QOpenGLBuffer::VertexBuffer)
 //    , shaderCube(":/shader/first.vsh", ":/shader/first.fsh")
@@ -61,6 +65,8 @@ MainWindow3dView::MainWindow3dView(QWidget* parent)
 //    , m_shader(":/shader/model_loading.vsh", ":/shader/model_loading.fsh")
 //    , m_ebo(QOpenGLBuffer::IndexBuffer)
 {
+    //    m_camera = new CameraWorld(glm::vec3(200, -200, 200), glm::vec3(0, 0, 0));
+    m_camera = new CameraFps(glm::vec3(200.0f, -200.0f, 200.0f), 135.0f, -45.0f, this);
 
     ui->setupUi(this);
     //    g_openglContext.
@@ -70,7 +76,7 @@ MainWindow3dView::MainWindow3dView(QWidget* parent)
     //    setFocusPolicy(Qt::ClickFocus);
 
     //    setAutoFillBackground(false);
-    m_projectionMatrix = glm::perspective(glm::radians(m_camera.getFov()), (float)width() / height(), l_near, l_far);
+    m_projectionMatrix = glm::perspective(glm::radians(m_camera->fov()), (float)width() / height(), l_near, l_far);
     //    setMouseTracking(true);
     //    setFocus();
     //    initializeOpenGLFunctions();
@@ -106,6 +112,8 @@ MainWindow3dView::MainWindow3dView(QWidget* parent)
     //    m_menus.push_back(shading);
     //    setShading(WIRE_FRAME);
     setShading(SOLID);
+
+//    installEventFilter(this);
 }
 
 MainWindow3dView::~MainWindow3dView()
@@ -125,13 +133,13 @@ MainWindow3dView::~MainWindow3dView()
 
 void MainWindow3dView::load(std::ifstream& file)
 {
-    m_camera.load(file);
+    m_camera->load(file);
     //    setShading(WIRE_FRAME);
 }
 
 void MainWindow3dView::save(std::ofstream& file)
 {
-    m_camera.save(file);
+    m_camera->save(file);
 }
 
 void MainWindow3dView::setShading(Shading shade)
@@ -187,6 +195,7 @@ void MainWindow3dView::glInitialize()
 void MainWindow3dView::keyPressEvent(QKeyEvent* event)
 {
     //            qDebug() << this << ": keyPressEvent" << event;
+    m_camera->keyPressEvent(event);
 
     switch (event->key()) {
     case Qt::Key_Shift:
@@ -196,7 +205,7 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
     case Qt::Key_Clear:
         //        qDebug() << "change projection";
         if (m_ortho) {
-            m_projectionMatrix = glm::perspective(glm::radians(m_camera.getFov()), (float)width() / height(), l_near, l_far);
+            m_projectionMatrix = glm::perspective(glm::radians(m_camera->fov()), (float)width() / height(), l_near, l_far);
         } else {
             m_projectionMatrix = glm::ortho(-orthoSize, orthoSize, -orthoSize, orthoSize, l_near, l_far);
         }
@@ -216,6 +225,14 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
 
     case Qt::Key_S:
         ui->actionSolid->trigger();
+        break;
+
+    case Qt::Key_N:
+        ui->actionNormal->trigger();
+        break;
+
+    case Qt::Key_D:
+        ui->actionDepth->trigger();
         break;
 
     case Qt::Key_Z:
@@ -258,6 +275,8 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
 
 void MainWindow3dView::keyReleaseEvent(QKeyEvent* event)
 {
+    m_camera->keyReleaseEvent(event);
+
     switch (event->key()) {
     case Qt::Key_Shift:
         m_shiftPressed = false;
@@ -280,64 +299,58 @@ void MainWindow3dView::keyReleaseEvent(QKeyEvent* event)
 
 void MainWindow3dView::mousePressEvent(QMouseEvent* event)
 {
+    m_camera->mousePressEvent(event);
     //    qDebug() << "[3dView]" << QWidget::mapToGlobal(pos());
     //    setMouseTracking(true);
     //    setFocus();
-    if (event->button() == Qt::MiddleButton) {
-        m_middleClicked = true;
-        lastPos = event->pos();
-    } else if (event->button() == Qt::LeftButton) {
-        //        qDebug() << this << "left clicked";
-    }
     event->ignore(); // splitter node
 }
 
 void MainWindow3dView::mouseReleaseEvent(QMouseEvent* event)
 {
-    if (event->button() == Qt::MiddleButton) {
-        m_middleClicked = false;
-    }
+    setMouseTracking(true);
+    m_camera->mouseReleaseEvent(event);
 }
 
 void MainWindow3dView::mouseMoveEvent(QMouseEvent* event)
 {
-    if (m_middleClicked) {
-        float dx = event->x() - lastPos.x();
-        //    float dx = event->x();
-        float dy = event->y() - lastPos.y();
-        lastPos = event->pos();
-        //    float dy = event->y();
-
-        //    setCursorToCenter();
-        //    qDebug() << dx << dy;
-        if (m_shiftPressed) {
-            m_camera.processSliding(dx, dy);
-
-        } else {
-            m_camera.processMouseMovement(dx, dy);
-        }
-    }
+//    setMouseTracking(true);
+//    centralWidget()->setMouseTracking(true);
+    m_camera->mouseMoveEvent(event);
+//    event->ignore();
 }
 
 void MainWindow3dView::wheelEvent(QWheelEvent* event)
 {
+    m_camera->wheelEvent(event);
+
     float dy = event->delta();
 
     if (m_ortho) {
         orthoSize += -dy * 0.01;
         m_projectionMatrix = glm::ortho(-orthoSize, orthoSize, -orthoSize, orthoSize, l_near, l_far);
     }
-    m_camera.processMouseScroll(dy);
-    //    updateProjection();
 }
+
+//bool MainWindow3dView::eventFilter(QObject* obj, QEvent* event)
+//{
+//    if (event->type() == QEvent::MouseMove) {
+//        qDebug("eventFilter:  hello");
+////        return QWidget::eventFilter(obj, event);
+//    } else {
+////        return QWidget::eventFilter(obj, event);
+//    }
+//    return true;
+//}
 
 void MainWindow3dView::focusInEvent(QFocusEvent* event)
 {
+
     m_shiftPressed = false;
-    //    qDebug() << this << ": focusInEvent";
+    qDebug() << this << ": focusInEvent";
     //    setCursorToCenter();
     //    setCursor(Qt::BlankCursor);
-    //    setMouseTracking(true);
+    setMouseTracking(true);
 
     //    GLint bufs;
     //    GLint samples;
@@ -348,7 +361,7 @@ void MainWindow3dView::focusInEvent(QFocusEvent* event)
 
 void MainWindow3dView::resizeEvent(QResizeEvent* event)
 {
-    m_projectionMatrix = glm::perspective(glm::radians(m_camera.getFov()), (float)width() / height(), l_near, l_far);
+    m_projectionMatrix = glm::perspective(glm::radians(m_camera->fov()), (float)width() / height(), l_near, l_far);
 }
 
 void MainWindow3dView::setFocusPolicy(Qt::FocusPolicy policy)
@@ -359,6 +372,12 @@ void MainWindow3dView::setFocusPolicy(Qt::FocusPolicy policy)
 QWidget* MainWindow3dView::widget()
 {
     return this;
+}
+
+void MainWindow3dView::setCursorToCenter()
+{
+    QPoint glob = mapToGlobal(QPoint(width() / 2, height() / 2));
+    QCursor::setPos(glob);
 }
 
 const Shader& MainWindow3dView::shader() const
@@ -376,7 +395,7 @@ const Shader& MainWindow3dView::shader() const
         //        break;
 
     case SOLID:
-        shader.setVec3("viewPos", camera()->getPosition());
+        shader.setVec3("viewPos", m_camera->position());
         shader.setVec3("material.ambient", 0.5f, 0.5f, 0.5f);
         //    m_shader->setVec3("material.diffuse", 0.3f, 0.3f, 0.3f);
         shader.setVec3("material.specular", 0.5f, 0.5f, 1.0f);
@@ -411,9 +430,10 @@ const Shader& MainWindow3dView::shader() const
 //    return m_menus;
 //}
 
-const CameraWorld* MainWindow3dView::camera() const
+const Camera* MainWindow3dView::camera() const
 {
-    return &m_camera;
+    Q_ASSERT(m_camera != nullptr);
+    return m_camera;
 }
 
 //void MainWindow3dView::setViews(std::list<const MainWindow3dView *> *views)
@@ -424,12 +444,13 @@ const CameraWorld* MainWindow3dView::camera() const
 glm::mat4 MainWindow3dView::viewMatrix() const
 {
     //    return m_viewMatrix;
-    return m_camera.getViewMatrix();
+    Q_ASSERT(m_camera != nullptr);
+    return m_camera->viewMatrix();
 }
 
 glm::mat4 MainWindow3dView::projectionViewMatrix() const
 {
-    return m_projectionMatrix * m_camera.getViewMatrix();
+    return m_projectionMatrix * m_camera->viewMatrix();
 }
 
 void MainWindow3dView::setViews(std::list<const MainWindow3dView*>* views)

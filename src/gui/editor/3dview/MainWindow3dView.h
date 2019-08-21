@@ -22,7 +22,7 @@ class MainWindow3dView;
 
 //#include "camera.h"
 //#include "camera.h"
-#include <opengl/CameraWorld.h>
+//#include <opengl/CameraWorld.h>
 //#include <opengl/camera.h>
 //#include "shader.h"
 #include <opengl/shader.h>
@@ -32,12 +32,13 @@ class MainWindow3dView;
 #include <QWidget>
 
 #include "../TemplateMenuBar.h"
+#include <opengl/camera/Camera.h>
 
 class MainWindow3dView : public QMainWindow, public TemplateMenuBar {
     Q_OBJECT
 
     enum Shading {
-//        WIRE_FRAME = 0,
+        //        WIRE_FRAME = 0,
         SOLID = 0,
         LOOK_DEV,
         RENDERED,
@@ -59,6 +60,8 @@ public:
 
     static void glInitialize();
 
+    void setCursorToCenter();
+
 signals:
 
 protected:
@@ -73,6 +76,8 @@ protected:
     void mouseMoveEvent(QMouseEvent* event) override;
     void wheelEvent(QWheelEvent* event) override;
 
+//    bool eventFilter(QObject * obj, QEvent * event);
+
     void focusInEvent(QFocusEvent* event) override;
 
     void resizeEvent(QResizeEvent* event) override;
@@ -81,7 +86,6 @@ protected:
     QWidget* widget() override;
 
 private:
-    //    void setCursorToCenter();
     //    void cameraMove();
     //    void updateProjection();
 
@@ -100,18 +104,18 @@ private:
     bool m_shiftPressed = false;
 
     //    Camera camera;
-    CameraWorld m_camera;
+    Camera* m_camera = nullptr;
 
     glm::mat4 m_projectionMatrix;
 
     static std::list<const MainWindow3dView*>* m_views;
 
-//    Shader* m_shader = nullptr;
+    //    Shader* m_shader = nullptr;
 
-    static Shader * m_shaders[Shading::size];
+    static Shader* m_shaders[Shading::size];
     Shading m_shade;
 
-//    Axis m_axis;
+    //    Axis m_axis;
 
     //    std::list<QMenu> m_menus;
 
@@ -124,12 +128,12 @@ public:
     glm::mat4 projectionViewMatrix() const;
     static void setViews(std::list<const MainWindow3dView*>* views);
 
-    const CameraWorld* camera() const;
+    const Camera* camera() const;
     //    std::list<QMenu> menus() const;
-    const Shader & shader() const;
+    const Shader& shader() const;
 
 private slots:
-//    void on_actionWireFrame_triggered();
+    //    void on_actionWireFrame_triggered();
     void on_actionSolid_triggered();
     void on_actionLook_dev_triggered();
     void on_actionRendered_triggered();

@@ -329,22 +329,23 @@ void Node::prepareHierarchy(glm::mat4 model, const Animation * animation, double
 
 }
 
-void Node::draw(const BoneGeometry &boneGeometry) const
+void Node::draw(const BoneGeometry &boneGeometry, const glm::mat4 &modelMatrix) const
 {
+    glm::mat4 model = modelMatrix * m_model;
     for (const Node& node : m_children) {
         //        node.draw(shader, m_transformation * model);
         glm::vec3 childPos = glm::vec3(node.m_transformation[3]);
 
         if (m_bone != nullptr) {
-            boneGeometry.draw(m_model, glm::vec3(0), childPos);
+            boneGeometry.draw(model, glm::vec3(0), childPos);
         } else {
             //            m_boneGeometry.draw(model, shader, glm::vec3(0), childPos);
-            boneGeometry.drawLine(m_model, glm::vec3(0), childPos);
+            boneGeometry.drawLine(model, glm::vec3(0), childPos);
         }
 
 //        node.draw(shader, model, animation, animationTime);
 //        node.prepareHierarchy(m_model, animation, animationTime);
-        node.draw(boneGeometry);
+        node.draw(boneGeometry, modelMatrix);
     }
 
 }

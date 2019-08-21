@@ -42,6 +42,7 @@ protected:
 //    void focusInEvent(QFocusEvent *);
 
     void resizeEvent(QResizeEvent *);
+//    void mouseMoveEvent(QMouseEvent * event);
 
 private slots:
     void on_actionQuit_triggered();

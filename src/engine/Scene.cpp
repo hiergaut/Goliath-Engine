@@ -82,6 +82,7 @@ void Scene::draw(const MainWindow3dView & view)
 
 //    const Shader & shader = view.shader();
 
+//    modelMatrix = glm::translate(modelMatrix, glm::vec3(10.0f, 0.0f, 0.0f));
 //    shader.use();
 //    m_shader->setMat4("model", modelMatrix);
 //    shader.setMat4("view", viewMatrix);
@@ -104,13 +105,13 @@ void Scene::draw(const MainWindow3dView & view)
 //    m_shaderCamera->setMat4("projection", projectionMatrix);
 
     for (const MainWindow3dView* otherViews : *m_views) {
-        const CameraWorld* camera = otherViews->camera();
+        const Camera* camera = otherViews->camera();
 
         //        for (const CameraWorld * camera : m_cameras) {
-        glm::mat4 modelMatrix;
+//        glm::mat4 modelMatrix;
         //        //        model = glm::translate(model, glm::vec3(10, 0, 0));
         //        model = glm::inverse(view->viewMatrix());
-        modelMatrix = glm::inverse(camera->getViewMatrix());
+        modelMatrix = glm::inverse(camera->viewMatrix());
 
 //        m_shader->setMat4("otherViews", viewMatrix * modelMatrix);
 //        m_shader->setMat4("model", modelMatrix);
@@ -118,6 +119,18 @@ void Scene::draw(const MainWindow3dView & view)
 //        m_shader->setBool("isSkeleton", false);
         m_cameraModel->Draw(modelMatrix, view);
     }
+
+    modelMatrix = glm::mat4(1.0f);
+    for (const Model& model : m_models) {
+//	    glm::mat4 model(1.0);
+//        glm::mat4 modelMatrix(1.0);
+//        modelMatrix = glm::scale(modelMatrix, glm::vec3(0.01));
+//        modelMatrix = glm::rotate(modelMatrix, 1.57f, glm::vec3(1, 0, 0));
+//        m_shader->setMat4("model", modelMatrix);
+
+        model.DrawHierarchy(modelMatrix, view);
+    }
+
 }
 
 void Scene::addModel(std::string file)
