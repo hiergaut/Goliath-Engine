@@ -8,11 +8,14 @@
 #include <QDebug>
 #include <iostream>
 #include "Camera.h"
+#include "CameraFps.h"
 
 
 class CameraWorld : public Camera {
 public:
-    CameraWorld(glm::vec3 position, glm::vec3 target);
+    CameraWorld();
+    CameraWorld(float fov, glm::vec3 position, glm::vec3 target);
+//    CameraWorld(CameraFps * camera);
 
     void processMouseMovement(float xoffset, float yoffset);
     void processMouseScroll(float yoffset);
@@ -39,6 +42,7 @@ private:
     QPoint lastPos;
 
 public:
+    glm::vec3 target() const;
 };
 
 #endif // CAMERAWORLD_H

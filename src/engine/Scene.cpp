@@ -14,12 +14,12 @@ Scene::Scene()
 
     QTreeView_outliner::setModelScene(&m_sceneModel);
     m_sceneModel.setHorizontalHeaderItem(0, new QStandardItem("Scene"));
-//    m_sceneModel.setHorizontalHeaderItem(1, new QStandardItem("Bonus"));
+    //    m_sceneModel.setHorizontalHeaderItem(1, new QStandardItem("Bonus"));
 
     //    m_itemModel = new QStandardItemModel;
-//    m_models.resize(10);
+    //    m_models.resize(10);
 
-//    m_models.reserve(10);
+    //    m_models.reserve(10);
 
     //    QStandardItem* item0 = new QStandardItem("Scene");
     //        QStandardItem * item1 = new QStandardItem("World");
@@ -44,34 +44,33 @@ Scene::Scene()
 
 void Scene::initialize()
 {
-//    std::cout << "fuck" << std::endl;
+    //    std::cout << "fuck" << std::endl;
     m_cameraModel = new Model("models/camera/camera.obj");
-//    std::cout << "bitch" << std::endl;
+    //    std::cout << "bitch" << std::endl;
 
-//    m_shaderCamera = new Shader("camera.vsh", "camera.fsh");
-//    m_shader = new Shader("model_loading.vsh", "model_loading.fsh");
+    //    m_shaderCamera = new Shader("camera.vsh", "camera.fsh");
+    //    m_shader = new Shader("model_loading.vsh", "model_loading.fsh");
 
     m_grid = new Grid;
     initialized = true;
     MainWindow3dView::glInitialize();
-
 }
 
 void Scene::prepareHierarchy(ulong frameTime)
 {
     for (const Model& model : m_models) {
-//	    glm::mat4 model(1.0);
-//        glm::mat4 modelMatrix(1.0);
-//        modelMatrix = glm::scale(modelMatrix, glm::vec3(0.01));
-//        modelMatrix = glm::rotate(modelMatrix, 1.57f, glm::vec3(1, 0, 0));
-//        m_shader->setMat4("model", modelMatrix);
+        //	    glm::mat4 model(1.0);
+        //        glm::mat4 modelMatrix(1.0);
+        //        modelMatrix = glm::scale(modelMatrix, glm::vec3(0.01));
+        //        modelMatrix = glm::rotate(modelMatrix, 1.57f, glm::vec3(1, 0, 0));
+        //        m_shader->setMat4("model", modelMatrix);
 
-//        model.Draw(modelMatrix, shader, frameTime);
+        //        model.Draw(modelMatrix, shader, frameTime);
         model.prepareHierarchy(frameTime);
     }
 }
 
-void Scene::draw(const MainWindow3dView & view)
+void Scene::draw(const MainWindow3dView& view)
 {
     Q_ASSERT(initialized);
     glm::mat4 viewMatrix = view.viewMatrix();
@@ -80,64 +79,65 @@ void Scene::draw(const MainWindow3dView & view)
     glm::mat4 modelMatrix(1.0);
     m_grid->draw(modelMatrix, viewMatrix, projectionMatrix);
 
-//    const Shader & shader = view.shader();
+    //    const Shader & shader = view.shader();
 
-//    modelMatrix = glm::translate(modelMatrix, glm::vec3(10.0f, 0.0f, 0.0f));
-//    shader.use();
-//    m_shader->setMat4("model", modelMatrix);
-//    shader.setMat4("view", viewMatrix);
-//    shader.setMat4("projection", projectionMatrix);
+    //    modelMatrix = glm::translate(modelMatrix, glm::vec3(10.0f, 0.0f, 0.0f));
+    //    shader.use();
+    //    m_shader->setMat4("model", modelMatrix);
+    //    shader.setMat4("view", viewMatrix);
+    //    shader.setMat4("projection", projectionMatrix);
     //        qDebug() << "[3dView] " << this << "nb model = " << g_env.m_scene.size();
 
     for (const Model& model : m_models) {
-//	    glm::mat4 model(1.0);
-//        glm::mat4 modelMatrix(1.0);
-//        modelMatrix = glm::scale(modelMatrix, glm::vec3(0.01));
-//        modelMatrix = glm::rotate(modelMatrix, 1.57f, glm::vec3(1, 0, 0));
-//        m_shader->setMat4("model", modelMatrix);
+        //	    glm::mat4 model(1.0);
+        //        glm::mat4 modelMatrix(1.0);
+        //        modelMatrix = glm::scale(modelMatrix, glm::vec3(0.01));
+        //        modelMatrix = glm::rotate(modelMatrix, 1.57f, glm::vec3(1, 0, 0));
+        //        m_shader->setMat4("model", modelMatrix);
 
         model.Draw(modelMatrix, view);
     }
 
-//    m_shaderCamera->use();
+    //    m_shaderCamera->use();
     //    m_shaderCamera->setMat4("model", model);
-//    m_shaderCamera->setMat4("view", viewMatrix);
-//    m_shaderCamera->setMat4("projection", projectionMatrix);
+    //    m_shaderCamera->setMat4("view", viewMatrix);
+    //    m_shaderCamera->setMat4("projection", projectionMatrix);
 
     for (const MainWindow3dView* otherViews : *m_views) {
         const Camera* camera = otherViews->camera();
 
         //        for (const CameraWorld * camera : m_cameras) {
-//        glm::mat4 modelMatrix;
+        //        glm::mat4 modelMatrix;
         //        //        model = glm::translate(model, glm::vec3(10, 0, 0));
         //        model = glm::inverse(view->viewMatrix());
         modelMatrix = glm::inverse(camera->viewMatrix());
 
-//        m_shader->setMat4("otherViews", viewMatrix * modelMatrix);
-//        m_shader->setMat4("model", modelMatrix);
+        //        m_shader->setMat4("otherViews", viewMatrix * modelMatrix);
+        //        m_shader->setMat4("model", modelMatrix);
 
-//        m_shader->setBool("isSkeleton", false);
+        //        m_shader->setBool("isSkeleton", false);
         m_cameraModel->Draw(modelMatrix, view);
     }
 
-    modelMatrix = glm::mat4(1.0f);
-    for (const Model& model : m_models) {
-//	    glm::mat4 model(1.0);
-//        glm::mat4 modelMatrix(1.0);
-//        modelMatrix = glm::scale(modelMatrix, glm::vec3(0.01));
-//        modelMatrix = glm::rotate(modelMatrix, 1.57f, glm::vec3(1, 0, 0));
-//        m_shader->setMat4("model", modelMatrix);
+    if (view.xRays()) {
+        modelMatrix = glm::mat4(1.0f);
+        for (const Model& model : m_models) {
+            //	    glm::mat4 model(1.0);
+            //        glm::mat4 modelMatrix(1.0);
+            //        modelMatrix = glm::scale(modelMatrix, glm::vec3(0.01));
+            //        modelMatrix = glm::rotate(modelMatrix, 1.57f, glm::vec3(1, 0, 0));
+            //        m_shader->setMat4("model", modelMatrix);
 
-        model.DrawHierarchy(modelMatrix, view);
+            model.DrawHierarchy(modelMatrix, view);
+        }
     }
-
 }
 
 void Scene::addModel(std::string file)
 {
     Q_ASSERT(initialized);
     //    qDebug() << "[SCENE] add model : " << file.c_str();
-//    Model newModel(file);
+    //    Model newModel(file);
     //    m_itemModel.appendRow(item);
     //    m_itemModel.appendColumn(item);
     //    m_models.push_back(std::move(newModel));
@@ -145,11 +145,11 @@ void Scene::addModel(std::string file)
     //    Q_ASSERT(m_models.find(file) == m_models.end());
     //    m_models[file] = std::move(newModel);
     //    m_models.insert(std::make_pair(file, std::move(newModel)));
-//    m_models.push_back(std::move(newModel));
-//    m_models.push_back(std::move(Model(file)));
+    //    m_models.push_back(std::move(newModel));
+    //    m_models.push_back(std::move(Model(file)));
     m_models.emplace_back(file);
 
-//    std::cout << &m_models[0] << std::endl;
+    //    std::cout << &m_models[0] << std::endl;
     updateSceneModel();
 }
 
@@ -169,22 +169,22 @@ void Scene::updateSceneModel()
 {
     m_sceneModel.clear();
 
-//    QStandardItemModel model;
+    //    QStandardItemModel model;
     QStandardItem* parentItem = m_sceneModel.invisibleRootItem();
-    for (const Model & model : m_models) {
-        QStandardItem * item = new QStandardItem(model.filename().c_str());
+    for (const Model& model : m_models) {
+        QStandardItem* item = new QStandardItem(model.filename().c_str());
         parentItem->appendRow(item);
 
         model.buildItemModel(item);
     }
 
     emit m_sceneModel.dataChanged(m_sceneModel.index(0, 0), m_sceneModel.index(0, 0));
-//    for (int i = 0; i < 4; ++i) {
-//        QStandardItem* item = new QStandardItem(QString("item %0").arg(i));
-//        item->setData(QVariant("fuck"));
-//        parentItem->appendRow(item);
-//        parentItem = item;
-//    }
+    //    for (int i = 0; i < 4; ++i) {
+    //        QStandardItem* item = new QStandardItem(QString("item %0").arg(i));
+    //        item->setData(QVariant("fuck"));
+    //        parentItem->appendRow(item);
+    //        parentItem = item;
+    //    }
 }
 
 //void Scene::load(ifstream &file)

@@ -7,6 +7,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "Camera.h"
+//#include "CameraWorld.h"
 #include <vector>
 #include <QWidget>
 #include <gui/editor/3dview/MainWindow3dView.h>
@@ -24,8 +25,9 @@ enum Camera_Movement {
 
 //const float YAW = -90.0f;
 //const float PITCH = 0.0f;
-const float SPEED = 0.1f;
-const float SENSITIVITY = 0.1f;
+const float MOUSE_SPEED = 0.1f;
+const float ZOOM_SPEED = 0.1f;
+const float MOVE_SPEED = 0.1f;
 //const float ZOOM = 60.0f;
 
 const float ZOOM_MAX = 1.0f;
@@ -36,27 +38,52 @@ const float ZOOM_MIN = 170.0f;
 class CameraFps : public Camera {
 public:
 //    CameraFps(glm::vec3 position, glm::vec3 target);
-    CameraFps(glm::vec3 position, float yaw, float pitch, MainWindow3dView *view);
+    CameraFps(MainWindow3dView *view);
+    CameraFps(float fov, glm::vec3 position, float yaw, float pitch, MainWindow3dView *view);
+//    CameraFps(CameraWorld * camera, MainWindow3dView *view);
+    ~CameraFps() override;
 //    CameraFps(float posX, float posY, float posZ, float yaw, float pitch);
 
+    void load(std::ifstream &file) override;
+    void save(std::ofstream &file) override;
+
     glm::mat4 viewMatrix() const override;
-    void ProcessKeyboard(Camera_Movement direction, float deltaTime);
+    void ProcessKeyboard() const;
 
     void ProcessMouseMovement(float xoffset, float yoffset, bool constrainPitch = true);
     void ProcessMouseScroll(float yoffset);
     void updateCameraVectors();
 
-    void mouseMoveEvent(QMouseEvent *event) override;
+    void updateCenter();
+//    void updateView();
+    void trackingOn();
+    void trackingOff();
+
+    void startFpsView();
+
+
+    void keyPressEvent(QKeyEvent *event) override;
+    void keyReleaseEvent(QKeyEvent *event) override;
+
     void mousePressEvent(QMouseEvent *event) override;
     void mouseReleaseEvent(QMouseEvent *event) override;
 
+    void mouseMoveEvent(QMouseEvent *event) override;
+    void wheelEvent(QWheelEvent *event) override;
+
+//    void focusInEvent(QFocusEvent *event) override;
+    void resizeEvent(QResizeEvent *event) override;
+
+
+    glm::vec3 front() const;
+
 private:
-//    QWidget * m_view;
+    //    QWidget * m_view;
     MainWindow3dView * m_view;
     // Camera Attributes
     QPoint m_center;
     QPoint m_centerLocal;
-    QPoint m_lastPos;
+//    QPoint m_lastPos;
 //    glm::vec3 Position;
     glm::vec3 m_front;
     glm::vec3 m_up;
@@ -65,6 +92,11 @@ private:
     // Euler Angles
     float m_yaw;
     float m_pitch;
+
+    float frontDir = 0.0f;
+    float sideDir = 0.0f;
+
+    mutable uint64_t m_lastTime;
     // Camera options
 //    float MovementSpeed;
 //    float MouseSensitivity;

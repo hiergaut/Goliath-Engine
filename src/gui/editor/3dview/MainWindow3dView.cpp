@@ -65,8 +65,8 @@ MainWindow3dView::MainWindow3dView(QWidget* parent)
 //    , m_shader(":/shader/model_loading.vsh", ":/shader/model_loading.fsh")
 //    , m_ebo(QOpenGLBuffer::IndexBuffer)
 {
-    //    m_camera = new CameraWorld(glm::vec3(200, -200, 200), glm::vec3(0, 0, 0));
-    m_camera = new CameraFps(glm::vec3(200.0f, -200.0f, 200.0f), 135.0f, -45.0f, this);
+    m_camera = new CameraWorld(50.0f, glm::vec3(200, -200, 200), glm::vec3(0, 0, 0));
+    //    m_camera = new CameraFps(glm::vec3(200.0f, -200.0f, 200.0f), 135.0f, -45.0f, this);
 
     ui->setupUi(this);
     //    g_openglContext.
@@ -113,7 +113,8 @@ MainWindow3dView::MainWindow3dView(QWidget* parent)
     //    setShading(WIRE_FRAME);
     setShading(SOLID);
 
-//    installEventFilter(this);
+    //    connect(centralWidget(), &QWidget::mouseMoveEvent, this, &MainWindow3dView::mouseMoveEvent);
+    //    installEventFilter(this);
 }
 
 MainWindow3dView::~MainWindow3dView()
@@ -133,13 +134,55 @@ MainWindow3dView::~MainWindow3dView()
 
 void MainWindow3dView::load(std::ifstream& file)
 {
+    Camera::Type type;
+    file.read(reinterpret_cast<char*>(&type), sizeof(type));
+
+    switch (type) {
+    case Camera::FPS:
+        m_camera = new CameraFps(this);
+        break;
+
+    case Camera::WORLD:
+        m_camera = new CameraWorld;
+        break;
+    }
+
     m_camera->load(file);
     //    setShading(WIRE_FRAME);
+
+    bool data[2];
+    file.read(reinterpret_cast<char*>(data), sizeof(data));
+//    ui->actionWireFrame->setChecked(data[0]);
+    if (data[0]) {
+//        if (!ui->actionWireFrame->isChecked())
+            ui->actionWireFrame->trigger();
+    }
+    if (data[1]) {
+//        if (!ui->actionX_Rays->isChecked())
+            ui->actionX_Rays->trigger();
+    }
+//    ui->actionX_Rays->setChecked(data[1]);
+
+    file.read(reinterpret_cast<char*>(&m_shade), sizeof(m_shade));
+    setShading(m_shade);
 }
 
 void MainWindow3dView::save(std::ofstream& file)
 {
+    Camera::Type type = m_camera->m_type;
+    file.write(reinterpret_cast<const char*>(&type), sizeof(type));
     m_camera->save(file);
+
+    bool wireFrame = ui->actionWireFrame->isChecked();
+    bool xRays = ui->actionX_Rays->isChecked();
+
+    bool data[2];
+    data[0] = wireFrame;
+    data[1] = xRays;
+    file.write(reinterpret_cast<const char*>(data), sizeof(data));
+
+    file.write(reinterpret_cast<const char*>(&m_shade), sizeof(m_shade));
+//    setShading(m_shade);
 }
 
 void MainWindow3dView::setShading(Shading shade)
@@ -227,6 +270,7 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
         ui->actionSolid->trigger();
         break;
 
+
     case Qt::Key_N:
         ui->actionNormal->trigger();
         break;
@@ -242,34 +286,43 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
         }
         break;
 
-        //    case Qt::Key_Escape:
-        //        setMouseTracking(false);
-        //        break;
+    case Qt::Key_X:
+        ui->actionX_Rays->trigger();
+        break;
 
-        //    case Qt::Key_Up:
-        //    case Qt::Key_Comma:
-        //        //        cameraPos += cameraFront * cameraSpeed;
-        //        frontDir = 1;
-        //        break;
+    case Qt::Key_F:
+        glm::vec3 pos = m_camera->position();
+        float fov = m_camera->fov();
+        if (m_camera->m_type == Camera::FPS) {
+            CameraFps* camera = static_cast<CameraFps*>(m_camera);
 
-        //    case Qt::Key_Down:
-        //    case Qt::Key_O:
+            glm::vec3 front = glm::normalize(camera->front());
+            //            Q_ASSERT(glm::length(front) == 1.0f);
+            glm::vec3 target = camera->position() + 100.0f * front;
+            //            glm::vec3 target = glm::vec3(0.0f, 0.0f, 0.0f);
 
-        //        frontDir = -1;
-        //        //        cameraPos -= cameraFront * cameraSpeed;
-        //        break;
+            delete m_camera;
+            m_camera = new CameraWorld(fov, pos, target);
+            //            m_camera = new CameraWorld(static_cast<CameraFps*>(m_camera));
+        } else {
+            CameraWorld* camera = static_cast<CameraWorld*>(m_camera);
+            //            glm::vec3 front = glm::normalize(camera->target() - pos);
+            glm::vec3 front = glm::normalize(camera->target() - pos);
 
-        //    case Qt::Key_Left:
-        //    case Qt::Key_A:
-        //        sideDir = -1;
-        //        //        cameraPos -= QVector3D::crossProduct(cameraFront, cameraUp).normalized() * cameraSpeed;
-        //        break;
+            //    m_yaw = glm::degrees(cosf(front.x /(sqrtf(front.x * front.x + front.z * front.z))));
+            //            float yaw = glm::degrees(atanf(front.y / front.x));
+            float yaw = glm::degrees(atan2f(front.y, front.x));
+            float pitch = glm::degrees(asinf(front.z));
 
-        //    case Qt::Key_Right:
-        //    case Qt::Key_E:
-        //        sideDir = 1;
-        //        //        cameraPos += QVector3D::crossProduct(cameraFront, cameraUp).normalized() * cameraSpeed;
-        //        break;
+            delete m_camera;
+            m_camera = new CameraFps(fov, pos, yaw, pitch, this);
+
+            static_cast<CameraFps*>(m_camera)->startFpsView();
+
+            //            m_camera = new CameraFps(static_cast<CameraWorld*>(m_camera), this);
+        }
+        break;
+
     }
 }
 
@@ -308,16 +361,16 @@ void MainWindow3dView::mousePressEvent(QMouseEvent* event)
 
 void MainWindow3dView::mouseReleaseEvent(QMouseEvent* event)
 {
-    setMouseTracking(true);
+    //    setMouseTracking(true);
     m_camera->mouseReleaseEvent(event);
 }
 
 void MainWindow3dView::mouseMoveEvent(QMouseEvent* event)
 {
-//    setMouseTracking(true);
-//    centralWidget()->setMouseTracking(true);
+    //    setMouseTracking(true);
+    //    centralWidget()->setMouseTracking(true);
     m_camera->mouseMoveEvent(event);
-//    event->ignore();
+    //    event->ignore();
 }
 
 void MainWindow3dView::wheelEvent(QWheelEvent* event)
@@ -345,12 +398,16 @@ void MainWindow3dView::wheelEvent(QWheelEvent* event)
 
 void MainWindow3dView::focusInEvent(QFocusEvent* event)
 {
+    //    qDebug() << "MainWindow3dView::focusInEvnt";
+    //    centralWidget()->setFocus();
+    //    centralWidget()->setFocus();
+    m_camera->focusInEvent(event);
 
     m_shiftPressed = false;
-    qDebug() << this << ": focusInEvent";
+    //    qDebug() << this << ": focusInEvent";
     //    setCursorToCenter();
     //    setCursor(Qt::BlankCursor);
-    setMouseTracking(true);
+    //    setMouseTracking(true);
 
     //    GLint bufs;
     //    GLint samples;
@@ -361,6 +418,8 @@ void MainWindow3dView::focusInEvent(QFocusEvent* event)
 
 void MainWindow3dView::resizeEvent(QResizeEvent* event)
 {
+    m_camera->resizeEvent(event);
+
     m_projectionMatrix = glm::perspective(glm::radians(m_camera->fov()), (float)width() / height(), l_near, l_far);
 }
 
@@ -372,6 +431,17 @@ void MainWindow3dView::setFocusPolicy(Qt::FocusPolicy policy)
 QWidget* MainWindow3dView::widget()
 {
     return this;
+}
+
+void MainWindow3dView::updateProjectionMatrix()
+{
+    //    m_projectionMatrix = fov;
+    m_projectionMatrix = glm::perspective(glm::radians(m_camera->fov()), (float)width() / height(), l_near, l_far);
+}
+
+bool MainWindow3dView::xRays() const
+{
+    return ui->actionX_Rays->isChecked();
 }
 
 void MainWindow3dView::setCursorToCenter()
@@ -416,10 +486,29 @@ const Shader& MainWindow3dView::shader() const
     }
 
     if (ui->actionWireFrame->isChecked()) {
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+//            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+//        if (ui->actionX_Rays->isChecked()) {
+//            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+//        } else {
+//            glPolygonMode(GL_FRONT, GL_LINE);
+//        }
 
     } else {
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+//            glPolygonMode(GL_BACK, GL_LINE);
+//        if (ui->actionX_Rays->isChecked()) {
+//            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+//        } else {
+//            glPolygonMode(GL_FRONT, GL_FILL);
+//        }
+    }
+
+    if (ui->actionX_Rays->isChecked()) {
+//        glBlendFunc(GL_ONE, GL_ONE);
+    }
+    else {
+//        glBlendFunc(GL_ONE, GL_ZERO);
     }
 
     return *m_shaders[m_shade];
@@ -503,7 +592,6 @@ void MainWindow3dView::on_actionWireFrame_triggered()
 
         ui->menuWireFrame->setIcon(ui->actionWireFrame->icon());
     }
-    //    qDebug() << "fuck";
     //    ui->actionWireFrame->ic
 }
 

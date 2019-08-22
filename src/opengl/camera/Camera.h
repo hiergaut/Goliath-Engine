@@ -10,11 +10,18 @@
 class Camera
 {
 public:
-    Camera(glm::vec3 position);
+    enum Type {
+        WORLD,
+        FPS,
+    } m_type;
+
+public:
+    Camera(float fov, glm::vec3 position);
+//    Camera(Camera * camera);
     virtual ~Camera() {}
 
-    virtual void load(std::ifstream & file) {}
-    virtual void save(std::ofstream & file) {}
+    virtual void load(std::ifstream & file);
+    virtual void save(std::ofstream & file);
 
     virtual glm::mat4 viewMatrix() const = 0;
 
@@ -31,12 +38,17 @@ public:
     virtual void mouseMoveEvent(QMouseEvent * event);
     virtual void wheelEvent(QWheelEvent * event);
 
+    virtual void focusInEvent(QFocusEvent * event);
+    virtual void resizeEvent(QResizeEvent * event);
+
 protected:
-    float m_fov = 50.0f;
-    glm::vec3 m_position;
+    float m_fov;
+    mutable glm::vec3 m_position;
 
     bool m_middleClicked = false;
     bool m_shiftPressed = false;
+
+
 
     static float accuracyRotate;
     static float accuracyMove;

@@ -97,8 +97,6 @@ private:
     bool m_ortho = false;
     float orthoSize = 10.0f;
 
-    int frontDir = 0;
-    int sideDir = 0;
 
     QPoint lastPos;
     bool m_shiftPressed = false;
@@ -131,6 +129,9 @@ public:
     const Camera* camera() const;
     //    std::list<QMenu> menus() const;
     const Shader& shader() const;
+
+    void updateProjectionMatrix();
+    bool xRays() const;
 
 private slots:
     //    void on_actionWireFrame_triggered();

@@ -70,6 +70,7 @@ void QOpenGLWidget_Editor::initializeGL()
     glEnable(GL_CULL_FACE);
     glEnable(GL_MULTISAMPLE);
 
+//    glEnable(GL_BLEND);
     //    glEnable(GL_LINE_SMOOTH);
 
     //    glFrontFace(GL_CW);

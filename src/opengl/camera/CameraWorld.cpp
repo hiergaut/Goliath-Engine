@@ -1,10 +1,18 @@
 #include "CameraWorld.h"
 
-CameraWorld::CameraWorld(glm::vec3 position, glm::vec3 target)
-    : Camera(position)
+CameraWorld::CameraWorld()
+    :Camera(50.0f, glm::vec3(0.0f, 0.0f, 0.0f))
+{
+    m_type = WORLD;
+
+}
+
+CameraWorld::CameraWorld(float fov, glm::vec3 position, glm::vec3 target)
+    : Camera(fov, position)
     //    : m_position { position }
     , m_target { target }
 {
+    m_type = WORLD;
 
     //        updateCameraVectors();
 }
@@ -46,15 +54,16 @@ void CameraWorld::processSliding(float dx, float dy)
 
 void CameraWorld::load(std::ifstream& file)
 {
+    Camera::load(file);
     //    qDebug() << "[CameraWorld]" << this << "load" << m_position.x << m_position.y << m_position.z;
-    float data[7];
+    float data[3];
     //        size_t size;
     //        size = sizeof(m_position);
     file.read(reinterpret_cast<char*>(&data), sizeof(data));
 
-    m_position = glm::make_vec3(data);
-    m_target = glm::make_vec3(&data[3]);
-    m_fov = data[6];
+//    m_position = glm::make_vec3(data);
+    m_target = glm::make_vec3(data);
+//    m_fov = data[6];
 
     //    qDebug() << "[CAMERA WORLD] load" << this;
     //    qDebug() << m_position.x << m_position.y << m_position.z;
@@ -63,6 +72,7 @@ void CameraWorld::load(std::ifstream& file)
 }
 void CameraWorld::save(std::ofstream& file)
 {
+    Camera::save(file);
     //    qDebug() << "[CameraWorld]" << this << "write" << m_position.x << m_position.y << m_position.z;
     //        m_position.x = 1.0f;
     //    glm::vec3 position = glm::vec3(-10, -10, -10);
@@ -72,10 +82,10 @@ void CameraWorld::save(std::ofstream& file)
     //    qDebug() << m_target.x << m_target.y << m_target.z;
     //    qDebug() << m_fov << "loaded";
 
-    float data[7];
-    std::memcpy(data, glm::value_ptr(m_position), 3 * sizeof(float));
-    std::memcpy(&data[3], glm::value_ptr(m_target), 3 * sizeof(float));
-    data[6] = m_fov;
+    float data[3];
+    std::memcpy(data, glm::value_ptr(m_target), 3 * sizeof(float));
+//    std::memcpy(&data[3], glm::value_ptr(m_target), 3 * sizeof(float));
+//    data[6] = m_fov;
     //        size_t size;
     //        size = sizeof(m_position);
     file.write(reinterpret_cast<const char*>(&data), sizeof(data));
@@ -131,4 +141,9 @@ void CameraWorld::wheelEvent(QWheelEvent* event)
 
     processMouseScroll(dy);
     //    updateProjection();
+}
+
+glm::vec3 CameraWorld::target() const
+{
+    return m_target;
 }
