@@ -85,6 +85,8 @@ protected:
     void setFocusPolicy(Qt::FocusPolicy policy) override;
     QWidget* widget() override;
 
+    void updateOrthoProjection();
+
 private:
     //    void cameraMove();
     //    void updateProjection();
@@ -132,16 +134,21 @@ public:
 
     void updateProjectionMatrix();
     bool xRays() const;
+    bool skeleton() const;
+    bool normal() const;
 
 private slots:
     //    void on_actionWireFrame_triggered();
     void on_actionSolid_triggered();
     void on_actionLook_dev_triggered();
     void on_actionRendered_triggered();
-    void on_actionWireFrame_triggered();
-    void on_actionX_Rays_triggered();
     void on_actionNormal_triggered();
     void on_actionDepth_triggered();
+
+    void on_actionWireFrame_triggered();
+    void on_actionX_Rays_triggered();
+    void on_actionSkeleton_triggered();
+    void on_actionNormal_2_triggered();
 };
 
 #endif // MAINWINDOW3DVIEW_H

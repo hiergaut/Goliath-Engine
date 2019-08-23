@@ -57,7 +57,7 @@ public:
     //    Model(Model & model);
     ~Model();
     void prepareHierarchy(ulong frameTime) const;
-    void Draw(const glm::mat4 &modelMatrix, const MainWindow3dView & view) const;
+    void Draw(const glm::mat4 &modelMatrix, const Shader & shader) const;
     void DrawHierarchy(const glm::mat4 &modelMatrix, const MainWindow3dView & view) const;
     void buildItemModel(QStandardItem* parent) const;
 

@@ -102,6 +102,12 @@ MainWindow3dView::MainWindow3dView(QWidget* parent)
     m_menus.push_back(ui->menuWireFrame);
     ui->menuWireFrame->setIcon(ui->actionWireFrame->icon());
 
+    m_menus.push_back(ui->menuSkeleton);
+    ui->menuSkeleton->setIcon(ui->actionSkeleton->icon());
+
+    m_menus.push_back(ui->menuNormal);
+    ui->menuNormal->setIcon(ui->actionNormal_2->icon());
+
     m_menus.push_back(ui->menuShading);
     m_menus.push_back(ui->menuShading_2);
 
@@ -150,18 +156,24 @@ void MainWindow3dView::load(std::ifstream& file)
     m_camera->load(file);
     //    setShading(WIRE_FRAME);
 
-    bool data[2];
+    bool data[4];
     file.read(reinterpret_cast<char*>(data), sizeof(data));
-//    ui->actionWireFrame->setChecked(data[0]);
+    //    ui->actionWireFrame->setChecked(data[0]);
     if (data[0]) {
-//        if (!ui->actionWireFrame->isChecked())
-            ui->actionWireFrame->trigger();
+        //        if (!ui->actionWireFrame->isChecked())
+        ui->actionWireFrame->trigger();
     }
     if (data[1]) {
-//        if (!ui->actionX_Rays->isChecked())
-            ui->actionX_Rays->trigger();
+        //        if (!ui->actionX_Rays->isChecked())
+        ui->actionX_Rays->trigger();
     }
-//    ui->actionX_Rays->setChecked(data[1]);
+    if (data[2]) {
+        ui->actionSkeleton->trigger();
+    }
+    if (data[3]) {
+        ui->actionNormal_2->trigger();
+    }
+    //    ui->actionX_Rays->setChecked(data[1]);
 
     file.read(reinterpret_cast<char*>(&m_shade), sizeof(m_shade));
     setShading(m_shade);
@@ -176,13 +188,15 @@ void MainWindow3dView::save(std::ofstream& file)
     bool wireFrame = ui->actionWireFrame->isChecked();
     bool xRays = ui->actionX_Rays->isChecked();
 
-    bool data[2];
+    bool data[4];
     data[0] = wireFrame;
     data[1] = xRays;
+    data[2] = ui->actionSkeleton->isChecked();
+    data[3] = ui->actionNormal_2->isChecked();
     file.write(reinterpret_cast<const char*>(data), sizeof(data));
 
     file.write(reinterpret_cast<const char*>(&m_shade), sizeof(m_shade));
-//    setShading(m_shade);
+    //    setShading(m_shade);
 }
 
 void MainWindow3dView::setShading(Shading shade)
@@ -250,7 +264,7 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
         if (m_ortho) {
             m_projectionMatrix = glm::perspective(glm::radians(m_camera->fov()), (float)width() / height(), l_near, l_far);
         } else {
-            m_projectionMatrix = glm::ortho(-orthoSize, orthoSize, -orthoSize, orthoSize, l_near, l_far);
+            updateOrthoProjection();
         }
         m_ortho = !m_ortho;
         //        update();
@@ -270,9 +284,13 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
         ui->actionSolid->trigger();
         break;
 
-
     case Qt::Key_N:
-        ui->actionNormal->trigger();
+        if (m_shiftPressed) {
+            ui->actionNormal_2->trigger();
+        } else {
+
+            ui->actionNormal->trigger();
+        }
         break;
 
     case Qt::Key_D:
@@ -290,6 +308,10 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
         ui->actionX_Rays->trigger();
         break;
 
+    case Qt::Key_B:
+        ui->actionSkeleton->trigger();
+        break;
+
     case Qt::Key_F:
         glm::vec3 pos = m_camera->position();
         float fov = m_camera->fov();
@@ -298,7 +320,7 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
 
             glm::vec3 front = glm::normalize(camera->front());
             //            Q_ASSERT(glm::length(front) == 1.0f);
-            glm::vec3 target = camera->position() + 100.0f * front;
+            glm::vec3 target = camera->position() + 200.0f * front;
             //            glm::vec3 target = glm::vec3(0.0f, 0.0f, 0.0f);
 
             delete m_camera;
@@ -322,7 +344,6 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
             //            m_camera = new CameraFps(static_cast<CameraWorld*>(m_camera), this);
         }
         break;
-
     }
 }
 
@@ -377,12 +398,14 @@ void MainWindow3dView::wheelEvent(QWheelEvent* event)
 {
     m_camera->wheelEvent(event);
 
-    float dy = event->delta();
+    if (m_ortho)
+        updateOrthoProjection();
+    //    float dy = event->delta();
 
-    if (m_ortho) {
-        orthoSize += -dy * 0.01;
-        m_projectionMatrix = glm::ortho(-orthoSize, orthoSize, -orthoSize, orthoSize, l_near, l_far);
-    }
+    //    if (m_ortho) {
+    //        orthoSize += -dy * 0.01;
+    //        m_projectionMatrix = glm::ortho(-orthoSize, orthoSize, -orthoSize, orthoSize, l_near, l_far);
+    //    }
 }
 
 //bool MainWindow3dView::eventFilter(QObject* obj, QEvent* event)
@@ -433,6 +456,23 @@ QWidget* MainWindow3dView::widget()
     return this;
 }
 
+void MainWindow3dView::updateOrthoProjection()
+{
+    float targetDist;
+    if (m_camera->m_type == Camera::WORLD) {
+        glm::vec3 target = static_cast<CameraWorld*>(m_camera)->target();
+        targetDist = glm::length(camera()->position() - target);
+    } else {
+        targetDist = 200.0f;
+    }
+    float fov = glm::radians(m_camera->fov());
+    float right = targetDist * tanf(fov / 2);
+    float ratio = (float)height() / width();
+    float up = right * ratio;
+
+    m_projectionMatrix = glm::ortho(-right, right, -up, up, l_near, l_far);
+}
+
 void MainWindow3dView::updateProjectionMatrix()
 {
     //    m_projectionMatrix = fov;
@@ -442,6 +482,16 @@ void MainWindow3dView::updateProjectionMatrix()
 bool MainWindow3dView::xRays() const
 {
     return ui->actionX_Rays->isChecked();
+}
+
+bool MainWindow3dView::skeleton() const
+{
+    return ui->actionSkeleton->isChecked();
+}
+
+bool MainWindow3dView::normal() const
+{
+    return ui->actionNormal_2->isChecked();
 }
 
 void MainWindow3dView::setCursorToCenter()
@@ -486,29 +536,30 @@ const Shader& MainWindow3dView::shader() const
     }
 
     if (ui->actionWireFrame->isChecked()) {
-            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-//            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-//        if (ui->actionX_Rays->isChecked()) {
-//            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-//        } else {
-//            glPolygonMode(GL_FRONT, GL_LINE);
-//        }
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        //            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        //        if (ui->actionX_Rays->isChecked()) {
+        //            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        //        } else {
+        //            glPolygonMode(GL_FRONT, GL_LINE);
+        //        }
 
     } else {
-            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-//            glPolygonMode(GL_BACK, GL_LINE);
-//        if (ui->actionX_Rays->isChecked()) {
-//            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-//        } else {
-//            glPolygonMode(GL_FRONT, GL_FILL);
-//        }
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        //            glPolygonMode(GL_BACK, GL_LINE);
+        //        if (ui->actionX_Rays->isChecked()) {
+        //            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        //        } else {
+        //            glPolygonMode(GL_FRONT, GL_FILL);
+        //        }
     }
 
     if (ui->actionX_Rays->isChecked()) {
-//        glBlendFunc(GL_ONE, GL_ONE);
-    }
-    else {
-//        glBlendFunc(GL_ONE, GL_ZERO);
+        //        glBlendFunc(GL_ONE, GL_ONE);
+        glDisable(GL_CULL_FACE);
+    } else {
+        //        glBlendFunc(GL_ONE, GL_ZERO);
+        glEnable(GL_CULL_FACE);
     }
 
     return *m_shaders[m_shade];
@@ -572,6 +623,16 @@ void MainWindow3dView::on_actionRendered_triggered()
     setShading(RENDERED);
 }
 
+void MainWindow3dView::on_actionNormal_triggered()
+{
+    setShading(NORMAL);
+}
+
+void MainWindow3dView::on_actionDepth_triggered()
+{
+    setShading(DEPTH);
+}
+
 void MainWindow3dView::on_actionWireFrame_triggered()
 {
     //    QIcon icon = ui->actionWireFrame->icon();
@@ -597,15 +658,63 @@ void MainWindow3dView::on_actionWireFrame_triggered()
 
 void MainWindow3dView::on_actionX_Rays_triggered()
 {
-    ui->menuX_Ray->setIcon(ui->actionX_Rays->icon());
+    if (ui->actionX_Rays->isChecked()) {
+        QPixmap pixmap(":/icons/xRays.png");
+        QPainter painter(&pixmap);
+        painter.setCompositionMode(QPainter::CompositionMode_SourceIn);
+
+        painter.fillRect(pixmap.rect(), QColor(255, 0, 0));
+
+        QIcon icon(pixmap);
+        //        ui->menuWireFrame->setIcon(icon);
+        ui->menuX_Ray->setIcon(icon);
+
+    } else {
+
+        //        ui->menuWireFrame->setIcon(ui->actionWireFrame->icon());
+        ui->menuX_Ray->setIcon(ui->actionX_Rays->icon());
+    }
+    //    ui->actionWireFrame->ic
 }
 
-void MainWindow3dView::on_actionNormal_triggered()
+void MainWindow3dView::on_actionSkeleton_triggered()
 {
-    setShading(NORMAL);
+    if (ui->actionSkeleton->isChecked()) {
+        QPixmap pixmap(":/icons/bones.png");
+        QPainter painter(&pixmap);
+        painter.setCompositionMode(QPainter::CompositionMode_SourceIn);
+
+        painter.fillRect(pixmap.rect(), QColor(255, 0, 0));
+
+        QIcon icon(pixmap);
+        //        ui->menuWireFrame->setIcon(icon);
+        ui->menuSkeleton->setIcon(icon);
+
+    } else {
+
+        //        ui->menuWireFrame->setIcon(ui->actionWireFrame->icon());
+        ui->menuSkeleton->setIcon(ui->actionSkeleton->icon());
+    }
+    //    ui->actionWireFrame->ic
 }
 
-void MainWindow3dView::on_actionDepth_triggered()
+void MainWindow3dView::on_actionNormal_2_triggered()
 {
-    setShading(DEPTH);
+    if (ui->actionNormal_2->isChecked()) {
+        QPixmap pixmap(":/icons/normal.png");
+        QPainter painter(&pixmap);
+        painter.setCompositionMode(QPainter::CompositionMode_SourceIn);
+
+        painter.fillRect(pixmap.rect(), QColor(255, 0, 0));
+
+        QIcon icon(pixmap);
+        //        ui->menuWireFrame->setIcon(icon);
+        ui->menuNormal->setIcon(icon);
+
+    } else {
+
+        //        ui->menuWireFrame->setIcon(ui->actionWireFrame->icon());
+        ui->menuNormal->setIcon(ui->actionNormal_2->icon());
+    }
+    //    ui->actionWireFrame->ic
 }

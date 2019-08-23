@@ -17,14 +17,14 @@ public:
     QOpenGLFunctionsCore* m_fun;
     // constructor generates the shader on the fly
     // ------------------------------------------------------------------------
-//    Shader() {}
+    //    Shader() {}
 
     //    Shader(const char* vertexPath, const char* fragmentPath, const char* geometryPath = nullptr)
     Shader(const std::string vertexPath, const std::string fragmentPath, const std::string geometryPath = "")
     {
-//        vertexPath = shaderPath + vertexPath;
+        //        vertexPath = shaderPath + vertexPath;
         m_fun = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
-//        m_fun = fun;
+        //        m_fun = fun;
         //        initializeOpenGLFunctions();
 
         // 1. retrieve the vertex/fragment source code from filePath
@@ -65,17 +65,24 @@ public:
             fragmentCode = fShaderStream.str();
             // if geometry shader path is present, also load a geometry shader
             //            if (geometryPath != nullptr) {
-            if (!geometryPath.empty()) {
-                gShaderFile.open(geometryPath);
-                std::stringstream gShaderStream;
-                gShaderStream << gShaderFile.rdbuf();
-                gShaderFile.close();
-                geometryCode = gShaderStream.str();
-            }
         } catch (std::ifstream::failure e) {
             std::cout << "ERROR::SHADER::FRAGMENT::FILE_NOT_SUCCESFULLY_READ " << fragmentPath << std::endl;
             exit(0);
         }
+
+        if (!geometryPath.empty()) {
+            try {
+                gShaderFile.open(g_shaderPath + geometryPath);
+                std::stringstream gShaderStream;
+                gShaderStream << gShaderFile.rdbuf();
+                gShaderFile.close();
+                geometryCode = gShaderStream.str();
+            } catch (std::ifstream::failure e) {
+                std::cout << "ERROR::SHADER::GEOMETRY::FILE_NOT_SUCCESFULLY_READ " << geometryPath << std::endl;
+                exit(0);
+            }
+        }
+
         const char* vShaderCode = vertexCode.c_str();
         const char* fShaderCode = fragmentCode.c_str();
         // 2. compile shaders
@@ -112,19 +119,18 @@ public:
         // delete the shaders as they're linked into our program now and no longer necessery
         m_fun->glDeleteShader(vertex);
         m_fun->glDeleteShader(fragment);
-//        if (geometryPath != nullptr)
+        //        if (geometryPath != nullptr)
         if (!geometryPath.empty())
             m_fun->glDeleteShader(geometry);
 
-//        std::cout << "[SHADER] load : " << vertexPath << std::endl;
+        //        std::cout << "[SHADER] load : " << vertexPath << std::endl;
     }
 
-    ~Shader() {
+    ~Shader()
+    {
         std::cout << "\033[31m";
         std::cout << "[SHADER] '" << ID << "' destruct " << this << std::endl;
         std::cout << "\033[0m";
-
-
     }
     // activate the shader
     // ------------------------------------------------------------------------

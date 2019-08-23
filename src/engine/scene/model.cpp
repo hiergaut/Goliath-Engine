@@ -192,7 +192,8 @@ void Model::prepareHierarchy(ulong frameTime) const
     }
 }
 
-void Model::Draw(const glm::mat4& modelMatrix, const MainWindow3dView& view) const
+//void Model::Draw(const glm::mat4& modelMatrix, const MainWindow3dView& view) const
+void Model::Draw(const glm::mat4& modelMatrix, const Shader& shader) const
 {
     //    model = glm::mat4(1.0f);
     //    model = glm::scale(model, glm::vec3(0.01));
@@ -200,8 +201,8 @@ void Model::Draw(const glm::mat4& modelMatrix, const MainWindow3dView& view) con
     //    //    m_boneGeometry.draw(shader, glm::vec3(0, 0, 0), glm::vec3(10, 10, 10));
     //    //    shader.setBool("isSkeleton", true);
 
-    const Shader& shader = view.shader();
-    shader.use();
+//    const Shader& shader = view.shader();
+//    shader.use();
     for (const Mesh& mesh : m_meshes) {
         //        shader.setMat4("model", modelMatrix);
         //        const Mesh& mesh = m_meshes[i];

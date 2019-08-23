@@ -52,8 +52,14 @@ void Scene::initialize()
     //    m_shader = new Shader("model_loading.vsh", "model_loading.fsh");
 
     m_grid = new Grid;
+    normalShader = new Shader("shading/normalVector.vsh", "shading/normalVector.fsh", "shading/normalVector.gsh");
+//    normalShader = new Shader("shading/normal.vsh", "shading/normal.fsh");
+
+
     initialized = true;
     MainWindow3dView::glInitialize();
+
+    //    m_axis = new Axis();
 }
 
 void Scene::prepareHierarchy(ulong frameTime)
@@ -79,7 +85,9 @@ void Scene::draw(const MainWindow3dView& view)
     glm::mat4 modelMatrix(1.0);
     m_grid->draw(modelMatrix, viewMatrix, projectionMatrix);
 
-    //    const Shader & shader = view.shader();
+
+    const Shader& shader = view.shader();
+    //        shader.use();
 
     //    modelMatrix = glm::translate(modelMatrix, glm::vec3(10.0f, 0.0f, 0.0f));
     //    shader.use();
@@ -95,7 +103,7 @@ void Scene::draw(const MainWindow3dView& view)
         //        modelMatrix = glm::rotate(modelMatrix, 1.57f, glm::vec3(1, 0, 0));
         //        m_shader->setMat4("model", modelMatrix);
 
-        model.Draw(modelMatrix, view);
+        model.Draw(modelMatrix, shader);
     }
 
     //    m_shaderCamera->use();
@@ -116,11 +124,36 @@ void Scene::draw(const MainWindow3dView& view)
         //        m_shader->setMat4("model", modelMatrix);
 
         //        m_shader->setBool("isSkeleton", false);
-        m_cameraModel->Draw(modelMatrix, view);
+        m_cameraModel->Draw(modelMatrix, shader);
     }
 
-    if (view.xRays()) {
-        modelMatrix = glm::mat4(1.0f);
+    modelMatrix = glm::mat4(1.0f);
+//    glEnable(GL_DEPTH_TEST);
+    if (view.normal()) {
+        normalShader->use();
+//        glm::mat4 viewMatrix = view.viewMatrix();
+//        glm::mat4 projectionMatrix = view.projectionMatrix();
+        normalShader->setMat4("view", viewMatrix);
+        normalShader->setMat4("projection", projectionMatrix);
+//        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+//        glEnable(GL_CULL_FACE);
+//        glEnable(GL_LIGHTING);
+//        glDisable(GL_BLEND);
+//        glCullFace(GL_BACK);
+//        normalShader->setMat4("model", modelMatrix);
+        for (const Model& model : m_models) {
+            //	    glm::mat4 model(1.0);
+            //        glm::mat4 modelMatrix(1.0);
+            //        modelMatrix = glm::scale(modelMatrix, glm::vec3(0.01));
+            //        modelMatrix = glm::rotate(modelMatrix, 1.57f, glm::vec3(1, 0, 0));
+            //        m_shader->setMat4("model", modelMatrix);
+
+            model.Draw(modelMatrix, *normalShader);
+        }
+    }
+
+    if (view.skeleton()) {
+        //        modelMatrix = glm::mat4(1.0f);
         for (const Model& model : m_models) {
             //	    glm::mat4 model(1.0);
             //        glm::mat4 modelMatrix(1.0);
@@ -131,6 +164,9 @@ void Scene::draw(const MainWindow3dView& view)
             model.DrawHierarchy(modelMatrix, view);
         }
     }
+
+    //    glViewport(5, 5, 55, 55);
+    //    m_axis->draw(viewMatrix);
 }
 
 void Scene::addModel(std::string file)

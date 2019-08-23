@@ -79,7 +79,7 @@ void QSplitterNode::save(std::ofstream& file) const
     if (size == 1) {
         //        static_cast<MainWindowEditor*>(widget(0))->save(file);
         MainWindowEditor* win = static_cast<MainWindowEditor*>(widget(0));
-//        qDebug() << "[SplitterNode] save mainWindowEditor" << win;
+        //        qDebug() << "[SplitterNode] save mainWindowEditor" << win;
         win->save(file);
         //        WidgetEditorId id = static_cast<MainWindowEditor*>(widget(0))->id();
         //        file.write(reinterpret_cast<const char*>(&id), sizeof (id));
@@ -169,90 +169,91 @@ void QSplitterNode::load(std::ifstream& file)
 
 void QSplitterNode::mousePressEvent(QMouseEvent* ev)
 {
-//    std::cout << *this;
+    //    std::cout << *this;
     //    qDebug() << this << ": depth = " << m_depth << ", parent = " << parentWidget();
     //    qDebug() << rect();
-    Q_ASSERT(count() == 1);
+    if (ev->button() == Qt::RightButton) {
+        Q_ASSERT(count() == 1);
 
-    int width = this->width();
-    int height = this->height();
+        int width = this->width();
+        int height = this->height();
 
-    int x = ev->x();
-    int y = ev->y();
+        int x = ev->x();
+        int y = ev->y();
 
-    int border = 10;
+        int border = 10;
 
-    //    qDebug() << this->sizePolicy() << parent->orientation();
+        //    qDebug() << this->sizePolicy() << parent->orientation();
 
-    if (x < border || width - border < x || y < border || height - border < y) {
-        Qt::Orientation orientation;
-        int offset;
-        if (x < border || width - border < x) {
-            offset = (x < border) ? (0) : (1);
-            orientation = Qt::Horizontal;
-        } else {
-            offset = (y < border) ? (0) : (1);
-            orientation = Qt::Vertical;
-        }
+        if (x < border || width - border < x || y < border + 20 || height - border < y) {
+            Qt::Orientation orientation;
+            int offset;
+            if (x < border || width - border < x) {
+                offset = (x < border) ? (0) : (1);
+                orientation = Qt::Horizontal;
+            } else {
+                offset = (y < border + 20) ? (0) : (1);
+                orientation = Qt::Vertical;
+            }
 
-        //                setCursor(Qt::SplitHCursor);
-        //        QWidget* widget = new QWidget;
-        //        int rand1 = 100 + qrand() % 155;
-        //        int rand2 = 100 + qrand() % 155;
-        //        int rand3 = 100 + qrand() % 155;
-        //        widget->setStyleSheet(QString("background-color: rgb(%1,%2,%3);").arg(rand1).arg(rand2).arg(rand3));
-        MainWindowEditor* newWidget = new MainWindowEditor;
-        newWidget->setEditor(Editor::id::VIEW);
-        //        QWidget* newWidget = new widgetTemplate;
+            //                setCursor(Qt::SplitHCursor);
+            //        QWidget* widget = new QWidget;
+            //        int rand1 = 100 + qrand() % 155;
+            //        int rand2 = 100 + qrand() % 155;
+            //        int rand3 = 100 + qrand() % 155;
+            //        widget->setStyleSheet(QString("background-color: rgb(%1,%2,%3);").arg(rand1).arg(rand2).arg(rand3));
+            MainWindowEditor* newWidget = new MainWindowEditor;
+            newWidget->setEditor(Editor::id::VIEW);
+            //        QWidget* newWidget = new widgetTemplate;
 
-        QSplitterNode* parent = static_cast<QSplitterNode*>(this->parentWidget());
-        if (parent->orientation() == orientation) {
-            QSplitterNode* node = new QSplitterNode(parent);
-            //            node->setSizePolicy(defaultPolicy);
-            //            node->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-            //            node->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred));
+            QSplitterNode* parent = static_cast<QSplitterNode*>(this->parentWidget());
+            if (parent->orientation() == orientation) {
+                QSplitterNode* node = new QSplitterNode(parent);
+                //            node->setSizePolicy(defaultPolicy);
+                //            node->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
+                //            node->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred));
 
-            node->addWidget(newWidget);
+                node->addWidget(newWidget);
 
-            int length = (orientation == Qt::Horizontal) ? (width) : (height);
-            //            QList<int> s = parent->sizes();
-            parent->insertWidget(parent->indexOf(this) + offset, node);
+                int length = (orientation == Qt::Horizontal) ? (width) : (height);
+                //            QList<int> s = parent->sizes();
+                parent->insertWidget(parent->indexOf(this) + offset, node);
 
-            //            int length;
-            //            if (orientation == Qt::Horizontal) {
-            //                length = width / parent->count();
-            //            } else {
-            //                length = height / parent->count();
-            //            }
-            //            for (int i = 0; i < parent->count(); ++i) {
-            //                sizes.push_back(length);
-            //            }
-            QList<int> s = parent->sizes();
-            s[parent->indexOf(this)] = length / 2;
-            s[parent->indexOf(this) - (1 - 2 * offset)] = length / 2;
-            parent->setSizes(s);
+                //            int length;
+                //            if (orientation == Qt::Horizontal) {
+                //                length = width / parent->count();
+                //            } else {
+                //                length = height / parent->count();
+                //            }
+                //            for (int i = 0; i < parent->count(); ++i) {
+                //                sizes.push_back(length);
+                //            }
+                QList<int> s = parent->sizes();
+                s[parent->indexOf(this)] = length / 2;
+                s[parent->indexOf(this) - (1 - 2 * offset)] = length / 2;
+                parent->setSizes(s);
 
-        } else {
-            QWidget* w = widget(0);
-            w->setParent(nullptr);
+            } else {
+                QWidget* w = widget(0);
+                w->setParent(nullptr);
 
-            setOrientation(orientation);
+                setOrientation(orientation);
 
-            QSplitterNode* node = new QSplitterNode(this);
-            node->addWidget(w);
-            w->setParent(node);
+                QSplitterNode* node = new QSplitterNode(this);
+                node->addWidget(w);
+                w->setParent(node);
 
-            QSplitterNode* node2 = new QSplitterNode(this);
-            node2->addWidget(newWidget);
+                QSplitterNode* node2 = new QSplitterNode(this);
+                node2->addWidget(newWidget);
 
-            addWidget(node);
-            addWidget(node2);
-            //            QList<int> sizes;
-            //            int middle = height / 2;
-            setSizes(QList<int>({ height / 2, height - height / 2 }));
+                addWidget(node);
+                addWidget(node2);
+                //            QList<int> sizes;
+                //            int middle = height / 2;
+                setSizes(QList<int>({ height / 2, height - height / 2 }));
+            }
         }
     }
-
     //    connect(this->handle(3), SIGNAL(mousePressEvent()), this, SLOT(onHandleMousePressEvent()));
     //    qDebug() << this << ": handle(0) = " << handle(0);
 }
@@ -314,7 +315,7 @@ void QSplitterNode::onSplitterMoved(int pos, int index)
         //        for (int i = 0; i < n; ++i) {
         while (son->count() > 0) {
             static_cast<QSplitterNode*>(son->widget(0))->setParent(this);
-//            addWidget(static_cast<QSplitterNode*>(son->widget(0)));
+            //            addWidget(static_cast<QSplitterNode*>(son->widget(0)));
             //            son->widget(i)->setParent(this);
             //                addWidget(son->widget(i));
         }

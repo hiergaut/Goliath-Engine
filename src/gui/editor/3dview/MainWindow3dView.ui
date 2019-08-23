@@ -35,6 +35,8 @@
     <addaction name="separator"/>
     <addaction name="actionWireFrame"/>
     <addaction name="actionX_Rays"/>
+    <addaction name="actionSkeleton"/>
+    <addaction name="actionNormal_2"/>
    </widget>
    <widget class="QMenu" name="menuInteraction_Mode">
     <property name="title">
@@ -59,9 +61,21 @@
      <string>X-Ray</string>
     </property>
    </widget>
+   <widget class="QMenu" name="menuSkeleton">
+    <property name="title">
+     <string>Skeleton</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menuNormal">
+    <property name="title">
+     <string>Normal</string>
+    </property>
+   </widget>
    <addaction name="menuInteraction_Mode"/>
    <addaction name="menuX_Ray"/>
    <addaction name="menuWireFrame"/>
+   <addaction name="menuSkeleton"/>
+   <addaction name="menuNormal"/>
    <addaction name="menuShading"/>
    <addaction name="menuShading_2"/>
   </widget>
@@ -123,18 +137,54 @@
    <property name="checkable">
     <bool>true</bool>
    </property>
+   <property name="icon">
+    <iconset resource="../../../../resources/resources.qrc">
+     <normaloff>:/icons/xRays.png</normaloff>:/icons/xRays.png</iconset>
+   </property>
    <property name="text">
     <string>X-Ray</string>
    </property>
   </action>
   <action name="actionNormal">
+   <property name="icon">
+    <iconset resource="../../../../resources/resources.qrc">
+     <normaloff>:/icons/normal.png</normaloff>:/icons/normal.png</iconset>
+   </property>
    <property name="text">
     <string>Normal</string>
    </property>
   </action>
   <action name="actionDepth">
+   <property name="icon">
+    <iconset resource="../../../../resources/resources.qrc">
+     <normaloff>:/icons/depth.png</normaloff>:/icons/depth.png</iconset>
+   </property>
    <property name="text">
     <string>Depth</string>
+   </property>
+  </action>
+  <action name="actionSkeleton">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../../../resources/resources.qrc">
+     <normaloff>:/icons/bones.png</normaloff>:/icons/bones.png</iconset>
+   </property>
+   <property name="text">
+    <string>Skeleton</string>
+   </property>
+  </action>
+  <action name="actionNormal_2">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../../../resources/resources.qrc">
+     <normaloff>:/icons/normal.png</normaloff>:/icons/normal.png</iconset>
+   </property>
+   <property name="text">
+    <string>Normal</string>
    </property>
   </action>
  </widget>

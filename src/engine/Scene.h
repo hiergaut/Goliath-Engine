@@ -7,6 +7,7 @@
 #include <opengl/shader.h>
 #include <opengl/grid.h>
 #include <gui/editor/3dview/MainWindow3dView.h>
+#include <opengl/axis.h>
 
 //#include <QObject>
 //#include <QWidget>
@@ -64,6 +65,8 @@ private:
     Model* m_cameraModel;
 //    Shader* m_shaderCamera;
 //    std::vector<const CameraWorld*> m_cameras;
+//    Axis * m_axis;
+    Shader * normalShader;
 
     Grid * m_grid;
     bool initialized = false;

@@ -39,6 +39,8 @@ MainWindowEditor::MainWindowEditor(QWidget* parent)
 //    qDebug() << "[MainWindowEditor]" << this << "created";
 //    *m_defaultMenuBar = *ui->menubar;
 //    *m_defaultMenuBar = std::move(*(ui->menubar));
+//    connect(ui->menubar, &QMenuBar::mousePressEvent, this, &MainWindowEditor::mousePressEvent);
+
 }
 
 MainWindowEditor::~MainWindowEditor()

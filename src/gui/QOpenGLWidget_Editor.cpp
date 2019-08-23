@@ -67,7 +67,7 @@ void QOpenGLWidget_Editor::initializeGL()
     Q_ASSERT(QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>());
 
     glEnable(GL_DEPTH_TEST);
-    glEnable(GL_CULL_FACE);
+//    glEnable(GL_CULL_FACE);
     glEnable(GL_MULTISAMPLE);
 
 //    glEnable(GL_BLEND);
@@ -150,10 +150,11 @@ void QOpenGLWidget_Editor::paintGL()
         glViewport(x, y, view->width(), view->height());
 
         glm::mat4 viewMatrix = view->viewMatrix();
-        glm::mat4 projectionMatrix = view->projectionMatrix();
+//        glm::mat4 projectionMatrix = view->projectionMatrix();
         m_scene.draw(*view);
 
-        glViewport(x + 5, y + 5, 55, 55);
+        int minSide = qMin(view->width(), view->height());
+        glViewport(x + 5, y + 5, minSide / 10, minSide / 10);
         m_axis->draw(viewMatrix);
     }
 
