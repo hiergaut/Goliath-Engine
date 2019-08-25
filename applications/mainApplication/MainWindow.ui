@@ -33,6 +33,18 @@
     <string notr="true">background-color: lightgrey;</string>
    </property>
    <layout class="QHBoxLayout" name="horizontalLayout">
+    <property name="leftMargin">
+     <number>3</number>
+    </property>
+    <property name="topMargin">
+     <number>3</number>
+    </property>
+    <property name="rightMargin">
+     <number>3</number>
+    </property>
+    <property name="bottomMargin">
+     <number>3</number>
+    </property>
     <item>
      <widget class="QStackedWidget" name="stackedWidget">
       <widget class="QSplitterNode" name="page_splitterRoot"/>
@@ -73,7 +85,13 @@
     <addaction name="separator"/>
     <addaction name="actionQuit"/>
    </widget>
+   <widget class="QMenu" name="menuCurrentEnvFile">
+    <property name="title">
+     <string/>
+    </property>
+   </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuCurrentEnvFile"/>
   </widget>
   <widget class="QStatusBar" name="statusBar">
    <property name="styleSheet">

@@ -45,8 +45,10 @@ int main(int argc, char* argv[])
 //    w.showSystemBrowser();
 //    w.loadFile("temp.dat");
 //    w.loadLastSession();
-    w.saveEnv("factory.dat");
-    w.loadLastSession();
+    w.loadNewSession(); // here because opengl context is initialized
+
+//    w.saveEnv("factory.dat");
+//    w.loadLastSession();
 
 
     return a.exec();

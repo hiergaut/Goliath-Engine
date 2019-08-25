@@ -45,7 +45,7 @@ Scene::Scene()
 void Scene::initialize()
 {
     //    std::cout << "fuck" << std::endl;
-    m_cameraModel = new Model("models/camera/camera.obj");
+    m_cameraModel = new Model(g_resourcesPath + "models/camera/camera.obj");
     //    std::cout << "bitch" << std::endl;
 
     //    m_shaderCamera = new Shader("camera.vsh", "camera.fsh");

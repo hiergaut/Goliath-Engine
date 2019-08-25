@@ -1,6 +1,7 @@
 #include "mesh.h"
 
 #include <assimp/Assimp.h>
+#include <gui/editor/timeline/FormTimeline.h>
 
 Mesh::Mesh(const aiMesh* ai_mesh, const Materials& materials, const Textures& textures)
     : m_name(ai_mesh->mName.C_Str())
@@ -151,9 +152,9 @@ void Mesh::buildItemModel(QStandardItem* parent) const
     //        QStandardItem * item2 = new QStandardItem(QIcon)
     QStandardItem* item3 = new QStandardItem(QIcon(":/icons/vertexGroups.png"), "Vertex Groups  bones:" + QString::number(m_bones.size()) + "  sumBoneWeights:" + QString::number(m_sumBoneWeights));
     item->appendRow(item3);
-//    for (const Bone& bone : m_bones) {
-//        bone.buildItemModel(item3);
-//    }
+    //    for (const Bone& bone : m_bones) {
+    //        bone.buildItemModel(item3);
+    //    }
 }
 
 /*  Functions    */
@@ -219,9 +220,9 @@ void Mesh::setupMesh()
 
 void Mesh::draw(const Shader& shader) const
 {
-//    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-//    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-//    shader.setMat4("model", m_transform);
+    //    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    //    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    //    shader.setMat4("model", m_transform);
     //    shader.setMat4("model", glm::mat4(1));
 
     const Material& material = m_materials[m_iMaterial];
@@ -250,14 +251,18 @@ void Mesh::draw(const Shader& shader) const
         }
     }
 
-    if (m_bones.size() > 0) {
-        for (uint i = 0; i < m_bones.size(); ++i) {
-            const Bone& bone = m_bones[i];
+    if (FormTimeline::animation() != nullptr) {
+        if (m_bones.size() > 0) {
+            for (uint i = 0; i < m_bones.size(); ++i) {
+                const Bone& bone = m_bones[i];
 
-            shader.setMat4("gBones[" + std::to_string(i) + "]", bone.m_transform);
-            //        shader.setMat4("gBones[" + std::to_string(i) +"]", bone.m_transform * bone.m_offsetMatrix);
+                shader.setMat4("gBones[" + std::to_string(i) + "]", bone.m_transform);
+                //        shader.setMat4("gBones[" + std::to_string(i) +"]", bone.m_transform * bone.m_offsetMatrix);
+            }
+            shader.setBool("isSkeleton", true);
+        } else {
+            shader.setBool("isSkeleton", false);
         }
-        shader.setBool("isSkeleton", true);
     } else {
         shader.setBool("isSkeleton", false);
     }

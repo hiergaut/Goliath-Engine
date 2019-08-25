@@ -32,7 +32,8 @@ Model::Model(const std::string& path)
     //        if (!fake) {
     //    qDebug() << QThread::currentThreadId() << "[MODEL]" << this << "[CONTEXT]" << fun;
 
-    assimpLoadModel(g_resourcesPath + path);
+//    assimpLoadModel(g_resourcesPath + path);
+    assimpLoadModel(path);
     //    std::cout << "[MODEL] load : " << path << std::endl;
     //        }
     //    std::cout << "[Model] create " << this << std::endl;

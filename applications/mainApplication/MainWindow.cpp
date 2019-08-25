@@ -29,17 +29,18 @@
 //#include <QOpenGLFunctionsCore>
 //#include <gui/editor/fileOpenned/QListView_FileOpenned.h>
 
-
-
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
+    , m_settings("Goliath-Engine", "fake")
 {
 
     ui->setupUi(this);
 
     connect(ui->page_systemBrowser, &FormSystemBrowser::canceled, this, &MainWindow::on_systemBrowserCanceled);
     connect(ui->page_systemBrowser, &FormSystemBrowser::openned, this, &MainWindow::on_systemBrowserLoaded);
+    connect(ui->page_systemBrowser, &FormSystemBrowser::saved, this, &MainWindow::on_systemBrowserSaved);
+
 
     m_views = new std::list<const MainWindow3dView*>;
     MainWindow3dView::setViews(m_views);
@@ -48,7 +49,7 @@ MainWindow::MainWindow(QWidget* parent)
     editor->setViews(m_views);
     editor->setStatusBar(ui->statusBar);
 
-//    QListView_FileOpenned::setModelFileOpenned(&m_fileOpennedModel);
+    //    QListView_FileOpenned::setModelFileOpenned(&m_fileOpennedModel);
 
     //        ui->page_splitterRoot->load(file);
     MainWindowEditor* w = new MainWindowEditor;
@@ -62,7 +63,9 @@ MainWindow::MainWindow(QWidget* parent)
 
     //    on_actionLoad_Factory_Settings_triggered();
     //    loadLastSession();
-//    saveEnv("factory.dat");
+    //    saveEnv("factory.dat");
+//    loadNewSession();
+    setFocus();
 }
 
 MainWindow::~MainWindow()
@@ -94,14 +97,19 @@ void MainWindow::loadEnv(std::string filename)
         ui->stackedWidget->addWidget(ui->page_splitterRoot);
         ui->stackedWidget->setCurrentWidget(ui->page_splitterRoot);
 
+        //        ui->page_splitterRoot->setFocus();
+
         //        g_env.load(file);
-//        editor->clear();
+        //        editor->clear();
         editor->load(file);
-//        m_fileOpennedModel.load(file);
+        //        m_fileOpennedModel.load(file);
 
         file.close();
     }
 
+//    ui->me
+//    m_currentEnvFile = filename.c_str();
+    ui->menuCurrentEnvFile->setTitle(filename.c_str());
     //        ui->page_splitterRoot->setParent(ui->stackedWidget);
 }
 
@@ -126,7 +134,7 @@ void MainWindow::saveEnv(std::string filename)
     ui->page_splitterRoot->save(file);
     //    g_env.save(file);
     editor->save(file);
-//    m_fileOpennedModel.save(file);
+    //    m_fileOpennedModel.save(file);
 
     file.close();
 }
@@ -147,20 +155,38 @@ void MainWindow::showEditors()
     editor->update();
 }
 
-void MainWindow::loadLastSession()
-{
-    loadEnv("temp.dat");
-//    editor->loadNewModel("models/camera/camera.obj");
-//    editor->loadNewModel("models/camera/camera.obj");
-//    editor->loadNewModel("models/camera/camera.obj");
-//    editor->loadNewModel("maps/de_aztec/de_aztec.obj");
-    editor->loadNewModel("models/player/gign/gign.fbx");
-//    editor->loadNewModel("models/Dana.fbx");
-}
+//void MainWindow::loadLastSession()
+//{
+    //    loadEnv("temp.dat");
+    //    editor->loadNewModel("models/camera/camera.obj");
+    //    editor->loadNewModel("models/camera/camera.obj");
+    //    editor->loadNewModel("models/camera/camera.obj");
+    //    editor->loadNewModel("maps/de_aztec/de_aztec.obj");
+    //    editor->loadNewModel("models/player/gign/gign.fbx");
+    //    editor->loadNewModel("models/Dana.fbx");
+//}
 
-void MainWindow::saveSession()
+//void MainWindow::saveSession()
+//{
+//    saveEnv("temp.dat");
+//}
+
+void MainWindow::loadNewSession()
 {
-    saveEnv("temp.dat");
+    QFileInfo file(m_settings.fileName());
+    QDir dir(file.path());
+
+    //    std::string startupFile = file.path().toStdString() + "/startup.dat";
+    QFile startupFile(file.path() + "/startup.dat");
+
+    if (startupFile.exists()) {
+        //        QDir::mkpath(dir.path());
+        //        dir.mkpath(".");
+        loadEnv(startupFile.fileName().toStdString());
+    }
+    else {
+        loadEnv(g_resourcesPath + "dat/factory.dat");
+    }
 }
 
 void MainWindow::keyPressEvent(QKeyEvent* ev)
@@ -199,7 +225,7 @@ void MainWindow::resizeEvent(QResizeEvent* ev)
 
 void MainWindow::on_actionQuit_triggered()
 {
-//    saveSession();
+    //    saveSession();
     //    ui->splitter_root->saveSetting();
     //    std::cout << std::flush;
     QCoreApplication::quit();
@@ -207,31 +233,56 @@ void MainWindow::on_actionQuit_triggered()
 
 void MainWindow::on_actionSave_As_triggered()
 {
+//    ui->page_systemBrowser->setGoliathFilter();
+    ui->page_systemBrowser->setMode(Mode::SAVE);
+    showSystemBrowser();
 }
 
 void MainWindow::on_actionOpen_triggered()
 {
-    loadLastSession();
+//    ui->page_systemBrowser->setGoliathFilter();
+    ui->page_systemBrowser->setMode(Mode::OPEN);
+    showSystemBrowser();
+
+//    loadLastSession();
     //    loadEnv("temp.dat");
 }
 
 void MainWindow::on_actionLoad_Factory_Settings_triggered()
 {
-    loadEnv("factory.dat");
+    //    loadEnv("factory.dat");
+    loadEnv(g_resourcesPath + "dat/factory.dat");
 }
 
 void MainWindow::on_actionSave_Startup_File_triggered()
 {
-    //    saveEnv("startup.dat");
+    //    saveEnv("factory.dat");
+    //    saveEnv(g_resourcesPath + "dat/factory.dat");
+
+    //    saveEnv("$PWD/.config/Goliath-Engine/startup.dat");
+    //    qDebug() << QDir(m_settings.fileName());
+    QFileInfo file(m_settings.fileName());
+    QDir dir(file.path());
+    if (!dir.exists()) {
+        //        QDir::mkpath(dir.path());
+        dir.mkpath(".");
+    }
+    saveEnv((file.path() + "/startup.dat").toStdString());
+    //    qDebug() << file.path();
 }
 
 void MainWindow::on_actionNew_triggered()
 {
+    //    loadEnv("/home/gauthier/.config/Goliath-Engine/startup.dat");
+    QFileInfo file(m_settings.fileName());
+    loadEnv((file.path() + "/startup.dat").toStdString());
 }
 
 void MainWindow::on_actionImport_triggered()
 {
     //    qDebug() << m_splitterRoot;
+//    ui->page_systemBrowser->setAssimpFilter();
+    ui->page_systemBrowser->setMode(Mode::IMPORT);
     showSystemBrowser();
     //    qDebug() << m_splitterRoot;
 }
@@ -253,14 +304,30 @@ void MainWindow::on_systemBrowserLoaded(QString filename)
     //    qDebug() << QThread::currentThreadId() << "[MainWindow][CONTEXT]" << QOpenGLContext::currentContext()->functions();
     //    Model model(g_resourcesPath + filename.toStdString());
     showEditors();
-    editor->loadNewModel(filename.toStdString());
+    loadEnv(filename.toStdString());
 
     //    g_env.m_scene.push_back(model);
 }
 
+void MainWindow::on_systemBrowserSaved(QString file)
+{
+
+    showEditors();
+    saveEnv(file.toStdString());
+}
+
+void MainWindow::on_systemBrowserImported(QString file)
+{
+    showEditors();
+    editor->loadNewModel(file.toStdString());
+
+}
+
 void MainWindow::on_actionSave_triggered()
 {
-    saveSession();
+    saveEnv(ui->menuCurrentEnvFile->title().toStdString());
+
+//    saveSession();
     //    saveEnv("temp.dat");
 }
 

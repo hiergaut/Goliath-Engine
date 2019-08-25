@@ -27,12 +27,12 @@ MainWindowEditor::MainWindowEditor(QWidget* parent)
 //    auto time = QTime::currentTime().msec();
 
     qsrand(QDateTime::currentMSecsSinceEpoch());
-//    int rand1 = 100 + qrand() % 155;
-//    int rand2 = 100 + qrand() % 155;
-//    int rand3 = 100 + qrand() % 155;
-    int rand1 = qrand() % 155;
-    int rand2 = qrand() % 155;
-    int rand3 = qrand() % 155;
+    int rand1 = 64 + qrand() % 128;
+    int rand2 = 64 + qrand() % 128;
+    int rand3 = 64 + qrand() % 128;
+//    int rand1 = qrand() % 155;
+//    int rand2 = qrand() % 155;
+//    int rand3 = qrand() % 155;
     setStyleSheet(QString("background-color: rgb(%1,%2,%3);").arg(rand1).arg(rand2).arg(rand3));
 
     //    setCentralWidget(widget);
@@ -81,6 +81,11 @@ void MainWindowEditor::setEditor(Editor::id id)
         break;
 
     case Editor::id::OUTLINER:
+//        int rand1 = qrand() % 155;
+//        int rand2 = qrand() % 155;
+//        int rand3 = qrand() % 155;
+//        setStyleSheet(QString("background-color: rgb(%1,%2,%3);").arg(qrand() % 127 + 127).arg(qrand() % 127 + 127).arg(qrand() % 127 + 127));
+
         m_centralWidget = new QTreeView_outliner;
         ui->menuEditor_Type->setIcon(ui->actionOutliner->icon());
         ui->menuEditor_Type_2->setTitle("Outliner");

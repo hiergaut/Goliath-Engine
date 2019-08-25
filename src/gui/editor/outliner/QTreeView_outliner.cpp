@@ -36,6 +36,7 @@ QTreeView_outliner::QTreeView_outliner(QWidget *parent) : QTreeView(parent)
 //    this->setCurrentIndex(m_modelScene->index(0, 0));
 //    setExpandsOnDoubleClick(true);
 //    expandAll();
+//    setStyleSheet("background-color: white;");
 
 }
 

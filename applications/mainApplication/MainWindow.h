@@ -33,8 +33,10 @@ public:
     void showSystemBrowser();
     void showEditors();
 
-    void loadLastSession();
-    void saveSession();
+//    void loadLastSession();
+//    void saveSession();
+
+    void loadNewSession();
 //    std::list<const MainWindow3dView *> views() const;
 
 protected:
@@ -55,6 +57,8 @@ private slots:
 
     void on_systemBrowserCanceled();
     void on_systemBrowserLoaded(QString filename);
+    void on_systemBrowserSaved(QString file);
+    void on_systemBrowserImported(QString file);
 
     void on_actionSave_triggered();
 
@@ -87,6 +91,8 @@ private:
 //    QOpenGLWidget_World * openglWidget;
 
 //    QSplitter * splitter;
+    QSettings m_settings;
+//    QString m_currentEnvFile;
 };
 
 #endif // MAINWINDOW_H
