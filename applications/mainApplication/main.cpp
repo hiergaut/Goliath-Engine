@@ -7,7 +7,7 @@
 //#include <opengl/OpenglContext.h>
 //#include <opengl/version.h>
 
-//#include <QThread>
+#include <QThread>
 //#include <QOpenGLFunctionsCokk>
 
 int main(int argc, char* argv[])
@@ -45,8 +45,10 @@ int main(int argc, char* argv[])
 //    w.showSystemBrowser();
 //    w.loadFile("temp.dat");
 //    w.loadLastSession();
-    w.loadNewSession(); // here because opengl context is initialized
+    w.loadLastSession(); // here because opengl context is initialized
 
+//    QThread::sleep(1);
+//    w.on_actionOpen_Recent_triggered();
 //    w.saveEnv("factory.dat");
 //    w.loadLastSession();
 

@@ -26,10 +26,13 @@ public:
 
     void openFile();
     void saveFile();
+    void importFile();
     void actionFile();
     //    void setGoliathFilter();
     //    void setAssimpFilter();
     void setMode(Mode mode);
+
+    void registerOpennedDir(QString path);
 
 protected:
     void keyPressEvent(QKeyEvent* event) override;
@@ -38,6 +41,8 @@ signals:
     void canceled();
     void openned(QString filename);
     void saved(QString file);
+    void imported(QString file);
+
 
 public slots:
     void on_changeSystemSelected(const QItemSelection&, const QItemSelection&);
@@ -61,6 +66,7 @@ private:
 
     QFileSystemModel* m_model;
     QStringListModel* m_recent;
+//    QStringListModel* m_previous;
 
     QSettings m_settings;
     QString m_rootPath;

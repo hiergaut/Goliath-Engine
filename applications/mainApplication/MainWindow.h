@@ -15,6 +15,7 @@
 #include <gui/editor/3dview/MainWindow3dView.h>
 #include <gui/QOpenGLWidget_Editor.h>
 #include <engine/Scene.h>
+#include "DialogInputGetItem.h"
 
 namespace Ui {
 class MainWindow;
@@ -36,8 +37,9 @@ public:
 //    void loadLastSession();
 //    void saveSession();
 
-    void loadNewSession();
+    void loadLastSession();
 //    std::list<const MainWindow3dView *> views() const;
+    void previousEnvAdd(std::string file);
 
 protected:
     void keyPressEvent(QKeyEvent *);
@@ -63,6 +65,10 @@ private slots:
     void on_actionSave_triggered();
 
 //    void on_setFps(float fps);
+
+    void on_actionOpen_Recent_triggered();
+
+    void on_dialogOpenPrevious(const QModelIndex & index);
 
 private:
     Ui::MainWindow *ui;
@@ -92,6 +98,11 @@ private:
 
 //    QSplitter * splitter;
     QSettings m_settings;
+    QStringListModel * m_previousEnv;
+
+    DialogInputGetItem m_dialogInput;
+    std::string m_startupPath;
+
 //    QString m_currentEnvFile;
 };
 

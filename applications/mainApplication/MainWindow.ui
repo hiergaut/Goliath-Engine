@@ -20,7 +20,7 @@
    <string>MainWindow</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">background-color: orange;</string>
+   <string notr="true"/>
   </property>
   <widget class="QWidget" name="centralWidget">
    <property name="sizePolicy">
@@ -94,8 +94,14 @@
    <addaction name="menuCurrentEnvFile"/>
   </widget>
   <widget class="QStatusBar" name="statusBar">
+   <property name="maximumSize">
+    <size>
+     <width>16777215</width>
+     <height>15</height>
+    </size>
+   </property>
    <property name="styleSheet">
-    <string notr="true">background-color: red;</string>
+    <string notr="true"/>
    </property>
   </widget>
   <action name="actionQuit">
@@ -127,7 +133,7 @@
     <string>Open Recent</string>
    </property>
    <property name="shortcut">
-    <string>Ctrl+Shift+O</string>
+    <string>Ctrl+R</string>
    </property>
   </action>
   <action name="actionSave">

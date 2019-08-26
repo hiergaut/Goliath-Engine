@@ -24,15 +24,21 @@
 #include <QThread>
 #include <gui/editor/MainWindowEditor.h>
 //#include <opengl/OpenglContext.h>
+#include <QStringListModel>
+//#include <QItemSelectionModel>
+#include <QInputDialog>
 
 //#include <opengl/version.h>
 //#include <QOpenGLFunctionsCore>
 //#include <gui/editor/fileOpenned/QListView_FileOpenned.h>
 
+const QString opennedFile = "opennedFile";
+
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
-    , m_settings("Goliath-Engine", "fake")
+    , m_settings("Goliath-Engine", opennedFile)
+    , m_dialogInput(this)
 {
 
     ui->setupUi(this);
@@ -40,7 +46,7 @@ MainWindow::MainWindow(QWidget* parent)
     connect(ui->page_systemBrowser, &FormSystemBrowser::canceled, this, &MainWindow::on_systemBrowserCanceled);
     connect(ui->page_systemBrowser, &FormSystemBrowser::openned, this, &MainWindow::on_systemBrowserLoaded);
     connect(ui->page_systemBrowser, &FormSystemBrowser::saved, this, &MainWindow::on_systemBrowserSaved);
-
+    connect(ui->page_systemBrowser, &FormSystemBrowser::imported, this, &MainWindow::on_systemBrowserImported);
 
     m_views = new std::list<const MainWindow3dView*>;
     MainWindow3dView::setViews(m_views);
@@ -64,12 +70,22 @@ MainWindow::MainWindow(QWidget* parent)
     //    on_actionLoad_Factory_Settings_triggered();
     //    loadLastSession();
     //    saveEnv("factory.dat");
-//    loadNewSession();
+    //    loadNewSession();
     setFocus();
+
+    m_previousEnv = new QStringListModel(this);
+    QStringList previous = m_settings.value(opennedFile).value<QStringList>();
+    m_previousEnv->setStringList(previous);
+
+    m_dialogInput.setModel(m_previousEnv);
+    connect(&m_dialogInput, &DialogInputGetItem::openEnv, this, &MainWindow::on_dialogOpenPrevious);
+    //    connect(m_previousEnv, &QStringListModel::layoutChanged, &m_dialogInput, &DialogInputGetItem::on_dataChange);
+    //    m_dialogInput.show();
 }
 
 MainWindow::~MainWindow()
 {
+    delete m_previousEnv;
     delete editor;
     delete ui;
     //    delete m_views;
@@ -85,7 +101,7 @@ void MainWindow::loadEnv(std::string filename)
     file.open(filename, std::ios::binary | std::ios::in);
     if (!file.is_open()) {
         std::cerr << "cannot open file" << std::endl;
-        //        exit(1);
+        exit(1);
     } else {
         ui->stackedWidget->removeWidget(ui->page_splitterRoot);
         delete ui->page_splitterRoot;
@@ -107,10 +123,13 @@ void MainWindow::loadEnv(std::string filename)
         file.close();
     }
 
-//    ui->me
-//    m_currentEnvFile = filename.c_str();
+    //    ui->me
+    //    m_currentEnvFile = filename.c_str();
     ui->menuCurrentEnvFile->setTitle(filename.c_str());
     //        ui->page_splitterRoot->setParent(ui->stackedWidget);
+    setFocus();
+
+    previousEnvAdd(filename);
 }
 
 void MainWindow::saveEnv(std::string filename)
@@ -137,6 +156,12 @@ void MainWindow::saveEnv(std::string filename)
     //    m_fileOpennedModel.save(file);
 
     file.close();
+
+    ui->menuCurrentEnvFile->setTitle(filename.c_str());
+    //        ui->page_splitterRoot->setParent(ui->stackedWidget);
+    setFocus();
+
+    previousEnvAdd(filename);
 }
 
 void MainWindow::showSystemBrowser()
@@ -145,6 +170,7 @@ void MainWindow::showSystemBrowser()
     //    setCentralWidget(&m_systemBrowser);
     editor->hide();
     ui->stackedWidget->setCurrentWidget(ui->page_systemBrowser);
+
     //    centralWidget() = &m_systemBrowser;
 }
 
@@ -157,13 +183,13 @@ void MainWindow::showEditors()
 
 //void MainWindow::loadLastSession()
 //{
-    //    loadEnv("temp.dat");
-    //    editor->loadNewModel("models/camera/camera.obj");
-    //    editor->loadNewModel("models/camera/camera.obj");
-    //    editor->loadNewModel("models/camera/camera.obj");
-    //    editor->loadNewModel("maps/de_aztec/de_aztec.obj");
-    //    editor->loadNewModel("models/player/gign/gign.fbx");
-    //    editor->loadNewModel("models/Dana.fbx");
+//    loadEnv("temp.dat");
+//    editor->loadNewModel("models/camera/camera.obj");
+//    editor->loadNewModel("models/camera/camera.obj");
+//    editor->loadNewModel("models/camera/camera.obj");
+//    editor->loadNewModel("maps/de_aztec/de_aztec.obj");
+//    editor->loadNewModel("models/player/gign/gign.fbx");
+//    editor->loadNewModel("models/Dana.fbx");
 //}
 
 //void MainWindow::saveSession()
@@ -171,21 +197,51 @@ void MainWindow::showEditors()
 //    saveEnv("temp.dat");
 //}
 
-void MainWindow::loadNewSession()
+void MainWindow::loadLastSession() // call by main
 {
-    QFileInfo file(m_settings.fileName());
-    QDir dir(file.path());
+    if (m_previousEnv->rowCount() > 0) {
+        loadEnv(m_previousEnv->index(0).data().toString().toStdString());
 
-    //    std::string startupFile = file.path().toStdString() + "/startup.dat";
-    QFile startupFile(file.path() + "/startup.dat");
+    } else {
+        QFileInfo file(m_settings.fileName());
+        QDir dir(file.path());
+        m_startupPath = (file.path() + "/startup.dat").toStdString();
 
-    if (startupFile.exists()) {
-        //        QDir::mkpath(dir.path());
-        //        dir.mkpath(".");
-        loadEnv(startupFile.fileName().toStdString());
+        //    std::string startupFile = file.path().toStdString() + "/startup.dat";
+        QFile startupFile(file.path() + "/startup.dat");
+
+        if (startupFile.exists()) {
+            //        QDir::mkpath(dir.path());
+            //        dir.mkpath(".");
+            loadEnv(startupFile.fileName().toStdString());
+        } else {
+            loadEnv(g_resourcesPath + "dat/factory.dat");
+
+            dir.mkpath(".");
+            saveEnv(startupFile.fileName().toStdString());
+        }
     }
-    else {
-        loadEnv(g_resourcesPath + "dat/factory.dat");
+}
+
+void MainWindow::previousEnvAdd(std::string file)
+{
+    if (file != m_startupPath && file != std::string(g_resourcesPath + "dat/factory.dat")) {
+        //        qDebug() << "same " << filename.c_str() << m_startupPath.c_str();
+        QStringList files = m_settings.value(opennedFile).value<QStringList>();
+        //    QString file = ui->lineEdit_currentPath->text();
+        if (!files.contains(file.c_str())) {
+//            files += file.c_str();
+            files.insert(0, file.c_str());
+
+        } else {
+            int idx = files.indexOf(file.c_str());
+            files.move(idx, 0);
+        }
+
+        m_settings.setValue(::opennedFile, QVariant::fromValue(files));
+        //    pullSettingsRecentModel();
+        m_previousEnv->setStringList(files);
+        //    m_previousEnv->layoutChanged();
     }
 }
 
@@ -228,23 +284,24 @@ void MainWindow::on_actionQuit_triggered()
     //    saveSession();
     //    ui->splitter_root->saveSetting();
     //    std::cout << std::flush;
+    on_actionSave_triggered();
     QCoreApplication::quit();
 }
 
 void MainWindow::on_actionSave_As_triggered()
 {
-//    ui->page_systemBrowser->setGoliathFilter();
+    //    ui->page_systemBrowser->setGoliathFilter();
     ui->page_systemBrowser->setMode(Mode::SAVE);
     showSystemBrowser();
 }
 
 void MainWindow::on_actionOpen_triggered()
 {
-//    ui->page_systemBrowser->setGoliathFilter();
+    //    ui->page_systemBrowser->setGoliathFilter();
     ui->page_systemBrowser->setMode(Mode::OPEN);
     showSystemBrowser();
 
-//    loadLastSession();
+    //    loadLastSession();
     //    loadEnv("temp.dat");
 }
 
@@ -281,7 +338,7 @@ void MainWindow::on_actionNew_triggered()
 void MainWindow::on_actionImport_triggered()
 {
     //    qDebug() << m_splitterRoot;
-//    ui->page_systemBrowser->setAssimpFilter();
+    //    ui->page_systemBrowser->setAssimpFilter();
     ui->page_systemBrowser->setMode(Mode::IMPORT);
     showSystemBrowser();
     //    qDebug() << m_splitterRoot;
@@ -320,14 +377,13 @@ void MainWindow::on_systemBrowserImported(QString file)
 {
     showEditors();
     editor->loadNewModel(file.toStdString());
-
 }
 
 void MainWindow::on_actionSave_triggered()
 {
     saveEnv(ui->menuCurrentEnvFile->title().toStdString());
 
-//    saveSession();
+    //    saveSession();
     //    saveEnv("temp.dat");
 }
 
@@ -341,3 +397,39 @@ void MainWindow::on_actionSave_triggered()
 //{
 //    return m_views;
 //}
+
+void MainWindow::on_actionOpen_Recent_triggered()
+{
+    //    for (QString str : m_previousEnv->stringList()) {
+    //        qDebug() << str;
+    //    }
+    //    QInputDialog dialog;
+    m_dialogInput.show();
+    //    //    dialog.show();
+    //    QStringList items = m_previousEnv->stringList();
+    ////       items << tr("Spring") << tr("Summer") << tr("Fall") << tr("Winter");
+
+    //       bool ok;
+    //       QString item = QInputDialog::getItem(this, tr("QInputDialog::getItem()"),
+    //                                            tr("Season:"), items, 0, false, &ok);
+    //       if (ok && !item.isEmpty())
+    //           qDebug() << item;
+    ////           itemLabel->setText(item);
+
+    //    bool ok;
+    //    QString text = QInputDialog::getText(this, tr("QInputDialog::getText()"),
+    //        tr("User name:"), QLineEdit::Normal,
+    //        QDir::home().dirName(), &ok);
+
+    //    if (ok && !text.isEmpty())
+    //        qDebug() << text;
+    //    //        textLabel->setText(text);
+}
+
+void MainWindow::on_dialogOpenPrevious(const QModelIndex& index)
+{
+    //    qDebug() << "openPrevious " << index.data().toString();
+
+    m_dialogInput.hide();
+    loadEnv(index.data().toString().toStdString());
+}
