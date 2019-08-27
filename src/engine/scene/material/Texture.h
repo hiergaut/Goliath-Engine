@@ -27,9 +27,12 @@ public:
     };
 
     Texture(std::string path, std::string filename, Texture::Type type);
+    Texture(std::ifstream & file);
     //    Texture(const Texture & texture);
     Texture(Texture&& texture) = default;
     ~Texture();
+
+    void save(std::ofstream & file) const;
 
     unsigned int TextureFromFile(const char* path, const std::string& directory);
 

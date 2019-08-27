@@ -45,8 +45,8 @@ public:
     void updateSceneModel();
 //    void modelChanged();
 
-//    void load(std::ifstream & file);
-//    void save(std::ofstream & file);
+    void load(std::ifstream & file);
+    void save(std::ofstream & file);
 
 private:
 //    void clear();

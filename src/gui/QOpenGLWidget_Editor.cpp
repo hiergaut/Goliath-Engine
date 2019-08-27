@@ -52,6 +52,8 @@ void QOpenGLWidget_Editor::load(std::ifstream& file)
     //    qDebug() << "[GL_CONTEXT]" << QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
 
     makeCurrent();
+
+    m_scene.load(file);
 }
 
 void QOpenGLWidget_Editor::save(std::ofstream& file)
@@ -59,6 +61,8 @@ void QOpenGLWidget_Editor::save(std::ofstream& file)
     Q_ASSERT(QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>());
     //    qDebug() << "[GL_CONTEXT]" << QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
     makeCurrent();
+
+    m_scene.save(file);
 }
 
 void QOpenGLWidget_Editor::initializeGL()

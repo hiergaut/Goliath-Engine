@@ -1,6 +1,7 @@
 #include "Bone.h"
 
 #include <assimp/Assimp.h>
+#include <session/Session.h>
 
 Bone::Bone(const aiBone* ai_bone)
     : m_name(ai_bone->mName.C_Str())
@@ -13,6 +14,15 @@ Bone::Bone(const aiBone* ai_bone)
         m_weights.emplace_back(ai_vertexWeight.mVertexId, ai_vertexWeight.mWeight);
     }
     m_offsetMatrix = aiMatrix4x4ToGlm(ai_bone->mOffsetMatrix);
+}
+
+Bone::Bone(std::ifstream &file)
+{
+    Session::load(m_name, file);
+    Session::load(m_weights, file);
+    Session::load(m_offsetMatrix, file);
+
+    Session::load(m_transform, file);
 }
 
 Bone::~Bone()
@@ -38,5 +48,15 @@ void Bone::buildItemModel(QStandardItem* parent) const
 //        QStandardItem * item3 = new QStandardItem(QString("vertexId:" +QString::number(pair.first) + "  weight:" + QString::number(pair.second)));
 //        item->appendRow(item3);
 //    }
-//    }
+    //    }
+}
+
+void Bone::save(std::ofstream &file)
+{
+    Session::save(m_name, file);
+    Session::save(m_weights, file);
+    Session::save(m_offsetMatrix, file);
+
+    Session::save(m_transform, file);
+
 }

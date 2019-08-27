@@ -12,13 +12,14 @@
 //#include <image/tga.h>
 //#include <fstream>
 #include <QPainter>
+#include <fstream>
 
 Material::Material(const aiMaterial* ai_material, Textures& textures, std::string directory)
      : m_directory(directory),
      m_textures(textures)
 //      m_fun(QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>())
 {
-    m_fun = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
+//    m_fun = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
 
     for (int i =0; i <Color::Etype::size; ++i) {
         m_colors[i].type = static_cast<Color::Etype>(i);
@@ -67,7 +68,25 @@ Material::Material(const aiMaterial* ai_material, Textures& textures, std::strin
 //    std::cout << "\033[32m";
 //    std::cout << "[Material] " << m_name << " created " << this << std::endl;
 ////    std::cout << "m_textures : " << m_colors << std::endl;
-//    std::cout << "\033[0m";
+    //    std::cout << "\033[0m";
+}
+
+Material::Material(std::ifstream &file, Textures &textures)
+    : m_textures(textures)
+{
+//    uint size;
+    for (uint i =0; i <Texture::size; ++i) {
+        Session::load(m_iTextures[i], file);
+    }
+
+    Session::load(m_name, file);
+
+    for (uint i =0; i <Color::size; ++i) {
+        m_colors[i].load(file);
+    }
+
+    Session::load(m_shininess, file);
+    Session::load(m_directory, file);
 }
 
 //Material::Material(const Material && material) : m_textures(material.m_textures)
@@ -94,6 +113,23 @@ Material::~Material()
     std::cout << "[Material] " << m_name << " destruct " << this << std::endl;
 //    std::cout << "m_textures : " << m_colors << std::endl;
     std::cout << "\033[0m";
+}
+
+void Material::save(std::ofstream &file) const
+{
+    for (uint i =0; i <Texture::size; ++i) {
+        Session::save(m_iTextures[i], file);
+    }
+
+    Session::save(m_name, file);
+
+    for (uint i =0; i <Color::size; ++i) {
+        m_colors[i].save(file);
+    }
+
+    Session::save(m_shininess, file);
+    Session::save(m_directory, file);
+
 }
 
 void Material::buildItemModel(QStandardItem *parent) const

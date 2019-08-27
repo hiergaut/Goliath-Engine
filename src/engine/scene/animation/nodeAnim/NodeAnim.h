@@ -17,8 +17,11 @@ public:
 
 public:
     NodeAnim(const aiNodeAnim * ai_nodeAnim);
+    NodeAnim(std::ifstream & file);
 
     void buildItemModel(QStandardItem * parent) const;
+
+    void save(std::ofstream & file) const;
 };
 
 #endif // NODEANIM_H

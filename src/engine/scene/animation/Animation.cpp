@@ -35,6 +35,26 @@ Animation::Animation(const aiAnimation* ai_animation)
     assert(ai_animation->mNumMorphMeshChannels == 0);
 }
 
+Animation::Animation(std::ifstream &file)
+{
+    Session::load(m_skeletonName, file);
+    Session::load(m_name, file);
+    Session::load(m_duration, file);
+    Session::load(m_ticksPerSecond, file);
+
+    uint size;
+//    file.read(reinterpret_cast<char *>(&size), sizeof(size));
+    Session::load(size, file);
+    for (uint i =0; i <size; ++i) {
+        m_channels.emplace_back(file);
+    }
+
+    Session::load(size, file);
+    for (uint i =0; i <size; ++i) {
+        m_meshChannels.emplace_back(file);
+    }
+}
+
 void Animation::buildItemModel(QStandardItem *parent) const
 {
 //        QStandardItem* item = new QStandardItem(QIcon(":/icons/animation.png"), QString("'") + m_name.c_str() + "'  skeleton:'" + m_skeletonName.c_str() + "'  duration:" + QString::number(m_duration) + "  ticksPerSecond:" + QString::number(m_ticksPerSecond));
@@ -73,6 +93,30 @@ void Animation::onClick() const
 
     FormTimeline::setAnimation(this);
 
+}
+
+void Animation::save(std::ofstream &file) const
+{
+
+    Session::save(m_skeletonName, file);
+    Session::save(m_name, file);
+    Session::save(m_duration, file);
+    Session::save(m_ticksPerSecond, file);
+
+    uint size = m_channels.size();
+//    file.read(reinterpret_cast<char *>(&size), sizeof(size));
+    Session::save(size, file);
+    for (uint i =0; i <size; ++i) {
+//        m_channels.emplace_back(file);
+        Session::save(m_channels[i], file);
+    }
+
+    size = m_meshChannels.size();
+    Session::save(size, file);
+    for (uint i =0; i <size; ++i) {
+//        m_meshChannels.emplace_back(file);
+        Session::save(m_meshChannels[i], file);
+    }
 }
 
 

@@ -14,10 +14,11 @@
 class Node
 {
 public:
-    glm::mat4 m_transformation;
+    glm::mat4 m_transformation = glm::mat4(1.0f);
 
 public:
     Node(const aiNode * ai_node, const Meshes & meshes, const Animations & animations);
+    Node(std::ifstream & file, const Meshes &meshes, const Animations &animations);
     void buildItemModel(QStandardItem * parent) const;
 //    Node(const Node & node);
 //    ~Node();
@@ -32,22 +33,29 @@ public:
     uint recurseNbBonesVertex() const;
 
     void onClick() const;
+    void save(std::ofstream & file) const;
 
 //public:
 //    std::string name() const;
     //    int numChildren() const;
 private:
     const Meshes & m_meshes;
-    const Bone * m_bone;
+    const Animations & m_animations;
+//    const Bone * m_bone = nullptr;
+//    uint iBone = -1;
+    bool m_isBone = false;
+    std::pair<uint, uint> m_iBone;
 
-    std::vector<const Animation*> m_animations; // only skeleton root
-    uint m_nbNodes; // only root
-    uint m_nbBones; // only root
-    uint m_nbBonesVertex; // only root
+//    std::vector<const Animation*> m_animations; // only skeleton root
+    std::vector<uint> m_iAnimations;
+    uint m_nbNodes = 0; // only root
+    uint m_nbBones = 0; // only root
+    uint m_nbBonesVertex = 0; // only root
 //    const Node * m_root;
 //    uint m_nbNodeAnim;
 //    std::vector<const NodeAnim*> m_nodeAnims;
-    std::map<std::string, const NodeAnim*> m_nodeAnims;
+//    std::map<std::string, const NodeAnim*> m_nodeAnims;
+    std::map<std::string, std::pair<uint, uint>> m_nodeAnims;
 
     std::vector<Node> m_children;
 
@@ -60,7 +68,8 @@ private:
     const std::string m_name;
 //    uint m_numChildren = 0;
 //    uint m_numMeshes = 0;
-    mutable glm::mat4 m_model;
+
+    mutable glm::mat4 m_recurseModel; // computed
 
 
 };

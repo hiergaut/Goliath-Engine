@@ -45,6 +45,7 @@ int main(int argc, char* argv[])
 //    w.showSystemBrowser();
 //    w.loadFile("temp.dat");
 //    w.loadLastSession();
+
     w.loadLastSession(); // here because opengl context is initialized
 
 //    QThread::sleep(1);

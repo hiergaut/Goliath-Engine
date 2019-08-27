@@ -70,6 +70,8 @@ MainWindow::MainWindow(QWidget* parent)
     //    on_actionLoad_Factory_Settings_triggered();
     //    loadLastSession();
     //    saveEnv("factory.dat");
+//    saveEnv(g_resourcesPath + "dat/factory.dat");
+
     //    loadNewSession();
     setFocus();
 
@@ -215,7 +217,7 @@ void MainWindow::loadLastSession() // call by main
             //        dir.mkpath(".");
             loadEnv(startupFile.fileName().toStdString());
         } else {
-            loadEnv(g_resourcesPath + "dat/factory.dat");
+//            loadEnv(g_resourcesPath + "dat/factory.dat");
 
             dir.mkpath(".");
             saveEnv(startupFile.fileName().toStdString());
@@ -225,12 +227,13 @@ void MainWindow::loadLastSession() // call by main
 
 void MainWindow::previousEnvAdd(std::string file)
 {
-    if (file != m_startupPath && file != std::string(g_resourcesPath + "dat/factory.dat")) {
+//    if (file != m_startupPath && file != std::string(g_resourcesPath + "dat/factory.dat")) {
+    if (file != m_startupPath) {
         //        qDebug() << "same " << filename.c_str() << m_startupPath.c_str();
         QStringList files = m_settings.value(opennedFile).value<QStringList>();
         //    QString file = ui->lineEdit_currentPath->text();
         if (!files.contains(file.c_str())) {
-//            files += file.c_str();
+            //            files += file.c_str();
             files.insert(0, file.c_str());
 
         } else {
@@ -308,7 +311,7 @@ void MainWindow::on_actionOpen_triggered()
 void MainWindow::on_actionLoad_Factory_Settings_triggered()
 {
     //    loadEnv("factory.dat");
-    loadEnv(g_resourcesPath + "dat/factory.dat");
+//    loadEnv(g_resourcesPath + "dat/factory.dat");
 }
 
 void MainWindow::on_actionSave_Startup_File_triggered()

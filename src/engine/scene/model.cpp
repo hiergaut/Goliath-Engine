@@ -24,6 +24,7 @@ Model::Model(const std::string& path)
     m_meshes.reserve(50);
     m_materials.reserve(50);
     m_textures.reserve(100);
+    m_animations.reserve(10);
 
     //        initializeOpenGLFunctions();
     //    fun = QOpenGLContext::globalShareContext()->versionFunctions<QOpenGLFunctionsCore>();
@@ -40,6 +41,46 @@ Model::Model(const std::string& path)
     //    std::cout << "\033[32m";
     //    std::cout << "[Model] " << m_filename << " created " << this << std::endl;
     //    std::cout << "\033[0m";
+}
+
+Model::Model(std::ifstream &file)
+{
+    m_meshes.reserve(50);
+    m_materials.reserve(50);
+    m_textures.reserve(100);
+    m_animations.reserve(10);
+
+//    load(file);
+    uint size;
+
+//    file.read(reinterpret_cast<char *>(&size), sizeof(size));
+    Session::load(size, file);
+    for (uint i =0; i <size; ++i) {
+        m_materials.emplace_back(file, m_textures);
+    }
+
+    Session::load(size, file);
+//    file.read(reinterpret_cast<char *>(&size), sizeof(size));
+    for (uint i =0; i <size; ++i) {
+        m_textures.emplace_back(file);
+    }
+
+    Session::load(size, file);
+//    file.read(reinterpret_cast<char *>(&size), sizeof(size));
+    for (uint i =0; i <size; ++i) {
+        m_animations.emplace_back(file);
+    }
+
+    Session::load(size, file);
+//    file.read(reinterpret_cast<char *>(&size), sizeof(size));
+    for (uint i =0; i <size; ++i) {
+        m_meshes.emplace_back(file, m_materials, m_textures);
+    }
+
+//    m_rootNode = std::make_unique<Node>(scene->mRootNode, m_meshes, m_animations);
+    m_rootNode = std::make_unique<Node>(file, m_meshes, m_animations);
+
+
 }
 
 Model::~Model()
@@ -250,6 +291,55 @@ void Model::buildItemModel(QStandardItem* parent) const
     //        //        modelRecurseMaterial(material, item);
     //        material.buildItemModel(item);
     //    }
+}
+
+//void Model::load(std::ifstream &file) const
+//{
+
+
+
+//}
+
+void Model::save(std::ofstream &file) const
+{
+    uint size;
+
+    size = m_materials.size();
+//    file.write(reinterpret_cast<const char *>(&size), sizeof(size));
+    Session::save(size, file);
+    for (const Material & material : m_materials) {
+        material.save(file);
+    }
+
+    size = m_textures.size();
+    Session::save(size, file);
+//    file.write(reinterpret_cast<const char *>(&size), sizeof(size));
+    for (const Texture & texture : m_textures) {
+        texture.save(file);
+    }
+
+    size = m_animations.size();
+    Session::save(size, file);
+//    file.write(reinterpret_cast<const char *>(&size), sizeof(size));
+    for (const Animation & animation : m_animations) {
+        animation.save(file);
+    }
+
+    size = m_meshes.size();
+    Session::save(size, file);
+//    file.write(reinterpret_cast<const char *>(&size), sizeof(size));
+    for (const Mesh & mesh : m_meshes) {
+        mesh.save(file);
+    }
+
+
+//    m_rootNode = std::make_unique<Node>(scene->mRootNode, m_meshes, m_animations);
+//    m_rootNode = std::make_unique<Node>(file);
+
+//    m_rootNode->save(file);
+
+
+
 }
 
 //void Model::modelRecurseMaterial(const Material& material, QStandardItem* parent) const

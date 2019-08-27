@@ -42,6 +42,7 @@ public:
 public:
     //    Mesh(std::string name, std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures) : m_name(name)
     Mesh(const aiMesh* ai_mesh, const Materials& materials, const Textures & textures);
+    Mesh(std::ifstream & file, const Materials &materials, const Textures &textures);
     //    Mesh(const Mesh & mesh) = delete ;
     //    Mesh(Mesh && mesh) noexcept;
     ~Mesh();
@@ -50,6 +51,8 @@ public:
     void buildItemModel(QStandardItem* parent) const;
     void setupMesh();
     void draw(const Shader & shader) const;
+
+    void save(std::ofstream & file) const;
 
 private:
     /*  Render data  */

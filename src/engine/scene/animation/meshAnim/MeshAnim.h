@@ -9,7 +9,10 @@ class MeshAnim
 {
 public:
     MeshAnim(const aiMeshAnim * ai_meshAnim);
+    MeshAnim(std::ifstream & file);
     void buildItemModel(QStandardItem * parent) const;
+
+    void save(std::ofstream & file) const;
 
 private:
     std::string m_name;

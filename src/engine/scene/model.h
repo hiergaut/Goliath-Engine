@@ -46,6 +46,7 @@ public:
 
 public:
     Model(const std::string& path);
+    Model(std::ifstream & file);
     //    Model(const Model& model) = delete;
     //    Model(Model& model) = delete;
     //    Model(const Model&& model) = delete;
@@ -56,10 +57,14 @@ public:
     //    Model(Model&& model) = default;
     //    Model(Model & model);
     ~Model();
+
     void prepareHierarchy(ulong frameTime) const;
     void Draw(const glm::mat4 &modelMatrix, const Shader & shader) const;
     void DrawHierarchy(const glm::mat4 &modelMatrix, const MainWindow3dView & view) const;
     void buildItemModel(QStandardItem* parent) const;
+
+//    void load(std::ifstream & file) const;
+    void save(std::ofstream & file) const;
 
 private:
 //    void modelRecurseNode(const Node& node, QStandardItem* parent) const;
@@ -85,7 +90,6 @@ private:
     Animations m_animations;
     Meshes m_meshes;
 
-    BoneGeometry m_boneGeometry;
 
     //    const Node * m_rootNode = nullptr;
     std::unique_ptr<Node> m_rootNode;
@@ -94,6 +98,8 @@ private:
     //    bool gammaCorrection;
     std::string m_filename;
     std::string directory;
+
+    BoneGeometry m_boneGeometry;
 
 public:
     std::string filename() const;

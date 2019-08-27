@@ -41,9 +41,12 @@ public:
 
 public:
     Material(const aiMaterial * ai_material, Textures & textures, std::string directory);
+    Material(std::ifstream & file, Textures & textures);
 //    Material(const Material &&);
 //    Material(const Material &);
     ~Material();
+
+    void save(std::ofstream & file) const;
 
     void buildItemModel(QStandardItem * parent) const;
 
@@ -52,8 +55,9 @@ unsigned int TextureFromFile(const char* path, const std::string& directory);
 
 private:
     std::string m_directory;
+
     Textures & m_textures;
-    QOpenGLFunctionsCore * m_fun;
+//    QOpenGLFunctionsCore * m_fun;
 };
 
 #endif // MATERIAL_H

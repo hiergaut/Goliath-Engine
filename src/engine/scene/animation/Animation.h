@@ -19,9 +19,12 @@ public:
 
 public:
     Animation(const aiAnimation * ai_animation);
+    Animation(std::ifstream & file);
 
     void buildItemModel(QStandardItem * parent) const;
     void onClick() const;
+
+    void save(std::ofstream & file) const;
 
 private:
     std::vector<MeshAnim> m_meshChannels;

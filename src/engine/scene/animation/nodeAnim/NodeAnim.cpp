@@ -1,6 +1,7 @@
 #include "NodeAnim.h"
 
 #include <assimp/Assimp.h>
+#include <session/Session.h>
 
 NodeAnim::NodeAnim(const aiNodeAnim* ai_nodeAnim)
 {
@@ -26,6 +27,14 @@ NodeAnim::NodeAnim(const aiNodeAnim* ai_nodeAnim)
     }
 }
 
+NodeAnim::NodeAnim(std::ifstream &file)
+{
+    Session::load(m_nodeName, file);
+    Session::load(m_positionKeys, file);
+    Session::load(m_rotationKeys, file);
+    Session::load(m_scalingKeys, file);
+}
+
 void NodeAnim::buildItemModel(QStandardItem* parent) const
 {
     QString str;
@@ -35,4 +44,12 @@ void NodeAnim::buildItemModel(QStandardItem* parent) const
 //    QStandardItem* item = new QStandardItem(QString("'") + m_nodeName.c_str() + "'  nbPositionKeys:" + QString::number(m_positionKeys.size()) + "  nbRotationKeys:" + QString::number(m_rotationKeys.size()) + "  nbScaleKeys:" + QString::number(m_scalingKeys.size()) + "\n" + str);
     QStandardItem* item = new QStandardItem(QString("nbPositionKeys:") + QString::number(m_positionKeys.size()) + "  nbRotationKeys:" + QString::number(m_rotationKeys.size()) + "  nbScaleKeys:" + QString::number(m_scalingKeys.size()) + "\n" + str);
     parent->appendRow(item);
+}
+
+void NodeAnim::save(std::ofstream &file) const
+{
+    Session::save(m_nodeName, file);
+    Session::save(m_positionKeys, file);
+    Session::save(m_rotationKeys, file);
+    Session::save(m_scalingKeys, file);
 }

@@ -223,11 +223,36 @@ void Scene::updateSceneModel()
     //    }
 }
 
-//void Scene::load(ifstream &file)
-//{
+void Scene::load(std::ifstream &file)
+{
 //    clear();
+    uint size;
+//    file.read(reinterpret_cast<char *>(&size), sizeof(size));
+    Session::load(size, file);
 
-//}
+    m_models.clear();
+//    m_models.resize(size);
+
+//    for (const Model & model : m_models) {
+    for (uint i =0; i <size; ++i) {
+//        model.load(file);
+        m_models.emplace_back(file);
+    }
+}
+
+void Scene::save(std::ofstream &file)
+{
+    uint size = m_models.size();
+//    file.write(reinterpret_cast<const char *>(&size), sizeof(size));
+    Session::save(size, file);
+
+    for (const Model & model : m_models) {
+        model.save(file);
+    }
+    //    qDebug() << "[SCENE] " << m_itemModel.rowCount();
+}
+
+
 
 //void Scene::clear()
 //{
@@ -257,11 +282,6 @@ void Scene::setViews(std::list<const MainWindow3dView*>* views)
 //std::vector<MainWindow3dView *> Scene::views() const
 //{
 //    return m_views;
-//}
-
-//void Scene::save(ofstream &file)
-//{
-//    //    qDebug() << "[SCENE] " << m_itemModel.rowCount();
 //}
 
 //QStandardItemModel* Scene::itemModel()

@@ -22,7 +22,7 @@ Mesh::Mesh(const aiMesh* ai_mesh, const Materials& materials, const Textures& te
     Q_ASSERT(ai_mesh->mNumAnimMeshes == 0);
 
     //    m_bonesData.resize(numVertices);
-    VertexBoneData vBone = { { 0 }, { 0 } };
+    VertexBoneData vBone;
     m_bonesData = std::vector<VertexBoneData>(numVertices, vBone);
 
     //    int cpt[ai_mesh->mNumVertices] = {0};
@@ -105,6 +105,42 @@ Mesh::Mesh(const aiMesh* ai_mesh, const Materials& materials, const Textures& te
     //    std::cout << "\033[32m";
     //    std::cout << "[MESH] " << m_name << " created " << this << std::endl;
     //    std::cout << "\033[0m";
+}
+
+Mesh::Mesh(std::ifstream &file, const Materials &materials, const Textures &textures)
+    : m_materials(materials)
+    , m_textures(textures)
+{
+    m_fun = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
+    m_bones.reserve(50);
+
+    uint size;
+    Session::load(size, file);
+    for (uint i =0; i <size; ++i) {
+        m_bones.emplace_back(file);
+    }
+
+    Session::load(m_transform, file);
+    Session::load(m_iMaterial, file);
+    Session::load(m_name, file);
+
+    Session::load(size, file);
+    for (uint i =0; i <size; ++i) {
+        m_vertices.emplace_back(file);
+    }
+
+    Session::load(size, file);
+    for (uint i =0; i <size; ++i) {
+        m_bonesData.emplace_back(file);
+    }
+
+    Session::load(m_sumBoneWeights, file);
+    Session::load(m_numFaces, file);
+
+    Session::load(m_indices, file);
+//    Session::load(m_bbo)
+
+    setupMesh();
 }
 
 //Mesh::Mesh(Mesh &&mesh) noexcept
@@ -278,4 +314,9 @@ void Mesh::draw(const Shader& shader) const
     m_fun->glBindVertexArray(0);
     // always good practice to set everything back to defaults once configured.
     m_fun->glActiveTexture(GL_TEXTURE0);
+}
+
+void Mesh::save(std::ofstream &file) const
+{
+
 }
