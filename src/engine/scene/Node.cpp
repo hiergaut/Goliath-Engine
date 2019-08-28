@@ -9,7 +9,7 @@
 
 #include <gui/editor/timeline/FormTimeline.h>
 
-Node::Node(const aiNode* ai_node, const Meshes& meshes, const Animations& animations)
+Node::Node(const aiNode* ai_node, Meshes* meshes, Animations* animations)
     : m_meshes(meshes)
     , m_animations(animations)
     //    , m_root(root)
@@ -18,40 +18,42 @@ Node::Node(const aiNode* ai_node, const Meshes& meshes, const Animations& animat
     , m_name(ai_node->mName.C_Str())
 //    , m_sphere(0.001)
 {
+//    std::cout << "Node " << ai_node << std::endl;
+
     //    m_nbNodeAnim = 0;
-    for (uint i =0; i <animations.size(); ++i) {
-//    for (const Animation& animation : animations) {
-        const Animation & animation = animations[i];
+    for (uint i = 0; i < animations->size(); ++i) {
+        //    for (const Animation& animation : animations) {
+        const Animation& animation = (*animations)[i];
 
         if (m_name == animation.m_skeletonName) {
-//            m_animations.emplace_back(&animation);
+            //            m_animations.emplace_back(&animation);
             m_iAnimations.emplace_back(i);
         }
 
-//        for (const NodeAnim& nodeAnim : animation.m_channels) {
-            for (uint j =0; j <animation.m_channels.size(); ++j) {
-                const NodeAnim & nodeAnim = animation.m_channels[j];
+        //        for (const NodeAnim& nodeAnim : animation.m_channels) {
+        for (uint j = 0; j < animation.m_channels.size(); ++j) {
+            const NodeAnim& nodeAnim = animation.m_channels[j];
 
             if (m_name == nodeAnim.m_nodeName) {
                 //                m_nodeAnims.emplace_back(&nodeAnim);
-//                m_nodeAnims.insert(std::make_pair(animation.m_name, &nodeAnim));
+                //                m_nodeAnims.insert(std::make_pair(animation.m_name, &nodeAnim));
                 m_nodeAnims.insert(std::make_pair(animation.m_name, std::make_pair(i, j)));
                 //                ++m_nbNodeAnim;
                 break;
             }
         }
     }
-    Q_ASSERT(m_nodeAnims.size() == 0 || m_nodeAnims.size() == animations.size());
+    Q_ASSERT(m_nodeAnims.size() == 0 || m_nodeAnims.size() == animations->size());
 
     //    for (const Mesh& mesh : meshes) {
-    for (uint i = 0; i < meshes.size(); ++i) {
-        const Mesh& mesh = meshes[i];
+    for (uint i = 0; i < meshes->size(); ++i) {
+        const Mesh& mesh = (*meshes)[i];
         //        for (const Bone& bone : mesh.m_bones) {
-        for (uint j = 0; j < mesh.m_bones.size(); ++i) {
+        for (uint j = 0; j < mesh.m_bones.size(); ++j) {
             const Bone& bone = mesh.m_bones[j];
 
             if (bone.m_name == m_name) {
-//                m_bone = &bone;
+                //                m_bone = &bone;
                 m_iBone = std::make_pair(i, j);
                 m_isBone = true;
                 break;
@@ -95,7 +97,7 @@ Node::Node(const aiNode* ai_node, const Meshes& meshes, const Animations& animat
     ////        m_transformation = glm::inverse(m_transformation);
     //    }
 
-    if (m_animations.size() > 0) {
+    if (m_iAnimations.size() > 0) {
         m_nbNodes = recurseNbNodes();
         m_nbBones = recurseNbBones();
         m_nbBonesVertex = recurseNbBonesVertex();
@@ -105,7 +107,7 @@ Node::Node(const aiNode* ai_node, const Meshes& meshes, const Animations& animat
     }
 }
 
-Node::Node(std::ifstream& file, const Meshes& meshes, const Animations & animations)
+Node::Node(std::ifstream& file, Meshes * meshes, Animations * animations)
     : m_meshes(meshes)
     , m_animations(animations)
 {
@@ -124,7 +126,7 @@ Node::Node(std::ifstream& file, const Meshes& meshes, const Animations & animati
 
     uint size;
     Session::load(size, file);
-    for (uint i =0; i <size; ++i) {
+    for (uint i = 0; i < size; ++i) {
         m_children.emplace_back(file, meshes, animations);
     }
 
@@ -137,15 +139,15 @@ void Node::buildItemModel(QStandardItem* parent) const
 {
     QStandardItem* item;
 
-    if (m_animations.size() > 0) {
+    if (m_iAnimations.size() > 0) {
         item = new QStandardItem(QIcon(":/icons/skeleton.png"), "'" + QString(m_name.c_str()) + "'");
 
-        QStandardItem* item2 = new QStandardItem(QIcon(":/icons/animations.png"), "animations  " + QString::number(m_animations.size()));
+        QStandardItem* item2 = new QStandardItem(QIcon(":/icons/animations.png"), "animations  " + QString::number(m_iAnimations.size()));
         item->appendRow(item2);
 
-//        for (const Animation* animation : m_animations) {
+        //        for (const Animation* animation : m_animations) {
         for (uint iAnimation : m_iAnimations) {
-            const Animation & animation = m_animations[iAnimation];
+            const Animation& animation = (*m_animations)[iAnimation];
 
             animation.buildItemModel(item2);
             //            QStandardItem* item3 = new QStandardItem(QIcon(":/icons/animation.png"), QString("'") + animation->m_name.c_str() + "'  duration:" + QString::number(animation->m_duration) + "  ticksPerSecond:" + QString::number(animation->m_ticksPerSecond));
@@ -188,11 +190,16 @@ void Node::buildItemModel(QStandardItem* parent) const
         //        parent->appendRow(item);
         item->appendRow(item2);
         for (const auto& pair : m_nodeAnims) {
+            QStandardItem * item3 = new QStandardItem(pair.first.c_str());
+            item2->appendRow(item3);
+
             std::pair<uint, uint> pair2 = pair.second;
 
-            const NodeAnim & nodeAnim = m_animations[pair2.first].m_channels[pair2.second];
-//            pair.second->buildItemModel(item2);
-            nodeAnim.buildItemModel(item2);
+            Q_ASSERT(pair2.first < m_animations->size());
+            Q_ASSERT(pair2.second < (*m_animations)[pair2.first].m_channels.size());
+            const NodeAnim& nodeAnim = (*m_animations)[pair2.first].m_channels[pair2.second];
+            //            pair.second->buildItemModel(item2);
+            nodeAnim.buildItemModel(item3);
         }
     }
 
@@ -200,9 +207,9 @@ void Node::buildItemModel(QStandardItem* parent) const
         //        QStandardItem * item2 = new QStandardItem("mesh:" + QString::number(node->m_meshes[i]) + ", " + m_meshes[node->m_meshes[i]]);
         //        QStandardItem * item2 = new QStandardItem(QString::number(node->m_meshes[i]) + "  " + m_meshes[node->m_meshes[i]]);
 
-        Q_ASSERT(m_iMeshes[i] < m_meshes.size());
+        Q_ASSERT(m_iMeshes[i] < m_meshes->size());
         //        Q_ASSERT(node->m_numMeshes == node->m_iMeshes.size());
-        const Mesh& mesh = m_meshes[m_iMeshes[i]];
+        const Mesh& mesh = (*m_meshes)[m_iMeshes[i]];
         //        modelRecurseMesh(mesh, item);
         mesh.buildItemModel(item);
         //        QStandardItem * item2 = new QStandardItem("mesh : " + QString::number(node->m_meshes[i]));
@@ -328,9 +335,11 @@ void Node::prepareHierarchy(glm::mat4 model, const Animation* animation, double 
         const auto& it = m_nodeAnims.find(animation->m_name);
 
         if (it != m_nodeAnims.end()) {
-//            const NodeAnim& nodeAnim = *it->second;
+            //            const NodeAnim& nodeAnim = *it->second;
             std::pair<uint, uint> pair = it->second;
-            const NodeAnim& nodeAnim = m_animations[pair.first].m_channels[pair.second];
+            Q_ASSERT(pair.first < m_animations->size());
+            Q_ASSERT(pair.second < (*m_animations)[pair.first].m_channels.size());
+            const NodeAnim& nodeAnim = (*m_animations)[pair.first].m_channels[pair.second];
             Q_ASSERT(nodeAnim.m_rotationKeys.size() > 0);
 
             //            double animationTime = animation->m_duration;
@@ -367,13 +376,13 @@ void Node::prepareHierarchy(glm::mat4 model, const Animation* animation, double 
 
     if (m_isBone) {
         //        m_bone->m_transform = model * m_bone->m_offsetMatrix;
-        const Bone & bone = m_meshes[m_iBone.first].m_bones[m_iBone.second];
+        const Bone& bone = (*m_meshes)[m_iBone.first].m_bones[m_iBone.second];
         bone.m_transform = m_recurseModel * bone.m_offsetMatrix;
         //        m_bone->m_transform = m_bone->m_offsetMatrix;
     }
 
     for (uint iMesh : m_iMeshes) {
-        const Mesh& mesh = m_meshes[iMesh];
+        const Mesh& mesh = (*m_meshes)[iMesh];
 
         mesh.m_transform = m_recurseModel;
     }
@@ -460,13 +469,26 @@ void Node::save(std::ofstream& file) const
 
     uint size = m_children.size();
     Session::save(size, file);
-    for (uint i =0; i <size; ++i) {
-//        m_children.emplace_back(file, meshes, animations);
-//        Session::save(m_children[i], file);
+    for (uint i = 0; i < size; ++i) {
+        //        m_children.emplace_back(file, meshes, animations);
+        //        Session::save(m_children[i], file);
         m_children[i].save(file);
     }
 
     Session::save(m_iMeshes, file);
     Session::save(m_name, file);
     Session::save(m_recurseModel, file);
+}
+
+void Node::updateReferences(Meshes  *meshes, Animations *animations)
+{
+//    const_cast<Meshes&>(m_meshes) = meshes;
+    m_meshes = meshes;
+//    const_cast<Animations&>(m_animations) = animations;
+    m_animations = animations;
+
+    for (Node & node : m_children) {
+        node.updateReferences(meshes, animations);
+    }
+
 }

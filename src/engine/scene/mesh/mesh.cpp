@@ -3,15 +3,15 @@
 #include <assimp/Assimp.h>
 #include <gui/editor/timeline/FormTimeline.h>
 
-Mesh::Mesh(const aiMesh* ai_mesh, const Materials& materials, const Textures& textures)
-    : m_name(ai_mesh->mName.C_Str())
-    , m_materials(materials)
+Mesh::Mesh(const aiMesh* ai_mesh, Materials*  materials, Textures*  textures)
+    : m_materials(materials)
     , m_textures(textures)
+    , m_name(ai_mesh->mName.C_Str())
 {
     const uint numVertices = ai_mesh->mNumVertices;
 
     m_fun = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
-    m_bones.reserve(50);
+    m_bones.reserve(100);
     //        fun = QOpenGLContext::globalShareContext()->versionFunctions<QOpenGLFunctionsCore>();
     //        m_fun = ctx->versionFunctions<QOpenGLFunctionsCore>();
     //        m_fun = fun;
@@ -102,46 +102,68 @@ Mesh::Mesh(const aiMesh* ai_mesh, const Materials& materials, const Textures& te
 
     setupMesh();
     //    return std::move(mesh);
-    //    std::cout << "\033[32m";
-    //    std::cout << "[MESH] " << m_name << " created " << this << std::endl;
-    //    std::cout << "\033[0m";
+//    std::cout << "\033[32m";
+//    std::cout << "[MESH] " << m_name << " created " << this << std::endl;
+//    std::cout << "\033[0m";
 }
 
-Mesh::Mesh(std::ifstream &file, const Materials &materials, const Textures &textures)
+Mesh::Mesh(std::ifstream& file, Materials*  materials, Textures*  textures)
     : m_materials(materials)
     , m_textures(textures)
 {
     m_fun = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
-    m_bones.reserve(50);
+    m_bones.reserve(100);
 
     uint size;
+    //    std::cout << "m_bones" << std::endl;
     Session::load(size, file);
-    for (uint i =0; i <size; ++i) {
+    for (uint i = 0; i < size; ++i) {
         m_bones.emplace_back(file);
     }
 
+    //    std::cout << "m_transform" << std::endl;
     Session::load(m_transform, file);
+    //    std::cout << "m_iMaterial" << std::endl;
     Session::load(m_iMaterial, file);
+    //    std::cout << "m_name" << std::endl;
     Session::load(m_name, file);
 
+    //    std::cout << "m_vertices" << std::endl;
     Session::load(size, file);
-    for (uint i =0; i <size; ++i) {
+    for (uint i = 0; i < size; ++i) {
         m_vertices.emplace_back(file);
     }
 
+    //    std::cout << "m_bonesData" << std::endl;
     Session::load(size, file);
-    for (uint i =0; i <size; ++i) {
+    for (uint i = 0; i < size; ++i) {
         m_bonesData.emplace_back(file);
     }
 
+    //    std::cout << "m_sumBoneWeights" << std::endl;
     Session::load(m_sumBoneWeights, file);
+    //    std::cout << "m_numFaces" << std::endl;
     Session::load(m_numFaces, file);
 
+    //    std::cout << "m_indices" << std::endl;
     Session::load(m_indices, file);
-//    Session::load(m_bbo)
+    //    Session::load(m_bbo)
 
     setupMesh();
+//    std::cout << "\033[32m";
+//    std::cout << "[MESH] " << m_name << " created " << this << std::endl;
+//    std::cout << "\033[0m";
 }
+
+//Mesh::Mesh(const Mesh &mesh)
+//    : m_materials(mesh.m_materials)
+//    , m_textures(mesh.m_textures)
+//{
+//    std::cout << "\033[31m";
+//    std::cout << "[MESH] '" << m_name << "' copy constructor " << this << std::endl;
+//    std::cout << "\033[0m";
+
+//}
 
 //Mesh::Mesh(Mesh &&mesh) noexcept
 //{
@@ -159,8 +181,8 @@ Mesh::Mesh(std::ifstream &file, const Materials &materials, const Textures &text
 Mesh::~Mesh()
 {
     //    qDebug() << "[Model] destruct " << this;
-    std::cout << "\033[31m";
-    std::cout << "[MESH] " << m_name << " deleted " << this << std::endl;
+    std::cout << "\033[35m";
+    std::cout << "[MESH] '" << m_name << "' deleted " << this << std::endl;
     std::cout << "\033[0m";
 
     //    delete m_rootNode;
@@ -178,7 +200,7 @@ void Mesh::buildItemModel(QStandardItem* parent) const
     //    QStandardItem * item2 = new QStandardItem("num anim mesh " + QString::number(mesh.m_numAnimMesh));
     //    item->appendRow(item2);
 
-    const Material& material = m_materials[m_iMaterial];
+    const Material& material = (*m_materials)[m_iMaterial];
     //    modelRecurseMaterial(material, item);
     //    QStandardItem* item2 = new QStandardItem(material.m_name.c_str());
     //    QStandardItem * item2 = new QStandardItem(QIcon(":/icons/material.png"), material.m_name.c_str());
@@ -261,7 +283,7 @@ void Mesh::draw(const Shader& shader) const
     //    shader.setMat4("model", m_transform);
     //    shader.setMat4("model", glm::mat4(1));
 
-    const Material& material = m_materials[m_iMaterial];
+    const Material& material = (*m_materials)[m_iMaterial];
     //        const Material& material = mesh.m_material;
     //        const Material& material = mesh.m_material;
 
@@ -274,7 +296,7 @@ void Mesh::draw(const Shader& shader) const
     uint cpt = 0;
     for (uint i = 0; i < Texture::size; ++i) {
         for (uint j = 0; j < material.m_iTextures[i].size(); ++j) {
-            const Texture& texture = m_textures[material.m_iTextures[i][j]];
+            const Texture& texture = (*m_textures)[material.m_iTextures[i][j]];
 
             m_fun->glActiveTexture(GL_TEXTURE0 + cpt);
             std::string number = std::to_string(j);
@@ -316,7 +338,47 @@ void Mesh::draw(const Shader& shader) const
     m_fun->glActiveTexture(GL_TEXTURE0);
 }
 
-void Mesh::save(std::ofstream &file) const
+void Mesh::save(std::ofstream& file) const
 {
+    uint size;
 
+    //    std::cout << "m_bones" << std::endl;
+    size = m_bones.size();
+    Session::save(size, file);
+    for (uint i = 0; i < size; ++i) {
+        //        m_bones.emplace_back(file);
+        m_bones[i].save(file);
+    }
+
+    //    std::cout << "m_transform" << std::endl;
+    Session::save(m_transform, file);
+    //    std::cout << "m_iMaterial" << std::endl;
+    Session::save(m_iMaterial, file);
+    //    std::cout << "m_name" << std::endl;
+    Session::save(m_name, file);
+
+    //    std::cout << "m_vertices" << std::endl;
+    size = m_vertices.size();
+    Session::save(size, file);
+    for (uint i = 0; i < size; ++i) {
+        //        m_vertices.emplace_back(file);
+        m_vertices[i].save(file);
+    }
+
+    //    std::cout << "m_bonesData" << std::endl;
+    size = m_bonesData.size();
+    Session::save(size, file);
+    for (uint i = 0; i < size; ++i) {
+        //        m_bonesData.emplace_back(file);
+        m_bonesData[i].save(file);
+    }
+
+    //    std::cout << "m_sumBoneWeights" << std::endl;
+    Session::save(m_sumBoneWeights, file);
+    //    std::cout << "m_numFaces" << std::endl;
+    Session::save(m_numFaces, file);
+
+    //    std::cout << "m_indices" << std::endl;
+    Session::save(m_indices, file);
+    //    Session::load(m_bbo)
 }

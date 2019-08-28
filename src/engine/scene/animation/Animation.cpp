@@ -55,6 +55,13 @@ Animation::Animation(std::ifstream &file)
     }
 }
 
+Animation::~Animation()
+{
+    std::cout << "\033[35m";
+    std::cout << "[ANIMATION] '" << m_name << "' deleted " << this << std::endl;
+    std::cout << "\033[0m";
+}
+
 void Animation::buildItemModel(QStandardItem *parent) const
 {
 //        QStandardItem* item = new QStandardItem(QIcon(":/icons/animation.png"), QString("'") + m_name.c_str() + "'  skeleton:'" + m_skeletonName.c_str() + "'  duration:" + QString::number(m_duration) + "  ticksPerSecond:" + QString::number(m_ticksPerSecond));
@@ -108,14 +115,16 @@ void Animation::save(std::ofstream &file) const
     Session::save(size, file);
     for (uint i =0; i <size; ++i) {
 //        m_channels.emplace_back(file);
-        Session::save(m_channels[i], file);
+//        Session::save(m_channels[i], file);
+        m_channels[i].save(file);
     }
 
     size = m_meshChannels.size();
     Session::save(size, file);
     for (uint i =0; i <size; ++i) {
 //        m_meshChannels.emplace_back(file);
-        Session::save(m_meshChannels[i], file);
+//        Session::save(m_meshChannels[i], file);
+        m_meshChannels[i].save(file);
     }
 }
 

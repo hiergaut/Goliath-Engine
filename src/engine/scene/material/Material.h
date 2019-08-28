@@ -20,6 +20,7 @@ using Materials = std::vector<Material>;
 
 class Material {
 public:
+    Textures * m_textures = nullptr;
 
     std::vector<uint> m_iTextures[Texture::size];
 
@@ -40,11 +41,13 @@ public:
     //    uint m_heightMap;
 
 public:
-    Material(const aiMaterial * ai_material, Textures & textures, std::string directory);
-    Material(std::ifstream & file, Textures & textures);
-//    Material(const Material &&);
-//    Material(const Material &);
+    Material(const aiMaterial * ai_material, Textures *textures, std::string directory);
+    Material(std::ifstream & file, Textures * textures);
+//    Material(Material && material, Textures & textures);
     ~Material();
+
+    Material(const Material &) = delete;
+    Material(Material &&) noexcept = default;
 
     void save(std::ofstream & file) const;
 
@@ -56,7 +59,6 @@ unsigned int TextureFromFile(const char* path, const std::string& directory);
 private:
     std::string m_directory;
 
-    Textures & m_textures;
 //    QOpenGLFunctionsCore * m_fun;
 };
 

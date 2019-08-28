@@ -17,8 +17,8 @@ public:
     glm::mat4 m_transformation = glm::mat4(1.0f);
 
 public:
-    Node(const aiNode * ai_node, const Meshes & meshes, const Animations & animations);
-    Node(std::ifstream & file, const Meshes &meshes, const Animations &animations);
+    Node(const aiNode * ai_node, Meshes *meshes, Animations *animations);
+    Node(std::ifstream & file, Meshes *meshes, Animations *animations);
     void buildItemModel(QStandardItem * parent) const;
 //    Node(const Node & node);
 //    ~Node();
@@ -35,12 +35,14 @@ public:
     void onClick() const;
     void save(std::ofstream & file) const;
 
+    void updateReferences(Meshes *meshes, Animations *animations);
+
 //public:
 //    std::string name() const;
     //    int numChildren() const;
 private:
-    const Meshes & m_meshes;
-    const Animations & m_animations;
+    Meshes * m_meshes;
+    Animations * m_animations;
 //    const Bone * m_bone = nullptr;
 //    uint iBone = -1;
     bool m_isBone = false;

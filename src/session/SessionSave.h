@@ -5,19 +5,52 @@
 #include <glm/gtc/type_ptr.hpp>
 
 #include <fstream>
+#include <iostream>
 #include <map>
 #include <vector>
-#include <iostream>
 
 class SessionSave {
 public:
     //    SessionSave();
-    template <class T>
-    static void save(const T& val, std::ofstream& file)
+    //    template <class T>
+    //    static void save(const T& val, std::ofstream& file)
+    //    {
+    //        file.write(reinterpret_cast<const char*>(&val), sizeof(val));
+    //        std::cout << "save" << std::endl;
+    //    }
+    static void save(uint val, std::ofstream& file)
     {
-        file.write(reinterpret_cast<const char*>(&val), sizeof(val));
-        std::cout << "save" << std::endl;
+        file.write(reinterpret_cast<const char*>(&val), sizeof(uint));
+        //        std::cout << "save" << std::endl;
+//        std::cout << "\033[32m";
+//        std::cout << "save uint " << val << std::endl;
+//        std::cout << "\033[0m";
     }
+    static void save(float val, std::ofstream& file)
+    {
+        file.write(reinterpret_cast<const char*>(&val), sizeof(float));
+//        std::cout << "\033[32m";
+//        std::cout << "save float " << val << std::endl;
+//        std::cout << "\033[0m";
+    }
+    static void save(double val, std::ofstream& file)
+    {
+        file.write(reinterpret_cast<const char*>(&val), sizeof(double));
+//        std::cout << "\033[32m";
+//        std::cout << "save double " << val << std::endl;
+//        std::cout << "\033[0m";
+    }
+    static void save(bool val, std::ofstream& file)
+    {
+        file.write(reinterpret_cast<const char*>(&val), sizeof(bool));
+//        std::cout << "\033[32m";
+//        std::cout << "save bool " << val << std::endl;
+//        std::cout << "\033[0m";
+    }
+    //    static void save(float& val, std::ofstream& file)
+    //    {
+    //        file.write(reinterpret_cast<const char*>(&val), sizeof(val));
+    //    }
 
     template <class T, class U>
     static void save(const std::pair<T, U>& pair, std::ofstream& file)
@@ -35,7 +68,8 @@ public:
     {
 
         uint size = vec.size();
-        file.write(reinterpret_cast<const char*>(&size), sizeof(size));
+//        file.write(reinterpret_cast<const char*>(&size), sizeof(size));
+        save(size, file);
 
         //        Session::load()
         for (uint j = 0; j < size; j++) {
@@ -100,7 +134,7 @@ public:
     static void save(const glm::mat4& mat, std::ofstream& file)
     {
         float data[16];
-        std::memcpy(data, (const float *)glm::value_ptr(mat), 16 * sizeof(float));
+        std::memcpy(data, (const float*)glm::value_ptr(mat), 16 * sizeof(float));
 
         file.write(reinterpret_cast<const char*>(data), sizeof(data));
 
@@ -111,7 +145,11 @@ public:
     static void save(const glm::quat& quaternion, std::ofstream& file)
     {
         float data[4];
-        std::memcpy(data, glm::value_ptr(quaternion), 4 * sizeof(float));
+        data[0] = quaternion.w;
+        data[1] = quaternion.x;
+        data[2] = quaternion.y;
+        data[3] = quaternion.z;
+//        std::memcpy(data, glm::value_ptr(quaternion), 4 * sizeof(float));
 
         file.write(reinterpret_cast<const char*>(data), sizeof(data));
 
@@ -125,17 +163,16 @@ public:
         //        file.read(reinterpret_cast<char*>(&data), sizeof(data));
         uint size = str.size();
 
-        file.write(reinterpret_cast<const char*>(&size), sizeof(size));
+//        file.write(reinterpret_cast<const char*>(&size), sizeof(size));
+        save(size, file);
         //    char data[size];
         //        str.resize(size);
-        file.write(reinterpret_cast<const char*>(str.data()), sizeof(str.data()));
+        file.write(reinterpret_cast<const char*>(str.data()), size * sizeof(char));
+//        std::cout << "\033[32m";
+//        std::cout << "save string '" << str << "'" << std::endl;
+//        std::cout << "\033[0m";
         //        return glm::make_vec3(data);
         //        vec = glm::make_vec3(data);
-    }
-
-    static void save(const float& val, std::ofstream& file)
-    {
-        file.write(reinterpret_cast<const char*>(&val), sizeof(val));
     }
 
     //    static glm::vec3 load(int & val, std::ifstream & file) {

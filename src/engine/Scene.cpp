@@ -44,9 +44,7 @@ Scene::Scene()
 
 void Scene::initialize()
 {
-    //    std::cout << "fuck" << std::endl;
     m_cameraModel = new Model(g_resourcesPath + "models/camera/camera.obj");
-    //    std::cout << "bitch" << std::endl;
 
     //    m_shaderCamera = new Shader("camera.vsh", "camera.fsh");
     //    m_shader = new Shader("model_loading.vsh", "model_loading.fsh");
@@ -238,6 +236,8 @@ void Scene::load(std::ifstream &file)
 //        model.load(file);
         m_models.emplace_back(file);
     }
+
+    updateSceneModel();
 }
 
 void Scene::save(std::ofstream &file)

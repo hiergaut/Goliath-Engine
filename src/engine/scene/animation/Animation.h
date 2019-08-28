@@ -20,6 +20,10 @@ public:
 public:
     Animation(const aiAnimation * ai_animation);
     Animation(std::ifstream & file);
+    ~Animation();
+
+    Animation(const Animation &) = delete;
+    Animation(Animation &&) noexcept = default;
 
     void buildItemModel(QStandardItem * parent) const;
     void onClick() const;

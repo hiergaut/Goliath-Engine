@@ -50,8 +50,10 @@ public:
     //    Model(const Model& model) = delete;
     //    Model(Model& model) = delete;
     //    Model(const Model&& model) = delete;
-    //    Model(const Model & model) = default;
-    Model(Model&& model) noexcept = default;
+
+//        Model(const Model & model) = default;
+    Model(Model&& model) noexcept;
+
     //    Model(const Model&& model);
     //    Model(Model&& model) noexcept;
     //    Model(Model&& model) = default;

@@ -27,7 +27,7 @@ NodeAnim::NodeAnim(const aiNodeAnim* ai_nodeAnim)
     }
 }
 
-NodeAnim::NodeAnim(std::ifstream &file)
+NodeAnim::NodeAnim(std::ifstream& file)
 {
     Session::load(m_nodeName, file);
     Session::load(m_positionKeys, file);
@@ -37,16 +37,25 @@ NodeAnim::NodeAnim(std::ifstream &file)
 
 void NodeAnim::buildItemModel(QStandardItem* parent) const
 {
+//    QStandardItem * item2 = new QStandardItem(m_nodeName.c_str());
+//    parent->appendRow(item2);
+
     QString str;
-    for (const auto & pair : m_positionKeys) {
+    for (const auto& pair : m_rotationKeys) {
         str += QString::number(pair.first) + " ";
+//        glm::vec3 v = glm::axis(pair.second);
+//        glm::quat q = pair.second;
+//        str += QString::number(q.w) + " " + QString::number(q.x) + " " + QString::number(q.y) + " " + QString::number(q.z);
+//        str += QString::number(v.x) + " " + QString::number(v.y) + " " + QString::number(v.z);
+//        str += "\n";
     }
-//    QStandardItem* item = new QStandardItem(QString("'") + m_nodeName.c_str() + "'  nbPositionKeys:" + QString::number(m_positionKeys.size()) + "  nbRotationKeys:" + QString::number(m_rotationKeys.size()) + "  nbScaleKeys:" + QString::number(m_scalingKeys.size()) + "\n" + str);
+    //    QStandardItem* item = new QStandardItem(QString("'") + m_nodeName.c_str() + "'  nbPositionKeys:" + QString::number(m_positionKeys.size()) + "  nbRotationKeys:" + QString::number(m_rotationKeys.size()) + "  nbScaleKeys:" + QString::number(m_scalingKeys.size()) + "\n" + str);
     QStandardItem* item = new QStandardItem(QString("nbPositionKeys:") + QString::number(m_positionKeys.size()) + "  nbRotationKeys:" + QString::number(m_rotationKeys.size()) + "  nbScaleKeys:" + QString::number(m_scalingKeys.size()) + "\n" + str);
     parent->appendRow(item);
+//    item2->appendRow(item);
 }
 
-void NodeAnim::save(std::ofstream &file) const
+void NodeAnim::save(std::ofstream& file) const
 {
     Session::save(m_nodeName, file);
     Session::save(m_positionKeys, file);

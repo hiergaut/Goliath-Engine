@@ -14,14 +14,14 @@
 #include <QPainter>
 #include <fstream>
 
-Material::Material(const aiMaterial* ai_material, Textures& textures, std::string directory)
-     : m_directory(directory),
-     m_textures(textures)
+Material::Material(const aiMaterial* ai_material, Textures * textures, std::string directory)
+    : m_textures(textures)
+    , m_directory(directory)
 //      m_fun(QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>())
 {
-//    m_fun = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
+    //    m_fun = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
 
-    for (int i =0; i <Color::Etype::size; ++i) {
+    for (int i = 0; i < Color::Etype::size; ++i) {
         m_colors[i].type = static_cast<Color::Etype>(i);
     }
 
@@ -64,30 +64,48 @@ Material::Material(const aiMaterial* ai_material, Textures& textures, std::strin
     m_iTextures[Texture::HEIGHT] = assimpLoadMaterialTextures(ai_material, aiTextureType_HEIGHT, Texture::HEIGHT);
     //        textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
 
-
-//    std::cout << "\033[32m";
-//    std::cout << "[Material] " << m_name << " created " << this << std::endl;
-////    std::cout << "m_textures : " << m_colors << std::endl;
+    //    std::cout << "\033[32m";
+    //    std::cout << "[Material] " << m_name << " created " << this << std::endl;
+    ////    std::cout << "m_textures : " << m_colors << std::endl;
     //    std::cout << "\033[0m";
 }
 
-Material::Material(std::ifstream &file, Textures &textures)
+Material::Material(std::ifstream& file, Textures * textures)
     : m_textures(textures)
 {
-//    uint size;
-    for (uint i =0; i <Texture::size; ++i) {
+    //    uint size;
+    for (uint i = 0; i < Texture::size; ++i) {
+//        std::cout << "m_iTextures[" << i << "]" << std::endl;
         Session::load(m_iTextures[i], file);
     }
 
+//    std::cout << "m_name" << std::endl;
     Session::load(m_name, file);
 
-    for (uint i =0; i <Color::size; ++i) {
+    for (uint i = 0; i < Color::size; ++i) {
+//        std::cout << "m_colors[" << i << "]" << std::endl;
         m_colors[i].load(file);
     }
 
+//    std::cout << "m_shininess" << std::endl;
     Session::load(m_shininess, file);
+//    std::cout << "m_directory" << std::endl;
     Session::load(m_directory, file);
 }
+
+//Material::Material(Material &&material, Textures &textures)
+//    : m_textures(textures)
+//{
+
+//}
+
+//Material::Material(const Material & mat)
+//    : m_textures(mat.m_textures)
+//{
+//    std::cout << "\033[31m";
+//    std::cout << "[MATERIAL] " << m_name << " copy constructor " << this << std::endl;
+//    std::cout << "\033[0m";
+//}
 
 //Material::Material(const Material && material) : m_textures(material.m_textures)
 //{
@@ -109,30 +127,34 @@ Material::Material(std::ifstream &file, Textures &textures)
 
 Material::~Material()
 {
-    std::cout << "\033[31m";
-    std::cout << "[Material] " << m_name << " destruct " << this << std::endl;
-//    std::cout << "m_textures : " << m_colors << std::endl;
+    std::cout << "\033[35m";
+    std::cout << "[Material] '" << m_name << "' deleted " << this << std::endl;
+    //    std::cout << "m_textures : " << m_colors << std::endl;
     std::cout << "\033[0m";
 }
 
-void Material::save(std::ofstream &file) const
+void Material::save(std::ofstream& file) const
 {
-    for (uint i =0; i <Texture::size; ++i) {
+    for (uint i = 0; i < Texture::size; ++i) {
+//        std::cout << "m_iTextures[" << i << "]" << std::endl;
         Session::save(m_iTextures[i], file);
     }
 
+//    std::cout << "m_name" << std::endl;
     Session::save(m_name, file);
 
-    for (uint i =0; i <Color::size; ++i) {
+    for (uint i = 0; i < Color::size; ++i) {
+//        std::cout << "m_colors[" << i << "]" << std::endl;
         m_colors[i].save(file);
     }
 
+//    std::cout << "m_shininess" << std::endl;
     Session::save(m_shininess, file);
+//    std::cout << "m_directory" << std::endl;
     Session::save(m_directory, file);
-
 }
 
-void Material::buildItemModel(QStandardItem *parent) const
+void Material::buildItemModel(QStandardItem* parent) const
 {
     QStandardItem* item2 = new QStandardItem(QIcon(":/icons/material.png"), m_name.c_str());
 
@@ -168,7 +190,7 @@ void Material::buildItemModel(QStandardItem *parent) const
 
     for (int i = 0; i < Texture::size; ++i) {
         for (int j = 0; j < m_iTextures[i].size(); ++j) {
-            const Texture& texture = m_textures[m_iTextures[i][j]];
+            const Texture& texture = (*m_textures)[m_iTextures[i][j]];
 
             if (i == 0) {
                 QStandardItem* item3 = new QStandardItem(QIcon(texture.m_pixmap), texture.m_filename.c_str());
@@ -180,13 +202,10 @@ void Material::buildItemModel(QStandardItem *parent) const
         }
     }
     parent->appendRow(item2);
-
 }
-
 
 //}
 //    unsigned int TextureFromFile(const char* path, const string& directory, bool gamma = false)
-
 
 std::vector<uint> Material::assimpLoadMaterialTextures(const aiMaterial* mat, aiTextureType ai_type, Texture::Type type)
 {
@@ -200,8 +219,8 @@ std::vector<uint> Material::assimpLoadMaterialTextures(const aiMaterial* mat, ai
         std::string filename(ai_filename.C_Str());
         // check if texture was loaded before and if so, continue to next iteration: skip loading a new texture
         bool skip = false;
-        for (unsigned int j = 0; j < m_textures.size(); j++) {
-            if (std::strcmp(m_textures[j].m_directory.data(), filename.c_str()) == 0) {
+        for (unsigned int j = 0; j < m_textures->size(); j++) {
+            if (std::strcmp((*m_textures)[j].m_directory.data(), filename.c_str()) == 0) {
                 //                textures.push_back(m_textures[j]);
                 textures.push_back(j);
                 skip = true; // a texture with the same filepath has already been loaded, continue to next one. (optimization)
@@ -209,24 +228,24 @@ std::vector<uint> Material::assimpLoadMaterialTextures(const aiMaterial* mat, ai
             }
         }
         if (!skip) { // if texture hasn't been loaded already, load it
-//            Texture texture;
-//            texture.id = TextureFromFile(str.C_Str(), m_directory);
-//            texture.type = type;
-//            texture.m_directory = m_directory + "/" + str.C_Str();
-//            texture.m_filename = str.C_Str();
-//            bool success;
-//            QImage image = loadTga(texture.m_directory.c_str(), success);
-//            Q_ASSERT(success);
-//            //            Q_ASSERT(! image.isNull());
-//            //            QPixmap pixmap(image);
-//            //            QPixmap pixmap(QPixmap::fromImage(image));
-//            texture.pixmap = QPixmap::fromImage(image);
+            //            Texture texture;
+            //            texture.id = TextureFromFile(str.C_Str(), m_directory);
+            //            texture.type = type;
+            //            texture.m_directory = m_directory + "/" + str.C_Str();
+            //            texture.m_filename = str.C_Str();
+            //            bool success;
+            //            QImage image = loadTga(texture.m_directory.c_str(), success);
+            //            Q_ASSERT(success);
+            //            //            Q_ASSERT(! image.isNull());
+            //            //            QPixmap pixmap(image);
+            //            //            QPixmap pixmap(QPixmap::fromImage(image));
+            //            texture.pixmap = QPixmap::fromImage(image);
             //            textures.push_back(texture);
-            textures.push_back(m_textures.size());
-//            m_textures.push_back(std::move(texture)); // store it as texture loaded for entire model, to ensure we won't unnecesery load duplicate textures.
-//            Texture texture(m_directory, filename, type);
+            textures.push_back(m_textures->size());
+            //            m_textures.push_back(std::move(texture)); // store it as texture loaded for entire model, to ensure we won't unnecesery load duplicate textures.
+            //            Texture texture(m_directory, filename, type);
 
-            m_textures.emplace_back(m_directory, filename, type);
+            m_textures->emplace_back(m_directory, filename, type);
         }
     }
     return textures;

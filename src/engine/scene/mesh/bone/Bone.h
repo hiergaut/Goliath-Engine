@@ -19,11 +19,15 @@ public:
 public:
     Bone(const aiBone * ai_bone);
     Bone(std::ifstream & file);
+
+    Bone(const Bone &) = delete;
+    Bone(Bone &&) noexcept = default;
+
     ~Bone();
 
     void buildItemModel(QStandardItem * parent) const;
 
-    void save(std::ofstream & file);
+    void save(std::ofstream & file) const;
 
 private:
 

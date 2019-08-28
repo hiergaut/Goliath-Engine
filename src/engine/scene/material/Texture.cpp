@@ -42,9 +42,12 @@ Texture::Texture(std::ifstream &file)
 {
     m_fun = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
 
-    Session::load(m_id, file);
+//    Session::load(m_id, file);
     Session::load(m_filename, file);
     Session::load(m_directory, file);
+
+    m_id = TextureFromFile(m_filename.c_str(), m_directory);
+
     m_type = Texture::Type(Session::loadEnum(file));
 
     bool success;
@@ -59,6 +62,13 @@ Texture::Texture(std::ifstream &file)
 
 //Texture::Texture(const Texture &texture)
 //{
+//    std::cout << "\033[31m";
+//    std::cout << "[TEXTURE] '" << m_filename << "' copy constructor " << this << std::endl;
+//    std::cout << "\033[0m";
+//}
+
+//Texture::Texture(const Texture &texture)
+//{
 //    std::cout << "[Texture] '" << m_filename << "' fuck " << this << std::endl;
 
 //}
@@ -66,14 +76,14 @@ Texture::Texture(std::ifstream &file)
 Texture::~Texture()
 {
 
-    std::cout << "\033[31m";
-    std::cout << "[Texture] '" << m_filename << "' destruct " << this << std::endl;
+    std::cout << "\033[35m";
+    std::cout << "[Texture] '" << m_filename << "' deleted " << this << std::endl;
     std::cout << "\033[0m";
 }
 
 void Texture::save(std::ofstream &file) const
 {
-    Session::save(m_id, file);
+//    Session::save(m_id, file);
     Session::save(m_filename, file);
     Session::save(m_directory, file);
     Session::saveEnum(static_cast<int>(m_type), file);

@@ -27,8 +27,8 @@ Bone::Bone(std::ifstream &file)
 
 Bone::~Bone()
 {
-    std::cout << "\033[31m";
-    std::cout << "[BONE] '" << m_name << "' destruct " << this << std::endl;
+    std::cout << "\033[35m";
+    std::cout << "[BONE] '" << m_name << "' deleted " << this << std::endl;
     std::cout << "\033[0m";
 }
 
@@ -51,7 +51,7 @@ void Bone::buildItemModel(QStandardItem* parent) const
     //    }
 }
 
-void Bone::save(std::ofstream &file)
+void Bone::save(std::ofstream &file) const
 {
     Session::save(m_name, file);
     Session::save(m_weights, file);
