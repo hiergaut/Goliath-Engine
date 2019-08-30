@@ -47,7 +47,7 @@ void QOpenGLWidget_Editor::loadNewModel(std::string filename)
 
 void QOpenGLWidget_Editor::load(std::ifstream& file)
 {
-//    clear();
+    //    clear();
     Q_ASSERT(QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>());
     //    qDebug() << "[GL_CONTEXT]" << QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
 
@@ -71,10 +71,16 @@ void QOpenGLWidget_Editor::initializeGL()
     Q_ASSERT(QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>());
 
     glEnable(GL_DEPTH_TEST);
-//    glEnable(GL_CULL_FACE);
+    glDepthFunc(GL_LESS);
+    //    glEnable(GL_CULL_FACE);
     glEnable(GL_MULTISAMPLE);
 
-//    glEnable(GL_BLEND);
+//    glEnable(GL_STENCIL_TEST);
+//    glStencilMask(0x00);
+    //    glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+    //    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+
+    //    glEnable(GL_BLEND);
     //    glEnable(GL_LINE_SMOOTH);
 
     //    glFrontFace(GL_CW);
@@ -126,20 +132,20 @@ void QOpenGLWidget_Editor::paintGL()
         m_statusBar->showMessage("fps:" + QString::number(m_fps));
     }
     //        glClearColor(0.0f, 1.0f, 0.0f, 0.5f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    //    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-    glViewport(width() - 100, 10, 100, 100);
+    //    glViewport(width() - 100, 10, 100, 100);
 
     //    m_textRender.RenderText(str , 0.0f, 0.0f, 2.0f, glm::vec3(1.0f, 1.0f, 1.0f));
     //    glViewport(100, 100, 100, 100);
     // -------------------------------------------------------------------------------
-
 
     glm::mat4 model(1.0);
 
     m_scene.prepareHierarchy(currentFrameTime);
 
     for (const MainWindow3dView* view : *m_views) {
+
 
         Q_ASSERT(view->parent()->parent());
         Q_ASSERT(m_mainWindow->isAncestorOf(view));
@@ -150,16 +156,18 @@ void QOpenGLWidget_Editor::paintGL()
         QPoint point = view->mapTo(m_mainWindow, view->pos());
 
         int x = point.x();
-        int y = m_mainWindow->height() - point.y() - view->height();
+        int y = m_mainWindow->height() - point.y() - view->height() + 5;
         glViewport(x, y, view->width(), view->height());
 
         glm::mat4 viewMatrix = view->viewMatrix();
-//        glm::mat4 projectionMatrix = view->projectionMatrix();
+        //        glm::mat4 projectionMatrix = view->projectionMatrix();
         m_scene.draw(*view);
 
         int minSide = qMin(view->width(), view->height());
         glViewport(x + 5, y + 5, minSide / 10, minSide / 10);
         m_axis->draw(viewMatrix);
+
+//        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     }
 
     // ----------------------------------------------------------------

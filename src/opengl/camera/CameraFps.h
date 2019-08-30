@@ -75,7 +75,9 @@ public:
     void resizeEvent(QResizeEvent *event) override;
 
 
-    glm::vec3 front() const;
+    glm::vec3 front() const override;
+    glm::vec3 up() const override;
+    glm::vec3 right() const override;
 
 private:
     //    QWidget * m_view;

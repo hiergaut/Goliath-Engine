@@ -37,6 +37,7 @@
     <addaction name="actionX_Rays"/>
     <addaction name="actionSkeleton"/>
     <addaction name="actionNormal_2"/>
+    <addaction name="actionBoundingBox"/>
    </widget>
    <widget class="QMenu" name="menuInteraction_Mode">
     <property name="title">
@@ -71,11 +72,23 @@
      <string>Normal</string>
     </property>
    </widget>
+   <widget class="QMenu" name="menuCurent_Mode">
+    <property name="title">
+     <string>Curent Mode</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menuBoundingBox">
+    <property name="title">
+     <string>BoundingBox</string>
+    </property>
+   </widget>
    <addaction name="menuInteraction_Mode"/>
+   <addaction name="menuCurent_Mode"/>
    <addaction name="menuX_Ray"/>
    <addaction name="menuWireFrame"/>
    <addaction name="menuSkeleton"/>
    <addaction name="menuNormal"/>
+   <addaction name="menuBoundingBox"/>
    <addaction name="menuShading"/>
    <addaction name="menuShading_2"/>
   </widget>
@@ -119,16 +132,28 @@
    </property>
   </action>
   <action name="actionObject_Mode">
+   <property name="icon">
+    <iconset resource="../../../../resources/resources.qrc">
+     <normaloff>:/icons/object.png</normaloff>:/icons/object.png</iconset>
+   </property>
    <property name="text">
     <string>Object Mode</string>
    </property>
   </action>
   <action name="actionEdit_Mode">
+   <property name="icon">
+    <iconset resource="../../../../resources/resources.qrc">
+     <normaloff>:/icons/edit.png</normaloff>:/icons/edit.png</iconset>
+   </property>
    <property name="text">
     <string>Edit Mode</string>
    </property>
   </action>
   <action name="actionPose_Mode">
+   <property name="icon">
+    <iconset resource="../../../../resources/resources.qrc">
+     <normaloff>:/icons/poseMode.png</normaloff>:/icons/poseMode.png</iconset>
+   </property>
    <property name="text">
     <string>Pose Mode</string>
    </property>
@@ -185,6 +210,18 @@
    </property>
    <property name="text">
     <string>Normal</string>
+   </property>
+  </action>
+  <action name="actionBoundingBox">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../../../resources/resources.qrc">
+     <normaloff>:/icons/boundingBox.png</normaloff>:/icons/boundingBox.png</iconset>
+   </property>
+   <property name="text">
+    <string>BoundingBox</string>
    </property>
   </action>
  </widget>

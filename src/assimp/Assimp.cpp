@@ -60,10 +60,10 @@ glm::quat aiQuatToGlm(const aiQuaternion& from)
 }
 
 #include <iomanip>
-void mat4BuildItemModel(const glm::mat4 matrix, QStandardItem* parent)
+void mat4BuildItemModel(const glm::mat4 matrix, QStandardItem* item)
 {
-    QStandardItem* item = new QStandardItem("transformation");
-    parent->appendRow(item);
+//    QStandardItem* item = new QStandardItem("transformation");
+//    parent->appendRow(item);
 
 //    QString str;
 //    std::string str;
@@ -81,8 +81,12 @@ void mat4BuildItemModel(const glm::mat4 matrix, QStandardItem* parent)
             stream << "\n";
         }
     }
-    QStandardItem* item2 = new QStandardItem(stream.str().c_str());
+//    QStandardItem* item2 = new QStandardItem(stream.str().c_str());
+
+    item->setText(stream.str().c_str());
 
 //    parent->appendRow(item2);
-    item->appendRow(item2);
+//    item->appendRow(item2);
+
+//    return item;
 }

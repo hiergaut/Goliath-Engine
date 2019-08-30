@@ -15,6 +15,7 @@ class Node
 {
 public:
     glm::mat4 m_transformation = glm::mat4(1.0f);
+    mutable QStandardItem * m_itemTransformation = nullptr;
 
 public:
     Node(const aiNode * ai_node, Meshes *meshes, Animations *animations);
@@ -26,7 +27,7 @@ public:
 //    void prepareHierarchy(glm::mat4 & model, const Animation & animation, double animationTime) const;
     void prepareHierarchy(glm::mat4 model, const Animation *animation = nullptr, double animationTime = 0.0) const;
 //    void drawBones(const Shader & shader, glm::mat4 model, const Animation *animation = nullptr, double animationTime = 0.0) const;
-    void draw(const BoneGeometry &boneGeometry, const glm::mat4 & modelMatrix) const;
+    void drawHierarchy(const BoneGeometry &boneGeometry, const glm::mat4 & modelMatrix) const;
 
     uint recurseNbBones() const;
     uint recurseNbNodes() const;

@@ -37,6 +37,7 @@ class MainWindow3dView;
 class MainWindow3dView : public QMainWindow, public TemplateMenuBar {
     Q_OBJECT
 
+public:
     enum Shading {
         //        WIRE_FRAME = 0,
         SOLID = 0,
@@ -47,6 +48,14 @@ class MainWindow3dView : public QMainWindow, public TemplateMenuBar {
         size
     };
 
+    enum Mode {
+        OBJECT,
+        EDIT,
+        POSE
+    };
+
+    Mode m_mode;
+
 public:
     explicit MainWindow3dView(QWidget* parent = nullptr);
     ~MainWindow3dView() override;
@@ -56,6 +65,7 @@ public:
     void load(std::ifstream& file);
     void save(std::ofstream& file);
 
+    void setMode(Mode mode);
     void setShading(Shading shade);
 
     static void glInitialize();
@@ -111,6 +121,7 @@ private:
     static std::list<const MainWindow3dView*>* m_views;
 
     //    Shader* m_shader = nullptr;
+    Mode m_previousMode;
 
     static Shader* m_shaders[Shading::size];
     Shading m_shade;
@@ -124,6 +135,7 @@ private:
 
 public:
     glm::mat4 projectionMatrix() const;
+    glm::mat4 projectionMatrixZoom() const;
     glm::mat4 viewMatrix() const;
     glm::mat4 projectionViewMatrix() const;
     static void setViews(std::list<const MainWindow3dView*>* views);
@@ -136,6 +148,7 @@ public:
     bool xRays() const;
     bool skeleton() const;
     bool normal() const;
+    bool boundingBox() const;
 
 private slots:
     //    void on_actionWireFrame_triggered();
@@ -149,6 +162,10 @@ private slots:
     void on_actionX_Rays_triggered();
     void on_actionSkeleton_triggered();
     void on_actionNormal_2_triggered();
+    void on_actionObject_Mode_triggered();
+    void on_actionEdit_Mode_triggered();
+    void on_actionPose_Mode_triggered();
+    void on_actionBoundingBox_triggered();
 };
 
 #endif // MAINWINDOW3DVIEW_H

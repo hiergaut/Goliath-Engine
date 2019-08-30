@@ -147,3 +147,27 @@ glm::vec3 CameraWorld::target() const
 {
     return m_target;
 }
+
+glm::vec3 CameraWorld::up() const
+{
+    glm::vec3 front = glm::normalize(m_target - m_position);
+    glm::vec3 right = glm::normalize(glm::cross(glm::vec3(0.0f, 0.0f, 1.0f), front));
+
+    glm::vec3 up = glm::normalize(glm::cross(front, right));
+    return up;
+}
+
+glm::vec3 CameraWorld::right() const
+{
+    glm::vec3 front = glm::normalize(m_target - m_position);
+    glm::vec3 right = glm::normalize(glm::cross(glm::vec3(0.0f, 0.0f, 1.0f), front));
+    return right;
+
+}
+
+glm::vec3 CameraWorld::front() const
+{
+    glm::vec3 front = glm::normalize(m_target - m_position);
+    return front;
+
+}

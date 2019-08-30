@@ -31,6 +31,8 @@
 
 #include "../material/Material.h"
 
+#include <opengl/BoundingBox.h>
+
 class Mesh;
 using Meshes = std::vector<Mesh>;
 
@@ -41,6 +43,10 @@ public:
 
     std::vector<Bone> m_bones;
     mutable glm::mat4 m_transform;
+
+    std::vector<Vertex> m_vertices;
+
+    mutable BoundingBox * m_box;
 
 public:
     //    Mesh(std::string name, std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures) : m_name(name)
@@ -60,6 +66,8 @@ public:
 
     void save(std::ofstream& file) const;
 
+    void updateBoundingBox() const;
+
 private:
     /*  Render data  */
     uint m_iMaterial;
@@ -70,7 +78,6 @@ private:
 
     std::string m_name;
     //    std::vector<Face> m_faces;
-    std::vector<Vertex> m_vertices;
     //    std::vector<uint> m_boneOfVertice;
     std::vector<VertexBoneData> m_bonesData;
 

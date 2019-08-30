@@ -18,7 +18,7 @@ glm::quat aiQuatToGlm(const aiQuaternion & from);
 
 
 #include <QStandardItem>
-void mat4BuildItemModel(const glm::mat4 matrix, QStandardItem* parent);
+void mat4BuildItemModel(const glm::mat4 matrix, QStandardItem* item);
 
 
 #endif // ASSIMP_H

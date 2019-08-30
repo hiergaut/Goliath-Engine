@@ -43,6 +43,9 @@ private:
 
 public:
     glm::vec3 target() const;
+    glm::vec3 up() const override;
+    glm::vec3 right() const override;
+    glm::vec3 front() const override;
 };
 
 #endif // CAMERAWORLD_H

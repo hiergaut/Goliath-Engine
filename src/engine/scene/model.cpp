@@ -41,6 +41,7 @@ Model::Model(const std::string& path)
     //        std::cout << "\033[32m";
     //        std::cout << "[Model] " << m_filename << " created " << this << std::endl;
     //        std::cout << "\033[0m";
+    updateBoundingBoxing();
 }
 
 Model::Model(std::ifstream& file)
@@ -93,10 +94,12 @@ Model::Model(std::ifstream& file)
     //        std::cout << "\033[32m";
     //        std::cout << "[Model] " << m_filename << " created " << this << std::endl;
     //        std::cout << "\033[0m";
+    updateBoundingBoxing();
 }
 
 Model::Model(Model&& model) noexcept
-    : m_materials(std::move(model.m_materials))
+    : m_box(std::move(model.m_box))
+    , m_materials(std::move(model.m_materials))
     , m_textures(std::move(model.m_textures))
     , m_animations(std::move(model.m_animations))
     , m_meshes(std::move(model.m_meshes))
@@ -233,6 +236,17 @@ void Model::assimpLoadModel(std::string const& path)
     //    std::cout << "assimp load model finished" << path << std::endl;
 }
 
+void Model::updateBoundingBoxing() const
+{
+    m_box.clear();
+    for (const Mesh & mesh : m_meshes) {
+        for (const Vertex & vertex : mesh.m_vertices) {
+            m_box << vertex.Position;
+        }
+    }
+
+}
+
 void Model::prepareHierarchy(ulong frameTime) const
 {
     if (m_rootNode == nullptr)
@@ -286,6 +300,8 @@ void Model::prepareHierarchy(ulong frameTime) const
 
         //        shader.setBool("isSkeleton", false);
     }
+
+//    updateBoundingBoxing();
 }
 
 //void Model::Draw(const glm::mat4& modelMatrix, const MainWindow3dView& view) const
@@ -304,9 +320,27 @@ void Model::Draw(const glm::mat4& modelMatrix, const Shader& shader) const
         //        const Mesh& mesh = m_meshes[i];
         shader.setMat4("model", modelMatrix * mesh.m_transform);
         mesh.draw(shader);
+
+//        mesh.m_box->draw(modelMatrix * mesh.m_transform, shader);
     }
 
+//    m_box.draw(modelMatrix, )
+
     //    shader.use();
+}
+
+void Model::DrawBoundingBox(const glm::mat4 &modelMatrix, const Shader &shader) const
+{
+    for (const Mesh& mesh : m_meshes) {
+        //        shader.setMat4("model", modelMatrix);
+        //        const Mesh& mesh = m_meshes[i];
+        shader.setMat4("model", modelMatrix * mesh.m_transform);
+//        mesh.draw(shader);
+
+        mesh.m_box->draw(modelMatrix * mesh.m_transform, shader);
+    }
+
+
 }
 
 void Model::DrawHierarchy(const glm::mat4& modelMatrix, const MainWindow3dView& view) const
@@ -321,7 +355,7 @@ void Model::DrawHierarchy(const glm::mat4& modelMatrix, const MainWindow3dView& 
 
     //    m_boneGeometry.setVP(viewMatrix, projectionMatrix);
     m_boneGeometry.updateShader(view);
-    m_rootNode->draw(m_boneGeometry, modelMatrix);
+    m_rootNode->drawHierarchy(m_boneGeometry, modelMatrix);
     //        glDepthFunc(GL_LESS);
 }
 
@@ -399,6 +433,18 @@ void Model::save(std::ofstream& file) const
     Session::save(m_filename, file);
     //    std::cout << "save directory" << std::endl;
     Session::save(directory, file);
+}
+
+glm::mat4 Model::scaleCenter(float scale) const
+{
+    glm::mat4 mat(1.0f);
+    glm::vec3 center = m_box.center();
+//    qDebug() << center.x << center.y << center.z;
+    mat = glm::translate(mat, center);
+    mat = glm::scale(mat, glm::vec3(scale));
+    mat = glm::translate(mat, -center);
+
+    return mat;
 }
 
 //void Model::modelRecurseMaterial(const Material& material, QStandardItem* parent) const

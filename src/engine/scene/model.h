@@ -40,9 +40,11 @@
 #include <memory>
 #include <opengl/geometry/boneGeometry.h>
 #include <gui/editor/3dview/MainWindow3dView.h>
+#include <opengl/BoundingBox.h>
 
 class Model {
 public:
+    mutable BoundingBox m_box;
 
 public:
     Model(const std::string& path);
@@ -62,11 +64,13 @@ public:
 
     void prepareHierarchy(ulong frameTime) const;
     void Draw(const glm::mat4 &modelMatrix, const Shader & shader) const;
+    void DrawBoundingBox(const glm::mat4 &modelMatrix, const Shader & shader) const;
     void DrawHierarchy(const glm::mat4 &modelMatrix, const MainWindow3dView & view) const;
     void buildItemModel(QStandardItem* parent) const;
 
 //    void load(std::ifstream & file) const;
     void save(std::ofstream & file) const;
+    glm::mat4 scaleCenter(float scale) const;
 
 private:
 //    void modelRecurseNode(const Node& node, QStandardItem* parent) const;
@@ -75,6 +79,7 @@ private:
 //    void modelMat4(const glm::mat4 matrix, QStandardItem* parent) const;
 
     void assimpLoadModel(std::string const& path);
+    void updateBoundingBoxing() const;
     //    const Node* assimpProcessNode(const aiNode * node, const aiScene* scene, int depth);
     //    Mesh assimpProcessMesh(const aiMesh* mesh, const aiScene* scene, int depth);
     //    std::vector<uint> assimpLoadMaterialTextures(aiMaterial* mat, aiTextureType ai_type, Texture::Type type);
@@ -91,6 +96,9 @@ private:
 //    std::vector<Animation> m_animations;
     Animations m_animations;
     Meshes m_meshes;
+
+//    glm::vec3 m_boxMin;
+//    glm::vec3 m_boxMax;
 
 
     //    const Node * m_rootNode = nullptr;

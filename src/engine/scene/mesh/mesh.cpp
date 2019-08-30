@@ -105,6 +105,8 @@ Mesh::Mesh(const aiMesh* ai_mesh, Materials*  materials, Textures*  textures)
 //    std::cout << "\033[32m";
 //    std::cout << "[MESH] " << m_name << " created " << this << std::endl;
 //    std::cout << "\033[0m";
+    m_box = new BoundingBox;
+    updateBoundingBox();
 }
 
 Mesh::Mesh(std::ifstream& file, Materials*  materials, Textures*  textures)
@@ -153,6 +155,8 @@ Mesh::Mesh(std::ifstream& file, Materials*  materials, Textures*  textures)
 //    std::cout << "\033[32m";
 //    std::cout << "[MESH] " << m_name << " created " << this << std::endl;
 //    std::cout << "\033[0m";
+    m_box = new BoundingBox;
+    updateBoundingBox();
 }
 
 //Mesh::Mesh(const Mesh &mesh)
@@ -336,6 +340,7 @@ void Mesh::draw(const Shader& shader) const
     m_fun->glBindVertexArray(0);
     // always good practice to set everything back to defaults once configured.
     m_fun->glActiveTexture(GL_TEXTURE0);
+
 }
 
 void Mesh::save(std::ofstream& file) const
@@ -381,4 +386,12 @@ void Mesh::save(std::ofstream& file) const
     //    std::cout << "m_indices" << std::endl;
     Session::save(m_indices, file);
     //    Session::load(m_bbo)
+}
+
+void Mesh::updateBoundingBox() const
+{
+    m_box->clear();
+    for (const Vertex & vertex : m_vertices) {
+        *m_box << vertex.Position;
+    }
 }

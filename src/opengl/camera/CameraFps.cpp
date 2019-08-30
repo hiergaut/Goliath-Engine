@@ -412,3 +412,13 @@ glm::vec3 CameraFps::front() const
 {
     return m_front;
 }
+
+glm::vec3 CameraFps::up() const
+{
+    return m_up;
+}
+
+glm::vec3 CameraFps::right() const
+{
+    return m_right;
+}

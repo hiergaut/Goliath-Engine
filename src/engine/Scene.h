@@ -62,7 +62,7 @@ private:
 
     std::list<const MainWindow3dView *> * m_views;
 
-    Model* m_cameraModel;
+    Model* m_cameraModel = nullptr;
 //    Shader* m_shaderCamera;
 //    std::vector<const CameraWorld*> m_cameras;
 //    Axis * m_axis;

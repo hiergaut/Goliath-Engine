@@ -18,7 +18,7 @@ Node::Node(const aiNode* ai_node, Meshes* meshes, Animations* animations)
     , m_name(ai_node->mName.C_Str())
 //    , m_sphere(0.001)
 {
-//    std::cout << "Node " << ai_node << std::endl;
+    //    std::cout << "Node " << ai_node << std::endl;
 
     //    m_nbNodeAnim = 0;
     for (uint i = 0; i < animations->size(); ++i) {
@@ -107,7 +107,7 @@ Node::Node(const aiNode* ai_node, Meshes* meshes, Animations* animations)
     }
 }
 
-Node::Node(std::ifstream& file, Meshes * meshes, Animations * animations)
+Node::Node(std::ifstream& file, Meshes* meshes, Animations* animations)
     : m_meshes(meshes)
     , m_animations(animations)
 {
@@ -183,14 +183,20 @@ void Node::buildItemModel(QStandardItem* parent) const
         item = new QStandardItem(QIcon(":/icons/node.png"), "'" + QString(m_name.c_str()) + "'  " + QString::number(m_children.size()) + "  " + QString::number(m_nodeAnims.size()));
         parent->appendRow(item);
     }
-    mat4BuildItemModel(m_transformation, item);
+
+    //    m_itemTransformation = mat4BuildItemModel(m_transformation, item);
+    QStandardItem* item2 = new QStandardItem("transformation");
+    m_itemTransformation = new QStandardItem;
+    mat4BuildItemModel(m_transformation, m_itemTransformation);
+    item2->appendRow(m_itemTransformation);
+    item->appendRow(item2);
 
     if (m_nodeAnims.size() > 0) {
         QStandardItem* item2 = new QStandardItem("nodeAnim  " + QString::number(m_nodeAnims.size()));
         //        parent->appendRow(item);
         item->appendRow(item2);
         for (const auto& pair : m_nodeAnims) {
-            QStandardItem * item3 = new QStandardItem(pair.first.c_str());
+            QStandardItem* item3 = new QStandardItem(pair.first.c_str());
             item2->appendRow(item3);
 
             std::pair<uint, uint> pair2 = pair.second;
@@ -330,6 +336,7 @@ void Node::prepareHierarchy(glm::mat4 model, const Animation* animation, double 
 {
     if (animation == nullptr) {
         m_recurseModel = model * m_transformation;
+        //        m_recurseModel = model;
 
     } else {
         const auto& it = m_nodeAnims.find(animation->m_name);
@@ -369,8 +376,10 @@ void Node::prepareHierarchy(glm::mat4 model, const Animation* animation, double 
             //        glm::mat4 translation(1.0f);
             //        model = model * translation * rotation * scale;
             m_recurseModel = model * transformation;
+//            mat4BuildItemModel(transformation, m_itemTransformation);
         } else {
             m_recurseModel = model * m_transformation;
+//            mat4BuildItemModel(m_transformation, m_itemTransformation);
         }
     }
 
@@ -378,7 +387,8 @@ void Node::prepareHierarchy(glm::mat4 model, const Animation* animation, double 
         //        m_bone->m_transform = model * m_bone->m_offsetMatrix;
         const Bone& bone = (*m_meshes)[m_iBone.first].m_bones[m_iBone.second];
         bone.m_transform = m_recurseModel * bone.m_offsetMatrix;
-        //        m_bone->m_transform = m_bone->m_offsetMatrix;
+        //        bone.m_transform = m_recurseModel;
+        //                m_bone->m_transform = m_bone->m_offsetMatrix;
     }
 
     for (uint iMesh : m_iMeshes) {
@@ -393,7 +403,7 @@ void Node::prepareHierarchy(glm::mat4 model, const Animation* animation, double 
     }
 }
 
-void Node::draw(const BoneGeometry& boneGeometry, const glm::mat4& modelMatrix) const
+void Node::drawHierarchy(const BoneGeometry& boneGeometry, const glm::mat4& modelMatrix) const
 {
     glm::mat4 model = modelMatrix * m_recurseModel;
     for (const Node& node : m_children) {
@@ -409,7 +419,7 @@ void Node::draw(const BoneGeometry& boneGeometry, const glm::mat4& modelMatrix) 
 
         //        node.draw(shader, model, animation, animationTime);
         //        node.prepareHierarchy(m_recurseModel, animation, animationTime);
-        node.draw(boneGeometry, modelMatrix);
+        node.drawHierarchy(boneGeometry, modelMatrix);
     }
 }
 
@@ -480,15 +490,14 @@ void Node::save(std::ofstream& file) const
     Session::save(m_recurseModel, file);
 }
 
-void Node::updateReferences(Meshes  *meshes, Animations *animations)
+void Node::updateReferences(Meshes* meshes, Animations* animations)
 {
-//    const_cast<Meshes&>(m_meshes) = meshes;
+    //    const_cast<Meshes&>(m_meshes) = meshes;
     m_meshes = meshes;
-//    const_cast<Animations&>(m_animations) = animations;
+    //    const_cast<Animations&>(m_animations) = animations;
     m_animations = animations;
 
-    for (Node & node : m_children) {
+    for (Node& node : m_children) {
         node.updateReferences(meshes, animations);
     }
-
 }

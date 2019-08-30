@@ -95,6 +95,11 @@ MainWindow3dView::MainWindow3dView(QWidget* parent)
     //    m_menus.emplace_back("Shading");
 
     m_menus.push_back(ui->menuInteraction_Mode);
+    //    ui->menuInteraction_Mode->setIcon(ui->actionObject_Mode->icon());
+    m_menus.push_back(ui->menuCurent_Mode);
+
+    m_mode = EDIT;
+    setMode(OBJECT);
 
     m_menus.push_back(ui->menuX_Ray);
     ui->menuX_Ray->setIcon(ui->actionX_Rays->icon());
@@ -107,6 +112,9 @@ MainWindow3dView::MainWindow3dView(QWidget* parent)
 
     m_menus.push_back(ui->menuNormal);
     ui->menuNormal->setIcon(ui->actionNormal_2->icon());
+
+    m_menus.push_back(ui->menuBoundingBox);
+    ui->menuBoundingBox->setIcon(ui->actionBoundingBox->icon());
 
     m_menus.push_back(ui->menuShading);
     m_menus.push_back(ui->menuShading_2);
@@ -199,6 +207,29 @@ void MainWindow3dView::save(std::ofstream& file)
     //    setShading(m_shade);
 }
 
+void MainWindow3dView::setMode(MainWindow3dView::Mode mode)
+{
+    switch (mode) {
+    case OBJECT:
+        ui->menuInteraction_Mode->setIcon(ui->actionObject_Mode->icon());
+        ui->menuCurent_Mode->setTitle("Object Mode");
+        break;
+
+    case EDIT:
+        ui->menuInteraction_Mode->setIcon(ui->actionEdit_Mode->icon());
+        ui->menuCurent_Mode->setTitle("Edit Mode");
+        break;
+
+    case POSE:
+        ui->menuInteraction_Mode->setIcon(ui->actionPose_Mode->icon());
+        ui->menuCurent_Mode->setTitle("Pose Mode");
+        break;
+    }
+
+    m_previousMode = m_mode;
+    m_mode = mode;
+}
+
 void MainWindow3dView::setShading(Shading shade)
 {
     switch (shade) {
@@ -255,6 +286,14 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
     m_camera->keyPressEvent(event);
 
     switch (event->key()) {
+
+    case Qt::Key_Dollar:
+        setMode(m_previousMode);
+        //        std::swap(m_mode, m_previousMode);
+        //        Mode temp = m_mode;
+        //        m_mode = m_previousMode;
+        break;
+
     case Qt::Key_Shift:
         m_shiftPressed = true;
         break;
@@ -309,7 +348,11 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
         break;
 
     case Qt::Key_B:
-        ui->actionSkeleton->trigger();
+        if (m_shiftPressed) {
+            ui->actionBoundingBox->trigger();
+        } else {
+            ui->actionSkeleton->trigger();
+        }
         break;
 
     case Qt::Key_F:
@@ -494,6 +537,11 @@ bool MainWindow3dView::normal() const
     return ui->actionNormal_2->isChecked();
 }
 
+bool MainWindow3dView::boundingBox() const
+{
+    return ui->actionBoundingBox->isChecked();
+}
+
 void MainWindow3dView::setCursorToCenter()
 {
     QPoint glob = mapToGlobal(QPoint(width() / 2, height() / 2));
@@ -601,6 +649,11 @@ void MainWindow3dView::setViews(std::list<const MainWindow3dView*>* views)
 glm::mat4 MainWindow3dView::projectionMatrix() const
 {
     return m_projectionMatrix;
+}
+
+glm::mat4 MainWindow3dView::projectionMatrixZoom() const
+{
+    return glm::perspective(glm::radians(m_camera->fov() - 1), (float)width() / height(), l_near, l_far);
 }
 
 //void MainWindow3dView::on_actionWireFrame_triggered()
@@ -717,4 +770,40 @@ void MainWindow3dView::on_actionNormal_2_triggered()
         ui->menuNormal->setIcon(ui->actionNormal_2->icon());
     }
     //    ui->actionWireFrame->ic
+}
+
+void MainWindow3dView::on_actionBoundingBox_triggered()
+{
+    if (ui->actionBoundingBox->isChecked()) {
+        QPixmap pixmap(":/icons/boundingBox.png");
+        QPainter painter(&pixmap);
+        painter.setCompositionMode(QPainter::CompositionMode_SourceIn);
+
+        painter.fillRect(pixmap.rect(), QColor(255, 0, 0));
+
+        QIcon icon(pixmap);
+        //        ui->menuWireFrame->setIcon(icon);
+        ui->menuBoundingBox->setIcon(icon);
+
+    } else {
+
+        //        ui->menuWireFrame->setIcon(ui->actionWireFrame->icon());
+        ui->menuBoundingBox->setIcon(ui->actionBoundingBox->icon());
+    }
+    //    ui->actionWireFrame->ic
+}
+
+void MainWindow3dView::on_actionObject_Mode_triggered()
+{
+    setMode(OBJECT);
+}
+
+void MainWindow3dView::on_actionEdit_Mode_triggered()
+{
+    setMode(EDIT);
+}
+
+void MainWindow3dView::on_actionPose_Mode_triggered()
+{
+    setMode(POSE);
 }

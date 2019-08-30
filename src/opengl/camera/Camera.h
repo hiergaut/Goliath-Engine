@@ -42,6 +42,10 @@ public:
     virtual void focusInEvent(QFocusEvent * event);
     virtual void resizeEvent(QResizeEvent * event);
 
+    virtual glm::vec3 front() const = 0;
+    virtual glm::vec3 right() const = 0;
+    virtual glm::vec3 up() const = 0;
+
 protected:
     float m_fov;
     mutable glm::vec3 m_position;
