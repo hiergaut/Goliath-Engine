@@ -43,7 +43,7 @@ CubeGeometry::CubeGeometry()
 
 }
 
-void CubeGeometry::draw(const Shader & shader) const
+void CubeGeometry::draw() const
 {
 //    m_shader->use();
 //    m_shader->setMat4("model", modelMatrix);

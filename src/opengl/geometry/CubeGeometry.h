@@ -12,7 +12,7 @@ class CubeGeometry
 public:
     CubeGeometry();
 
-    void draw(const Shader &shader) const;
+    void draw() const;
 
 private:
     void setupGL();

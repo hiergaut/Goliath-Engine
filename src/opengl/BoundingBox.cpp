@@ -42,7 +42,8 @@ void BoundingBox::draw(glm::mat4 modelMatrix, const Shader & shader) const
     modelMatrix = glm::translate(modelMatrix, center());
     modelMatrix = glm::scale(modelMatrix, diag);
 
+    shader.use();
     shader.setMat4("model", modelMatrix);
 
-    m_cube.draw(shader);
+    m_cube.draw();
 }

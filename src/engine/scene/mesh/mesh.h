@@ -46,7 +46,7 @@ public:
 
     std::vector<Vertex> m_vertices;
 
-    mutable BoundingBox * m_box;
+//    mutable BoundingBox m_box;
 
 public:
     //    Mesh(std::string name, std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures) : m_name(name)
@@ -62,7 +62,7 @@ public:
     //    operator QString() const;
     void buildItemModel(QStandardItem* parent) const;
     void setupMesh();
-    void draw(const Shader& shader) const;
+    void draw(const Shader& shader, bool dotCloud = false) const;
 
     void save(std::ofstream& file) const;
 

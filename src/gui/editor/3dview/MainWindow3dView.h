@@ -45,6 +45,7 @@ public:
         RENDERED,
         NORMAL,
         DEPTH,
+        VERTEX_GROUP,
         size
     };
 
@@ -149,6 +150,7 @@ public:
     bool skeleton() const;
     bool normal() const;
     bool boundingBox() const;
+    bool dotCloud() const;
 
 private slots:
     //    void on_actionWireFrame_triggered();
@@ -166,6 +168,8 @@ private slots:
     void on_actionEdit_Mode_triggered();
     void on_actionPose_Mode_triggered();
     void on_actionBoundingBox_triggered();
+    void on_actionVertexGroup_triggered();
+    void on_actionDotCloud_triggered();
 };
 
 #endif // MAINWINDOW3DVIEW_H

@@ -7,6 +7,8 @@
 #include <glm/glm.hpp>
 #include <QStandardItem>
 
+#include <opengl/BoundingBox.h>
+
 class Bone
 {
 public:
@@ -15,6 +17,10 @@ public:
     glm::mat4 m_offsetMatrix;
 
     mutable glm::mat4 m_transform;
+
+
+    mutable BoundingBox m_box;
+
 
 public:
     Bone(const aiBone * ai_bone);
@@ -30,6 +36,7 @@ public:
     void save(std::ofstream & file) const;
 
 private:
+//    Meshes * m_meshes;
 
 };
 

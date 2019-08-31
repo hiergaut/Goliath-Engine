@@ -116,6 +116,9 @@ MainWindow3dView::MainWindow3dView(QWidget* parent)
     m_menus.push_back(ui->menuBoundingBox);
     ui->menuBoundingBox->setIcon(ui->actionBoundingBox->icon());
 
+    m_menus.push_back(ui->menuDotCloud);
+    ui->menuDotCloud->setIcon(ui->actionDotCloud->icon());
+
     m_menus.push_back(ui->menuShading);
     m_menus.push_back(ui->menuShading_2);
 
@@ -164,7 +167,7 @@ void MainWindow3dView::load(std::ifstream& file)
     m_camera->load(file);
     //    setShading(WIRE_FRAME);
 
-    bool data[4];
+    bool data[6];
     file.read(reinterpret_cast<char*>(data), sizeof(data));
     //    ui->actionWireFrame->setChecked(data[0]);
     if (data[0]) {
@@ -181,6 +184,12 @@ void MainWindow3dView::load(std::ifstream& file)
     if (data[3]) {
         ui->actionNormal_2->trigger();
     }
+    if (data[4]) {
+        ui->actionBoundingBox->trigger();
+    }
+    if (data[5]) {
+        ui->actionDotCloud->trigger();
+    }
     //    ui->actionX_Rays->setChecked(data[1]);
 
     file.read(reinterpret_cast<char*>(&m_shade), sizeof(m_shade));
@@ -196,11 +205,13 @@ void MainWindow3dView::save(std::ofstream& file)
     bool wireFrame = ui->actionWireFrame->isChecked();
     bool xRays = ui->actionX_Rays->isChecked();
 
-    bool data[4];
+    bool data[6];
     data[0] = wireFrame;
     data[1] = xRays;
     data[2] = ui->actionSkeleton->isChecked();
     data[3] = ui->actionNormal_2->isChecked();
+    data[4] = ui->actionBoundingBox->isChecked();
+    data[5] = ui->actionDotCloud->isChecked();
     file.write(reinterpret_cast<const char*>(data), sizeof(data));
 
     file.write(reinterpret_cast<const char*>(&m_shade), sizeof(m_shade));
@@ -265,6 +276,11 @@ void MainWindow3dView::setShading(Shading shade)
         ui->menuShading->setIcon(ui->actionDepth->icon());
         ui->menuShading_2->setTitle("Depth");
         break;
+
+    case VERTEX_GROUP:
+        ui->menuShading->setIcon(ui->actionVertexGroup->icon());
+        ui->menuShading_2->setTitle("Vertex_Group");
+        break;
     }
 
     m_shade = shade;
@@ -278,6 +294,7 @@ void MainWindow3dView::glInitialize()
     m_shaders[Shading::RENDERED] = new Shader("shading/rendered.vsh", "shading/rendered.fsh");
     m_shaders[Shading::NORMAL] = new Shader("shading/normal.vsh", "shading/normal.fsh");
     m_shaders[Shading::DEPTH] = new Shader("shading/depth.vsh", "shading/depth.fsh");
+    m_shaders[Shading::VERTEX_GROUP] = new Shader("shading/vertexGroup.vsh", "shading/vertexGroup.fsh");
 }
 
 void MainWindow3dView::keyPressEvent(QKeyEvent* event)
@@ -323,6 +340,10 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
         ui->actionSolid->trigger();
         break;
 
+    case Qt::Key_V:
+        ui->actionVertexGroup->trigger();
+        break;
+
     case Qt::Key_N:
         if (m_shiftPressed) {
             ui->actionNormal_2->trigger();
@@ -333,7 +354,11 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
         break;
 
     case Qt::Key_D:
-        ui->actionDepth->trigger();
+        if (m_shiftPressed) {
+            ui->actionDepth->trigger();
+        } else {
+            ui->actionDotCloud->trigger();
+        }
         break;
 
     case Qt::Key_Z:
@@ -542,6 +567,11 @@ bool MainWindow3dView::boundingBox() const
     return ui->actionBoundingBox->isChecked();
 }
 
+bool MainWindow3dView::dotCloud() const
+{
+    return ui->actionDotCloud->isChecked();
+}
+
 void MainWindow3dView::setCursorToCenter()
 {
     QPoint glob = mapToGlobal(QPoint(width() / 2, height() / 2));
@@ -580,6 +610,9 @@ const Shader& MainWindow3dView::shader() const
         break;
 
     case DEPTH:
+        break;
+
+    case VERTEX_GROUP:
         break;
     }
 
@@ -686,6 +719,11 @@ void MainWindow3dView::on_actionDepth_triggered()
     setShading(DEPTH);
 }
 
+void MainWindow3dView::on_actionVertexGroup_triggered()
+{
+    setShading(VERTEX_GROUP);
+}
+
 void MainWindow3dView::on_actionWireFrame_triggered()
 {
     //    QIcon icon = ui->actionWireFrame->icon();
@@ -789,6 +827,27 @@ void MainWindow3dView::on_actionBoundingBox_triggered()
 
         //        ui->menuWireFrame->setIcon(ui->actionWireFrame->icon());
         ui->menuBoundingBox->setIcon(ui->actionBoundingBox->icon());
+    }
+    //    ui->actionWireFrame->ic
+}
+
+void MainWindow3dView::on_actionDotCloud_triggered()
+{
+    if (ui->actionDotCloud->isChecked()) {
+        QPixmap pixmap(":/icons/vertex.png");
+        QPainter painter(&pixmap);
+        painter.setCompositionMode(QPainter::CompositionMode_SourceIn);
+
+        painter.fillRect(pixmap.rect(), QColor(255, 0, 0));
+
+        QIcon icon(pixmap);
+        //        ui->menuWireFrame->setIcon(icon);
+        ui->menuDotCloud->setIcon(icon);
+
+    } else {
+
+        //        ui->menuWireFrame->setIcon(ui->actionWireFrame->icon());
+        ui->menuDotCloud->setIcon(ui->actionDotCloud->icon());
     }
     //    ui->actionWireFrame->ic
 }

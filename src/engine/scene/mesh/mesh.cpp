@@ -105,7 +105,7 @@ Mesh::Mesh(const aiMesh* ai_mesh, Materials*  materials, Textures*  textures)
 //    std::cout << "\033[32m";
 //    std::cout << "[MESH] " << m_name << " created " << this << std::endl;
 //    std::cout << "\033[0m";
-    m_box = new BoundingBox;
+//    m_box = new BoundingBox;
     updateBoundingBox();
 }
 
@@ -155,7 +155,7 @@ Mesh::Mesh(std::ifstream& file, Materials*  materials, Textures*  textures)
 //    std::cout << "\033[32m";
 //    std::cout << "[MESH] " << m_name << " created " << this << std::endl;
 //    std::cout << "\033[0m";
-    m_box = new BoundingBox;
+//    m_box = new BoundingBox;
     updateBoundingBox();
 }
 
@@ -280,7 +280,7 @@ void Mesh::setupMesh()
     m_fun->glBindVertexArray(0);
 }
 
-void Mesh::draw(const Shader& shader) const
+void Mesh::draw(const Shader& shader, bool dotCloud) const
 {
     //    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     //    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -336,7 +336,15 @@ void Mesh::draw(const Shader& shader) const
     //    shader.setBool("isSkeleton", true);
     // draw mesh
     m_fun->glBindVertexArray(m_vao);
-    m_fun->glDrawElements(GL_TRIANGLES, m_indices.size(), GL_UNSIGNED_INT, 0);
+
+//    glPointSize(5.0f);
+    if (dotCloud)
+        m_fun->glDrawArrays(GL_POINTS, 0, m_vertices.size());
+//        m_fun->glDrawElements(GL_POINTS, m_vertices.size(), GL_UNSIGNED_INT, 0);
+
+    else
+        m_fun->glDrawElements(GL_TRIANGLES, m_indices.size(), GL_UNSIGNED_INT, 0);
+
     m_fun->glBindVertexArray(0);
     // always good practice to set everything back to defaults once configured.
     m_fun->glActiveTexture(GL_TEXTURE0);
@@ -390,8 +398,17 @@ void Mesh::save(std::ofstream& file) const
 
 void Mesh::updateBoundingBox() const
 {
-    m_box->clear();
-    for (const Vertex & vertex : m_vertices) {
-        *m_box << vertex.Position;
+//    m_box.clear();
+//    for (const Vertex & vertex : m_vertices) {
+//        m_box << vertex.Position;
+//    }
+    for (const Bone & bone : m_bones) {
+        bone.m_box.clear();
+
+        for (auto & pair : bone.m_weights) {
+            glm::vec3 pos = m_vertices[pair.first].Position;
+
+            bone.m_box << pos;
+        }
     }
 }

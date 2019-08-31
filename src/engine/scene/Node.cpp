@@ -168,7 +168,8 @@ void Node::buildItemModel(QStandardItem* parent) const
 
     } else if (m_isBone) {
         //        QStandardItem* item2 = new QStandardItem(QString("bone : ") + m_bone->m_name.c_str());
-        item = new QStandardItem(QIcon(":/icons/boneVertex.png"), "'" + QString(m_name.c_str()) + "'  " + QString::number(m_children.size()) + "  " + QString::number(m_nodeAnims.size()));
+        const Bone& bone = (*m_meshes)[m_iBone.first].m_bones[m_iBone.second];
+        item = new QStandardItem(QIcon(":/icons/boneVertex.png"), "'" + QString(m_name.c_str()) + "'  " + QString::number(m_children.size()) + "  " + QString::number(m_nodeAnims.size()) + "  nbVertex:" + QString::number(bone.m_weights.size()));
 
         Q_ASSERT(m_nodeAnims.size() > 0);
         parent->appendRow(item);
@@ -184,30 +185,30 @@ void Node::buildItemModel(QStandardItem* parent) const
         parent->appendRow(item);
     }
 
-    //    m_itemTransformation = mat4BuildItemModel(m_transformation, item);
+    //        m_itemTransformation = mat4BuildItemModel(m_transformation, item);
     QStandardItem* item2 = new QStandardItem("transformation");
     m_itemTransformation = new QStandardItem;
     mat4BuildItemModel(m_transformation, m_itemTransformation);
     item2->appendRow(m_itemTransformation);
     item->appendRow(item2);
 
-    if (m_nodeAnims.size() > 0) {
-        QStandardItem* item2 = new QStandardItem("nodeAnim  " + QString::number(m_nodeAnims.size()));
-        //        parent->appendRow(item);
-        item->appendRow(item2);
-        for (const auto& pair : m_nodeAnims) {
-            QStandardItem* item3 = new QStandardItem(pair.first.c_str());
-            item2->appendRow(item3);
+    //    if (m_nodeAnims.size() > 0) {
+    //        QStandardItem* item2 = new QStandardItem("nodeAnim  " + QString::number(m_nodeAnims.size()));
+    //        //        parent->appendRow(item);
+    //        item->appendRow(item2);
+    //        for (const auto& pair : m_nodeAnims) {
+    //            QStandardItem* item3 = new QStandardItem(pair.first.c_str());
+    //            item2->appendRow(item3);
 
-            std::pair<uint, uint> pair2 = pair.second;
+    //            std::pair<uint, uint> pair2 = pair.second;
 
-            Q_ASSERT(pair2.first < m_animations->size());
-            Q_ASSERT(pair2.second < (*m_animations)[pair2.first].m_channels.size());
-            const NodeAnim& nodeAnim = (*m_animations)[pair2.first].m_channels[pair2.second];
-            //            pair.second->buildItemModel(item2);
-            nodeAnim.buildItemModel(item3);
-        }
-    }
+    //            Q_ASSERT(pair2.first < m_animations->size());
+    //            Q_ASSERT(pair2.second < (*m_animations)[pair2.first].m_channels.size());
+    //            const NodeAnim& nodeAnim = (*m_animations)[pair2.first].m_channels[pair2.second];
+    //            //            pair.second->buildItemModel(item2);
+    //            nodeAnim.buildItemModel(item3);
+    //        }
+    //    }
 
     for (ulong i = 0; i < m_iMeshes.size(); ++i) {
         //        QStandardItem * item2 = new QStandardItem("mesh:" + QString::number(node->m_meshes[i]) + ", " + m_meshes[node->m_meshes[i]]);
@@ -376,10 +377,10 @@ void Node::prepareHierarchy(glm::mat4 model, const Animation* animation, double 
             //        glm::mat4 translation(1.0f);
             //        model = model * translation * rotation * scale;
             m_recurseModel = model * transformation;
-//            mat4BuildItemModel(transformation, m_itemTransformation);
+            //            mat4BuildItemModel(transformation, m_itemTransformation);
         } else {
             m_recurseModel = model * m_transformation;
-//            mat4BuildItemModel(m_transformation, m_itemTransformation);
+            //            mat4BuildItemModel(m_transformation, m_itemTransformation);
         }
     }
 
@@ -412,14 +413,46 @@ void Node::drawHierarchy(const BoneGeometry& boneGeometry, const glm::mat4& mode
 
         if (m_isBone) {
             boneGeometry.draw(model, glm::vec3(0), childPos);
+
+            //            const Bone& bone = (*m_meshes)[m_iBone.first].m_bones[m_iBone.second];
+            //            bone.m_box.draw(model, shader);
+
         } else {
             //            m_boneGeometry.draw(model, shader, glm::vec3(0), childPos);
             boneGeometry.drawLine(model, glm::vec3(0), childPos);
         }
 
-        //        node.draw(shader, model, animation, animationTime);
-        //        node.prepareHierarchy(m_recurseModel, animation, animationTime);
         node.drawHierarchy(boneGeometry, modelMatrix);
+    }
+}
+
+void Node::drawBoundingBox(const glm::mat4& modelMatrix, const Shader& shader) const
+{
+    glm::mat4 model = modelMatrix * m_recurseModel;
+    if (m_isBone) {
+
+        const Bone& bone = (*m_meshes)[m_iBone.first].m_bones[m_iBone.second];
+        uint id = m_iBone.second;
+        float r, g, b;
+        r = (id % 3) / 2.0f;
+        id /= 3;
+        g = (id % 3) / 2.0f;
+        id /= 3;
+        b = (id % 3) / 2.0f;
+
+        shader.setVec3("color", glm::vec3(r, g, b));
+
+        if (FormTimeline::animation() == nullptr) {
+            bone.m_box.draw(modelMatrix, shader);
+        }
+        else {
+            bone.m_box.draw(model, shader);
+        }
+    }
+
+
+    for (const Node& node : m_children) {
+        node.drawBoundingBox(modelMatrix, shader);
     }
 }
 

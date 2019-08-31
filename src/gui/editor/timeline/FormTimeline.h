@@ -32,6 +32,9 @@ public:
     void setFocusPolicy(Qt::FocusPolicy policy) override;
     QWidget * widget() override;
 
+    static void save(std::ofstream & file);
+    static void load(std::ifstream & file);
+
 
 signals:
 

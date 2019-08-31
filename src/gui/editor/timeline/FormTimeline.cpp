@@ -10,6 +10,8 @@ std::list<FormTimeline*> FormTimeline::m_timelines;
 double FormTimeline::m_animationTime = 0.0;
 bool FormTimeline::m_play = false;
 
+#include <session/Session.h>
+
 FormTimeline::FormTimeline(QWidget* parent)
     : QWidget(parent)
 {
@@ -109,6 +111,20 @@ QWidget *FormTimeline::widget()
     return this;
 }
 
+void FormTimeline::save(std::ofstream &file)
+{
+    Session::save(m_animationTime, file);
+
+}
+
+void FormTimeline::load(std::ifstream &file)
+{
+    Session::load(m_animationTime, file);
+
+    setAnimationTime(m_animationTime);
+
+}
+
 const Animation* FormTimeline::animation()
 {
     return m_animation;
@@ -116,6 +132,9 @@ const Animation* FormTimeline::animation()
 
 void FormTimeline::setAnimationTime(double value)
 {
+    if (m_animation == nullptr) {
+        return;
+    }
     m_animationTime = value;
     for (auto timeline : m_timelines) {
         //        timeline->setAnimation(animation);

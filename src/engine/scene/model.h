@@ -63,7 +63,7 @@ public:
     ~Model();
 
     void prepareHierarchy(ulong frameTime) const;
-    void Draw(const glm::mat4 &modelMatrix, const Shader & shader) const;
+    void Draw(const glm::mat4 &modelMatrix, const Shader & shader, bool dotCloud = false) const;
     void DrawBoundingBox(const glm::mat4 &modelMatrix, const Shader & shader) const;
     void DrawHierarchy(const glm::mat4 &modelMatrix, const MainWindow3dView & view) const;
     void buildItemModel(QStandardItem* parent) const;
@@ -95,6 +95,8 @@ private:
 
 //    std::vector<Animation> m_animations;
     Animations m_animations;
+    mutable int m_currentAnimation = -1;
+
     Meshes m_meshes;
 
 //    glm::vec3 m_boxMin;

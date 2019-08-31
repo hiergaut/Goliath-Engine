@@ -74,6 +74,10 @@ Model::Model(std::ifstream& file)
     for (uint i = 0; i < size; ++i) {
         m_animations.emplace_back(file);
     }
+    Session::load(m_currentAnimation, file);
+    if (m_currentAnimation != -1) {
+        FormTimeline::setAnimation(&m_animations[m_currentAnimation]);
+    }
 
     //    std::cout << "load meshes" << std::endl;
     Session::load(size, file);
@@ -102,6 +106,7 @@ Model::Model(Model&& model) noexcept
     , m_materials(std::move(model.m_materials))
     , m_textures(std::move(model.m_textures))
     , m_animations(std::move(model.m_animations))
+    , m_currentAnimation(std::move(model.m_currentAnimation))
     , m_meshes(std::move(model.m_meshes))
     , m_rootNode(std::move(model.m_rootNode))
     , m_filename(std::move(model.m_filename))
@@ -238,13 +243,12 @@ void Model::assimpLoadModel(std::string const& path)
 
 void Model::updateBoundingBoxing() const
 {
-    m_box.clear();
-    for (const Mesh & mesh : m_meshes) {
-        for (const Vertex & vertex : mesh.m_vertices) {
-            m_box << vertex.Position;
-        }
-    }
-
+    //    m_box.clear();
+    //    for (const Mesh & mesh : m_meshes) {
+    //        for (const Vertex & vertex : mesh.m_vertices) {
+    //            m_box << vertex.Position;
+    //        }
+    //    }
 }
 
 void Model::prepareHierarchy(ulong frameTime) const
@@ -262,16 +266,21 @@ void Model::prepareHierarchy(ulong frameTime) const
     const Animation* animation = nullptr;
     const Animation* currentAnimation = FormTimeline::animation();
     if (currentAnimation != nullptr) {
-        for (const Animation& anim : m_animations) {
+        for (uint i = 0; i < m_animations.size(); ++i) {
+            const Animation& anim = m_animations[i];
+            //        for (const Animation& anim : m_animations) {
             if (currentAnimation == &anim) {
                 //            isAnimated = true;
                 animation = &anim;
+                m_currentAnimation = i;
                 break;
             }
         }
     }
 
     if (animation != nullptr) {
+        //    if (m_currentAnimation != -1) {
+        //        const Animation & animation = m_animations[m_currentAnimation];
         //        const Animation* animation = &m_animations[0];
 
         if (FormTimeline::play()) {
@@ -296,16 +305,17 @@ void Model::prepareHierarchy(ulong frameTime) const
         //        shader.setBool("isSkeleton", true);
     } else {
         m_rootNode->prepareHierarchy(glm::mat4(1.0f));
+        m_currentAnimation = -1;
         //        m_rootNode->draw(shader, modelMatrix);
 
         //        shader.setBool("isSkeleton", false);
     }
 
-//    updateBoundingBoxing();
+    updateBoundingBoxing();
 }
 
 //void Model::Draw(const glm::mat4& modelMatrix, const MainWindow3dView& view) const
-void Model::Draw(const glm::mat4& modelMatrix, const Shader& shader) const
+void Model::Draw(const glm::mat4& modelMatrix, const Shader& shader, bool dotCloud) const
 {
     //    model = glm::mat4(1.0f);
     //    model = glm::scale(model, glm::vec3(0.01));
@@ -318,35 +328,41 @@ void Model::Draw(const glm::mat4& modelMatrix, const Shader& shader) const
     for (const Mesh& mesh : m_meshes) {
         //        shader.setMat4("model", modelMatrix);
         //        const Mesh& mesh = m_meshes[i];
+        //        glPolygonMode(GL_FRONT_AND_BACK, GL_POINTS);
         shader.setMat4("model", modelMatrix * mesh.m_transform);
-        mesh.draw(shader);
+        mesh.draw(shader, dotCloud);
 
-//        mesh.m_box->draw(modelMatrix * mesh.m_transform, shader);
+        //        mesh.m_box->draw(modelMatrix * mesh.m_transform, shader);
     }
 
-//    m_box.draw(modelMatrix, )
+    //    m_box.draw(modelMatrix, )
 
     //    shader.use();
 }
 
-void Model::DrawBoundingBox(const glm::mat4 &modelMatrix, const Shader &shader) const
+void Model::DrawBoundingBox(const glm::mat4& modelMatrix, const Shader& shader) const
 {
-    for (const Mesh& mesh : m_meshes) {
-        //        shader.setMat4("model", modelMatrix);
-        //        const Mesh& mesh = m_meshes[i];
-        shader.setMat4("model", modelMatrix * mesh.m_transform);
-//        mesh.draw(shader);
+    //    for (const Mesh& mesh : m_meshes) {
+    //        //        shader.setMat4("model", modelMatrix);
+    //        //        const Mesh& mesh = m_meshes[i];
+    //        shader.setMat4("model", modelMatrix * mesh.m_transform);
+    ////        mesh.draw(shader);
 
-        mesh.m_box->draw(modelMatrix * mesh.m_transform, shader);
-    }
+    //        mesh.m_box->draw(modelMatrix * mesh.m_transform, shader);
+    //    }
 
-
+    //    m_box.draw(modelMatrix, shader);
+    shader.setBool("userColor", true);
+    m_rootNode->drawBoundingBox(modelMatrix, shader);
+    shader.setBool("userColor", false);
 }
 
 void Model::DrawHierarchy(const glm::mat4& modelMatrix, const MainWindow3dView& view) const
 {
-    const Shader& shader = view.shader();
-    shader.use();
+    //    const Shader& shader = view.shader();
+    //    shader.use();
+
+    //    m_rootNode->drawBoundingBox(modelMatrix, shader);
     //    m_rootNode.draw(m_boneGeometry);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     //        glDepthFunc(GL_ALWAYS);
@@ -414,6 +430,7 @@ void Model::save(std::ofstream& file) const
     for (const Animation& animation : m_animations) {
         animation.save(file);
     }
+    Session::save(m_currentAnimation, file);
 
     //    std::cout << "save meshes" << std::endl;
     size = m_meshes.size();
@@ -439,7 +456,7 @@ glm::mat4 Model::scaleCenter(float scale) const
 {
     glm::mat4 mat(1.0f);
     glm::vec3 center = m_box.center();
-//    qDebug() << center.x << center.y << center.z;
+    //    qDebug() << center.x << center.y << center.z;
     mat = glm::translate(mat, center);
     mat = glm::scale(mat, glm::vec3(scale));
     mat = glm::translate(mat, -center);

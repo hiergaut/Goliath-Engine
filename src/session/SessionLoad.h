@@ -47,6 +47,10 @@ public:
 //        std::cout << "load bool " << val << std::endl;
 //        std::cout << "\033[0m";
     }
+    static void load(int& val, std::ifstream& file)
+    {
+        file.read(reinterpret_cast<char*>(&val), sizeof(val));
+    }
 
     template <class T, class U>
     static void load(std::pair<T, U>& pair, std::ifstream& file)

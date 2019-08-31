@@ -32,12 +32,14 @@
     <addaction name="actionRendered"/>
     <addaction name="actionNormal"/>
     <addaction name="actionDepth"/>
+    <addaction name="actionVertexGroup"/>
     <addaction name="separator"/>
     <addaction name="actionWireFrame"/>
     <addaction name="actionX_Rays"/>
     <addaction name="actionSkeleton"/>
     <addaction name="actionNormal_2"/>
     <addaction name="actionBoundingBox"/>
+    <addaction name="actionDotCloud"/>
    </widget>
    <widget class="QMenu" name="menuInteraction_Mode">
     <property name="title">
@@ -82,6 +84,11 @@
      <string>BoundingBox</string>
     </property>
    </widget>
+   <widget class="QMenu" name="menuDotCloud">
+    <property name="title">
+     <string>DotCloud</string>
+    </property>
+   </widget>
    <addaction name="menuInteraction_Mode"/>
    <addaction name="menuCurent_Mode"/>
    <addaction name="menuX_Ray"/>
@@ -89,6 +96,7 @@
    <addaction name="menuSkeleton"/>
    <addaction name="menuNormal"/>
    <addaction name="menuBoundingBox"/>
+   <addaction name="menuDotCloud"/>
    <addaction name="menuShading"/>
    <addaction name="menuShading_2"/>
   </widget>
@@ -222,6 +230,27 @@
    </property>
    <property name="text">
     <string>BoundingBox</string>
+   </property>
+  </action>
+  <action name="actionVertexGroup">
+   <property name="icon">
+    <iconset resource="../../../../resources/resources.qrc">
+     <normaloff>:/icons/vertexGroups.png</normaloff>:/icons/vertexGroups.png</iconset>
+   </property>
+   <property name="text">
+    <string>VertexGroup</string>
+   </property>
+  </action>
+  <action name="actionDotCloud">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../../../resources/resources.qrc">
+     <normaloff>:/icons/vertex.png</normaloff>:/icons/vertex.png</iconset>
+   </property>
+   <property name="text">
+    <string>DotCloud</string>
    </property>
   </action>
  </widget>

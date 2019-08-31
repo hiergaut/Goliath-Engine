@@ -27,13 +27,15 @@ MainWindowEditor::MainWindowEditor(QWidget* parent)
 //    auto time = QTime::currentTime().msec();
 
     qsrand(QDateTime::currentMSecsSinceEpoch());
-    int rand1 = 64 + qrand() % 128;
-    int rand2 = 64 + qrand() % 128;
-    int rand3 = 64 + qrand() % 128;
+    int rand1 =  64 + qrand() % 128;
+    int rand2 =  64 + qrand() % 128;
+    int rand3 =  64 + qrand() % 128;
 //    int rand1 = qrand() % 155;
 //    int rand2 = qrand() % 155;
 //    int rand3 = qrand() % 155;
     setStyleSheet(QString("background-color: rgb(%1,%2,%3);").arg(rand1).arg(rand2).arg(rand3));
+
+//    setStyleSheet("background-color: black;");
 
     //    setCentralWidget(widget);
 //    qDebug() << "[MainWindowEditor]" << this << "created";

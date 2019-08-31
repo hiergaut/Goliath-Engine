@@ -47,6 +47,10 @@ public:
 //        std::cout << "save bool " << val << std::endl;
 //        std::cout << "\033[0m";
     }
+    static void save(int val, std::ofstream& file)
+    {
+        file.write(reinterpret_cast<const char*>(&val), sizeof(val));
+    }
     //    static void save(float& val, std::ofstream& file)
     //    {
     //        file.write(reinterpret_cast<const char*>(&val), sizeof(val));

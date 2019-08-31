@@ -61,11 +61,40 @@ MainWindow::MainWindow(QWidget* parent)
     MainWindowEditor* w = new MainWindowEditor;
     //    qDebug() << "[mainApplication] create mainWindowEditor" << w;
     w->setEditor(Editor::id::VIEW);
+    QSplitterNode * nodeView = new QSplitterNode;
+    nodeView->addWidget(w);
+
+    MainWindowEditor * w3 = new MainWindowEditor;
+    w3->setEditor(Editor::id::TIMELINE);
+    QSplitterNode * nodeTimeline = new QSplitterNode;
+    nodeTimeline->addWidget(w3);
     //        w->setEditor(VIEW);
+    QSplitterNode * node = new QSplitterNode;
+    node->addWidget(nodeView);
+    node->addWidget(nodeTimeline);
+    node->setOrientation(Qt::Vertical);
+    node->setSizes(QList<int>({height() - 90, 90}));
+//    sizes << 2 * width() / 3 << width() / 3;
+//    node->setSizes(sizes);
     //    node->addWidget(w);
+
+
+    MainWindowEditor * w2 = new MainWindowEditor;
+    w2->setEditor(Editor::id::OUTLINER);
+    QSplitterNode * nodeOutliner = new QSplitterNode;
+    nodeOutliner->addWidget(w2);
+
+
+//    QSplitterNode * node2 = new QSplitterNode;
+//    node2->addWidget(node);
+//    node2->addWidget(nodeOutliner);
     //        setCentralWidget(ui->page_splitterRoot);
     //    ui->page_splitterRoot->addWidget(node);
-    ui->page_splitterRoot->addWidget(w);
+    ui->page_splitterRoot->addWidget(node);
+    ui->page_splitterRoot->addWidget(nodeOutliner);
+//    QList<int> sizes({width() - 200, 200});
+    ui->page_splitterRoot->setSizes(QList<int>({width() - 300, 300}));
+//    ui->page_splitterRoot->addWidget(w);
 
     //    on_actionLoad_Factory_Settings_triggered();
     //    loadLastSession();

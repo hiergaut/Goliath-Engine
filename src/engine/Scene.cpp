@@ -7,6 +7,7 @@
 //#include <opengl/shader.h>
 
 QStandardItemModel Scene::m_sceneModel;
+#include <gui/editor/timeline/FormTimeline.h>
 
 Scene::Scene()
 {
@@ -50,7 +51,7 @@ void Scene::initialize()
     //    m_shader = new Shader("model_loading.vsh", "model_loading.fsh");
 
     m_grid = new Grid;
-    normalShader = new Shader("shading/normalVector.vsh", "shading/normalVector.fsh", "shading/normalVector.gsh");
+    normalShader = new Shader("normalVector.vsh", "normalVector.fsh", "normalVector.gsh");
     //    normalShader = new Shader("shading/normal.vsh", "shading/normal.fsh");
 
     initialized = true;
@@ -83,124 +84,67 @@ void Scene::draw(const MainWindow3dView& view)
     m_grid->draw(modelMatrix, viewMatrix, projectionMatrix);
 
     const Shader& shader = view.shader();
-    //        shader.use();
+    GLint polygonMode;
+    glGetIntegerv(GL_POLYGON_MODE, &polygonMode);
+//    glClear(GL_DEPTH_BUFFER_BIT);
 
-    //    modelMatrix = glm::translate(modelMatrix, glm::vec3(10.0f, 0.0f, 0.0f));
-    //    shader.use();
-    //    m_shader->setMat4("model", modelMatrix);
-    //    shader.setMat4("view", viewMatrix);
-    //    shader.setMat4("projection", projectionMatrix);
-    //        qDebug() << "[3dView] " << this << "nb model = " << g_env.m_scene.size();
     //    glClear(GL_STENCIL_BUFFER_BIT);
     //    glEnable(GL_DEPTH_TEST);
     if (view.boundingBox()) {
         for (const Model& model : m_models) {
-            //	    glm::mat4 model(1.0);
-            //        glm::mat4 modelMatrix(1.0);
-            //        modelMatrix = glm::scale(modelMatrix, glm::vec3(0.01));
-            //        modelMatrix = glm::rotate(modelMatrix, 1.57f, glm::vec3(1, 0, 0));
-            //        m_shader->setMat4("model", modelMatrix);
-
-            //        model.Draw(modelMatrix, shader);
-
-            //        if (view.boundingBox())
-            model.m_box.draw(modelMatrix, shader);
+//            model.m_box.draw(modelMatrix, shader);
+            model.DrawBoundingBox(modelMatrix, shader);
         }
     }
+
+//    glLineWidth(1);
+//    glPolygonMode(GL_FRONT, GL_LINE);
+    for (const Model& model : m_models) {
+        model.Draw(modelMatrix, shader, view.dotCloud());
+    }
+    glClear(GL_DEPTH_BUFFER_BIT);
+
 
     glEnable(GL_STENCIL_TEST);
     glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 
+    glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+
+    glPolygonMode(GL_FRONT, GL_FILL);
     glStencilFunc(GL_ALWAYS, 1, 0xFF);
     glStencilMask(0xFF);
     for (const Model& model : m_models) {
-        //	    glm::mat4 model(1.0);
-        //        glm::mat4 modelMatrix(1.0);
-        //        modelMatrix = glm::scale(modelMatrix, glm::vec3(0.01));
-        //        modelMatrix = glm::rotate(modelMatrix, 1.57f, glm::vec3(1, 0, 0));
-        //        m_shader->setMat4("model", modelMatrix);
-
         model.Draw(modelMatrix, shader);
-
-        //        if (view.boundingBox())
-        //            model.m_box.draw(modelMatrix, shader);
     }
+//    glClear(GL_COLOR_BUFFER_BIT);
 
+    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
     glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
     glStencilMask(0x00);
-    //    glDisable(GL_DEPTH_TEST);
+//        glDisable(GL_DEPTH_TEST);
+    glLineWidth(3);
+    glPolygonMode(GL_FRONT, GL_LINE);
     //    modelMatrix = glm::scale(modelMatrix, glm::vec3(1.1f, 1.1f, 1.1f));
-    shader.setBool("contour", true);
+    shader.setBool("userColor", true);
+    shader.setVec3("color", glm::vec3(1.0f, 0.5f, 0.0f));
     for (const Model& model : m_models) {
-        //	    glm::mat4 model(1.0);
-        //        glm::mat4 modelMatrix = model.scaleCenter(1.05f);
-        //        glm::vec3 right = view.camera()->right();
-        //        glm::vec3 up = view.camera()->up();
-
-//        glm::mat4 viewMatrixInverse = glm::inverse(viewMatrix);
-
-        glm::mat4 rotate = glm::mat4(glm::mat3(viewMatrix));
-        glm::mat4 rotateInverse = glm::inverse(rotate);
-
-        glm::vec3 center = model.m_box.center();
-
-        glm::mat4 modelMatrix = glm::mat4(1.0f);
-//        modelMatrix = glm::translate(modelMatrix, -1.2f * center);
-//        viewMatrix2 = glm::rotate(viewMatrix2, 1.5f, glm::vec3(0.0f, 0.0f, 1.0f));
-        modelMatrix = modelMatrix * rotateInverse;
-//        modelMatrix = modelMatrix * rotateInverse;
-        modelMatrix = glm::scale(modelMatrix, glm::vec3(1.5f, 1.0f, 1.0f));
-        modelMatrix = modelMatrix * rotate;
-
-//        modelMatrix = glm::translate(modelMatrix, center);
-//        modelMatrix = viewMatrix * rotate;
-//        , glm::vec3(1.5f, 1.0f, 1.0f));
-//        modelMatrix = glm::scale(viewMatrix2, glm::vec3(2.0f, 1.0f, 1.0f));
-//        viewMatrix2 = glm::rotate(viewMatrix2, -1.5f, glm::vec3(0.0f, 0.0f, 1.0f));
-//        shader.setMat4("view", viewMatrix2);
-
-        //        glm::mat4 modelMatrix = glm::mat4(1.0f);
-        //        modelMatrix = viewMatrixInverse * modelMatrix;
-        //        modelMatrix = glm::scale(modelMatrix, glm::vec3(1.1f));
-        //        modelMatrix = viewMatrix * modelMatrix;
-
-        //        glm::mat4 viewMatrixScale = glm::scale(viewMatrix, right);
-        //        shader.setMat4("view", viewMatrixScale);
-        //        glm::mat4 projectionMatrix = view.projectionMatrixZoom();
-        //        shader.setMat4("projection", projectionMatrix);
-
-        //                glm::vec3 & center = model.m_box.center();
-        //        modelMatrix = glm::scale(modelMatrix, glm::vec3(0.01));
-        //        modelMatrix = glm::rotate(modelMatrix, 1.57f, glm::vec3(1, 0, 0));
-        //        m_shader->setMat4("model", modelMatrix);
 
         model.Draw(modelMatrix, shader);
     }
     //    shader.setMat4("projection", projectionMatrix);
-    shader.setMat4("view", viewMatrix);
-    shader.setBool("contour", false);
+//    shader.setMat4("view", viewMatrix);
+    shader.setBool("userColor", false);
     glStencilMask(0xFF);
     glDisable(GL_STENCIL_TEST);
-    //    glEnable(GL_DEPTH_TEST);
+    glLineWidth(1);
+//        glEnable(GL_DEPTH_TEST);
 
-    //    m_shaderCamera->use();
-    //    m_shaderCamera->setMat4("model", model);
-    //    m_shaderCamera->setMat4("view", viewMatrix);
-    //    m_shaderCamera->setMat4("projection", projectionMatrix);
 
+    glPolygonMode(GL_FRONT, polygonMode);
     for (const MainWindow3dView* otherViews : *m_views) {
         const Camera* camera = otherViews->camera();
-
-        //        for (const CameraWorld * camera : m_cameras) {
-        //        glm::mat4 modelMatrix;
-        //        //        model = glm::translate(model, glm::vec3(10, 0, 0));
-        //        model = glm::inverse(view->viewMatrix());
-        modelMatrix = glm::inverse(camera->viewMatrix());
-
-        //        m_shader->setMat4("otherViews", viewMatrix * modelMatrix);
-        //        m_shader->setMat4("model", modelMatrix);
-
-        //        m_shader->setBool("isSkeleton", false);
+        glm::mat4 modelMatrix = glm::inverse(camera->viewMatrix());
         Q_ASSERT(m_cameraModel != nullptr);
         m_cameraModel->Draw(modelMatrix, shader);
     }
@@ -326,7 +270,10 @@ void Scene::load(std::ifstream& file)
         m_models.emplace_back(file);
     }
 
+
     updateSceneModel();
+
+    FormTimeline::load(file);
 }
 
 void Scene::save(std::ofstream& file)
@@ -338,6 +285,9 @@ void Scene::save(std::ofstream& file)
     for (const Model& model : m_models) {
         model.save(file);
     }
+
+    FormTimeline::save(file);
+
     //    qDebug() << "[SCENE] " << m_itemModel.rowCount();
 }
 

@@ -94,6 +94,10 @@ void QOpenGLWidget_Editor::initializeGL()
     //    glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
     //    glEnable(GL_COLOR_MATERIAL);
     //    glEnable(GL_MULTISAMPLE);
+    glPointSize(5.0f);
+    glEnable(GL_POINT_SMOOTH);
+//    glEnable(GL_BLEND);
+//    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     m_axis = new Axis();
 
