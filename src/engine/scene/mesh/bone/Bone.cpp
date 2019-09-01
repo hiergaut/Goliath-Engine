@@ -60,3 +60,21 @@ void Bone::save(std::ofstream &file) const
     Session::save(m_transform, file);
 
 }
+
+//glm::vec3 Bone::min() const
+//{
+//    glm::vec3 m;
+////    glm::vec3 diag = m_box.m_max - m_box.m_min;
+//    for (glm::vec3 corner : m_box.corners()) {
+//        glm::vec3 pos = glm::vec4(corner, 0.0) * m_transform;
+
+
+//    }
+
+
+//}
+
+//glm::vec3 Bone::max() const
+//{
+
+//}

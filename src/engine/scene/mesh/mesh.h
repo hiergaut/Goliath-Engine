@@ -45,8 +45,8 @@ public:
     mutable glm::mat4 m_transform;
 
     std::vector<Vertex> m_vertices;
+    BoundingBox m_box;
 
-//    mutable BoundingBox m_box;
 
 public:
     //    Mesh(std::string name, std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures) : m_name(name)
@@ -63,12 +63,15 @@ public:
     void buildItemModel(QStandardItem* parent) const;
     void setupMesh();
     void draw(const Shader& shader, bool dotCloud = false) const;
+    void drawBoundingBox(glm::mat4 modelMatrix, const Shader & shader) const;
 
     void save(std::ofstream& file) const;
 
-    void updateBoundingBox() const;
+//    void initBonesBoundingBox() const;
+    void updateBoundingBox();
 
 private:
+//    std::vector<BoundingBox> m_box;
     /*  Render data  */
     uint m_iMaterial;
     QOpenGLFunctionsCore* m_fun;

@@ -14,11 +14,14 @@ public:
 
     void draw() const;
 
-private:
-    void setupGL();
+//    void initializeGL();
 
 private:
-    QOpenGLFunctionsCore * m_fun;
+    void setupGL();
+//    void init();
+
+private:
+    QOpenGLFunctionsCore * m_fun = nullptr;
     std::vector<glm::vec3> m_vertices;
     std::vector<glm::vec3> m_normals;
 
@@ -29,7 +32,12 @@ private:
     uint m_nbo;
     uint m_ebo;
 
-    Shader * m_shader;
+//    static Shader * m_shader;
+
+private:
+//    static bool m_inited;
 };
+
+//const static CubeGeometry g_cubeGeometry;
 
 #endif // CUBEGEOMETRY_H

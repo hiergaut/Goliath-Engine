@@ -3,14 +3,17 @@
 #include <assimp/Assimp.h>
 #include <gui/editor/timeline/FormTimeline.h>
 
-Mesh::Mesh(const aiMesh* ai_mesh, Materials*  materials, Textures*  textures)
+Mesh::Mesh(const aiMesh* ai_mesh, Materials* materials, Textures* textures)
     : m_materials(materials)
     , m_textures(textures)
     , m_name(ai_mesh->mName.C_Str())
 {
     const uint numVertices = ai_mesh->mNumVertices;
+    //    m_box = new BoundingBox;
 
     m_fun = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
+    //    m_box = new BoundingBox;
+
     m_bones.reserve(100);
     //        fun = QOpenGLContext::globalShareContext()->versionFunctions<QOpenGLFunctionsCore>();
     //        m_fun = ctx->versionFunctions<QOpenGLFunctionsCore>();
@@ -102,18 +105,20 @@ Mesh::Mesh(const aiMesh* ai_mesh, Materials*  materials, Textures*  textures)
 
     setupMesh();
     //    return std::move(mesh);
-//    std::cout << "\033[32m";
-//    std::cout << "[MESH] " << m_name << " created " << this << std::endl;
-//    std::cout << "\033[0m";
-//    m_box = new BoundingBox;
-    updateBoundingBox();
+    //    std::cout << "\033[32m";
+    //    std::cout << "[MESH] " << m_name << " created " << this << std::endl;
+    //    std::cout << "\033[0m";
+    //    m_box = new BoundingBox;
+    //    initBonesBoundingBox();
 }
 
-Mesh::Mesh(std::ifstream& file, Materials*  materials, Textures*  textures)
+Mesh::Mesh(std::ifstream& file, Materials* materials, Textures* textures)
     : m_materials(materials)
     , m_textures(textures)
 {
     m_fun = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
+    //    m_box = new BoundingBox;
+    //    m_box = new BoundingBox;
     m_bones.reserve(100);
 
     uint size;
@@ -152,11 +157,11 @@ Mesh::Mesh(std::ifstream& file, Materials*  materials, Textures*  textures)
     //    Session::load(m_bbo)
 
     setupMesh();
-//    std::cout << "\033[32m";
-//    std::cout << "[MESH] " << m_name << " created " << this << std::endl;
-//    std::cout << "\033[0m";
-//    m_box = new BoundingBox;
-    updateBoundingBox();
+    //    std::cout << "\033[32m";
+    //    std::cout << "[MESH] " << m_name << " created " << this << std::endl;
+    //    std::cout << "\033[0m";
+    //    m_box = new BoundingBox;
+    //    initBonesBoundingBox();
 }
 
 //Mesh::Mesh(const Mesh &mesh)
@@ -282,6 +287,7 @@ void Mesh::setupMesh()
 
 void Mesh::draw(const Shader& shader, bool dotCloud) const
 {
+    //    Q_ASSERT(m_box != nullptr);
     //    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     //    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     //    shader.setMat4("model", m_transform);
@@ -337,10 +343,10 @@ void Mesh::draw(const Shader& shader, bool dotCloud) const
     // draw mesh
     m_fun->glBindVertexArray(m_vao);
 
-//    glPointSize(5.0f);
+    //    glPointSize(5.0f);
     if (dotCloud)
         m_fun->glDrawArrays(GL_POINTS, 0, m_vertices.size());
-//        m_fun->glDrawElements(GL_POINTS, m_vertices.size(), GL_UNSIGNED_INT, 0);
+    //        m_fun->glDrawElements(GL_POINTS, m_vertices.size(), GL_UNSIGNED_INT, 0);
 
     else
         m_fun->glDrawElements(GL_TRIANGLES, m_indices.size(), GL_UNSIGNED_INT, 0);
@@ -348,7 +354,33 @@ void Mesh::draw(const Shader& shader, bool dotCloud) const
     m_fun->glBindVertexArray(0);
     // always good practice to set everything back to defaults once configured.
     m_fun->glActiveTexture(GL_TEXTURE0);
+}
 
+void Mesh::drawBoundingBox(glm::mat4 modelMatrix, const Shader& shader) const
+{
+//    shader.use();
+    //    BoundingBox box;
+
+    for (uint i = 0; i < m_bones.size(); ++i) {
+        //    for (const Bone & bone : m_bones) {
+        const Bone& bone = m_bones[i];
+
+        uint id = i;
+        float r, g, b;
+        r = (id % 3) / 2.0f;
+        id /= 3;
+        g = (id % 3) / 2.0f;
+        id /= 3;
+        b = (id % 3) / 2.0f;
+
+        shader.setVec4("color", glm::vec4(r, g, b, 1.0f));
+
+        bone.m_box.draw(modelMatrix, shader);
+        //        box << bone.m_box;
+        //        m_box.draw(modelMatrix, shader);
+    }
+
+    //    box.draw(modelMatrix, shader);
 }
 
 void Mesh::save(std::ofstream& file) const
@@ -396,19 +428,75 @@ void Mesh::save(std::ofstream& file) const
     //    Session::load(m_bbo)
 }
 
-void Mesh::updateBoundingBox() const
-{
-//    m_box.clear();
-//    for (const Vertex & vertex : m_vertices) {
-//        m_box << vertex.Position;
+//void Mesh::initBonesBoundingBox() const
+//{
+//    //    m_box.clear();
+//    //    for (const Vertex & vertex : m_vertices) {
+//    //        m_box << vertex.Position;
+//    //    }
+//    for (const Bone& bone : m_bones) {
+//        bone.m_box.clear();
+
+//        for (auto& pair : bone.m_weights) {
+//            uint indice = pair.first;
+////            glm::vec3 pos = m_vertices[indice].Position;
+////            bone.m_box << pos;
+//            uint first = indice - indice % 3;
+
+//            for (uint i = 0; i < 3; ++i) {
+//                glm::vec3 pos = bone.m_transform * glm::vec4(m_vertices[first + i].Position, 0.0);
+
+//                bone.m_box << pos;
+//            }
+//        }
 //    }
-    for (const Bone & bone : m_bones) {
-        bone.m_box.clear();
+//}
 
-        for (auto & pair : bone.m_weights) {
-            glm::vec3 pos = m_vertices[pair.first].Position;
+void Mesh::updateBoundingBox()
+{
+    //    m_box.m_cube.setupGL();
+    m_box.clear();
+    //    m_box = std::move(BoundingBox());
+    if (m_bones.size() == 0) {
+        for (const Vertex& vertex : m_vertices) {
+            const glm::vec3& pos = vertex.Position;
 
-            bone.m_box << pos;
+            m_box << pos;
+        }
+
+    } else {
+        for (const Bone& bone : m_bones) {
+            bone.m_box.clear();
+
+            for (auto& pair : bone.m_weights) {
+                            glm::vec3 pos = bone.m_recurseModel * bone.m_offsetMatrix * glm::vec4(m_vertices[pair.first].Position, 1.0);
+                            bone.m_box << pos;
+                            continue;
+
+                uint indice = pair.first;
+                uint first = indice - indice % 3;
+
+                for (uint i = 0; i < 3; ++i) {
+                    glm::vec3 pos = bone.m_recurseModel * bone.m_offsetMatrix * glm::vec4(m_vertices[first + i].Position, 1.0);
+                    //                glm::vec3 pos = m_vertices[first + i].Position;
+
+                    bone.m_box << pos;
+                    //                m_box << pos;
+                }
+            }
+            m_box << bone.m_box;
         }
     }
+
+    //    m_box.clear();
+    //    for (const Bone& bone : m_bones) {
+    //        if (FormTimeline::animation() == nullptr) {
+    //            m_box << bone.m_box;
+    //        } else {
+    //            m_box << bone.m_box * bone.m_transform;
+    //            //            m_box << bone.m_transform * bone.m_box;
+    //        }
+    //        //        m_box << bone.min();
+    //        //        m_box << bone.max();
+    //    }
 }

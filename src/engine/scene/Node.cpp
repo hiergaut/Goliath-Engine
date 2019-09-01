@@ -388,19 +388,25 @@ void Node::prepareHierarchy(glm::mat4 model, const Animation* animation, double 
         //        m_bone->m_transform = model * m_bone->m_offsetMatrix;
         const Bone& bone = (*m_meshes)[m_iBone.first].m_bones[m_iBone.second];
         bone.m_transform = m_recurseModel * bone.m_offsetMatrix;
+
+        bone.m_recurseModel = m_recurseModel;
+
         //        bone.m_transform = m_recurseModel;
         //                m_bone->m_transform = m_bone->m_offsetMatrix;
     }
 
-    for (uint iMesh : m_iMeshes) {
-        const Mesh& mesh = (*m_meshes)[iMesh];
-
-        mesh.m_transform = m_recurseModel;
-    }
 
     //    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     for (const Node& node : m_children) {
         node.prepareHierarchy(m_recurseModel, animation, animationTime);
+    }
+
+    for (uint iMesh : m_iMeshes) {
+        Mesh& mesh = (*m_meshes)[iMesh];
+
+        mesh.m_transform = m_recurseModel;
+
+        mesh.updateBoundingBox();
     }
 }
 
@@ -426,35 +432,36 @@ void Node::drawHierarchy(const BoneGeometry& boneGeometry, const glm::mat4& mode
     }
 }
 
-void Node::drawBoundingBox(const glm::mat4& modelMatrix, const Shader& shader) const
-{
-    glm::mat4 model = modelMatrix * m_recurseModel;
-    if (m_isBone) {
+//void Node::drawBoundingBox(const glm::mat4& modelMatrix, const Shader& shader) const
+//{
+////    glm::mat4 model = modelMatrix * m_recurseModel;
+//    if (m_isBone) {
 
-        const Bone& bone = (*m_meshes)[m_iBone.first].m_bones[m_iBone.second];
-        uint id = m_iBone.second;
-        float r, g, b;
-        r = (id % 3) / 2.0f;
-        id /= 3;
-        g = (id % 3) / 2.0f;
-        id /= 3;
-        b = (id % 3) / 2.0f;
+//        const Bone& bone = (*m_meshes)[m_iBone.first].m_bones[m_iBone.second];
+//        uint id = m_iBone.second;
+//        float r, g, b;
+//        r = (id % 3) / 2.0f;
+//        id /= 3;
+//        g = (id % 3) / 2.0f;
+//        id /= 3;
+//        b = (id % 3) / 2.0f;
 
-        shader.setVec3("color", glm::vec3(r, g, b));
+//        shader.setVec3("color", glm::vec3(r, g, b));
 
-        if (FormTimeline::animation() == nullptr) {
-            bone.m_box.draw(modelMatrix, shader);
-        }
-        else {
-            bone.m_box.draw(model, shader);
-        }
-    }
+//        if (FormTimeline::animation() == nullptr) {
+//            bone.m_box.draw(modelMatrix, shader);
+//        }
+//        else {
+////            bone.m_box.draw(model, shader);
+//            bone.m_box.draw(modelMatrix * bone.m_transform, shader);
+//        }
+//    }
 
 
-    for (const Node& node : m_children) {
-        node.drawBoundingBox(modelMatrix, shader);
-    }
-}
+//    for (const Node& node : m_children) {
+//        node.drawBoundingBox(modelMatrix, shader);
+//    }
+//}
 
 //void Node::draw(const Shader& shader, glm::mat4 model, const Animation* animation, double animationTime) const
 //{

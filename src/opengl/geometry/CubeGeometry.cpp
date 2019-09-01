@@ -1,9 +1,25 @@
 #include "CubeGeometry.h"
 
+//bool CubeGeometry::m_inited = false;
+
+//QOpenGLFunctionsCore* CubeGeometry::m_fun = nullptr;
+//std::vector<glm::vec3> CubeGeometry::m_vertices;
+//std::vector<glm::vec3> CubeGeometry::m_normals;
+
+//std::vector<glm::uvec2> CubeGeometry::m_indices;
+
+//uint CubeGeometry::m_vao;
+//uint CubeGeometry::m_vbo;
+//uint CubeGeometry::m_nbo;
+//uint CubeGeometry::m_ebo;
+
+//const CubeGeometry CubeGeometry::g_cubeGeometry;
 
 CubeGeometry::CubeGeometry()
 {
-    m_fun = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
+//    if (m_fun != nullptr) {
+//        return;
+//    }
 
     float radius = 0.5f;
     m_vertices.emplace_back(-radius, -radius, -radius);
@@ -17,7 +33,7 @@ CubeGeometry::CubeGeometry()
     m_vertices.emplace_back(radius, -radius, radius);
 
     m_normals = m_vertices;
-    for (glm::vec3 & vec : m_normals) {
+    for (glm::vec3& vec : m_normals) {
         vec = glm::normalize(vec);
     }
 
@@ -38,34 +54,42 @@ CubeGeometry::CubeGeometry()
 
     setupGL();
 
-//    m_shader = new Shader("cubeGeometry.vsh", "cubeGeometry.fsh");
-//    m_shader->use();
-
+    //    m_shader = new Shader("cubeGeometry.vsh", "cubeGeometry.fsh");
+    //    m_shader->use();
 }
+
+//void CubeGeometry::init()
+//{
+//}
 
 void CubeGeometry::draw() const
 {
-//    m_shader->use();
-//    m_shader->setMat4("model", modelMatrix);
-//    m_shader->setMat4("view", viewMatrix);
-//    m_shader->setMat4("projection", projectionMatrix);
+    Q_ASSERT(m_fun != nullptr);
+    //    m_shader->use();
+    //    m_shader->setMat4("model", modelMatrix);
+    //    m_shader->setMat4("view", viewMatrix);
+    //    m_shader->setMat4("projection", projectionMatrix);
 
-//    shader.setBool("contour", true);
+    //    shader.setBool("contour", true);
+//    m_fun = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
 
     m_fun->glBindVertexArray(m_vao);
     m_fun->glDrawElements(GL_LINES, 24, GL_UNSIGNED_INT, nullptr);
     m_fun->glBindVertexArray(0);
-//    shader.setBool("contour", false);
-
+    //    shader.setBool("contour", false);
 }
 
 void CubeGeometry::setupGL()
 {
+//    Q_ASSERT(m_fun != nullptr);
+    m_fun = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
+    Q_ASSERT(m_fun != nullptr);
+
     m_fun->glGenVertexArrays(1, &m_vao);
     //    uint vbo;
     m_fun->glGenBuffers(1, &m_vbo);
     m_fun->glGenBuffers(1, &m_ebo);
-//    m_fun->glGenBuffers(1, &m_nbo);
+    //    m_fun->glGenBuffers(1, &m_nbo);
 
     m_fun->glBindVertexArray(m_vao);
 
@@ -93,5 +117,4 @@ void CubeGeometry::setupGL()
     //    m_fun->glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
 
     m_fun->glBindVertexArray(0);
-
 }

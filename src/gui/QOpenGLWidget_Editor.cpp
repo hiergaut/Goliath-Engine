@@ -110,6 +110,7 @@ void QOpenGLWidget_Editor::initializeGL()
     m_scene.initialize();
 
     //    m_textRender.initialize();
+//    BoundingBox::m_cube.setupGL();
 
     m_lastFrame = QDateTime::currentMSecsSinceEpoch();
 }

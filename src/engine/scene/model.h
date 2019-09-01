@@ -44,7 +44,6 @@
 
 class Model {
 public:
-    mutable BoundingBox m_box;
 
 public:
     Model(const std::string& path);
@@ -63,14 +62,14 @@ public:
     ~Model();
 
     void prepareHierarchy(ulong frameTime) const;
-    void Draw(const glm::mat4 &modelMatrix, const Shader & shader, bool dotCloud = false) const;
-    void DrawBoundingBox(const glm::mat4 &modelMatrix, const Shader & shader) const;
+    void Draw(const glm::mat4 &modelMatrix, const Shader & shader, bool dotCloud = false, bool vertexGroupShader = false) const;
+    void drawBoundingBox(const glm::mat4 &modelMatrix, const Shader & shader) const;
     void DrawHierarchy(const glm::mat4 &modelMatrix, const MainWindow3dView & view) const;
     void buildItemModel(QStandardItem* parent) const;
 
 //    void load(std::ifstream & file) const;
     void save(std::ofstream & file) const;
-    glm::mat4 scaleCenter(float scale) const;
+//    glm::mat4 scaleCenter(float scale) const;
 
 private:
 //    void modelRecurseNode(const Node& node, QStandardItem* parent) const;
@@ -79,7 +78,7 @@ private:
 //    void modelMat4(const glm::mat4 matrix, QStandardItem* parent) const;
 
     void assimpLoadModel(std::string const& path);
-    void updateBoundingBoxing() const;
+//    void updateBoundingBoxing();
     //    const Node* assimpProcessNode(const aiNode * node, const aiScene* scene, int depth);
     //    Mesh assimpProcessMesh(const aiMesh* mesh, const aiScene* scene, int depth);
     //    std::vector<uint> assimpLoadMaterialTextures(aiMaterial* mat, aiTextureType ai_type, Texture::Type type);
@@ -87,6 +86,7 @@ private:
     //    unsigned int TextureFromFile(const char* path, const std::string& directory);
 private:
 //    QOpenGLFunctionsCore* m_fun;
+    mutable BoundingBox m_box;
 
     Materials m_materials;
     //    std::vector<Texture> m_textures;

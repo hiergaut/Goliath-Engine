@@ -355,9 +355,9 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
 
     case Qt::Key_D:
         if (m_shiftPressed) {
-            ui->actionDepth->trigger();
-        } else {
             ui->actionDotCloud->trigger();
+        } else {
+            ui->actionDepth->trigger();
         }
         break;
 
@@ -570,6 +570,12 @@ bool MainWindow3dView::boundingBox() const
 bool MainWindow3dView::dotCloud() const
 {
     return ui->actionDotCloud->isChecked();
+}
+
+bool MainWindow3dView::vertexGroupShader() const
+{
+    return m_shade == Shading::VERTEX_GROUP;
+
 }
 
 void MainWindow3dView::setCursorToCenter()

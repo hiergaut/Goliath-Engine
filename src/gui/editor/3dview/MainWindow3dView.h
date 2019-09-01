@@ -152,6 +152,8 @@ public:
     bool boundingBox() const;
     bool dotCloud() const;
 
+    bool vertexGroupShader() const;
+
 private slots:
     //    void on_actionWireFrame_triggered();
     void on_actionSolid_triggered();

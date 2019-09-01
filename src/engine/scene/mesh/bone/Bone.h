@@ -17,6 +17,7 @@ public:
     glm::mat4 m_offsetMatrix;
 
     mutable glm::mat4 m_transform;
+    mutable glm::mat4 m_recurseModel;
 
 
     mutable BoundingBox m_box;
@@ -34,6 +35,9 @@ public:
     void buildItemModel(QStandardItem * parent) const;
 
     void save(std::ofstream & file) const;
+
+//    glm::vec3 min() const;
+//    glm::vec3 max() const;
 
 private:
 //    Meshes * m_meshes;

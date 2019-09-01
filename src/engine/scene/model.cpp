@@ -41,7 +41,7 @@ Model::Model(const std::string& path)
     //        std::cout << "\033[32m";
     //        std::cout << "[Model] " << m_filename << " created " << this << std::endl;
     //        std::cout << "\033[0m";
-    updateBoundingBoxing();
+    //    updateBoundingBoxing();
 }
 
 Model::Model(std::ifstream& file)
@@ -98,12 +98,13 @@ Model::Model(std::ifstream& file)
     //        std::cout << "\033[32m";
     //        std::cout << "[Model] " << m_filename << " created " << this << std::endl;
     //        std::cout << "\033[0m";
-    updateBoundingBoxing();
+    //    updateBoundingBoxing();
 }
 
 Model::Model(Model&& model) noexcept
-    : m_box(std::move(model.m_box))
-    , m_materials(std::move(model.m_materials))
+    //    : m_box(std::move(model.m_box))
+
+    : m_materials(std::move(model.m_materials))
     , m_textures(std::move(model.m_textures))
     , m_animations(std::move(model.m_animations))
     , m_currentAnimation(std::move(model.m_currentAnimation))
@@ -112,6 +113,7 @@ Model::Model(Model&& model) noexcept
     , m_filename(std::move(model.m_filename))
     , directory(std::move(model.directory))
 {
+    std::cout << "move " << std::endl;
     for (Material& material : m_materials) {
         material.m_textures = &m_textures;
     }
@@ -241,15 +243,15 @@ void Model::assimpLoadModel(std::string const& path)
     //    std::cout << "assimp load model finished" << path << std::endl;
 }
 
-void Model::updateBoundingBoxing() const
-{
-    //    m_box.clear();
-    //    for (const Mesh & mesh : m_meshes) {
-    //        for (const Vertex & vertex : mesh.m_vertices) {
-    //            m_box << vertex.Position;
-    //        }
-    //    }
-}
+//void Model::updateBoundingBoxing()
+//{
+//    //    m_box.clear();
+//    //    for (const Mesh & mesh : m_meshes) {
+//    //        for (const Vertex & vertex : mesh.m_vertices) {
+//    //            m_box << vertex.Position;
+//    //        }
+//    //    }
+//}
 
 void Model::prepareHierarchy(ulong frameTime) const
 {
@@ -311,11 +313,18 @@ void Model::prepareHierarchy(ulong frameTime) const
         //        shader.setBool("isSkeleton", false);
     }
 
-    updateBoundingBoxing();
+        m_box.clear();
+    for (uint i =0; i <m_meshes.size(); ++i) {
+        const Mesh & mesh = m_meshes[i];
+
+        m_box << mesh.m_box;
+    }
+
+    //    updateBoundingBoxing();
 }
 
 //void Model::Draw(const glm::mat4& modelMatrix, const MainWindow3dView& view) const
-void Model::Draw(const glm::mat4& modelMatrix, const Shader& shader, bool dotCloud) const
+void Model::Draw(const glm::mat4& modelMatrix, const Shader& shader, bool dotCloud, bool vertexGroupShader) const
 {
     //    model = glm::mat4(1.0f);
     //    model = glm::scale(model, glm::vec3(0.01));
@@ -325,14 +334,49 @@ void Model::Draw(const glm::mat4& modelMatrix, const Shader& shader, bool dotClo
 
     //    const Shader& shader = view.shader();
     //    shader.use();
-    for (const Mesh& mesh : m_meshes) {
-        //        shader.setMat4("model", modelMatrix);
-        //        const Mesh& mesh = m_meshes[i];
-        //        glPolygonMode(GL_FRONT_AND_BACK, GL_POINTS);
-        shader.setMat4("model", modelMatrix * mesh.m_transform);
-        mesh.draw(shader, dotCloud);
+    if (vertexGroupShader) {
 
-        //        mesh.m_box->draw(modelMatrix * mesh.m_transform, shader);
+        for (uint i = 0; i < m_meshes.size(); ++i) {
+            //    for (const Mesh& mesh : m_meshes) {
+            const Mesh& mesh = m_meshes[i];
+
+            shader.setMat4("model", modelMatrix * mesh.m_transform);
+            if (mesh.m_bones.size() > 0) {
+                //        shader.setMat4("model", modelMatrix);
+                //        const Mesh& mesh = m_meshes[i];
+                //        glPolygonMode(GL_FRONT_AND_BACK, GL_POINTS);
+                //            mesh.draw(shader, dotCloud);
+                shader.setBool("userColor", false);
+            } else {
+                shader.setBool("userColor", true);
+
+                uint id = i;
+                float r, g, b;
+                r = (id % 3) / 2.0f;
+                id /= 3;
+                g = (id % 3) / 2.0f;
+                id /= 3;
+                b = (id % 3) / 2.0f;
+
+                shader.setVec4("color", glm::vec4(r, g, b, 1.0f));
+
+            }
+                mesh.draw(shader, dotCloud);
+            //        shader.setBool("userColor", false);
+
+            //        mesh.m_box->draw(modelMatrix * mesh.m_transform, shader);
+        }
+
+        shader.setBool("userColor", false);
+    } else {
+        for (const Mesh& mesh : m_meshes) {
+            //        const Mesh& mesh = m_meshes[i];
+
+            shader.setMat4("model", modelMatrix * mesh.m_transform);
+
+            mesh.draw(shader, dotCloud);
+        }
+        //        shader.setBool("userColor", false);
     }
 
     //    m_box.draw(modelMatrix, )
@@ -340,7 +384,7 @@ void Model::Draw(const glm::mat4& modelMatrix, const Shader& shader, bool dotClo
     //    shader.use();
 }
 
-void Model::DrawBoundingBox(const glm::mat4& modelMatrix, const Shader& shader) const
+void Model::drawBoundingBox(const glm::mat4& modelMatrix, const Shader& shader) const
 {
     //    for (const Mesh& mesh : m_meshes) {
     //        //        shader.setMat4("model", modelMatrix);
@@ -353,7 +397,34 @@ void Model::DrawBoundingBox(const glm::mat4& modelMatrix, const Shader& shader) 
 
     //    m_box.draw(modelMatrix, shader);
     shader.setBool("userColor", true);
-    m_rootNode->drawBoundingBox(modelMatrix, shader);
+    //    m_rootNode->drawBoundingBox(modelMatrix, shader);
+    shader.setVec4("color", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+    m_box.draw(modelMatrix, shader);
+
+    for (uint i = 0; i < m_meshes.size(); ++i) {
+        //    for (const Mesh& mesh : m_meshes) {
+        const Mesh& mesh = m_meshes[i];
+        //        shader.setMat4("model", modelMatrix);
+        //        const Mesh& mesh = m_meshes[i];
+        //        glPolygonMode(GL_FRONT_AND_BACK, GL_POINTS);
+        //        shader.setMat4("model", modelMatrix * mesh.m_transform);
+        uint id = i;
+        float r, g, b;
+        r = (id % 3) / 2.0f;
+        id /= 3;
+        g = (id % 3) / 2.0f;
+        id /= 3;
+        b = (id % 3) / 2.0f;
+
+        shader.setVec4("color", glm::vec4(r, g, b, 1.0f));
+
+        //        shader.setVec3("color", glm::vec3(1.0f, 1.0f, 1.0f));
+        mesh.m_box.draw(modelMatrix, shader);
+
+        mesh.drawBoundingBox(modelMatrix, shader);
+
+        //        mesh.m_box->draw(modelMatrix * mesh.m_transform, shader);
+    }
     shader.setBool("userColor", false);
 }
 
@@ -452,17 +523,17 @@ void Model::save(std::ofstream& file) const
     Session::save(directory, file);
 }
 
-glm::mat4 Model::scaleCenter(float scale) const
-{
-    glm::mat4 mat(1.0f);
-    glm::vec3 center = m_box.center();
-    //    qDebug() << center.x << center.y << center.z;
-    mat = glm::translate(mat, center);
-    mat = glm::scale(mat, glm::vec3(scale));
-    mat = glm::translate(mat, -center);
+//glm::mat4 Model::scaleCenter(float scale) const
+//{
+//    glm::mat4 mat(1.0f);
+//    glm::vec3 center = m_box.center();
+//    //    qDebug() << center.x << center.y << center.z;
+//    mat = glm::translate(mat, center);
+//    mat = glm::scale(mat, glm::vec3(scale));
+//    mat = glm::translate(mat, -center);
 
-    return mat;
-}
+//    return mat;
+//}
 
 //void Model::modelRecurseMaterial(const Material& material, QStandardItem* parent) const
 //{

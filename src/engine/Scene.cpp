@@ -93,14 +93,14 @@ void Scene::draw(const MainWindow3dView& view)
     if (view.boundingBox()) {
         for (const Model& model : m_models) {
 //            model.m_box.draw(modelMatrix, shader);
-            model.DrawBoundingBox(modelMatrix, shader);
+            model.drawBoundingBox(modelMatrix, shader);
         }
     }
 
 //    glLineWidth(1);
 //    glPolygonMode(GL_FRONT, GL_LINE);
     for (const Model& model : m_models) {
-        model.Draw(modelMatrix, shader, view.dotCloud());
+        model.Draw(modelMatrix, shader, view.dotCloud(), view.vertexGroupShader());
     }
     glClear(GL_DEPTH_BUFFER_BIT);
 
@@ -127,7 +127,7 @@ void Scene::draw(const MainWindow3dView& view)
     glPolygonMode(GL_FRONT, GL_LINE);
     //    modelMatrix = glm::scale(modelMatrix, glm::vec3(1.1f, 1.1f, 1.1f));
     shader.setBool("userColor", true);
-    shader.setVec3("color", glm::vec3(1.0f, 0.5f, 0.0f));
+    shader.setVec4("color", glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));
     for (const Model& model : m_models) {
 
         model.Draw(modelMatrix, shader);
