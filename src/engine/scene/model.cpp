@@ -313,9 +313,9 @@ void Model::prepareHierarchy(ulong frameTime) const
         //        shader.setBool("isSkeleton", false);
     }
 
-        m_box.clear();
-    for (uint i =0; i <m_meshes.size(); ++i) {
-        const Mesh & mesh = m_meshes[i];
+    m_box.clear();
+    for (uint i = 0; i < m_meshes.size(); ++i) {
+        const Mesh& mesh = m_meshes[i];
 
         m_box << mesh.m_box;
     }
@@ -359,9 +359,8 @@ void Model::Draw(const glm::mat4& modelMatrix, const Shader& shader, bool dotClo
                 b = (id % 3) / 2.0f;
 
                 shader.setVec4("color", glm::vec4(r, g, b, 1.0f));
-
             }
-                mesh.draw(shader, dotCloud);
+            mesh.draw(shader, dotCloud);
             //        shader.setBool("userColor", false);
 
             //        mesh.m_box->draw(modelMatrix * mesh.m_transform, shader);
@@ -427,6 +426,70 @@ void Model::drawBoundingBox(const glm::mat4& modelMatrix, const Shader& shader) 
     }
     shader.setBool("userColor", false);
 }
+
+void Model::selectRay(const Ray& ray) const
+{
+    float depthMin;
+    bool first = true;
+    if (m_box.intersect(ray)) {
+        //        qDebug() << "select " << m_filename.c_str();
+        for (const Mesh& mesh : m_meshes) {
+            if (mesh.m_box.intersect(ray)) {
+                for (const Bone& bone : mesh.m_bones) {
+                    if (bone.m_box.intersect(ray)) {
+
+                        std::vector<uint> indices;
+                        for (const auto& pair : bone.m_weights) {
+                            //                            const Vertex vertex = mesh.m_vertices[pair.first];
+                            uint iVertex = pair.first;
+                            indices.emplace_back(iVertex);
+                        }
+
+
+                        float depth;
+                        if (vertex.intersect(ray, depth)) {
+                            if (first) {
+                                depthMin = depth;
+                            } else {
+                                depthMin = std::min(depthMin, depth);
+                            }
+                            //							qDebug() << "select" << bone.m_name.c_str();
+                            //							m_selected = true;
+                            //							return;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+void Model::unselectRay(const Ray& ray) const
+{
+    if (m_box.intersect(ray)) {
+        //        qDebug() << "select " << m_filename.c_str();
+        for (const Mesh& mesh : m_meshes) {
+            if (mesh.m_box.intersect(ray)) {
+                for (const Bone& bone : mesh.m_bones) {
+                    if (bone.m_box.intersect(ray)) {
+                        qDebug() << "unselect" << bone.m_name.c_str();
+                        m_selected = false;
+                        return;
+                    }
+                }
+            }
+        }
+    }
+}
+
+//void Model::objectFinderRay(const Ray &ray) const
+//{
+//    if (m_box.intersect(ray)) {
+////        qDebug() << "intersect";
+//        m_selected = true;
+//    }
+
+//}
 
 void Model::DrawHierarchy(const glm::mat4& modelMatrix, const MainWindow3dView& view) const
 {

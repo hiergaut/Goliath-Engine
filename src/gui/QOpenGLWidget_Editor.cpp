@@ -21,11 +21,13 @@
 //#include FT_FREETYPE_H
 
 #include <iomanip>
+#include <opengl/geometry/LineGeometry.h>
 
 QOpenGLWidget_Editor::QOpenGLWidget_Editor(QWidget* parent, QMainWindow* mainWindow)
     : QOpenGLWidget(parent)
     , m_mainWindow(mainWindow)
 {
+    RayTracer::setScene(&m_scene);
 
     setAutoFillBackground(false);
     //    setStyleSheet("background-color: transparent");
@@ -75,8 +77,8 @@ void QOpenGLWidget_Editor::initializeGL()
     //    glEnable(GL_CULL_FACE);
     glEnable(GL_MULTISAMPLE);
 
-//    glEnable(GL_STENCIL_TEST);
-//    glStencilMask(0x00);
+    //    glEnable(GL_STENCIL_TEST);
+    //    glStencilMask(0x00);
     //    glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
     //    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 
@@ -96,8 +98,8 @@ void QOpenGLWidget_Editor::initializeGL()
     //    glEnable(GL_MULTISAMPLE);
     glPointSize(5.0f);
     glEnable(GL_POINT_SMOOTH);
-//    glEnable(GL_BLEND);
-//    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    //    glEnable(GL_BLEND);
+    //    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     m_axis = new Axis();
 
@@ -109,14 +111,21 @@ void QOpenGLWidget_Editor::initializeGL()
     //    g_env.m_scene.initialize();
     m_scene.initialize();
 
+//    RayTracer::setBone(new BoneGeometry);
+
+    LineGeometry::initializeGL();
+
     //    m_textRender.initialize();
-//    BoundingBox::m_cube.setupGL();
+    //    BoundingBox::m_cube.setupGL();
 
     m_lastFrame = QDateTime::currentMSecsSinceEpoch();
+
+    m_initialized = true;
 }
 
 void QOpenGLWidget_Editor::paintGL()
 {
+    Q_ASSERT(m_initialized);
     Q_ASSERT(QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>());
 
     uint64_t currentFrameTime = QDateTime::currentMSecsSinceEpoch();
@@ -145,12 +154,11 @@ void QOpenGLWidget_Editor::paintGL()
     //    glViewport(100, 100, 100, 100);
     // -------------------------------------------------------------------------------
 
-    glm::mat4 model(1.0);
+//    glm::mat4 modelMatrix(1.0);
 
     m_scene.prepareHierarchy(currentFrameTime);
 
     for (const MainWindow3dView* view : *m_views) {
-
 
         Q_ASSERT(view->parent()->parent());
         Q_ASSERT(m_mainWindow->isAncestorOf(view));
@@ -164,15 +172,16 @@ void QOpenGLWidget_Editor::paintGL()
         int y = m_mainWindow->height() - point.y() - view->height() + 5;
         glViewport(x, y, view->width(), view->height());
 
-        glm::mat4 viewMatrix = view->viewMatrix();
-        //        glm::mat4 projectionMatrix = view->projectionMatrix();
+//        glm::mat4 projectionMatrix = view->projectionMatrix();
         m_scene.draw(*view);
+//        RayTracer::draw(modelMatrix, viewMatrix, projectionMatrix);
 
         int minSide = qMin(view->width(), view->height());
         glViewport(x + 5, y + 5, minSide / 10, minSide / 10);
+        glm::mat4 viewMatrix = view->viewMatrix();
         m_axis->draw(viewMatrix);
 
-//        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+        //        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     }
 
     // ----------------------------------------------------------------

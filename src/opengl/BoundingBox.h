@@ -6,7 +6,9 @@
 
 #include "geometry/CubeGeometry.h"
 
-class BoundingBox
+#include <opengl/rayTracer/Ray.h>
+
+class BoundingBox // AABB
 {
 public:
 //    const static CubeGeometry m_cube;
@@ -25,11 +27,14 @@ public:
 
     void draw(glm::mat4 modelMatrix, const Shader &shader) const;
 
+    bool intersect(const Ray & ray) const;
+
 //    std::vector<glm::vec3> corners(glm::mat4 basis) const;
 
 private:
-    glm::vec3 m_min;
-    glm::vec3 m_max;
+//    glm::vec3 m_min;
+//    glm::vec3 m_max;
+    glm::vec3 m_bounds[2];
 
     const static CubeGeometry * m_cube;
 //    std::vector<glm::vec3> m_vertices;

@@ -6,6 +6,8 @@
 #include <iostream>
 #include <session/Session.h>
 
+#include <opengl/rayTracer/Ray.h>
+
 struct Vertex {
     // position
     glm::vec3 Position;
@@ -43,6 +45,10 @@ struct Vertex {
         Session::save(Position, file);
         Session::save(Normal, file);
         Session::save(TexCoords, file);
+    }
+
+    bool intersect(const Ray & ray, float & depth) const {
+
     }
 };
 

@@ -41,9 +41,11 @@
 #include <opengl/geometry/boneGeometry.h>
 #include <gui/editor/3dview/MainWindow3dView.h>
 #include <opengl/BoundingBox.h>
+#include <opengl/rayTracer/Ray.h>
 
 class Model {
 public:
+    mutable bool m_selected = false;
 
 public:
     Model(const std::string& path);
@@ -64,6 +66,12 @@ public:
     void prepareHierarchy(ulong frameTime) const;
     void Draw(const glm::mat4 &modelMatrix, const Shader & shader, bool dotCloud = false, bool vertexGroupShader = false) const;
     void drawBoundingBox(const glm::mat4 &modelMatrix, const Shader & shader) const;
+    void selectRay(const Ray & ray) const;
+    void unselectRay(const Ray & ray) const;
+//    void objectFinderRay(const Ray & ray) const;
+//    void
+
+
     void DrawHierarchy(const glm::mat4 &modelMatrix, const MainWindow3dView & view) const;
     void buildItemModel(QStandardItem* parent) const;
 
@@ -112,6 +120,7 @@ private:
     std::string directory;
 
     BoneGeometry m_boneGeometry;
+
 
 public:
     std::string filename() const;

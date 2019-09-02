@@ -36,7 +36,7 @@ Mesh::Mesh(const aiMesh* ai_mesh, Materials* materials, Textures* textures)
         const aiBone* ai_bone = ai_mesh->mBones[i];
         m_sumBoneWeights += ai_bone->mNumWeights;
         //        m_bones.push_back(Bone(ai_bone));
-        m_bones.emplace_back(ai_bone);
+        m_bones.emplace_back(ai_bone, m_indices);
 
         for (uint j = 0; j < ai_bone->mNumWeights; ++j) {
             const aiVertexWeight& ai_vertexWeight = ai_bone->mWeights[j];
@@ -125,7 +125,7 @@ Mesh::Mesh(std::ifstream& file, Materials* materials, Textures* textures)
     //    std::cout << "m_bones" << std::endl;
     Session::load(size, file);
     for (uint i = 0; i < size; ++i) {
-        m_bones.emplace_back(file);
+        m_bones.emplace_back(file, m_indices);
     }
 
     //    std::cout << "m_transform" << std::endl;
@@ -468,10 +468,11 @@ void Mesh::updateBoundingBox()
         for (const Bone& bone : m_bones) {
             bone.m_box.clear();
 
+            // question : doublon indice ?
             for (auto& pair : bone.m_weights) {
-                            glm::vec3 pos = bone.m_recurseModel * bone.m_offsetMatrix * glm::vec4(m_vertices[pair.first].Position, 1.0);
-                            bone.m_box << pos;
-                            continue;
+//                            glm::vec3 pos = bone.m_recurseModel * bone.m_offsetMatrix * glm::vec4(m_vertices[pair.first].Position, 1.0);
+//                            bone.m_box << pos;
+//                            continue;
 
                 uint indice = pair.first;
                 uint first = indice - indice % 3;

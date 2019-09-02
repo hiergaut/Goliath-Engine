@@ -23,6 +23,7 @@
 
 //#include <opengl/OpenglContext.h>
 //#include <opengl/grid.h>
+#include <opengl/rayTracer/RayTracer.h>
 
 std::list<const MainWindow3dView*>* MainWindow3dView::m_views;
 //Shader MainWindow3dView::m_shaders;
@@ -315,6 +316,10 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
         m_shiftPressed = true;
         break;
 
+    case Qt::Key_Control:
+        m_ctrlPressed = true;
+        break;
+
     case Qt::Key_Clear:
         //        qDebug() << "change projection";
         if (m_ortho) {
@@ -423,6 +428,10 @@ void MainWindow3dView::keyReleaseEvent(QKeyEvent* event)
     case Qt::Key_Shift:
         m_shiftPressed = false;
         break;
+
+    case Qt::Key_Control:
+        m_ctrlPressed = false;
+        break;
         //    case Qt::Key_Up:
         //    case Qt::Key_Comma:
         //    case Qt::Key_Down:
@@ -441,7 +450,19 @@ void MainWindow3dView::keyReleaseEvent(QKeyEvent* event)
 
 void MainWindow3dView::mousePressEvent(QMouseEvent* event)
 {
+    if (event->button() == Qt::LeftButton) {
+        //        front = glm::rotate()
+        //        emit launchRayTracing(source, front);
+        //        RayTracer::launch({source, front});
+        if (m_ctrlPressed) {
+            RayTracer::unselectRay(clickRay(event));
+        } else {
+
+            RayTracer::selectRay(clickRay(event));
+        }
+    }
     m_camera->mousePressEvent(event);
+
     //    qDebug() << "[3dView]" << QWidget::mapToGlobal(pos());
     //    setMouseTracking(true);
     //    setFocus();
@@ -541,6 +562,40 @@ void MainWindow3dView::updateOrthoProjection()
     m_projectionMatrix = glm::ortho(-right, right, -up, up, l_near, l_far);
 }
 
+Ray MainWindow3dView::clickRay(QMouseEvent* event)
+{
+    int x = event->x();
+    int y = event->y();
+    //        emit launchRayTracing(x, y);
+
+    glm::vec3 source = m_camera->position();
+    glm::vec3 front = m_camera->front();
+    glm::vec3 right = m_camera->right();
+    glm::vec3 up = m_camera->up();
+    float fov = m_camera->fov();
+    //        float ratio = static_cast<float>(height()) / width();
+    // question : ration = w / h or h / w ? horizontal fov or vertical ?
+    float ratio = static_cast<float>(width()) / height();
+
+    //        int dx = x -width() /2;
+    //        int dy = y -height() / 2;
+    float dx = fov * ratio * (static_cast<float>(x) / width() - 0.5f);
+    float dy = fov * (static_cast<float>(y) / height() - 0.5f);
+
+    //        qDebug() << "left click" << dx << dy;
+
+    glm::mat4 rotate(1.0f);
+    //        rotate = glm::rotate(rotate, dx, glm::vec3(0.0f, 0.0f, 1.0f));
+    //        rotate = glm::rotate(rotate, dy, glm::vec3(1.0f, 0.0f, 0.0f));
+
+    rotate = glm::rotate(rotate, glm::radians(-dx), up);
+    rotate = glm::rotate(rotate, glm::radians(dy), right);
+
+    front = glm::normalize(rotate * glm::vec4(front, 1.0f));
+
+    return { source, front };
+}
+
 void MainWindow3dView::updateProjectionMatrix()
 {
     //    m_projectionMatrix = fov;
@@ -575,7 +630,6 @@ bool MainWindow3dView::dotCloud() const
 bool MainWindow3dView::vertexGroupShader() const
 {
     return m_shade == Shading::VERTEX_GROUP;
-
 }
 
 void MainWindow3dView::setCursorToCenter()

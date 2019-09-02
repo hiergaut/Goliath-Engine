@@ -8,6 +8,7 @@
 
 QStandardItemModel Scene::m_sceneModel;
 #include <gui/editor/timeline/FormTimeline.h>
+#include <opengl/geometry/LineGeometry.h>
 
 Scene::Scene()
 {
@@ -53,6 +54,7 @@ void Scene::initialize()
     m_grid = new Grid;
     normalShader = new Shader("normalVector.vsh", "normalVector.fsh", "normalVector.gsh");
     //    normalShader = new Shader("shading/normal.vsh", "shading/normal.fsh");
+//    m_bone = new BoneGeometry;
 
     initialized = true;
     MainWindow3dView::glInitialize();
@@ -84,6 +86,15 @@ void Scene::draw(const MainWindow3dView& view)
     m_grid->draw(modelMatrix, viewMatrix, projectionMatrix);
 
     const Shader& shader = view.shader();
+
+    // -------------------------------- DRAW RAYS
+//    shader.setBool("userColor", true);
+//    shader.setVec4("color", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+//    for (const Ray & ray : m_rays) {
+//        LineGeometry::draw(modelMatrix, shader, ray.m_source, ray.m_source + ray.m_direction * 1000.0f);
+//    }
+//    shader.setBool("userColor", false);
+
     GLint polygonMode;
     glGetIntegerv(GL_POLYGON_MODE, &polygonMode);
 //    glClear(GL_DEPTH_BUFFER_BIT);
@@ -99,12 +110,14 @@ void Scene::draw(const MainWindow3dView& view)
 
 //    glLineWidth(1);
 //    glPolygonMode(GL_FRONT, GL_LINE);
+    // -------------------------------- DRAW MODELS
     for (const Model& model : m_models) {
         model.Draw(modelMatrix, shader, view.dotCloud(), view.vertexGroupShader());
     }
     glClear(GL_DEPTH_BUFFER_BIT);
 
 
+    // -------------------------------- DRAW CONTOURS
     glEnable(GL_STENCIL_TEST);
     glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 
@@ -114,7 +127,8 @@ void Scene::draw(const MainWindow3dView& view)
     glStencilFunc(GL_ALWAYS, 1, 0xFF);
     glStencilMask(0xFF);
     for (const Model& model : m_models) {
-        model.Draw(modelMatrix, shader);
+        if (model.m_selected)
+            model.Draw(modelMatrix, shader);
     }
 //    glClear(GL_COLOR_BUFFER_BIT);
 
@@ -129,8 +143,8 @@ void Scene::draw(const MainWindow3dView& view)
     shader.setBool("userColor", true);
     shader.setVec4("color", glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));
     for (const Model& model : m_models) {
-
-        model.Draw(modelMatrix, shader);
+        if (model.m_selected)
+            model.Draw(modelMatrix, shader);
     }
     //    shader.setMat4("projection", projectionMatrix);
 //    shader.setMat4("view", viewMatrix);
@@ -141,6 +155,7 @@ void Scene::draw(const MainWindow3dView& view)
 //        glEnable(GL_DEPTH_TEST);
 
 
+    // -------------------------------- DRAW CAMERA VIEWS
     glPolygonMode(GL_FRONT, polygonMode);
     for (const MainWindow3dView* otherViews : *m_views) {
         const Camera* camera = otherViews->camera();
@@ -199,6 +214,37 @@ void Scene::draw(const MainWindow3dView& view)
     //    glViewport(5, 5, 55, 55);
     //    m_axis->draw(viewMatrix);
 }
+
+void Scene::selectRay(const Ray &ray)
+{
+    for (const Model & model : m_models) {
+//        model.objectFinderRay(ray);
+        model.selectRay(ray);
+    }
+
+//    m_rays.emplace_back(ray);
+
+}
+
+void Scene::unselectRay(const Ray &ray)
+{
+    for (const Model & model : m_models) {
+//        model.objectFinderRay(ray);
+        model.unselectRay(ray);
+    }
+
+//    m_rays.emplace_back(ray);
+}
+
+//void Scene::objectFinderRay(const Ray &ray)
+//{
+//    for (const Model & model : m_models) {
+//        model.objectFinderRay(ray);
+//    }
+
+//    m_rays.emplace_back(ray);
+//}
+
 
 void Scene::addModel(std::string file)
 {
@@ -290,6 +336,7 @@ void Scene::save(std::ofstream& file)
 
     //    qDebug() << "[SCENE] " << m_itemModel.rowCount();
 }
+
 
 //void Scene::clear()
 //{

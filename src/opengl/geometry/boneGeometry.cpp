@@ -162,7 +162,8 @@ void BoneGeometry::drawLine(glm::mat4 model, glm::vec3 source, glm::vec3 destina
     m_shader->setMat4("model", model * m);
 
     m_fun->glBindVertexArray(m_vao);
-    m_fun->glDrawElements(GL_LINES, 100, GL_UNSIGNED_INT, (void*)(8 * sizeof(glm::vec3)));
+//    m_fun->glDrawElements(GL_TRIANGLES, 8 * 3, GL_UNSIGNED_INT, nullptr);
+    m_fun->glDrawElements(GL_LINES, 2, GL_UNSIGNED_INT, (void*)(8 * sizeof(glm::vec3)));
     m_fun->glBindVertexArray(0);
 
     //    m_sphere.draw();

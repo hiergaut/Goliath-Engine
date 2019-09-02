@@ -16,9 +16,13 @@
 #include <opengl/TextRendering.h>
 #include <QStatusBar>
 
+#include <opengl/rayTracer/RayTracer.h>
+
 class QOpenGLWidget_Editor : public QOpenGLWidget
 {
     Q_OBJECT
+public:
+
 public:
     explicit QOpenGLWidget_Editor(QWidget *parent = nullptr, QMainWindow * mainWindow = nullptr);
 
@@ -64,16 +68,18 @@ private:
 //    Grid * m_grid;
     Axis * m_axis;
 
+    Scene m_scene;
 //    TextRendering m_textRender;
 
 //    Shader * m_shader;
-    Scene m_scene;
+//    RayTracer m_rayTracer;
 
 //    std::ostringstream m_stream;
 //    std::stringstream m_stream;
 //    Model * m_scene;
 //    QStandardItemModel m_sceneModel;
 //    QStandardItemModel m_fileOpennedModel;
+    bool m_initialized = false;
 
     uint64_t m_deltaTime;
     uint64_t m_lastFrame;

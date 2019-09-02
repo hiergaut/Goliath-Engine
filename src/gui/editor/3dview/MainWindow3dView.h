@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 //#include <opengl/axis.h>
+//#include <engine/Scene.h>
 
 namespace Ui {
 class MainWindow3dView;
@@ -33,6 +34,9 @@ class MainWindow3dView;
 
 #include "../TemplateMenuBar.h"
 #include <opengl/camera/Camera.h>
+//#include <gui/editor/MainWindowEditor.h>
+//#include <gui/QOpenGLWidget_Editor.h>
+#include <opengl/rayTracer/Ray.h>
 
 class MainWindow3dView : public QMainWindow, public TemplateMenuBar {
     Q_OBJECT
@@ -74,6 +78,7 @@ public:
     void setCursorToCenter();
 
 signals:
+//    void launchRayTracing(glm::vec3 source, glm::vec3 direction);
 
 protected:
     //    void initializeGL() override;
@@ -96,9 +101,10 @@ protected:
     void setFocusPolicy(Qt::FocusPolicy policy) override;
     QWidget* widget() override;
 
-    void updateOrthoProjection();
 
 private:
+    void updateOrthoProjection();
+    Ray clickRay(QMouseEvent * event);
     //    void cameraMove();
     //    void updateProjection();
 
@@ -113,6 +119,7 @@ private:
 
     QPoint lastPos;
     bool m_shiftPressed = false;
+    bool m_ctrlPressed = false;
 
     //    Camera camera;
     Camera* m_camera = nullptr;

@@ -8,6 +8,7 @@
 #include <QStandardItem>
 
 #include <opengl/BoundingBox.h>
+#include <set>
 
 class Bone
 {
@@ -22,10 +23,12 @@ public:
 
     mutable BoundingBox m_box;
 
+    std::set<uint> m_iTriangles;
+
 
 public:
-    Bone(const aiBone * ai_bone);
-    Bone(std::ifstream & file);
+    Bone(const aiBone * ai_bone, const std::vector<uint> & indices);
+    Bone(std::ifstream & file, const std::vector<uint> &indices);
 
     Bone(const Bone &) = delete;
     Bone(Bone &&) noexcept = default;
@@ -40,6 +43,10 @@ public:
 //    glm::vec3 max() const;
 
 private:
+
+    const std::vector<uint> & m_indices;
+
+    void setupTriangles();
 //    Meshes * m_meshes;
 
 };

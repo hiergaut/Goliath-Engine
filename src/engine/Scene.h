@@ -13,6 +13,8 @@
 //#include <QWidget>
 #include <map>
 
+#include <opengl/rayTracer/Ray.h>
+//#include <opengl/rayTracer/RayTracer.h>
 
 class Scene {
 //    Q_OBJECT
@@ -39,6 +41,9 @@ public:
     void prepareHierarchy(ulong frameTime);
     void draw(const MainWindow3dView &view);
 
+    void selectRay(const Ray & ray);
+    void unselectRay(const Ray & ray);
+
     void addModel(std::string file);
     void delModel(std::string file);
 
@@ -47,6 +52,8 @@ public:
 
     void load(std::ifstream & file);
     void save(std::ofstream & file);
+
+
 
 private:
 //    void clear();
@@ -70,6 +77,10 @@ private:
 
     Grid * m_grid;
     bool initialized = false;
+
+
+//    std::vector<Ray> m_rays;
+//    BoneGeometry * m_bone;
 
 
 public:
