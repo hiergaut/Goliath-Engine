@@ -14,6 +14,7 @@
 #include <functional>
 #include <glm/gtc/matrix_transform.hpp>
 #include <gui/editor/timeline/FormTimeline.h>
+#include <opengl/geometry/TriangleGeometry.h>
 
 Model::Model(const std::string& path)
 //        : gammaCorrection(gamma),
@@ -24,7 +25,7 @@ Model::Model(const std::string& path)
     m_meshes.reserve(50);
     m_materials.reserve(50);
     m_textures.reserve(100);
-    m_animations.reserve(10);
+    m_animations.reserve(50);
 
     //        initializeOpenGLFunctions();
     //    fun = QOpenGLContext::globalShareContext()->versionFunctions<QOpenGLFunctionsCore>();
@@ -49,7 +50,7 @@ Model::Model(std::ifstream& file)
     m_meshes.reserve(50);
     m_materials.reserve(50);
     m_textures.reserve(100);
-    m_animations.reserve(10);
+    m_animations.reserve(50);
 
     //    load(file);
     uint size;
@@ -313,12 +314,12 @@ void Model::prepareHierarchy(ulong frameTime) const
         //        shader.setBool("isSkeleton", false);
     }
 
-    m_box.clear();
-    for (uint i = 0; i < m_meshes.size(); ++i) {
-        const Mesh& mesh = m_meshes[i];
+    //    m_box.clear();
+    //    for (uint i = 0; i < m_meshes.size(); ++i) {
+    //        const Mesh& mesh = m_meshes[i];
 
-        m_box << mesh.m_box;
-    }
+    //        m_box << mesh.m_box;
+    //    }
 
     //    updateBoundingBoxing();
 }
@@ -334,6 +335,16 @@ void Model::Draw(const glm::mat4& modelMatrix, const Shader& shader, bool dotClo
 
     //    const Shader& shader = view.shader();
     //    shader.use();
+    shader.setMat4("model", glm::mat4(1.0f));
+    for (uint i = 0; i < m_triangles.size() / 3; ++i) {
+        uint i3 = i * 3;
+        const glm::vec3& v0 = m_triangles[i3];
+        const glm::vec3& v1 = m_triangles[i3 + 1];
+        const glm::vec3& v2 = m_triangles[i3 + 2];
+
+        TriangleGeometry::draw(v0, v1, v2);
+    }
+
     if (vertexGroupShader) {
 
         for (uint i = 0; i < m_meshes.size(); ++i) {
@@ -427,60 +438,135 @@ void Model::drawBoundingBox(const glm::mat4& modelMatrix, const Shader& shader) 
     shader.setBool("userColor", false);
 }
 
-void Model::selectRay(const Ray& ray) const
+void Model::updateBoundingBox()
 {
+    m_box.clear();
+    for (Mesh& mesh : m_meshes) {
+        mesh.updateBoundingBox();
+        m_box << mesh.m_box;
+    }
+    //    for (uint i = 0; i < m_meshes.size(); ++i) {
+    //        const Mesh& mesh = m_meshes[i];
+
+    //    }
+}
+
+//void Model::selectRay(const Ray& ray) const
+void Model::selectObject(const Ray &ray, bool unselect /* = false */) const
+{
+    //    qDebug() << "selectRay";
+    m_triangles.clear();
+
+    //    glm::vec3 * v0Min;
+    //    glm::vec3 * v1Min;
+    //    glm::vec3 * v2Min;
+
+    uint iMeshMin = 0;
+    uint iBoneMin = 0;
+    uint iTriangleMin = 0;
+
     float depthMin;
     bool first = true;
     if (m_box.intersect(ray)) {
-        //        qDebug() << "select " << m_filename.c_str();
-        for (const Mesh& mesh : m_meshes) {
+
+        for (uint iMesh = 0; iMesh < m_meshes.size(); ++iMesh) {
+            //        for (const Mesh& mesh : m_meshes) {
+            const Mesh& mesh = m_meshes[iMesh];
+
             if (mesh.m_box.intersect(ray)) {
-                for (const Bone& bone : mesh.m_bones) {
+                //                qDebug() << "select mesh " << mesh.m_name.c_str();
+
+                for (uint iBone = 0; iBone < mesh.m_bones.size(); ++iBone) {
+                    //                for (const Bone& bone : mesh.m_bones) {
+                    const Bone& bone = mesh.m_bones[iBone];
+
                     if (bone.m_box.intersect(ray)) {
+                        qDebug() << "intersect bone " << bone.m_name.c_str() << bone.m_iTriangles.size();
 
-                        std::vector<uint> indices;
-                        for (const auto& pair : bone.m_weights) {
-                            //                            const Vertex vertex = mesh.m_vertices[pair.first];
-                            uint iVertex = pair.first;
-                            indices.emplace_back(iVertex);
-                        }
+                        //                        for (uint iTriangle =0; iTriangle < bone.m_iTriangles.size(); ++iTriangle) {
+                        for (const uint& iTriangle : bone.m_iTriangles) {
+                            uint i3 = iTriangle * 3;
+                            //                            const Vertex & v0 = mesh.m_vertices[i3];
+                            //                            const Vertex & v1 = mesh.m_vertices[i3 + 1];
+                            //                            const Vertex & v2 = mesh.m_vertices[i3 + 2];
+                            Q_ASSERT(mesh.m_vertices.size() > i3 + 2);
+                            const glm::vec3& v0 = bone.m_recurseModel * bone.m_offsetMatrix * glm::vec4(mesh.m_vertices[i3].Position, 1.0f);
+                            const glm::vec3& v1 = bone.m_recurseModel * bone.m_offsetMatrix * glm::vec4(mesh.m_vertices[i3 + 1].Position, 1.0f);
+                            const glm::vec3& v2 = bone.m_recurseModel * bone.m_offsetMatrix * glm::vec4(mesh.m_vertices[i3 + 2].Position, 1.0f);
+                            //                            v0 = bone.m_recurseModel * bone.m_offsetMatrix * glm::vec4(v0, 1.0f);
 
+                            //                            std::cout << "v0 : " << v0.x << "  " << v0.y << "  " << v0.z << std::endl;
+                            //                            TriangleGeometry::draw(v0, v1, v2);
 
-                        float depth;
-                        if (vertex.intersect(ray, depth)) {
-                            if (first) {
-                                depthMin = depth;
-                            } else {
-                                depthMin = std::min(depthMin, depth);
+                            float depth;
+                            if (ray.intersect(v0, v1, v2, depth)) {
+                                //                                m_triangles.emplace_back(v0);
+                                //                                m_triangles.emplace_back(v1);
+                                //                                m_triangles.emplace_back(v2);
+
+                                //                                qDebug() << "intersect triangle " << iTriangle;
+                                if (first) {
+                                    first = false;
+                                    depthMin = depth;
+
+                                    iMeshMin = iMesh;
+                                    iBoneMin = iBone;
+                                    iTriangleMin = iTriangle;
+                                } else {
+                                    if (depth < depthMin) {
+                                        //                                    depthMin = std::min(depthMin, depth);
+                                        depthMin = depth;
+                                        iMeshMin = iMesh;
+                                        iBoneMin = iBone;
+                                        iTriangleMin = iTriangle;
+                                    }
+                                }
                             }
-                            //							qDebug() << "select" << bone.m_name.c_str();
-                            //							m_selected = true;
-                            //							return;
                         }
                     }
                 }
             }
         }
+        // end for iMesh
+
+        if (first == false) {
+            const Mesh& meshMin = m_meshes[iMeshMin];
+            const Bone& boneMin = meshMin.m_bones[iBoneMin];
+            //            const uint & triangleMin =
+            uint i3 = iTriangleMin * 3;
+            const glm::vec3& v0 = boneMin.m_recurseModel * boneMin.m_offsetMatrix * glm::vec4(meshMin.m_vertices[i3].Position, 1.0f);
+            const glm::vec3& v1 = boneMin.m_recurseModel * boneMin.m_offsetMatrix * glm::vec4(meshMin.m_vertices[i3 + 1].Position, 1.0f);
+            const glm::vec3& v2 = boneMin.m_recurseModel * boneMin.m_offsetMatrix * glm::vec4(meshMin.m_vertices[i3 + 2].Position, 1.0f);
+
+            m_triangles.emplace_back(v0);
+            m_triangles.emplace_back(v1);
+            m_triangles.emplace_back(v2);
+
+            m_selected = ! unselect;
+        }
+//        else {
+//            m_selected = false;
+//        }
     }
 }
 
-void Model::unselectRay(const Ray& ray) const
-{
-    if (m_box.intersect(ray)) {
-        //        qDebug() << "select " << m_filename.c_str();
-        for (const Mesh& mesh : m_meshes) {
-            if (mesh.m_box.intersect(ray)) {
-                for (const Bone& bone : mesh.m_bones) {
-                    if (bone.m_box.intersect(ray)) {
-                        qDebug() << "unselect" << bone.m_name.c_str();
-                        m_selected = false;
-                        return;
-                    }
-                }
-            }
-        }
-    }
-}
+//void Model::unselectRay(const Ray& ray) const
+//{
+//    if (m_box.intersect(ray)) {
+//        //        qDebug() << "select " << m_filename.c_str();
+//        for (const Mesh& mesh : m_meshes) {
+//            if (mesh.m_box.intersect(ray)) {
+//                for (const Bone& bone : mesh.m_bones) {
+//                    if (bone.m_box.intersect(ray)) {
+//                        qDebug() << "unselect" << bone.m_name.c_str();
+//                        m_selected = false;
+//                        return;
+//                    }
+//                }
+//            }
+//        }
+//    }
+//}
 
 //void Model::objectFinderRay(const Ray &ray) const
 //{

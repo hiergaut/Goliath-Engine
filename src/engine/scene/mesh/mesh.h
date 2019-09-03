@@ -47,6 +47,7 @@ public:
     std::vector<Vertex> m_vertices;
     BoundingBox m_box;
 
+    std::string m_name;
 
 public:
     //    Mesh(std::string name, std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures) : m_name(name)
@@ -79,7 +80,6 @@ private:
     /*  Mesh Data  */
     //    uint m_numAnimMesh;
 
-    std::string m_name;
     //    std::vector<Face> m_faces;
     //    std::vector<uint> m_boneOfVertice;
     std::vector<VertexBoneData> m_bonesData;

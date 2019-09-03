@@ -95,6 +95,7 @@ void Scene::draw(const MainWindow3dView& view)
 //    }
 //    shader.setBool("userColor", false);
 
+
     GLint polygonMode;
     glGetIntegerv(GL_POLYGON_MODE, &polygonMode);
 //    glClear(GL_DEPTH_BUFFER_BIT);
@@ -217,23 +218,29 @@ void Scene::draw(const MainWindow3dView& view)
 
 void Scene::selectRay(const Ray &ray)
 {
+    updateBoundingBox();
+
     for (const Model & model : m_models) {
 //        model.objectFinderRay(ray);
-        model.selectRay(ray);
+//        model.selectRay(ray);
+        model.selectObject(ray);
     }
 
-//    m_rays.emplace_back(ray);
+    m_rays.emplace_back(ray);
 
 }
 
 void Scene::unselectRay(const Ray &ray)
 {
+    updateBoundingBox();
+
     for (const Model & model : m_models) {
 //        model.objectFinderRay(ray);
-        model.unselectRay(ray);
+//        model.unselectRay(ray);
+        model.selectObject(ray, true);
     }
 
-//    m_rays.emplace_back(ray);
+    m_rays.emplace_back(ray);
 }
 
 //void Scene::objectFinderRay(const Ray &ray)
@@ -335,6 +342,13 @@ void Scene::save(std::ofstream& file)
     FormTimeline::save(file);
 
     //    qDebug() << "[SCENE] " << m_itemModel.rowCount();
+}
+
+void Scene::updateBoundingBox()
+{
+    for (Model & model : m_models) {
+        model.updateBoundingBox();
+    }
 }
 
 

@@ -10,27 +10,28 @@
 class CubeGeometry
 {
 public:
-    CubeGeometry();
+//    CubeGeometry();
 
-    void draw() const;
+    static void initializeGL();
+
+    static void draw();
 
 //    void initializeGL();
 
 private:
-    void setupGL();
 //    void init();
 
 private:
-    QOpenGLFunctionsCore * m_fun = nullptr;
-    std::vector<glm::vec3> m_vertices;
-    std::vector<glm::vec3> m_normals;
+    static QOpenGLFunctionsCore * m_fun;
+//    std::vector<glm::vec3> m_vertices;
+//    std::vector<glm::vec3> m_normals;
 
-    std::vector<glm::uvec2> m_indices;
+//    std::vector<glm::uvec2> m_indices;
 
-    uint m_vao;
-    uint m_vbo;
-    uint m_nbo;
-    uint m_ebo;
+    static uint m_vao;
+//    uint m_vbo;
+//    uint m_nbo;
+//    uint m_ebo;
 
 //    static Shader * m_shader;
 

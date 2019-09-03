@@ -71,11 +71,11 @@ void LineGeometry::initializeGL()
     m_fun->glBindVertexArray(0);
 }
 
-void LineGeometry::draw(const glm::mat4 & modelMatrix, const Shader & shader, glm::vec3 source, glm::vec3 destination)
+void LineGeometry::draw(const glm::mat4& modelMatrix, const Shader& shader, glm::vec3 source, glm::vec3 destination)
 {
     Q_ASSERT(m_fun != nullptr);
     //    m_shader->use();
-//    glm::mat4 identity(1.0);
+    //    glm::mat4 identity(1.0);
     glm::vec3 vDir = destination - source;
     glm::vec3 vX = glm::vec3(1, 0, 0);
 
@@ -101,8 +101,8 @@ void LineGeometry::draw(const glm::mat4 & modelMatrix, const Shader & shader, gl
     shader.setMat4("model", modelMatrix * m);
 
     m_fun->glBindVertexArray(m_vao);
-//    m_fun->glDrawElements(GL_TRIANGLES, 8 * 3, GL_UNSIGNED_INT, nullptr);
-//    m_fun->glDrawElements(GL_LINES, 2, GL_UNSIGNED_INT, (void*)(8 * sizeof(glm::vec3)));
+    //    m_fun->glDrawElements(GL_TRIANGLES, 8 * 3, GL_UNSIGNED_INT, nullptr);
+    //    m_fun->glDrawElements(GL_LINES, 2, GL_UNSIGNED_INT, (void*)(8 * sizeof(glm::vec3)));
     m_fun->glDrawArrays(GL_LINES, 0, 2);
     m_fun->glBindVertexArray(0);
 

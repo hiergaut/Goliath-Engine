@@ -22,6 +22,8 @@
 
 #include <iomanip>
 #include <opengl/geometry/LineGeometry.h>
+#include <opengl/geometry/CubeGeometry.h>
+#include <opengl/geometry/TriangleGeometry.h>
 
 QOpenGLWidget_Editor::QOpenGLWidget_Editor(QWidget* parent, QMainWindow* mainWindow)
     : QOpenGLWidget(parent)
@@ -114,6 +116,8 @@ void QOpenGLWidget_Editor::initializeGL()
 //    RayTracer::setBone(new BoneGeometry);
 
     LineGeometry::initializeGL();
+    CubeGeometry::initializeGL();
+    TriangleGeometry::initializeGL();
 
     //    m_textRender.initialize();
     //    BoundingBox::m_cube.setupGL();

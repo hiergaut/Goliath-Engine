@@ -24,13 +24,38 @@ Mesh::Mesh(const aiMesh* ai_mesh, Materials* materials, Textures* textures)
     //    m_numAnimMesh = ai_mesh->mNumAnimMeshes;
     Q_ASSERT(ai_mesh->mNumAnimMeshes == 0);
 
+
+
+    //        std::cout << std::endl;
+    //    Mesh mesh(ai_mesh->mName.C_Str());
+    m_numFaces = ai_mesh->mNumFaces;
+    m_iMaterial = ai_mesh->mMaterialIndex;
+
+    // -------------------------------- INDICES
+    m_indices.clear();
+    for (int i = 0; i < ai_mesh->mNumFaces; ++i) {
+        aiFace* ai_face = &ai_mesh->mFaces[i];
+        //        Face face;
+        //        Q_ASSERT(ai_face->mNumIndices == 3);
+        //        mesh.m_lenFaces.push_back(ai_face->mNumIndices);
+
+        for (int j = 0; j < ai_face->mNumIndices; ++j) {
+            uint indice = ai_face->mIndices[j];
+            //            face.m_indices.push_back(indice);
+            //            m_indices.push_back(indice);
+            m_indices.emplace_back(indice);
+        }
+        //        mesh.m_faces.push_back(face);
+    }
+    Q_ASSERT(m_indices.size() == 3 * ai_mesh->mNumFaces);
+
+
+    // -------------------------------- BONES
     //    m_bonesData.resize(numVertices);
     VertexBoneData vBone;
     m_bonesData = std::vector<VertexBoneData>(numVertices, vBone);
-
     //    int cpt[ai_mesh->mNumVertices] = {0};
     std::vector<uint> cpts(numVertices, 0);
-
     m_sumBoneWeights = 0;
     for (uint i = 0; i < ai_mesh->mNumBones; ++i) {
         const aiBone* ai_bone = ai_mesh->mBones[i];
@@ -51,28 +76,8 @@ Mesh::Mesh(const aiMesh* ai_mesh, Materials* materials, Textures* textures)
     }
     Q_ASSERT(ai_mesh->mNumBones < 100);
 
-    //        std::cout << std::endl;
-    //    Mesh mesh(ai_mesh->mName.C_Str());
-    m_numFaces = ai_mesh->mNumFaces;
-    m_iMaterial = ai_mesh->mMaterialIndex;
 
-    m_indices.clear();
-    for (int i = 0; i < ai_mesh->mNumFaces; ++i) {
-        aiFace* ai_face = &ai_mesh->mFaces[i];
-        //        Face face;
-        //        Q_ASSERT(ai_face->mNumIndices == 3);
-        //        mesh.m_lenFaces.push_back(ai_face->mNumIndices);
-
-        for (int j = 0; j < ai_face->mNumIndices; ++j) {
-            uint indice = ai_face->mIndices[j];
-            //            face.m_indices.push_back(indice);
-            //            m_indices.push_back(indice);
-            m_indices.emplace_back(indice);
-        }
-        //        mesh.m_faces.push_back(face);
-    }
-    Q_ASSERT(m_indices.size() == 3 * ai_mesh->mNumFaces);
-
+    // -------------------------------- VERTICES
     m_vertices.clear();
     for (uint i = 0; i < numVertices; ++i) {
         Vertex v;
@@ -123,10 +128,6 @@ Mesh::Mesh(std::ifstream& file, Materials* materials, Textures* textures)
 
     uint size;
     //    std::cout << "m_bones" << std::endl;
-    Session::load(size, file);
-    for (uint i = 0; i < size; ++i) {
-        m_bones.emplace_back(file, m_indices);
-    }
 
     //    std::cout << "m_transform" << std::endl;
     Session::load(m_transform, file);
@@ -155,6 +156,10 @@ Mesh::Mesh(std::ifstream& file, Materials* materials, Textures* textures)
     //    std::cout << "m_indices" << std::endl;
     Session::load(m_indices, file);
     //    Session::load(m_bbo)
+    Session::load(size, file);
+    for (uint i = 0; i < size; ++i) {
+        m_bones.emplace_back(file, m_indices);
+    }
 
     setupMesh();
     //    std::cout << "\033[32m";
@@ -388,12 +393,6 @@ void Mesh::save(std::ofstream& file) const
     uint size;
 
     //    std::cout << "m_bones" << std::endl;
-    size = m_bones.size();
-    Session::save(size, file);
-    for (uint i = 0; i < size; ++i) {
-        //        m_bones.emplace_back(file);
-        m_bones[i].save(file);
-    }
 
     //    std::cout << "m_transform" << std::endl;
     Session::save(m_transform, file);
@@ -426,6 +425,12 @@ void Mesh::save(std::ofstream& file) const
     //    std::cout << "m_indices" << std::endl;
     Session::save(m_indices, file);
     //    Session::load(m_bbo)
+    size = m_bones.size();
+    Session::save(size, file);
+    for (uint i = 0; i < size; ++i) {
+        //        m_bones.emplace_back(file);
+        m_bones[i].save(file);
+    }
 }
 
 //void Mesh::initBonesBoundingBox() const

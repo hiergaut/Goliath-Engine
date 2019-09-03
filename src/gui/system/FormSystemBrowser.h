@@ -46,8 +46,10 @@ signals:
 
 public slots:
     void on_changeSystemSelected(const QItemSelection&, const QItemSelection&);
-    void on_changeCurrentSelected(const QItemSelection&, const QItemSelection&);
+//    void on_changeCurrentSelected(const QItemSelection&, const QItemSelection&);
     void on_changeRecentSelected(const QItemSelection&, const QItemSelection&);
+
+//    void on_currentEntered(const QModelIndex & index);
 
 private slots:
     void on_pushButton_actionFile_clicked();

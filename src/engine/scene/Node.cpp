@@ -406,7 +406,7 @@ void Node::prepareHierarchy(glm::mat4 model, const Animation* animation, double 
 
         mesh.m_transform = m_recurseModel;
 
-        mesh.updateBoundingBox();
+//        mesh.updateBoundingBox(); // bad performance : for live bounding boxing
     }
 }
 

@@ -15,6 +15,8 @@ Bone::Bone(const aiBone* ai_bone, const std::vector<uint>& indices)
         m_weights.emplace_back(ai_vertexWeight.mVertexId, ai_vertexWeight.mWeight);
     }
     m_offsetMatrix = aiMatrix4x4ToGlm(ai_bone->mOffsetMatrix);
+
+    setupTriangles();
 }
 
 Bone::Bone(std::ifstream& file, const std::vector<uint>& indices)
@@ -25,6 +27,8 @@ Bone::Bone(std::ifstream& file, const std::vector<uint>& indices)
     Session::load(m_offsetMatrix, file);
 
     Session::load(m_transform, file);
+
+    setupTriangles();
 }
 
 Bone::~Bone()
@@ -62,7 +66,7 @@ void Bone::save(std::ofstream& file) const
     Session::save(m_transform, file);
 }
 
-void Bone::setupTriangles()
+void Bone::setupTriangles() // performance : bad
 {
     Q_ASSERT(m_indices.size() % 3 == 0);
     Q_ASSERT(m_iTriangles.empty());

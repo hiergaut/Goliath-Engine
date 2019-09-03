@@ -13,6 +13,7 @@ public:
 
 public:
     Ray(const glm::vec3 & source, const glm::vec3 & direction);
+    bool intersect(const glm::vec3 &v0, const glm::vec3 &v1, const glm::vec3 &v2, float &t) const;
 
 private:
 };

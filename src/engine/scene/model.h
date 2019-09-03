@@ -66,8 +66,9 @@ public:
     void prepareHierarchy(ulong frameTime) const;
     void Draw(const glm::mat4 &modelMatrix, const Shader & shader, bool dotCloud = false, bool vertexGroupShader = false) const;
     void drawBoundingBox(const glm::mat4 &modelMatrix, const Shader & shader) const;
-    void selectRay(const Ray & ray) const;
-    void unselectRay(const Ray & ray) const;
+    void updateBoundingBox();
+    void selectObject(const Ray & ray, bool unselect = false) const;
+//    void unselectRay(const Ray & ray) const;
 //    void objectFinderRay(const Ray & ray) const;
 //    void
 
@@ -121,6 +122,7 @@ private:
 
     BoneGeometry m_boneGeometry;
 
+    mutable std::vector<glm::vec3> m_triangles;
 
 public:
     std::string filename() const;

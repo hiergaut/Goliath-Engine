@@ -20,7 +20,7 @@ QString opennedDir = "opennedDir";
 FormSystemBrowser::FormSystemBrowser(QWidget* parent)
     : QWidget(parent)
     , ui(new Ui::FormSystemBrowser)
-    , m_settings("Goliath-Engine", "systemBrowser")
+    , m_settings("Goliath-Engine", opennedDir)
     , m_rootPath(QDir::homePath() + "/")
 //    , m_rootPath("/home/gauthier/")
 {
@@ -42,10 +42,11 @@ FormSystemBrowser::FormSystemBrowser(QWidget* parent)
 
     ui->listView_current->setModel(m_model);
     ui->listView_current->setRootIndex(m_model->index(m_rootPath));
-    connect(ui->listView_current->selectionModel(), &QItemSelectionModel::selectionChanged, this, &FormSystemBrowser::on_changeCurrentSelected);
+    //    connect(ui->listView_current->selectionModel(), &QItemSelectionModel::selectionChanged, this, &FormSystemBrowser::on_changeCurrentSelected);
+    connect(ui->listView_current, &QListView::pressed, this, &FormSystemBrowser::updateCurrent);
 
     m_recent = new QStringListModel(this);
-//        updateRecent();
+    //        updateRecent();
     QStringList paths = m_settings.value(::opennedDir).value<QStringList>();
     m_recent->setStringList(paths);
 
@@ -67,11 +68,11 @@ FormSystemBrowser::FormSystemBrowser(QWidget* parent)
 
     //    ui->lis
 
-//    connect(ui->listView_recent, &QListView::keyPressEvent,)
+    //    connect(ui->listView_recent, &QListView::keyPressEvent,)
 
-//    m_previous = new QStringListModel(this);
-//    QStringList previous = m_settings.value(::opennedFile).value<QStringList>();
-//    m_previous->setStringList(previous);
+    //    m_previous = new QStringListModel(this);
+    //    QStringList previous = m_settings.value(::opennedFile).value<QStringList>();
+    //    m_previous->setStringList(previous);
 }
 
 FormSystemBrowser::~FormSystemBrowser()
@@ -81,13 +82,11 @@ FormSystemBrowser::~FormSystemBrowser()
     delete m_recent;
 }
 
-
 void FormSystemBrowser::openFile()
 {
 
     QString newPath = ui->lineEdit_currentPath->text();
     registerOpennedDir(newPath);
-
 
     emit openned(newPath + ui->lineEdit_currentFile->text());
 }
@@ -157,14 +156,12 @@ void FormSystemBrowser::setMode(Mode mode)
         break;
     }
 
-
     m_model->setNameFilters(filters);
-//    m_model->layoutChanged();
+    //    m_model->layoutChanged();
 
     ui->listView_current->setFocus();
-//    ui->listView_recent->update();
-//    ui->listView_current->update();
-
+    //    ui->listView_recent->update();
+    //    ui->listView_current->update();
 }
 
 void FormSystemBrowser::registerOpennedDir(QString path)
@@ -180,10 +177,9 @@ void FormSystemBrowser::registerOpennedDir(QString path)
 
     m_settings.setValue(::opennedDir, QVariant::fromValue(paths));
     //    qDebug() << "save setting " << paths;
-//    m_recent->setStringList(paths);
-//    pullSettingsRecentModel();
+    //    m_recent->setStringList(paths);
+    //    pullSettingsRecentModel();
     m_recent->setStringList(paths);
-
 }
 
 //void FormSystemBrowser::setGoliathFilter()
@@ -224,15 +220,17 @@ void FormSystemBrowser::on_changeSystemSelected(const QItemSelection& selected, 
     //    ui->pushButton_openFile->setEnabled(false);
 }
 
-void FormSystemBrowser::on_changeCurrentSelected(const QItemSelection& selected, const QItemSelection& deselected)
-{
-    //    qDebug() << "on_changeSystemSelected" << selected << deselected;
-    //    if (selected.indexes().size() != 1)
-    //        return;
-    Q_ASSERT(selected.indexes().size() == 1);
-    QModelIndex index = selected.indexes().first();
-    updateCurrent(index);
-}
+//void FormSystemBrowser::on_changeCurrentSelected(const QItemSelection& selected, const QItemSelection& deselected)
+//{
+//    //    qDebug() << "on_changeSystemSelected" << selected << deselected;
+//    //    if (selected.indexes().size() != 1)
+//    //        return;
+//    //    if (selected.indexes().size() != 1)
+//    //        return;
+//    ////    Q_ASSERT(selected.indexes().size() == 1);
+//    //    QModelIndex index = selected.indexes().first();
+//    //    updateCurrent(index);
+//}
 
 void FormSystemBrowser::on_changeRecentSelected(const QItemSelection& selected, const QItemSelection& deselected)
 {
@@ -242,50 +240,77 @@ void FormSystemBrowser::on_changeRecentSelected(const QItemSelection& selected, 
     QModelIndex index2 = m_model->index(m_recent->data(index).toString());
     updateRecent(index2);
 
+//    ui->listView_recent->selectionModel()->select(ui->listView_recent->currentIndex(), );
+
 }
+
+//void FormSystemBrowser::on_currentEntered(const QModelIndex& index)
+//{
+//    //    qDebug() << "entered";
+//    updateCurrent(index);
+//}
 
 void FormSystemBrowser::keyPressEvent(QKeyEvent* event)
 {
     switch (event->key()) {
+    case Qt::Key_Left:
+        on_pushButton_parent_clicked();
+        break;
+
     case Qt::Key_Return:
+        //        if (ui->pushButton_actionFile->isEnabled()) {
+        //            actionFile();
+        //            //            QString path = ui->lineEdit_currentPath->text();
+        //            //            QString file = ui->lineEdit_currentFile->text();
+        //            //            emit openned(path + file);
+        //        } else {
+
+        const auto& selected = ui->listView_current->selectionModel()->selectedIndexes();
+        if (selected.size() != 1)
+            return;
+        //    Q_ASSERT(selected.indexes().size() == 1);
+        QModelIndex index = selected.first();
+        updateCurrent(index);
+        //            qDebug() << "enter";
         if (ui->pushButton_actionFile->isEnabled()) {
             actionFile();
             //            QString path = ui->lineEdit_currentPath->text();
             //            QString file = ui->lineEdit_currentFile->text();
             //            emit openned(path + file);
         }
+        //        }
         break;
 
-//    case Qt::Key_Shift:
-//        if (ui->listView_recent->hasFocus()) {
-//            ui->listView_current->setFocus();
-//        }
-//        else if (ui->listView_current->hasFocus()) {
-//            ui->listView_recent->setFocus();
-//        }
-//        event->accept();
-//        break;
+        //    case Qt::Key_Shift:
+        //        if (ui->listView_recent->hasFocus()) {
+        //            ui->listView_current->setFocus();
+        //        }
+        //        else if (ui->listView_current->hasFocus()) {
+        //            ui->listView_recent->setFocus();
+        //        }
+        //        event->accept();
+        //        break;
 
-//    case Qt::Key_Delete:
-//        if (ui->listView_recent->hasFocus()) {
-//            Q_ASSERT(ui->listView_recent->selectionModel()->selectedIndexes().size() == 1);
-//            QModelIndex & index = ui->listView_recent->selectionModel()->selectedIndexes().first();
-//            QVariant data = m_recent->data(index);
-//            qDebug() << "data " << data;
-//            Q_ASSERT(index.isValid());
-//            qDebug() << "delete index " << index;
-//            m_recent->removeRow(index.row());
-//        }
-//        break;
-//    case Qt::Key_Down:
-//        if (ui->listView_current->hasFocus()) {
-//            Q_ASSERT(ui->listView_current->selectionModel()->selectedIndexes().size() == 1);
-//            QModelIndex & index = ui->listView_current->selectionModel()->selectedIndexes().first();
+        //    case Qt::Key_Delete:
+        //        if (ui->listView_recent->hasFocus()) {
+        //            Q_ASSERT(ui->listView_recent->selectionModel()->selectedIndexes().size() == 1);
+        //            QModelIndex & index = ui->listView_recent->selectionModel()->selectedIndexes().first();
+        //            QVariant data = m_recent->data(index);
+        //            qDebug() << "data " << data;
+        //            Q_ASSERT(index.isValid());
+        //            qDebug() << "delete index " << index;
+        //            m_recent->removeRow(index.row());
+        //        }
+        //        break;
+        //    case Qt::Key_Down:
+        //        if (ui->listView_current->hasFocus()) {
+        //            Q_ASSERT(ui->listView_current->selectionModel()->selectedIndexes().size() == 1);
+        //            QModelIndex & index = ui->listView_current->selectionModel()->selectedIndexes().first();
 
-//            ui->listView_current->selectionModel()->select(m_recent->index(index.row() + 1), QItemSelectionModel::SelectionFlag::Select);
+        //            ui->listView_current->selectionModel()->select(m_recent->index(index.row() + 1), QItemSelectionModel::SelectionFlag::Select);
 
-//        }
-//        break;
+        //        }
+        //        break;
     }
 
     event->ignore();
@@ -301,20 +326,19 @@ void FormSystemBrowser::on_pushButton_cancel_clicked()
     emit canceled();
 }
 
-
 //void FormSystemBrowser::pullSettingsRecentModel()
 //{
 //    QStringList paths = m_settings.value(::settingsPath).value<QStringList>();
 //    m_recent->setStringList(paths);
 //}
 
-void FormSystemBrowser::updateRecent(const QModelIndex &index)
+void FormSystemBrowser::updateRecent(const QModelIndex& index)
 {
     QFileInfo fileInfo(m_model->filePath(index));
     Q_ASSERT(fileInfo.exists());
-//    QString dir = m_recent->data(index).toString();
+    //    QString dir = m_recent->data(index).toString();
     //    qDebug() << "recent change" << dir;
-//    QFileInfo fileInfo(m_rootPath + dir);
+    //    QFileInfo fileInfo(m_rootPath + dir);
     //    qDebug() << fileInfo;
     Q_ASSERT(fileInfo.isDir());
 
@@ -323,11 +347,11 @@ void FormSystemBrowser::updateRecent(const QModelIndex &index)
     QModelIndex index2 = m_model->index(path);
     ui->listView_current->setRootIndex(index2);
     ui->lineEdit_currentPath->setText(path);
+    ui->listView_current->setCurrentIndex(m_model->index(index2.row() + 1, 0));
 
     ui->lineEdit_currentFile->setText("");
     ui->pushButton_actionFile->setEnabled(false);
     //    QSettings& settings = g_env.m_settings;
-
 }
 
 void FormSystemBrowser::updateCurrent(const QModelIndex& index)

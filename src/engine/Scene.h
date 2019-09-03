@@ -53,6 +53,7 @@ public:
     void load(std::ifstream & file);
     void save(std::ofstream & file);
 
+    void updateBoundingBox();
 
 
 private:
@@ -79,7 +80,7 @@ private:
     bool initialized = false;
 
 
-//    std::vector<Ray> m_rays;
+    std::vector<Ray> m_rays;
 //    BoneGeometry * m_bone;
 
 
