@@ -15,6 +15,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <gui/editor/timeline/FormTimeline.h>
 #include <opengl/geometry/TriangleGeometry.h>
+#include <opengl/geometry/DotGeometry.h>
 
 Model::Model(const std::string& path)
 //        : gammaCorrection(gamma),
@@ -324,8 +325,22 @@ void Model::prepareHierarchy(ulong frameTime) const
     //    updateBoundingBoxing();
 }
 
+void Model::Draw(const glm::mat4 &modelMatrix, const Shader &shader) const
+{
+        for (const Mesh& mesh : m_meshes) {
+            //        const Mesh& mesh = m_meshes[i];
+
+            shader.setMat4("model", modelMatrix * mesh.m_transform);
+
+            mesh.draw(shader);
+        }
+        //        shader.setBool("userColor", false);
+
+}
+
 //void Model::Draw(const glm::mat4& modelMatrix, const MainWindow3dView& view) const
-void Model::Draw(const glm::mat4& modelMatrix, const Shader& shader, bool dotCloud, bool vertexGroupShader) const
+//void Model::Draw(const glm::mat4& modelMatrix, const Shader& shader, bool dotCloud, bool vertexGroupShader) const
+void Model::Draw(const glm::mat4 &modelMatrix, const Shader &shader, const MainWindow3dView::Shading  & shade, bool dotCloud) const
 {
     //    model = glm::mat4(1.0f);
     //    model = glm::scale(model, glm::vec3(0.01));
@@ -335,23 +350,22 @@ void Model::Draw(const glm::mat4& modelMatrix, const Shader& shader, bool dotClo
 
     //    const Shader& shader = view.shader();
     //    shader.use();
-    shader.setMat4("model", glm::mat4(1.0f));
-    for (uint i = 0; i < m_triangles.size() / 3; ++i) {
-        uint i3 = i * 3;
-        const glm::vec3& v0 = m_triangles[i3];
-        const glm::vec3& v1 = m_triangles[i3 + 1];
-        const glm::vec3& v2 = m_triangles[i3 + 2];
+    //    shader.setMat4("model", glm::mat4(1.0f));
+    //    for (uint i = 0; i < m_triangles.size() / 3; ++i) {
+    //        uint i3 = i * 3;
+    //        const glm::vec3& v0 = m_triangles[i3];
+    //        const glm::vec3& v1 = m_triangles[i3 + 1];
+    //        const glm::vec3& v2 = m_triangles[i3 + 2];
 
-        TriangleGeometry::draw(v0, v1, v2);
-    }
+    //        TriangleGeometry::draw(v0, v1, v2);
+    //    }
 
-    if (vertexGroupShader) {
+    if (shade == MainWindow3dView::Shading::VERTEX_GROUP) {
 
         for (uint i = 0; i < m_meshes.size(); ++i) {
             //    for (const Mesh& mesh : m_meshes) {
             const Mesh& mesh = m_meshes[i];
 
-            shader.setMat4("model", modelMatrix * mesh.m_transform);
             if (mesh.m_bones.size() > 0) {
                 //        shader.setMat4("model", modelMatrix);
                 //        const Mesh& mesh = m_meshes[i];
@@ -371,7 +385,8 @@ void Model::Draw(const glm::mat4& modelMatrix, const Shader& shader, bool dotClo
 
                 shader.setVec4("color", glm::vec4(r, g, b, 1.0f));
             }
-            mesh.draw(shader, dotCloud);
+            shader.setMat4("model", modelMatrix * mesh.m_transform);
+            mesh.draw(shader, shade, dotCloud);
             //        shader.setBool("userColor", false);
 
             //        mesh.m_box->draw(modelMatrix * mesh.m_transform, shader);
@@ -384,10 +399,12 @@ void Model::Draw(const glm::mat4& modelMatrix, const Shader& shader, bool dotClo
 
             shader.setMat4("model", modelMatrix * mesh.m_transform);
 
-            mesh.draw(shader, dotCloud);
+            mesh.draw(shader, shade, dotCloud);
         }
         //        shader.setBool("userColor", false);
     }
+
+//    DotGeometry::draw(modelMatrix, shader, m_rootNode->m_transformation[3]);
 
     //    m_box.draw(modelMatrix, )
 
@@ -452,103 +469,15 @@ void Model::updateBoundingBox()
 }
 
 //void Model::selectRay(const Ray& ray) const
-void Model::selectObject(const Ray &ray, bool unselect /* = false */) const
-{
-    //    qDebug() << "selectRay";
-    m_triangles.clear();
+//void Model::selectObject(const Ray& ray, float& depthMin, bool& find, uint& iModelMin, uint& iMeshMin, uint& iBoneMin, uint& iTriangleMin, bool unselect /* = false */) const
+//{
+//    //    qDebug() << "selectRay";
+//    //    m_triangles.clear();
 
-    //    glm::vec3 * v0Min;
-    //    glm::vec3 * v1Min;
-    //    glm::vec3 * v2Min;
-
-    uint iMeshMin = 0;
-    uint iBoneMin = 0;
-    uint iTriangleMin = 0;
-
-    float depthMin;
-    bool first = true;
-    if (m_box.intersect(ray)) {
-
-        for (uint iMesh = 0; iMesh < m_meshes.size(); ++iMesh) {
-            //        for (const Mesh& mesh : m_meshes) {
-            const Mesh& mesh = m_meshes[iMesh];
-
-            if (mesh.m_box.intersect(ray)) {
-                //                qDebug() << "select mesh " << mesh.m_name.c_str();
-
-                for (uint iBone = 0; iBone < mesh.m_bones.size(); ++iBone) {
-                    //                for (const Bone& bone : mesh.m_bones) {
-                    const Bone& bone = mesh.m_bones[iBone];
-
-                    if (bone.m_box.intersect(ray)) {
-                        qDebug() << "intersect bone " << bone.m_name.c_str() << bone.m_iTriangles.size();
-
-                        //                        for (uint iTriangle =0; iTriangle < bone.m_iTriangles.size(); ++iTriangle) {
-                        for (const uint& iTriangle : bone.m_iTriangles) {
-                            uint i3 = iTriangle * 3;
-                            //                            const Vertex & v0 = mesh.m_vertices[i3];
-                            //                            const Vertex & v1 = mesh.m_vertices[i3 + 1];
-                            //                            const Vertex & v2 = mesh.m_vertices[i3 + 2];
-                            Q_ASSERT(mesh.m_vertices.size() > i3 + 2);
-                            const glm::vec3& v0 = bone.m_recurseModel * bone.m_offsetMatrix * glm::vec4(mesh.m_vertices[i3].Position, 1.0f);
-                            const glm::vec3& v1 = bone.m_recurseModel * bone.m_offsetMatrix * glm::vec4(mesh.m_vertices[i3 + 1].Position, 1.0f);
-                            const glm::vec3& v2 = bone.m_recurseModel * bone.m_offsetMatrix * glm::vec4(mesh.m_vertices[i3 + 2].Position, 1.0f);
-                            //                            v0 = bone.m_recurseModel * bone.m_offsetMatrix * glm::vec4(v0, 1.0f);
-
-                            //                            std::cout << "v0 : " << v0.x << "  " << v0.y << "  " << v0.z << std::endl;
-                            //                            TriangleGeometry::draw(v0, v1, v2);
-
-                            float depth;
-                            if (ray.intersect(v0, v1, v2, depth)) {
-                                //                                m_triangles.emplace_back(v0);
-                                //                                m_triangles.emplace_back(v1);
-                                //                                m_triangles.emplace_back(v2);
-
-                                //                                qDebug() << "intersect triangle " << iTriangle;
-                                if (first) {
-                                    first = false;
-                                    depthMin = depth;
-
-                                    iMeshMin = iMesh;
-                                    iBoneMin = iBone;
-                                    iTriangleMin = iTriangle;
-                                } else {
-                                    if (depth < depthMin) {
-                                        //                                    depthMin = std::min(depthMin, depth);
-                                        depthMin = depth;
-                                        iMeshMin = iMesh;
-                                        iBoneMin = iBone;
-                                        iTriangleMin = iTriangle;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        // end for iMesh
-
-        if (first == false) {
-            const Mesh& meshMin = m_meshes[iMeshMin];
-            const Bone& boneMin = meshMin.m_bones[iBoneMin];
-            //            const uint & triangleMin =
-            uint i3 = iTriangleMin * 3;
-            const glm::vec3& v0 = boneMin.m_recurseModel * boneMin.m_offsetMatrix * glm::vec4(meshMin.m_vertices[i3].Position, 1.0f);
-            const glm::vec3& v1 = boneMin.m_recurseModel * boneMin.m_offsetMatrix * glm::vec4(meshMin.m_vertices[i3 + 1].Position, 1.0f);
-            const glm::vec3& v2 = boneMin.m_recurseModel * boneMin.m_offsetMatrix * glm::vec4(meshMin.m_vertices[i3 + 2].Position, 1.0f);
-
-            m_triangles.emplace_back(v0);
-            m_triangles.emplace_back(v1);
-            m_triangles.emplace_back(v2);
-
-            m_selected = ! unselect;
-        }
-//        else {
-//            m_selected = false;
-//        }
-    }
-}
+//    //    glm::vec3 * v0Min;
+//    //    glm::vec3 * v1Min;
+//    //    glm::vec3 * v2Min;
+//}
 
 //void Model::unselectRay(const Ray& ray) const
 //{

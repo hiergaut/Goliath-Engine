@@ -171,7 +171,7 @@ void Node::buildItemModel(QStandardItem* parent) const
         const Bone& bone = (*m_meshes)[m_iBone.first].m_bones[m_iBone.second];
         item = new QStandardItem(QIcon(":/icons/boneVertex.png"), "'" + QString(m_name.c_str()) + "'  " + QString::number(m_children.size()) + "  " + QString::number(m_nodeAnims.size()) + "  nbVertex:" + QString::number(bone.m_weights.size()));
 
-        Q_ASSERT(m_nodeAnims.size() > 0);
+//        Q_ASSERT(m_nodeAnims.size() > 0);
         parent->appendRow(item);
         //        item->appendRow(item2);
     } else if (m_nodeAnims.size() > 0) {
@@ -186,11 +186,12 @@ void Node::buildItemModel(QStandardItem* parent) const
     }
 
     //        m_itemTransformation = mat4BuildItemModel(m_transformation, item);
-    QStandardItem* item2 = new QStandardItem("transformation");
-    m_itemTransformation = new QStandardItem;
-    mat4BuildItemModel(m_transformation, m_itemTransformation);
-    item2->appendRow(m_itemTransformation);
-    item->appendRow(item2);
+//    QStandardItem* item2 = new QStandardItem("transformation");
+//    m_itemTransformation = new QStandardItem;
+//    mat4BuildItemModel(m_transformation, m_itemTransformation);
+//    item2->appendRow(m_itemTransformation);
+//    item->appendRow(item2);
+
 
     //    if (m_nodeAnims.size() > 0) {
     //        QStandardItem* item2 = new QStandardItem("nodeAnim  " + QString::number(m_nodeAnims.size()));

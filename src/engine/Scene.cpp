@@ -8,6 +8,7 @@
 
 QStandardItemModel Scene::m_sceneModel;
 #include <gui/editor/timeline/FormTimeline.h>
+#include <opengl/geometry/DotGeometry.h>
 #include <opengl/geometry/LineGeometry.h>
 
 Scene::Scene()
@@ -54,7 +55,7 @@ void Scene::initialize()
     m_grid = new Grid;
     normalShader = new Shader("normalVector.vsh", "normalVector.fsh", "normalVector.gsh");
     //    normalShader = new Shader("shading/normal.vsh", "shading/normal.fsh");
-//    m_bone = new BoneGeometry;
+    //    m_bone = new BoneGeometry;
 
     initialized = true;
     MainWindow3dView::glInitialize();
@@ -88,35 +89,33 @@ void Scene::draw(const MainWindow3dView& view)
     const Shader& shader = view.shader();
 
     // -------------------------------- DRAW RAYS
-//    shader.setBool("userColor", true);
-//    shader.setVec4("color", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-//    for (const Ray & ray : m_rays) {
-//        LineGeometry::draw(modelMatrix, shader, ray.m_source, ray.m_source + ray.m_direction * 1000.0f);
-//    }
-//    shader.setBool("userColor", false);
-
+    //    shader.setBool("userColor", true);
+    //    shader.setVec4("color", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+    //    for (const Ray & ray : m_rays) {
+    //        LineGeometry::draw(modelMatrix, shader, ray.m_source, ray.m_source + ray.m_direction * 1000.0f);
+    //    }
+    //    shader.setBool("userColor", false);
 
     GLint polygonMode;
     glGetIntegerv(GL_POLYGON_MODE, &polygonMode);
-//    glClear(GL_DEPTH_BUFFER_BIT);
+    //    glClear(GL_DEPTH_BUFFER_BIT);
 
     //    glClear(GL_STENCIL_BUFFER_BIT);
     //    glEnable(GL_DEPTH_TEST);
     if (view.boundingBox()) {
         for (const Model& model : m_models) {
-//            model.m_box.draw(modelMatrix, shader);
+            //            model.m_box.draw(modelMatrix, shader);
             model.drawBoundingBox(modelMatrix, shader);
         }
     }
 
-//    glLineWidth(1);
-//    glPolygonMode(GL_FRONT, GL_LINE);
+    //    glLineWidth(1);
+    //    glPolygonMode(GL_FRONT, GL_LINE);
     // -------------------------------- DRAW MODELS
     for (const Model& model : m_models) {
-        model.Draw(modelMatrix, shader, view.dotCloud(), view.vertexGroupShader());
+        model.Draw(modelMatrix, shader, view.m_shade, view.dotCloud());
     }
     glClear(GL_DEPTH_BUFFER_BIT);
-
 
     // -------------------------------- DRAW CONTOURS
     glEnable(GL_STENCIL_TEST);
@@ -128,33 +127,37 @@ void Scene::draw(const MainWindow3dView& view)
     glStencilFunc(GL_ALWAYS, 1, 0xFF);
     glStencilMask(0xFF);
     for (const Model& model : m_models) {
-        if (model.m_selected)
+        if (model.m_selected) {
+            //            model.Draw(modelMatrix, shader);
             model.Draw(modelMatrix, shader);
+        }
     }
-//    glClear(GL_COLOR_BUFFER_BIT);
+    //    glClear(GL_COLOR_BUFFER_BIT);
 
     glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
     glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
     glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
     glStencilMask(0x00);
-//        glDisable(GL_DEPTH_TEST);
-    glLineWidth(3);
+    //        glDisable(GL_DEPTH_TEST);
+    glLineWidth(5);
     glPolygonMode(GL_FRONT, GL_LINE);
     //    modelMatrix = glm::scale(modelMatrix, glm::vec3(1.1f, 1.1f, 1.1f));
     shader.setBool("userColor", true);
     shader.setVec4("color", glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));
     for (const Model& model : m_models) {
-        if (model.m_selected)
+        if (model.m_selected) {
+            //            model.Draw(modelMatrix, shader);
             model.Draw(modelMatrix, shader);
+//            DotGeometry::draw(modelMatrix, shader, model.m_rootNode->m_transformation[3]);
+        }
     }
     //    shader.setMat4("projection", projectionMatrix);
-//    shader.setMat4("view", viewMatrix);
+    //    shader.setMat4("view", viewMatrix);
     shader.setBool("userColor", false);
     glStencilMask(0xFF);
     glDisable(GL_STENCIL_TEST);
     glLineWidth(1);
-//        glEnable(GL_DEPTH_TEST);
-
+    //        glEnable(GL_DEPTH_TEST);
 
     // -------------------------------- DRAW CAMERA VIEWS
     glPolygonMode(GL_FRONT, polygonMode);
@@ -162,7 +165,7 @@ void Scene::draw(const MainWindow3dView& view)
         const Camera* camera = otherViews->camera();
         glm::mat4 modelMatrix = glm::inverse(camera->viewMatrix());
         Q_ASSERT(m_cameraModel != nullptr);
-        m_cameraModel->Draw(modelMatrix, shader);
+        m_cameraModel->Draw(modelMatrix, shader, view.m_shade);
     }
 
     switch (view.m_mode) {
@@ -176,6 +179,7 @@ void Scene::draw(const MainWindow3dView& view)
 
     modelMatrix = glm::mat4(1.0f);
     //    glEnable(GL_DEPTH_TEST);
+    // -------------------------------- NORMAL VECTORS
     if (view.normal()) {
         normalShader->use();
         //        glm::mat4 viewMatrix = view.viewMatrix();
@@ -195,10 +199,11 @@ void Scene::draw(const MainWindow3dView& view)
             //        modelMatrix = glm::rotate(modelMatrix, 1.57f, glm::vec3(1, 0, 0));
             //        m_shader->setMat4("model", modelMatrix);
 
-            model.Draw(modelMatrix, *normalShader);
+            model.Draw(modelMatrix, *normalShader, view.m_shade);
         }
     }
 
+    // -------------------------------- SKELETON
     if (view.skeleton()) {
         //        modelMatrix = glm::mat4(1.0f);
         for (const Model& model : m_models) {
@@ -214,34 +219,168 @@ void Scene::draw(const MainWindow3dView& view)
 
     //    glViewport(5, 5, 55, 55);
     //    m_axis->draw(viewMatrix);
+    // -------------------------------- DRAW ORIGINS MODELS
+//    glClear(GL_DEPTH_BUFFER_BIT);
+    glDepthFunc(GL_ALWAYS);
+    for (const Model& model : m_models) {
+        if (model.m_selected) {
+            //            model.Draw(modelMatrix, shader);
+//            model.Draw(modelMatrix, shader, view.m_shade, view.dotCloud());
+            DotGeometry::draw(modelMatrix, shader, model.m_rootNode->m_transformation[3]);
+        }
+    }
+    glDepthFunc(GL_LESS);
+    //    shader.setMat4("projection", projectionMatrix);
 }
 
-void Scene::selectRay(const Ray &ray)
+void Scene::selectRay(const Ray& ray)
 {
     updateBoundingBox();
 
-    for (const Model & model : m_models) {
-//        model.objectFinderRay(ray);
-//        model.selectRay(ray);
-        model.selectObject(ray);
+    uint iModelMin = 0;
+    uint iMeshMin = 0;
+    uint iBoneMin = 0;
+    uint iTriangleMin = 0;
+
+    //    float depth;
+
+    float depthMin = 0.0f;
+    //    bool first = t;
+    bool find = false;
+
+    for (uint iModel = 0; iModel < m_models.size(); ++iModel) {
+        //    for (const Model& model : m_models) {
+        const Model& model = m_models[iModel];
+        //        model.objectFinderRay(ray);
+        //        model.selectRay(ray);
+        //        model.selectObject(ray, depthMin, find, iModelMin, iMeshMin, iBoneMin, iTriangleMin);
+        model.m_selected = false;
+        float depth;
+
+        if (model.m_box.intersect(ray)) {
+
+            for (uint iMesh = 0; iMesh < model.m_meshes.size(); ++iMesh) {
+                //        for (const Mesh& mesh : m_meshes) {
+                const Mesh& mesh = model.m_meshes[iMesh];
+
+                if (mesh.m_box.intersect(ray)) {
+                    //                qDebug() << "select mesh " << mesh.m_name.c_str();
+                    if (mesh.m_bones.size() == 0) {
+                        for (uint iTriangle = 0; iTriangle < mesh.m_indices.size() / 3; ++iTriangle) {
+                            uint i3 = iTriangle * 3;
+                            const glm::vec3& v0 = mesh.m_transform * glm::vec4(mesh.m_vertices[i3].Position, 1.0f);
+                            const glm::vec3& v1 = mesh.m_transform * glm::vec4(mesh.m_vertices[i3 + 1].Position, 1.0f);
+                            const glm::vec3& v2 = mesh.m_transform * glm::vec4(mesh.m_vertices[i3 + 2].Position, 1.0f);
+                            if (ray.intersect(v0, v1, v2, depth)) {
+                                if (!find) {
+                                    find = true;
+                                    iModelMin = iModel;
+                                    depthMin = depth;
+                                    iMeshMin = iMesh;
+                                    iTriangleMin = iTriangle;
+                                } else {
+                                    if (depth < depthMin) {
+                                        iModelMin = iModel;
+                                        depthMin = depth;
+                                        iMeshMin = iMesh;
+                                        iTriangleMin = iTriangle;
+                                    }
+                                }
+                            }
+                        }
+
+                    } else {
+
+                        for (uint iBone = 0; iBone < mesh.m_bones.size(); ++iBone) {
+                            //                for (const Bone& bone : mesh.m_bones) {
+                            const Bone& bone = mesh.m_bones[iBone];
+
+                            if (bone.m_box.intersect(ray)) {
+                                //                        qDebug() << "intersect bone " << bone.m_name.c_str() << bone.m_iTriangles.size();
+
+                                //                        for (uint iTriangle =0; iTriangle < bone.m_iTriangles.size(); ++iTriangle) {
+                                //                        for (const uint& iTriangle : bone.m_iTriangles) {
+                                for (const auto& pair : bone.m_weights) {
+                                    const uint& iVertex = pair.first;
+
+                                    for (const uint& iTriangle : mesh.m_triangles[iVertex]) {
+
+                                        uint i3 = iTriangle * 3;
+                                        //                            const Vertex & v0 = mesh.m_vertices[i3];
+                                        //                            const Vertex & v1 = mesh.m_vertices[i3 + 1];
+                                        //                            const Vertex & v2 = mesh.m_vertices[i3 + 2];
+                                        Q_ASSERT(mesh.m_vertices.size() > i3 + 2);
+                                        const glm::vec3& v0 = bone.m_recurseModel * bone.m_offsetMatrix * glm::vec4(mesh.m_vertices[i3].Position, 1.0f);
+                                        const glm::vec3& v1 = bone.m_recurseModel * bone.m_offsetMatrix * glm::vec4(mesh.m_vertices[i3 + 1].Position, 1.0f);
+                                        const glm::vec3& v2 = bone.m_recurseModel * bone.m_offsetMatrix * glm::vec4(mesh.m_vertices[i3 + 2].Position, 1.0f);
+                                        //                            v0 = bone.m_recurseModel * bone.m_offsetMatrix * glm::vec4(v0, 1.0f);
+
+                                        //                            std::cout << "v0 : " << v0.x << "  " << v0.y << "  " << v0.z << std::endl;
+                                        //                            TriangleGeometry::draw(v0, v1, v2);
+
+                                        if (ray.intersect(v0, v1, v2, depth)) {
+                                            //                                m_triangles.emplace_back(v0);
+                                            //                                m_triangles.emplace_back(v1);
+                                            //                                m_triangles.emplace_back(v2);
+
+                                            //                                qDebug() << "intersect triangle " << iTriangle;
+                                            if (!find) {
+                                                find = true;
+                                                depthMin = depth;
+
+                                                iModelMin = iModel;
+                                                iMeshMin = iMesh;
+                                                iBoneMin = iBone;
+                                                iTriangleMin = iTriangle;
+                                            } else {
+                                                if (depth < depthMin) {
+                                                    //                                    depthMin = std::min(depthMin, depth);
+                                                    iModelMin = iModel;
+                                                    depthMin = depth;
+                                                    iMeshMin = iMesh;
+                                                    iBoneMin = iBone;
+                                                    iTriangleMin = iTriangle;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            // end for iMesh
+        }
     }
 
-    m_rays.emplace_back(ray);
+    if (find)
+        m_models[iModelMin].m_selected = true;
+    //    for (Model & model : m_models) {
 
+    //    }
+    //    m_rays.emplace_back(ray);
 }
 
-void Scene::unselectRay(const Ray &ray)
-{
-    updateBoundingBox();
+//void Scene::unselectRay(const Ray &ray)
+//{
+//    updateBoundingBox();
 
-    for (const Model & model : m_models) {
-//        model.objectFinderRay(ray);
-//        model.unselectRay(ray);
-        model.selectObject(ray, true);
-    }
+//    uint iModelMin = 0;
+//    uint iMeshMin = 0;
+//    uint iBoneMin = 0;
+//    uint iTriangleMin = 0;
+//    float depthMin = 0.0f;
+//    bool find = false;
 
-    m_rays.emplace_back(ray);
-}
+//    for (const Model & model : m_models) {
+////        model.objectFinderRay(ray);
+////        model.unselectRay(ray);
+//        model.selectObject(ray, depthMin, find, iModelMin, iMeshMin, iBoneMin, iTriangleMin, true);
+//    }
+
+////    m_rays.emplace_back(ray);
+//}
 
 //void Scene::objectFinderRay(const Ray &ray)
 //{
@@ -251,7 +390,6 @@ void Scene::unselectRay(const Ray &ray)
 
 //    m_rays.emplace_back(ray);
 //}
-
 
 void Scene::addModel(std::string file)
 {
@@ -323,7 +461,6 @@ void Scene::load(std::ifstream& file)
         m_models.emplace_back(file);
     }
 
-
     updateSceneModel();
 
     FormTimeline::load(file);
@@ -346,11 +483,10 @@ void Scene::save(std::ofstream& file)
 
 void Scene::updateBoundingBox()
 {
-    for (Model & model : m_models) {
+    for (Model& model : m_models) {
         model.updateBoundingBox();
     }
 }
-
 
 //void Scene::clear()
 //{

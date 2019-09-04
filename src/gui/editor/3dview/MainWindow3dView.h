@@ -60,6 +60,7 @@ public:
     };
 
     Mode m_mode;
+    Shading m_shade;
 
 public:
     explicit MainWindow3dView(QWidget* parent = nullptr);
@@ -132,7 +133,6 @@ private:
     Mode m_previousMode;
 
     static Shader* m_shaders[Shading::size];
-    Shading m_shade;
 
     //    Axis m_axis;
 
@@ -160,6 +160,7 @@ public:
     bool dotCloud() const;
 
     bool vertexGroupShader() const;
+    bool solid() const;
 
 private slots:
     //    void on_actionWireFrame_triggered();

@@ -42,7 +42,7 @@ public:
     void draw(const MainWindow3dView &view);
 
     void selectRay(const Ray & ray);
-    void unselectRay(const Ray & ray);
+//    void unselectRay(const Ray & ray);
 
     void addModel(std::string file);
     void delModel(std::string file);
@@ -80,7 +80,7 @@ private:
     bool initialized = false;
 
 
-    std::vector<Ray> m_rays;
+//    std::vector<Ray> m_rays;
 //    BoneGeometry * m_bone;
 
 

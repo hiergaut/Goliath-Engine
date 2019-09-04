@@ -24,12 +24,12 @@ void RayTracer::selectRay(const Ray &ray)
     m_scene->selectRay(ray);
 }
 
-void RayTracer::unselectRay(const Ray &ray)
-{
-    Q_ASSERT(m_scene != nullptr);
+//void RayTracer::unselectRay(const Ray &ray)
+//{
+//    Q_ASSERT(m_scene != nullptr);
 
-    m_scene->unselectRay(ray);
-}
+//    m_scene->unselectRay(ray);
+//}
 
 void RayTracer::setScene(Scene *scene)
 {

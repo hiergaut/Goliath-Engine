@@ -32,6 +32,7 @@
 #include "../material/Material.h"
 
 #include <opengl/BoundingBox.h>
+#include <gui/editor/3dview/MainWindow3dView.h>
 
 class Mesh;
 using Meshes = std::vector<Mesh>;
@@ -45,9 +46,13 @@ public:
     mutable glm::mat4 m_transform;
 
     std::vector<Vertex> m_vertices;
+    std::vector<std::set<uint>> m_triangles; // triangles per vertex
+
     BoundingBox m_box;
 
     std::string m_name;
+
+    std::vector<uint> m_indices; // triangles
 
 public:
     //    Mesh(std::string name, std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures) : m_name(name)
@@ -63,7 +68,8 @@ public:
     //    operator QString() const;
     void buildItemModel(QStandardItem* parent) const;
     void setupMesh();
-    void draw(const Shader& shader, bool dotCloud = false) const;
+    void draw(const Shader& shader) const;
+    void draw(const Shader& shader, const MainWindow3dView::Shading & shade, bool dotCloud = false) const;
     void drawBoundingBox(glm::mat4 modelMatrix, const Shader & shader) const;
 
     void save(std::ofstream& file) const;
@@ -94,7 +100,6 @@ private:
     //    std::vector<Texture> textures;
 
     unsigned int m_vao;
-    std::vector<uint> m_indices;
 
     uint m_bbo;
     unsigned int VBO, EBO;

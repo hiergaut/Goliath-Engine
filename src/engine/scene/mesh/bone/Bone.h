@@ -23,7 +23,7 @@ public:
 
     mutable BoundingBox m_box;
 
-    std::set<uint> m_iTriangles;
+//    std::set<uint> m_iTriangles;
 
 
 public:
@@ -46,7 +46,7 @@ private:
 
     const std::vector<uint> & m_indices;
 
-    void setupTriangles();
+//    void setupTriangles();
 //    Meshes * m_meshes;
 
 };

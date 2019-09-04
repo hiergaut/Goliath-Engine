@@ -24,8 +24,6 @@ Mesh::Mesh(const aiMesh* ai_mesh, Materials* materials, Textures* textures)
     //    m_numAnimMesh = ai_mesh->mNumAnimMeshes;
     Q_ASSERT(ai_mesh->mNumAnimMeshes == 0);
 
-
-
     //        std::cout << std::endl;
     //    Mesh mesh(ai_mesh->mName.C_Str());
     m_numFaces = ai_mesh->mNumFaces;
@@ -33,22 +31,25 @@ Mesh::Mesh(const aiMesh* ai_mesh, Materials* materials, Textures* textures)
 
     // -------------------------------- INDICES
     m_indices.clear();
-    for (int i = 0; i < ai_mesh->mNumFaces; ++i) {
+    m_triangles.clear();
+    m_triangles.resize(numVertices);
+    for (uint i = 0; i < ai_mesh->mNumFaces; ++i) {
         aiFace* ai_face = &ai_mesh->mFaces[i];
         //        Face face;
         //        Q_ASSERT(ai_face->mNumIndices == 3);
         //        mesh.m_lenFaces.push_back(ai_face->mNumIndices);
 
-        for (int j = 0; j < ai_face->mNumIndices; ++j) {
+        for (uint j = 0; j < ai_face->mNumIndices; ++j) {
             uint indice = ai_face->mIndices[j];
             //            face.m_indices.push_back(indice);
             //            m_indices.push_back(indice);
             m_indices.emplace_back(indice);
+
+            m_triangles[indice].insert(i);
         }
         //        mesh.m_faces.push_back(face);
     }
     Q_ASSERT(m_indices.size() == 3 * ai_mesh->mNumFaces);
-
 
     // -------------------------------- BONES
     //    m_bonesData.resize(numVertices);
@@ -75,7 +76,6 @@ Mesh::Mesh(const aiMesh* ai_mesh, Materials* materials, Textures* textures)
         }
     }
     Q_ASSERT(ai_mesh->mNumBones < 100);
-
 
     // -------------------------------- VERTICES
     m_vertices.clear();
@@ -155,6 +155,26 @@ Mesh::Mesh(std::ifstream& file, Materials* materials, Textures* textures)
 
     //    std::cout << "m_indices" << std::endl;
     Session::load(m_indices, file);
+    m_triangles.clear();
+    m_triangles.resize(m_vertices.size());
+    for (uint i = 0; i < m_indices.size() / 3; ++i) {
+        //        aiFace* ai_face = &ai_mesh->mFaces[i];
+        //        Face face;
+        //        Q_ASSERT(ai_face->mNumIndices == 3);
+        //        mesh.m_lenFaces.push_back(ai_face->mNumIndices);
+        uint i3 = i * 3;
+
+        for (uint j = 0; j < 3; ++j) {
+            uint indice = m_indices[i3 + j];
+            //            face.m_indices.push_back(indice);
+            //            m_indices.push_back(indice);
+            //            m_indices.emplace_back(indice);
+
+            m_triangles[indice].insert(i);
+        }
+        //        mesh.m_faces.push_back(face);
+    }
+    //    Q_ASSERT(m_indices.size() == 3 * ai_mesh->mNumFaces);
     //    Session::load(m_bbo)
     Session::load(size, file);
     for (uint i = 0; i < size; ++i) {
@@ -290,7 +310,20 @@ void Mesh::setupMesh()
     m_fun->glBindVertexArray(0);
 }
 
-void Mesh::draw(const Shader& shader, bool dotCloud) const
+void Mesh::draw(const Shader& shader) const
+{
+    // draw mesh
+    m_fun->glBindVertexArray(m_vao);
+
+    //    glPointSize(5.0f);
+    m_fun->glDrawElements(GL_TRIANGLES, m_indices.size(), GL_UNSIGNED_INT, 0);
+
+    m_fun->glBindVertexArray(0);
+    // always good practice to set everything back to defaults once configured.
+    m_fun->glActiveTexture(GL_TEXTURE0);
+}
+
+void Mesh::draw(const Shader& shader, const MainWindow3dView::Shading& shade, bool dotCloud) const
 {
     //    Q_ASSERT(m_box != nullptr);
     //    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -298,29 +331,38 @@ void Mesh::draw(const Shader& shader, bool dotCloud) const
     //    shader.setMat4("model", m_transform);
     //    shader.setMat4("model", glm::mat4(1));
 
-    const Material& material = (*m_materials)[m_iMaterial];
-    //        const Material& material = mesh.m_material;
-    //        const Material& material = mesh.m_material;
+    if (shade == MainWindow3dView::Shading::LOOK_DEV) {
+        const Material& material = (*m_materials)[m_iMaterial];
+        //        const Material& material = mesh.m_material;
+        //        const Material& material = mesh.m_material;
 
-    //    for (uint diffuse : material.m_diffuseMaps) {
-    //    for (uint i = 0; i < material.m_diffuseMaps.size();++i) {
-    //        for (uint i =0; i <material.m_iTextures->size(); ++i) {
-    //                const Texture& texture = m_textures[material.m_iTextures[i]];
+        //    for (uint diffuse : material.m_diffuseMaps) {
+        //    for (uint i = 0; i < material.m_diffuseMaps.size();++i) {
+        //        for (uint i =0; i <material.m_iTextures->size(); ++i) {
+        //                const Texture& texture = m_textures[material.m_iTextures[i]];
 
-    //        }
-    uint cpt = 0;
-    for (uint i = 0; i < Texture::size; ++i) {
-        for (uint j = 0; j < material.m_iTextures[i].size(); ++j) {
-            const Texture& texture = (*m_textures)[material.m_iTextures[i][j]];
+        //        }
+        bool hasTexture = false;
+        uint cpt = 0;
+        for (uint i = 0; i < Texture::size; ++i) {
+            for (uint j = 0; j < material.m_iTextures[i].size(); ++j) {
+                hasTexture = true;
+                const Texture& texture = (*m_textures)[material.m_iTextures[i][j]];
 
-            m_fun->glActiveTexture(GL_TEXTURE0 + cpt);
-            std::string number = std::to_string(j);
-            std::string name = std::string(texture);
-            m_fun->glUniform1i(m_fun->glGetUniformLocation(shader.ID, (name + number).c_str()), cpt);
-            m_fun->glBindTexture(GL_TEXTURE_2D, texture.m_id);
+                m_fun->glActiveTexture(GL_TEXTURE0 + cpt);
+                std::string number = std::to_string(j);
+                std::string name = std::string(texture);
+                m_fun->glUniform1i(m_fun->glGetUniformLocation(shader.ID, (name + number).c_str()), cpt);
+                m_fun->glBindTexture(GL_TEXTURE_2D, texture.m_id);
 
-            ++cpt;
-            //            }
+                ++cpt;
+                //            }
+            }
+        }
+
+        shader.setBool("hasTexture", hasTexture);
+        if (!hasTexture) {
+            shader.setVec3("material.ambient", material.m_colors[Color::AMBIENT]);
         }
     }
 
@@ -363,7 +405,7 @@ void Mesh::draw(const Shader& shader, bool dotCloud) const
 
 void Mesh::drawBoundingBox(glm::mat4 modelMatrix, const Shader& shader) const
 {
-//    shader.use();
+    //    shader.use();
     //    BoundingBox box;
 
     for (uint i = 0; i < m_bones.size(); ++i) {
@@ -475,9 +517,9 @@ void Mesh::updateBoundingBox()
 
             // question : doublon indice ?
             for (auto& pair : bone.m_weights) {
-//                            glm::vec3 pos = bone.m_recurseModel * bone.m_offsetMatrix * glm::vec4(m_vertices[pair.first].Position, 1.0);
-//                            bone.m_box << pos;
-//                            continue;
+                //                            glm::vec3 pos = bone.m_recurseModel * bone.m_offsetMatrix * glm::vec4(m_vertices[pair.first].Position, 1.0);
+                //                            bone.m_box << pos;
+                //                            continue;
 
                 uint indice = pair.first;
                 uint first = indice - indice % 3;

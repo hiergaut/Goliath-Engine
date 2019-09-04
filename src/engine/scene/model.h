@@ -42,10 +42,15 @@
 #include <gui/editor/3dview/MainWindow3dView.h>
 #include <opengl/BoundingBox.h>
 #include <opengl/rayTracer/Ray.h>
+//#include <gui/editor/MainWindowEditor.h>
+#include <gui/editor/3dview/MainWindow3dView.h>
 
 class Model {
 public:
     mutable bool m_selected = false;
+    mutable BoundingBox m_box;
+    Meshes m_meshes;
+    std::unique_ptr<Node> m_rootNode;
 
 public:
     Model(const std::string& path);
@@ -64,10 +69,11 @@ public:
     ~Model();
 
     void prepareHierarchy(ulong frameTime) const;
-    void Draw(const glm::mat4 &modelMatrix, const Shader & shader, bool dotCloud = false, bool vertexGroupShader = false) const;
+    void Draw(const glm::mat4 &modelMatrix, const Shader & shader) const;
+    void Draw(const glm::mat4 &modelMatrix, const Shader & shader, const MainWindow3dView::Shading &shade, bool dotCloud = false) const;
     void drawBoundingBox(const glm::mat4 &modelMatrix, const Shader & shader) const;
     void updateBoundingBox();
-    void selectObject(const Ray & ray, bool unselect = false) const;
+//    void selectObject(const Ray & ray, float &depthMin, bool &find, uint &iModelMin, uint &iMeshMin, uint &iBoneMin, uint &iTriangleMin, bool unselect = false) const;
 //    void unselectRay(const Ray & ray) const;
 //    void objectFinderRay(const Ray & ray) const;
 //    void
@@ -95,7 +101,6 @@ private:
     //    unsigned int TextureFromFile(const char* path, const std::string& directory);
 private:
 //    QOpenGLFunctionsCore* m_fun;
-    mutable BoundingBox m_box;
 
     Materials m_materials;
     //    std::vector<Texture> m_textures;
@@ -106,14 +111,12 @@ private:
     Animations m_animations;
     mutable int m_currentAnimation = -1;
 
-    Meshes m_meshes;
 
 //    glm::vec3 m_boxMin;
 //    glm::vec3 m_boxMax;
 
 
     //    const Node * m_rootNode = nullptr;
-    std::unique_ptr<Node> m_rootNode;
     //    std::vector<Node> m_nodes;
 
     //    bool gammaCorrection;
@@ -122,7 +125,7 @@ private:
 
     BoneGeometry m_boneGeometry;
 
-    mutable std::vector<glm::vec3> m_triangles;
+//    mutable std::vector<glm::vec3> m_triangles;
 
 public:
     std::string filename() const;

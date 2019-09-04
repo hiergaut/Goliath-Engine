@@ -454,12 +454,12 @@ void MainWindow3dView::mousePressEvent(QMouseEvent* event)
         //        front = glm::rotate()
         //        emit launchRayTracing(source, front);
         //        RayTracer::launch({source, front});
-        if (m_ctrlPressed) {
-            RayTracer::unselectRay(clickRay(event));
-        } else {
+//        if (m_ctrlPressed) {
+//            RayTracer::unselectRay(clickRay(event));
+//        } else {
 
             RayTracer::selectRay(clickRay(event));
-        }
+//        }
     }
     m_camera->mousePressEvent(event);
 
@@ -630,6 +630,11 @@ bool MainWindow3dView::dotCloud() const
 bool MainWindow3dView::vertexGroupShader() const
 {
     return m_shade == Shading::VERTEX_GROUP;
+}
+
+bool MainWindow3dView::solid() const
+{
+    return m_shade == Shading::SOLID;
 }
 
 void MainWindow3dView::setCursorToCenter()

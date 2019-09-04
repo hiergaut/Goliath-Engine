@@ -16,7 +16,7 @@ Bone::Bone(const aiBone* ai_bone, const std::vector<uint>& indices)
     }
     m_offsetMatrix = aiMatrix4x4ToGlm(ai_bone->mOffsetMatrix);
 
-    setupTriangles();
+//    setupTriangles();
 }
 
 Bone::Bone(std::ifstream& file, const std::vector<uint>& indices)
@@ -28,7 +28,7 @@ Bone::Bone(std::ifstream& file, const std::vector<uint>& indices)
 
     Session::load(m_transform, file);
 
-    setupTriangles();
+//    setupTriangles();
 }
 
 Bone::~Bone()
@@ -66,26 +66,26 @@ void Bone::save(std::ofstream& file) const
     Session::save(m_transform, file);
 }
 
-void Bone::setupTriangles() // performance : bad
-{
-    Q_ASSERT(m_indices.size() % 3 == 0);
-    Q_ASSERT(m_iTriangles.empty());
+//void Bone::setupTriangles() // performance : bad
+//{
+//    Q_ASSERT(m_indices.size() % 3 == 0);
+//    Q_ASSERT(m_iTriangles.empty());
 
-    for (const auto& pair : m_weights) {
-        const uint iVertex = pair.first;
+//    for (const auto& pair : m_weights) {
+//        const uint iVertex = pair.first;
 
-        for (uint i = 0; i < m_indices.size() / 3; ++i) {
-            uint i3 = i * 3;
-            uint v0 = m_indices[i3];
-            uint v1 = m_indices[i3 + 1];
-            uint v2 = m_indices[i3 + 2];
+//        for (uint i = 0; i < m_indices.size() / 3; ++i) {
+//            uint i3 = i * 3;
+//            uint v0 = m_indices[i3];
+//            uint v1 = m_indices[i3 + 1];
+//            uint v2 = m_indices[i3 + 2];
 
-            if (iVertex == v0 || iVertex == v1 || iVertex == v2) {
-                m_iTriangles.insert(i);
-            }
-        }
-    }
-}
+//            if (iVertex == v0 || iVertex == v1 || iVertex == v2) {
+//                m_iTriangles.insert(i);
+//            }
+//        }
+//    }
+//}
 
 //glm::vec3 Bone::min() const
 //{
