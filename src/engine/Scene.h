@@ -15,6 +15,7 @@
 
 #include <opengl/rayTracer/Ray.h>
 //#include <opengl/rayTracer/RayTracer.h>
+#include <opengl/camera/CameraWorld.h>
 
 class Scene {
 //    Q_OBJECT
@@ -41,7 +42,8 @@ public:
     void prepareHierarchy(ulong frameTime);
     void draw(const MainWindow3dView &view);
 
-    void selectRay(const Ray & ray);
+    void selectRay(const Ray & ray, bool additional = false);
+
 //    void unselectRay(const Ray & ray);
 
     void addModel(std::string file);
@@ -54,6 +56,10 @@ public:
     void save(std::ofstream & file);
 
     void updateBoundingBox();
+
+    void setSelectRootTransform(const glm::mat4 & transformMatrix);
+    void setSelectFocus(CameraWorld & camera);
+    void deleteSelected();
 
 
 private:

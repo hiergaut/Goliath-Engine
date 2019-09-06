@@ -8,6 +8,7 @@
 
 QStandardItemModel Scene::m_sceneModel;
 #include <gui/editor/timeline/FormTimeline.h>
+#include <opengl/geometry/AxisGeometry.h>
 #include <opengl/geometry/DotGeometry.h>
 #include <opengl/geometry/LineGeometry.h>
 
@@ -83,10 +84,14 @@ void Scene::draw(const MainWindow3dView& view)
     glm::mat4 viewMatrix = view.viewMatrix();
     glm::mat4 projectionMatrix = view.projectionMatrix();
 
-    glm::mat4 modelMatrix(1.0);
-    m_grid->draw(modelMatrix, viewMatrix, projectionMatrix);
+    //    glm::mat4 modelMatrix(1.0);
+    glm::mat4 onesMatrix(1.0);
+    m_grid->draw(onesMatrix, viewMatrix, projectionMatrix);
 
     const Shader& shader = view.shader();
+
+    const glm::mat4& viewTransform = view.m_transformMatrix;
+    const glm::mat4& viewWorldTransform = view.m_worldTransform;
 
     // -------------------------------- DRAW RAYS
     //    shader.setBool("userColor", true);
@@ -105,7 +110,12 @@ void Scene::draw(const MainWindow3dView& view)
     if (view.boundingBox()) {
         for (const Model& model : m_models) {
             //            model.m_box.draw(modelMatrix, shader);
-            model.drawBoundingBox(modelMatrix, shader);
+            if (model.m_selected) {
+
+                model.drawBoundingBox(onesMatrix, shader);
+            } else {
+                model.drawBoundingBox(onesMatrix, shader);
+            }
         }
     }
 
@@ -113,7 +123,13 @@ void Scene::draw(const MainWindow3dView& view)
     //    glPolygonMode(GL_FRONT, GL_LINE);
     // -------------------------------- DRAW MODELS
     for (const Model& model : m_models) {
-        model.Draw(modelMatrix, shader, view.m_shade, view.dotCloud());
+        if (model.m_selected) {
+            model.Draw(viewTransform, shader, view.m_shade, viewWorldTransform, view.dotCloud());
+
+        } else {
+
+            model.Draw(onesMatrix, shader, view.m_shade, onesMatrix, view.dotCloud());
+        }
     }
     glClear(GL_DEPTH_BUFFER_BIT);
 
@@ -129,7 +145,7 @@ void Scene::draw(const MainWindow3dView& view)
     for (const Model& model : m_models) {
         if (model.m_selected) {
             //            model.Draw(modelMatrix, shader);
-            model.Draw(modelMatrix, shader);
+            model.Draw(viewTransform, shader, viewWorldTransform);
         }
     }
     //    glClear(GL_COLOR_BUFFER_BIT);
@@ -139,7 +155,7 @@ void Scene::draw(const MainWindow3dView& view)
     glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
     glStencilMask(0x00);
     //        glDisable(GL_DEPTH_TEST);
-    glLineWidth(5);
+    glLineWidth(4);
     glPolygonMode(GL_FRONT, GL_LINE);
     //    modelMatrix = glm::scale(modelMatrix, glm::vec3(1.1f, 1.1f, 1.1f));
     shader.setBool("userColor", true);
@@ -147,8 +163,8 @@ void Scene::draw(const MainWindow3dView& view)
     for (const Model& model : m_models) {
         if (model.m_selected) {
             //            model.Draw(modelMatrix, shader);
-            model.Draw(modelMatrix, shader);
-//            DotGeometry::draw(modelMatrix, shader, model.m_rootNode->m_transformation[3]);
+            model.Draw(viewTransform, shader, viewWorldTransform);
+            //            DotGeometry::draw(modelMatrix, shader, model.m_rootNode->m_transformation[3]);
         }
     }
     //    shader.setMat4("projection", projectionMatrix);
@@ -177,7 +193,7 @@ void Scene::draw(const MainWindow3dView& view)
         break;
     }
 
-    modelMatrix = glm::mat4(1.0f);
+    //    modelMatrix = glm::mat4(1.0f);
     //    glEnable(GL_DEPTH_TEST);
     // -------------------------------- NORMAL VECTORS
     if (view.normal()) {
@@ -199,7 +215,12 @@ void Scene::draw(const MainWindow3dView& view)
             //        modelMatrix = glm::rotate(modelMatrix, 1.57f, glm::vec3(1, 0, 0));
             //        m_shader->setMat4("model", modelMatrix);
 
-            model.Draw(modelMatrix, *normalShader, view.m_shade);
+            if (model.m_selected) {
+
+                model.Draw(viewTransform, *normalShader, view.m_shade, viewWorldTransform);
+            } else {
+                model.Draw(onesMatrix, *normalShader, view.m_shade, onesMatrix);
+            }
         }
     }
 
@@ -213,27 +234,74 @@ void Scene::draw(const MainWindow3dView& view)
             //        modelMatrix = glm::rotate(modelMatrix, 1.57f, glm::vec3(1, 0, 0));
             //        m_shader->setMat4("model", modelMatrix);
 
-            model.DrawHierarchy(modelMatrix, view);
+            if (model.m_selected) {
+
+                model.DrawHierarchy(viewTransform, view, viewWorldTransform);
+            } else {
+                model.DrawHierarchy(onesMatrix, view);
+            }
         }
     }
 
     //    glViewport(5, 5, 55, 55);
     //    m_axis->draw(viewMatrix);
     // -------------------------------- DRAW ORIGINS MODELS
-//    glClear(GL_DEPTH_BUFFER_BIT);
+    //    glClear(GL_DEPTH_BUFFER_BIT);
+    shader.use(); // skeleton use owner
     glDepthFunc(GL_ALWAYS);
+    glLineWidth(2);
+    //    glPolygonMode(GL_FRONT, GL_LINE);
     for (const Model& model : m_models) {
         if (model.m_selected) {
             //            model.Draw(modelMatrix, shader);
-//            model.Draw(modelMatrix, shader, view.m_shade, view.dotCloud());
-            DotGeometry::draw(modelMatrix, shader, model.m_rootNode->m_transformation[3]);
+            //            model.Draw(modelMatrix, shader, view.m_shade, view.dotCloud());
+            AxisGeometry::draw(model.m_transform * viewTransform, shader);
+            DotGeometry::draw(model.m_transform * viewTransform, shader);
         }
     }
     glDepthFunc(GL_LESS);
+    glLineWidth(1);
+
+    if (view.m_axisTransform) {
+        shader.setBool("userColor", true);
+        switch (view.m_axisFollow) {
+        case 0:
+            shader.setVec4("color", glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+            break;
+
+        case 1:
+            shader.setVec4("color", glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+            break;
+
+        case 2:
+            shader.setVec4("color", glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
+            break;
+        }
+
+        float lineSize = 1000.0f;
+        for (const Model& model : m_models) {
+            if (model.m_selected) {
+
+                switch (view.m_axisFollow) {
+                case 0:
+                    LineGeometry::draw(model.m_transform, shader, glm::vec3(-lineSize, 0.0f, 0.0f), glm::vec3(lineSize, 0.0f, 0.0f));
+                    break;
+                case 1:
+                    LineGeometry::draw(model.m_transform, shader, glm::vec3(0.0f, -lineSize, 0.0f), glm::vec3(0.0f, lineSize, 0.0f));
+                    break;
+                case 2:
+                    LineGeometry::draw(model.m_transform, shader, glm::vec3(0.0f, 0.0f, -lineSize), glm::vec3(0.0f, 0.0f, lineSize));
+                    break;
+                }
+            }
+        }
+        shader.setBool("userColor", false);
+    }
+    //    glPolygonMode(GL_FRONT, polygonMode);
     //    shader.setMat4("projection", projectionMatrix);
 }
 
-void Scene::selectRay(const Ray& ray)
+void Scene::selectRay(const Ray& ray, bool additional)
 {
     updateBoundingBox();
 
@@ -254,7 +322,10 @@ void Scene::selectRay(const Ray& ray)
         //        model.objectFinderRay(ray);
         //        model.selectRay(ray);
         //        model.selectObject(ray, depthMin, find, iModelMin, iMeshMin, iBoneMin, iTriangleMin);
-        model.m_selected = false;
+        if (!additional) {
+
+            model.m_selected = false;
+        }
         float depth;
 
         if (model.m_box.intersect(ray)) {
@@ -268,9 +339,9 @@ void Scene::selectRay(const Ray& ray)
                     if (mesh.m_bones.size() == 0) {
                         for (uint iTriangle = 0; iTriangle < mesh.m_indices.size() / 3; ++iTriangle) {
                             uint i3 = iTriangle * 3;
-                            const glm::vec3& v0 = mesh.m_transform * glm::vec4(mesh.m_vertices[i3].Position, 1.0f);
-                            const glm::vec3& v1 = mesh.m_transform * glm::vec4(mesh.m_vertices[i3 + 1].Position, 1.0f);
-                            const glm::vec3& v2 = mesh.m_transform * glm::vec4(mesh.m_vertices[i3 + 2].Position, 1.0f);
+                            const glm::vec3& v0 = model.m_transform * mesh.m_transform * glm::vec4(mesh.m_vertices[i3].Position, 1.0f);
+                            const glm::vec3& v1 = model.m_transform * mesh.m_transform * glm::vec4(mesh.m_vertices[i3 + 1].Position, 1.0f);
+                            const glm::vec3& v2 = model.m_transform * mesh.m_transform * glm::vec4(mesh.m_vertices[i3 + 2].Position, 1.0f);
                             if (ray.intersect(v0, v1, v2, depth)) {
                                 if (!find) {
                                     find = true;
@@ -310,9 +381,9 @@ void Scene::selectRay(const Ray& ray)
                                         //                            const Vertex & v1 = mesh.m_vertices[i3 + 1];
                                         //                            const Vertex & v2 = mesh.m_vertices[i3 + 2];
                                         Q_ASSERT(mesh.m_vertices.size() > i3 + 2);
-                                        const glm::vec3& v0 = bone.m_recurseModel * bone.m_offsetMatrix * glm::vec4(mesh.m_vertices[i3].Position, 1.0f);
-                                        const glm::vec3& v1 = bone.m_recurseModel * bone.m_offsetMatrix * glm::vec4(mesh.m_vertices[i3 + 1].Position, 1.0f);
-                                        const glm::vec3& v2 = bone.m_recurseModel * bone.m_offsetMatrix * glm::vec4(mesh.m_vertices[i3 + 2].Position, 1.0f);
+                                        const glm::vec3& v0 = model.m_transform * bone.m_recurseModel * bone.m_offsetMatrix * glm::vec4(mesh.m_vertices[i3].Position, 1.0f);
+                                        const glm::vec3& v1 = model.m_transform * bone.m_recurseModel * bone.m_offsetMatrix * glm::vec4(mesh.m_vertices[i3 + 1].Position, 1.0f);
+                                        const glm::vec3& v2 = model.m_transform * bone.m_recurseModel * bone.m_offsetMatrix * glm::vec4(mesh.m_vertices[i3 + 2].Position, 1.0f);
                                         //                            v0 = bone.m_recurseModel * bone.m_offsetMatrix * glm::vec4(v0, 1.0f);
 
                                         //                            std::cout << "v0 : " << v0.x << "  " << v0.y << "  " << v0.z << std::endl;
@@ -354,8 +425,15 @@ void Scene::selectRay(const Ray& ray)
         }
     }
 
-    if (find)
-        m_models[iModelMin].m_selected = true;
+    if (find) {
+
+        if (additional) {
+            m_models[iModelMin].m_selected = !m_models[iModelMin].m_selected;
+        } else {
+
+            m_models[iModelMin].m_selected = true;
+        }
+    }
     //    for (Model & model : m_models) {
 
     //    }
@@ -486,6 +564,57 @@ void Scene::updateBoundingBox()
     for (Model& model : m_models) {
         model.updateBoundingBox();
     }
+}
+
+void Scene::setSelectRootTransform(const glm::mat4& transformMatrix)
+{
+    for (Model& model : m_models) {
+        if (model.m_selected) {
+            //            model.m_rootNode->m_transformation *= transformMatrix;
+            model.m_transform = transformMatrix * model.m_transform;
+            //            model.m_rootNode->m_transformation = model.m_rootNode->m_transformation * transformMatrix;
+        }
+    }
+    updateBoundingBox();
+}
+
+void Scene::setSelectFocus(CameraWorld& camera)
+{
+    for (const Model& model : m_models) {
+        if (model.m_selected) {
+            //            camera.m_target = model.m_rootNode->m_transformation[3];
+            camera.m_target = model.m_transform[3];
+        }
+    }
+}
+
+void Scene::deleteSelected()
+{
+    //    for (const Model & model : m_models) {
+    //    auto it = m_models.begin();
+    //    while (it != m_models.end()) {
+    ////    for (auto &
+
+    //        if (it->m_selected) {
+    //            it = m_models.erase(it);
+    ////            m_models.remove(model);
+    //        }
+    //        else {
+    //            ++it;
+    //        }
+    //    }
+
+    //    int cpt = -1;
+    std::vector<Model> newModels;
+    newModels.reserve(10);
+    for (Model& model : m_models) {
+        if (!model.m_selected) {
+            newModels.emplace_back(std::move(model));
+            //            newModels[++cpt] = std::move(model);
+        }
+    }
+
+    m_models = std::move(newModels);
 }
 
 //void Scene::clear()

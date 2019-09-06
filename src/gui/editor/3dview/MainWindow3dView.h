@@ -51,16 +51,29 @@ public:
         DEPTH,
         VERTEX_GROUP,
         size
-    };
+    } m_shade;
+
 
     enum Mode {
         OBJECT,
         EDIT,
         POSE
-    };
+    } m_mode;
 
-    Mode m_mode;
-    Shading m_shade;
+    enum Transform {
+        TRANSLATE,
+        ROTATE,
+        SCALE
+    } m_transform;
+
+//    Mode m_mode;
+//    Shading m_shade;
+    glm::mat4 m_transformMatrix = glm::mat4(1.0);
+//    glm::vec3 m_translate = glm::vec3(0.0f);
+    glm::mat4 m_worldTransform = glm::mat4(1.0);
+    bool m_axisTransform = false;
+    uint m_axisFollow =0;
+    bool m_axisLocal = false;
 
 public:
     explicit MainWindow3dView(QWidget* parent = nullptr);
@@ -77,6 +90,13 @@ public:
     static void glInitialize();
 
     void setCursorToCenter();
+
+    void updateProjectionMatrix();
+
+    void setTransformActive();
+    void setTransformInactive();
+    void sendTransformToScene();
+//    void swapProjection();
 
 signals:
 //    void launchRayTracing(glm::vec3 source, glm::vec3 direction);
@@ -105,6 +125,7 @@ protected:
 
 private:
     void updateOrthoProjection();
+    void updatePersepectiveProjection();
     Ray clickRay(QMouseEvent * event);
     //    void cameraMove();
     //    void updateProjection();
@@ -117,8 +138,9 @@ private:
     bool m_ortho = false;
     float orthoSize = 10.0f;
 
+    bool m_alignAxis = false;
 
-    QPoint lastPos;
+
     bool m_shiftPressed = false;
     bool m_ctrlPressed = false;
 
@@ -133,6 +155,15 @@ private:
     Mode m_previousMode;
 
     static Shader* m_shaders[Shading::size];
+
+    bool m_transformActive = false;
+//    bool m_translateActive = false;
+    bool m_firstTransform = false;
+    QPoint m_memEventPos;
+    glm::vec3 m_memRight;
+    glm::vec3 m_memUp;
+    glm::vec3 m_memFront;
+
 
     //    Axis m_axis;
 
@@ -151,8 +182,6 @@ public:
     const Camera* camera() const;
     //    std::list<QMenu> menus() const;
     const Shader& shader() const;
-
-    void updateProjectionMatrix();
     bool xRays() const;
     bool skeleton() const;
     bool normal() const;

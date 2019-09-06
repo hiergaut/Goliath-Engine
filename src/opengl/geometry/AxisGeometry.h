@@ -1,23 +1,22 @@
-#ifndef DOTGEOMETRY_H
-#define DOTGEOMETRY_H
+#ifndef AXISGEOMETRY_H
+#define AXISGEOMETRY_H
 
 #include <glm/glm.hpp>
 #include <opengl/shader.h>
 #include <opengl/version.h>
 
 
-class DotGeometry
+class AxisGeometry
 {
 public:
-//    DotGeometry();
+//    AxisGeometry();
     static void initializeGL();
 
-//    static void draw(const glm::mat4& modelMatrix, const Shader& shader, glm::vec3 source, glm::vec3 destination);
+    static void draw(const glm::mat4& modelMatrix, const Shader& shader);
     //    void drawLine(glm::mat4 model, glm::vec3 source, glm::vec3 destination) const;
 
     //    void setVP(const glm::mat4 & viewMatrix, const glm::mat4 &projectionMatrix) const;
 
-    static void draw(const glm::mat4 &modelMatrix, const Shader &shader);
 private:
     static QOpenGLFunctionsCore* m_fun;
 
@@ -27,6 +26,14 @@ private:
     //    uint m_vao2;
 
     //    uint m_vbo;
+    //    uint m_ebo;
+    //    uint m_ebo2;
+    //    uint m_nbo;
+
+    //    Shader * m_shader;
+
+    //    std::vector<glm::vec3> m_vertices;
+    //    std::vector<glm::vec3> m_normals;
 };
 
-#endif // DOTGEOMETRY_H
+#endif // AXISGEOMETRY_H

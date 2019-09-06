@@ -46,6 +46,8 @@ public:
     virtual glm::vec3 right() const = 0;
     virtual glm::vec3 up() const = 0;
 
+    virtual void setFront(const glm::vec3 & front) = 0;
+
 protected:
     float m_fov;
     mutable glm::vec3 m_position;

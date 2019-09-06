@@ -5,6 +5,8 @@
 #include <engine/Scene.h>
 #include "Ray.h"
 
+#include <opengl/camera/CameraWorld.h>
+
 class RayTracer
 {
 public:
@@ -12,8 +14,12 @@ public:
 //    static void launch(const Ray & ray);
 //    void findFirstObject(glm::vec3 source, glm::vec3 direction);
 
-    static void selectRay(const Ray & ray);
-    static void unselectRay(const Ray & ray);
+    static void selectRay(const Ray & ray, bool additional = false);
+//    static void unselectRay(const Ray & ray);
+    static void setSelectRootTransform(const glm::mat4 & transformMatrix);
+
+    static void setSelectFocus(CameraWorld & camera);
+    static void deleteSelected();
 
 
     static void setScene(Scene *scene);

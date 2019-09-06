@@ -79,6 +79,8 @@ public:
     glm::vec3 up() const override;
     glm::vec3 right() const override;
 
+    void setFront(const glm::vec3 &front) override;
+
 private:
     //    QWidget * m_view;
     MainWindow3dView * m_view;

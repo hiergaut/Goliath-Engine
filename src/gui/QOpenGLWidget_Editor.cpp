@@ -25,6 +25,7 @@
 #include <opengl/geometry/CubeGeometry.h>
 #include <opengl/geometry/TriangleGeometry.h>
 #include <opengl/geometry/DotGeometry.h>
+#include <opengl/geometry/AxisGeometry.h>
 
 QOpenGLWidget_Editor::QOpenGLWidget_Editor(QWidget* parent, QMainWindow* mainWindow)
     : QOpenGLWidget(parent)
@@ -120,6 +121,8 @@ void QOpenGLWidget_Editor::initializeGL()
     CubeGeometry::initializeGL();
     TriangleGeometry::initializeGL();
     DotGeometry::initializeGL();
+    AxisGeometry::initializeGL();
+
 
     //    m_textRender.initialize();
     //    BoundingBox::m_cube.setupGL();

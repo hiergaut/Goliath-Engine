@@ -7,7 +7,7 @@
 #include <QDebug>
 #include <glm/gtc/type_ptr.hpp>
 
-float Camera::accuracyRotate = 0.005f;
+float Camera::accuracyRotate = 0.01f;
 float Camera::accuracyMove = 0.001f;
 float Camera::accuracySlide = 0.05f;
 

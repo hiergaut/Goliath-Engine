@@ -1,16 +1,15 @@
-#include "DotGeometry.h"
+#include "AxisGeometry.h"
 
-//DotGeometry::DotGeometry()
+//AxisGeometry::AxisGeometry()
 //{
 
 //}
-
 #include <glm/gtc/matrix_transform.hpp>
 
-QOpenGLFunctionsCore* DotGeometry::m_fun = nullptr;
-uint DotGeometry::m_vao;
+QOpenGLFunctionsCore* AxisGeometry::m_fun = nullptr;
+uint AxisGeometry::m_vao;
 
-//DotGeometry::DotGeometry()
+//AxisGeometry::AxisGeometry()
 ////    : m_sphere(0.05)
 //{
 ////    m_fun = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
@@ -28,17 +27,32 @@ uint DotGeometry::m_vao;
 
 //}
 
-void DotGeometry::initializeGL()
+void AxisGeometry::initializeGL()
 {
     m_fun = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
 
     //    float radius = 0.1;
     //    float max = 0.3;
-    std::vector<glm::vec3> m_vertices;
-    std::vector<glm::vec3> m_normals;
+        glm::vec3 origin(0.0);
+        glm::vec3 x(10.0, 0, 0);
+        glm::vec3 y(0.0, 10.0, 0.0);
+        glm::vec3 z(0.0, 0.0, 10.0);
 
-    m_vertices.push_back(glm::vec3(0, 0, 0));
+    std::vector<glm::vec3> m_vertices;
+//    std::vector<glm::vec3> m_normals;
+
+//    m_vertices.push_back(glm::vec3(0, 0, 0));
 //    m_vertices.push_back(glm::vec3(1, 0, 0));
+
+        m_vertices.push_back(origin);
+        m_vertices.push_back(x);
+
+        m_vertices.push_back(origin);
+        m_vertices.push_back(y);
+
+        m_vertices.push_back(origin);
+        m_vertices.push_back(z);
+
 
 //    m_normals.push_back(glm::vec3(-1, 0, 0));
 //    m_normals.push_back(glm::vec3(1, 0, 0));
@@ -76,7 +90,7 @@ void DotGeometry::initializeGL()
     m_fun->glBindVertexArray(0);
 }
 
-void DotGeometry::draw(const glm::mat4& modelMatrix, const Shader& shader)
+void AxisGeometry::draw(const glm::mat4& modelMatrix, const Shader& shader)
 {
     Q_ASSERT(m_fun != nullptr);
     //    m_shader->use();
@@ -85,10 +99,10 @@ void DotGeometry::draw(const glm::mat4& modelMatrix, const Shader& shader)
 //    glm::vec3 vX = glm::vec3(1, 0, 0);
 
 //    float dirLength = glm::length(vDir);
-//    glm::mat4 m(1.0f);
-//    m = glm::translate(m, position);
+//    glm::mat4 m(1);
+//    m = glm::translate(m, source);
 
-    //     m = glm::lookAt(source, destination, glm::vec3(0, 0, 1)) * m;
+//    //     m = glm::lookAt(source, destination, glm::vec3(0, 0, 1)) * m;
 //    glm::vec3 vRot = glm::cross(vX, vDir);
 //    //    std::cout << "vRot length : " << vRot.length() << std::endl;
 //    if (glm::length(vRot) > 0.01) {
@@ -105,25 +119,20 @@ void DotGeometry::draw(const glm::mat4& modelMatrix, const Shader& shader)
 
     shader.setMat4("model", modelMatrix);
 
-    shader.setBool("userColor", true);
-
     m_fun->glBindVertexArray(m_vao);
     //    m_fun->glDrawElements(GL_TRIANGLES, 8 * 3, GL_UNSIGNED_INT, nullptr);
     //    m_fun->glDrawElements(GL_LINES, 2, GL_UNSIGNED_INT, (void*)(8 * sizeof(glm::vec3)));
-    m_fun->glPointSize(6.0f);
-    shader.setVec4("color", glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
-    m_fun->glDrawArrays(GL_POINTS, 0, 1);
-//    glClear(GL_DEPTH_BUFFER_BIT);
+    shader.setBool("userColor", true);
 
-    m_fun->glPointSize(4.0f);
-    shader.setVec4("color", glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));
-    m_fun->glDrawArrays(GL_POINTS, 0, 1);
-
+    shader.setVec4("color", glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+    m_fun->glDrawArrays(GL_LINES, 0, 2);
+    shader.setVec4("color", glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+    m_fun->glDrawArrays(GL_LINES, 2, 2);
+    shader.setVec4("color", glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
+    m_fun->glDrawArrays(GL_LINES, 4, 2);
     m_fun->glBindVertexArray(0);
 
     shader.setBool("userColor", false);
-
-//    m_fun->glPointSize(5.0f);
     //    m_sphere.draw();
 
     //        shader.setMat4("model", m * glm::translate(glm::mat4(1), glm::vec3(1, 0, 0)));

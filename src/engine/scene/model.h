@@ -50,7 +50,7 @@ public:
     mutable bool m_selected = false;
     mutable BoundingBox m_box;
     Meshes m_meshes;
-    std::unique_ptr<Node> m_rootNode;
+    glm::mat4 m_transform = glm::mat4(1.0f);
 
 public:
     Model(const std::string& path);
@@ -60,6 +60,7 @@ public:
     //    Model(const Model&& model) = delete;
 
 //        Model(const Model & model) = default;
+//    Model & operator=(const Model &) = default;
     Model(Model&& model) noexcept;
 
     //    Model(const Model&& model);
@@ -69,8 +70,8 @@ public:
     ~Model();
 
     void prepareHierarchy(ulong frameTime) const;
-    void Draw(const glm::mat4 &modelMatrix, const Shader & shader) const;
-    void Draw(const glm::mat4 &modelMatrix, const Shader & shader, const MainWindow3dView::Shading &shade, bool dotCloud = false) const;
+    void Draw(const glm::mat4 &modelMatrix, const Shader & shader, const glm::mat4 &worldTransform = glm::mat4(1.0f)) const;
+    void Draw(const glm::mat4 &modelMatrix, const Shader & shader, const MainWindow3dView::Shading &shade, const glm::mat4 &worldTransform = glm::mat4(1.0f), bool dotCloud = false) const;
     void drawBoundingBox(const glm::mat4 &modelMatrix, const Shader & shader) const;
     void updateBoundingBox();
 //    void selectObject(const Ray & ray, float &depthMin, bool &find, uint &iModelMin, uint &iMeshMin, uint &iBoneMin, uint &iTriangleMin, bool unselect = false) const;
@@ -79,7 +80,7 @@ public:
 //    void
 
 
-    void DrawHierarchy(const glm::mat4 &modelMatrix, const MainWindow3dView & view) const;
+    void DrawHierarchy(const glm::mat4 &modelMatrix, const MainWindow3dView & view, const glm::mat4 &worldTransform = glm::mat4(1.0f)) const;
     void buildItemModel(QStandardItem* parent) const;
 
 //    void load(std::ifstream & file) const;
@@ -124,6 +125,7 @@ private:
     std::string directory;
 
     BoneGeometry m_boneGeometry;
+    std::unique_ptr<Node> m_rootNode;
 
 //    mutable std::vector<glm::vec3> m_triangles;
 

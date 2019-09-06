@@ -97,11 +97,19 @@ Model::Model(std::ifstream& file)
     //    std::cout << "load directory" << std::endl;
     Session::load(directory, file);
 
+
+    Session::load(m_transform, file);
+
     //        std::cout << "\033[32m";
     //        std::cout << "[Model] " << m_filename << " created " << this << std::endl;
     //        std::cout << "\033[0m";
     //    updateBoundingBoxing();
 }
+
+//Model::Model(const Model &model)
+//{
+
+//}
 
 Model::Model(Model&& model) noexcept
     //    : m_box(std::move(model.m_box))
@@ -114,8 +122,9 @@ Model::Model(Model&& model) noexcept
     , m_rootNode(std::move(model.m_rootNode))
     , m_filename(std::move(model.m_filename))
     , directory(std::move(model.directory))
+    , m_transform(std::move(model.m_transform))
 {
-    std::cout << "move " << std::endl;
+//    std::cout << "move " << std::endl;
     for (Material& material : m_materials) {
         material.m_textures = &m_textures;
     }
@@ -325,12 +334,12 @@ void Model::prepareHierarchy(ulong frameTime) const
     //    updateBoundingBoxing();
 }
 
-void Model::Draw(const glm::mat4 &modelMatrix, const Shader &shader) const
+void Model::Draw(const glm::mat4 &modelMatrix, const Shader &shader, const glm::mat4 & worldTransform) const
 {
         for (const Mesh& mesh : m_meshes) {
             //        const Mesh& mesh = m_meshes[i];
 
-            shader.setMat4("model", modelMatrix * mesh.m_transform);
+            shader.setMat4("model", worldTransform * m_transform *modelMatrix* mesh.m_transform);
 
             mesh.draw(shader);
         }
@@ -340,7 +349,7 @@ void Model::Draw(const glm::mat4 &modelMatrix, const Shader &shader) const
 
 //void Model::Draw(const glm::mat4& modelMatrix, const MainWindow3dView& view) const
 //void Model::Draw(const glm::mat4& modelMatrix, const Shader& shader, bool dotCloud, bool vertexGroupShader) const
-void Model::Draw(const glm::mat4 &modelMatrix, const Shader &shader, const MainWindow3dView::Shading  & shade, bool dotCloud) const
+void Model::Draw(const glm::mat4 &modelMatrix, const Shader &shader, const MainWindow3dView::Shading  & shade, const glm::mat4 & worldTransform, bool dotCloud) const
 {
     //    model = glm::mat4(1.0f);
     //    model = glm::scale(model, glm::vec3(0.01));
@@ -385,7 +394,7 @@ void Model::Draw(const glm::mat4 &modelMatrix, const Shader &shader, const MainW
 
                 shader.setVec4("color", glm::vec4(r, g, b, 1.0f));
             }
-            shader.setMat4("model", modelMatrix * mesh.m_transform);
+            shader.setMat4("model", worldTransform * m_transform * modelMatrix * mesh.m_transform);
             mesh.draw(shader, shade, dotCloud);
             //        shader.setBool("userColor", false);
 
@@ -397,7 +406,7 @@ void Model::Draw(const glm::mat4 &modelMatrix, const Shader &shader, const MainW
         for (const Mesh& mesh : m_meshes) {
             //        const Mesh& mesh = m_meshes[i];
 
-            shader.setMat4("model", modelMatrix * mesh.m_transform);
+            shader.setMat4("model",worldTransform * m_transform * modelMatrix * mesh.m_transform);
 
             mesh.draw(shader, shade, dotCloud);
         }
@@ -459,7 +468,7 @@ void Model::updateBoundingBox()
 {
     m_box.clear();
     for (Mesh& mesh : m_meshes) {
-        mesh.updateBoundingBox();
+        mesh.updateBoundingBox(m_transform);
         m_box << mesh.m_box;
     }
     //    for (uint i = 0; i < m_meshes.size(); ++i) {
@@ -506,7 +515,7 @@ void Model::updateBoundingBox()
 
 //}
 
-void Model::DrawHierarchy(const glm::mat4& modelMatrix, const MainWindow3dView& view) const
+void Model::DrawHierarchy(const glm::mat4& modelMatrix, const MainWindow3dView& view, const glm::mat4 & worldTransform) const
 {
     //    const Shader& shader = view.shader();
     //    shader.use();
@@ -520,7 +529,7 @@ void Model::DrawHierarchy(const glm::mat4& modelMatrix, const MainWindow3dView& 
 
     //    m_boneGeometry.setVP(viewMatrix, projectionMatrix);
     m_boneGeometry.updateShader(view);
-    m_rootNode->drawHierarchy(m_boneGeometry, modelMatrix);
+    m_rootNode->drawHierarchy(m_boneGeometry, worldTransform * m_transform * modelMatrix);
     //        glDepthFunc(GL_LESS);
 }
 
@@ -599,6 +608,8 @@ void Model::save(std::ofstream& file) const
     Session::save(m_filename, file);
     //    std::cout << "save directory" << std::endl;
     Session::save(directory, file);
+
+    Session::save(m_transform, file);
 }
 
 //glm::mat4 Model::scaleCenter(float scale) const

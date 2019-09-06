@@ -312,6 +312,21 @@ void Mesh::setupMesh()
 
 void Mesh::draw(const Shader& shader) const
 {
+    if (FormTimeline::animation() != nullptr) {
+        if (m_bones.size() > 0) {
+            for (uint i = 0; i < m_bones.size(); ++i) {
+                const Bone& bone = m_bones[i];
+
+                shader.setMat4("gBones[" + std::to_string(i) + "]", bone.m_transform);
+                //        shader.setMat4("gBones[" + std::to_string(i) +"]", bone.m_transform * bone.m_offsetMatrix);
+            }
+            shader.setBool("isSkeleton", true);
+        } else {
+            shader.setBool("isSkeleton", false);
+        }
+    } else {
+        shader.setBool("isSkeleton", false);
+    }
     // draw mesh
     m_fun->glBindVertexArray(m_vao);
 
@@ -499,14 +514,14 @@ void Mesh::save(std::ofstream& file) const
 //    }
 //}
 
-void Mesh::updateBoundingBox()
+void Mesh::updateBoundingBox(const glm::mat4 & modelTransform)
 {
     //    m_box.m_cube.setupGL();
     m_box.clear();
     //    m_box = std::move(BoundingBox());
     if (m_bones.size() == 0) {
         for (const Vertex& vertex : m_vertices) {
-            const glm::vec3& pos = vertex.Position;
+            const glm::vec3& pos = modelTransform *  m_transform * glm::vec4(vertex.Position, 1.0);
 
             m_box << pos;
         }
@@ -525,7 +540,7 @@ void Mesh::updateBoundingBox()
                 uint first = indice - indice % 3;
 
                 for (uint i = 0; i < 3; ++i) {
-                    glm::vec3 pos = bone.m_recurseModel * bone.m_offsetMatrix * glm::vec4(m_vertices[first + i].Position, 1.0);
+                    glm::vec3 pos =  modelTransform *bone.m_recurseModel * bone.m_offsetMatrix * glm::vec4(m_vertices[first + i].Position, 1.0);
                     //                glm::vec3 pos = m_vertices[first + i].Position;
 
                     bone.m_box << pos;

@@ -75,7 +75,7 @@ public:
     void save(std::ofstream& file) const;
 
 //    void initBonesBoundingBox() const;
-    void updateBoundingBox();
+    void updateBoundingBox(const glm::mat4 &modelTransform);
 
 private:
 //    std::vector<BoundingBox> m_box;

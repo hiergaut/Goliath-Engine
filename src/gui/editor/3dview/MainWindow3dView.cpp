@@ -300,7 +300,7 @@ void MainWindow3dView::glInitialize()
 
 void MainWindow3dView::keyPressEvent(QKeyEvent* event)
 {
-    //            qDebug() << this << ": keyPressEvent" << event;
+    //                qDebug() << this << ": keyPressEvent" << event;
     m_camera->keyPressEvent(event);
 
     switch (event->key()) {
@@ -312,6 +312,11 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
         //        m_mode = m_previousMode;
         break;
 
+    case Qt::Key_Delete:
+        //        qDebug() << "delete";
+        RayTracer::deleteSelected();
+        break;
+
     case Qt::Key_Shift:
         m_shiftPressed = true;
         break;
@@ -320,29 +325,113 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
         m_ctrlPressed = true;
         break;
 
-    case Qt::Key_Clear:
-        //        qDebug() << "change projection";
-        if (m_ortho) {
-            m_projectionMatrix = glm::perspective(glm::radians(m_camera->fov()), (float)width() / height(), l_near, l_far);
-        } else {
-            updateOrthoProjection();
+    case Qt::Key_X:
+        if (!m_transformActive) {
+            ui->actionX_Rays->trigger();
         }
-        m_ortho = !m_ortho;
-        //        update();
+    case Qt::Key_Y:
+    case Qt::Key_Z:
+        if (m_transformActive) {
+            sendTransformToScene();
+
+            m_axisLocal = !m_axisLocal;
+
+            m_axisTransform = true;
+            m_axisFollow = static_cast<uint>(event->key() - Qt::Key_X);
+        }
+        break;
+
+    case Qt::Key_Escape:
+        setTransformInactive();
+        //        m_transformMatrix = glm::mat4(1.0f);
+        //        m_transformActive = false;
+        //        setMouseTracking(false);
+        //        centralWidget()->setMouseTracking(false);
+        //        setCursor(Qt::ArrowCursor);
+        break;
+
+        //    case Qt::Key_Enter:
+        //        m_transform = glm::mat4(1.0f);
+        //        m_transformActive = false;
+        //        setMouseTracking(false);
+        //        centralWidget()->setMouseTracking(false);
+        //        break;
+        //        break;
+    case Qt::Key_S:
+        if (m_shiftPressed) {
+
+            ui->actionSolid->trigger();
+        } else {
+
+            m_transform = Transform::SCALE;
+            setTransformActive();
+        }
         break;
 
     case Qt::Key_R:
-        //        on_actionRendered_triggered();
-        ui->actionRendered->trigger();
+        if (m_shiftPressed) {
+
+            ui->actionRendered->trigger();
+        } else {
+            m_transform = Transform::ROTATE;
+            setTransformActive();
+        }
+        break;
+
+    case Qt::Key_G:
+        //        m_transform = glm::scale(m_transform, glm::vec3(2.0f, 2.0f, 2.0f));
+        //        m_transformActive = true;
+        //        m_transform = Transform::TRANSLATE;
+        //        m_firstTransform = true;
+        //        m_memRight = m_camera->right();
+        //        m_memUp = m_camera->up();
+        //        setMouseTracking(true);
+        //        centralWidget()->setMouseTracking(true);
+        //        setCursor(Qt::SizeAllCursor);
+        m_transform = Transform::TRANSLATE;
+        setTransformActive();
+        break;
+
+    case Qt::Key_End:
+        //        qDebug() << "y";
+        m_camera->setFront(glm::vec3(0.0f, 1.0f, 0.0f));
+        updateOrthoProjection();
+        //        m_ortho = true;
+        m_alignAxis = true;
+        break;
+
+    case Qt::Key_PageDown:
+        //        qDebug() << "x";
+        m_camera->setFront(glm::vec3(-1.0f, 0.0f, 0.0f));
+        updateOrthoProjection();
+        m_alignAxis = true;
+        //        m_ortho = true;
+        break;
+
+    case Qt::Key_Home:
+        //        qDebug() << "z";
+        m_camera->setFront(glm::vec3(0.0f, 0.0f, -1.0f));
+        updateOrthoProjection();
+        m_alignAxis = true;
+        //        m_ortho = true;
+        break;
+
+    case Qt::Key_Clear:
+        //        qDebug() << "change projection";
+        if (m_ortho) {
+            //            m_projectionMatrix = glm::perspective(glm::radians(m_camera->fov()), (float)width() / height(), l_near, l_far);
+            //            updateProjectionMatrix();
+            updatePersepectiveProjection();
+        } else {
+            updateOrthoProjection();
+        }
+        //        m_ortho = !m_ortho;
+        //        update();
         break;
 
     case Qt::Key_L:
         //        on_actionLook_dev_triggered();
         ui->actionLook_dev->trigger();
-        break;
-
-    case Qt::Key_S:
-        ui->actionSolid->trigger();
         break;
 
     case Qt::Key_V:
@@ -366,17 +455,6 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
         }
         break;
 
-    case Qt::Key_Z:
-        if (m_shiftPressed) {
-            //            on_actionWireFrame_triggered();
-            ui->actionWireFrame->trigger();
-        }
-        break;
-
-    case Qt::Key_X:
-        ui->actionX_Rays->trigger();
-        break;
-
     case Qt::Key_B:
         if (m_shiftPressed) {
             ui->actionBoundingBox->trigger();
@@ -386,37 +464,47 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
         break;
 
     case Qt::Key_F:
-        glm::vec3 pos = m_camera->position();
-        float fov = m_camera->fov();
-        if (m_camera->m_type == Camera::FPS) {
-            CameraFps* camera = static_cast<CameraFps*>(m_camera);
+        if (m_shiftPressed) {
 
-            glm::vec3 front = glm::normalize(camera->front());
-            //            Q_ASSERT(glm::length(front) == 1.0f);
-            glm::vec3 target = camera->position() + 200.0f * front;
-            //            glm::vec3 target = glm::vec3(0.0f, 0.0f, 0.0f);
+            if (m_camera->m_type == Camera::WORLD) {
+                CameraWorld* camera = static_cast<CameraWorld*>(m_camera);
+                RayTracer::setSelectFocus(*camera);
+            }
 
-            delete m_camera;
-            m_camera = new CameraWorld(fov, pos, target);
-            //            m_camera = new CameraWorld(static_cast<CameraFps*>(m_camera));
         } else {
-            CameraWorld* camera = static_cast<CameraWorld*>(m_camera);
-            //            glm::vec3 front = glm::normalize(camera->target() - pos);
-            glm::vec3 front = glm::normalize(camera->target() - pos);
 
-            //    m_yaw = glm::degrees(cosf(front.x /(sqrtf(front.x * front.x + front.z * front.z))));
-            //            float yaw = glm::degrees(atanf(front.y / front.x));
-            float yaw = glm::degrees(atan2f(front.y, front.x));
-            float pitch = glm::degrees(asinf(front.z));
+            glm::vec3 pos = m_camera->position();
+            float fov = m_camera->fov();
+            if (m_camera->m_type == Camera::FPS) {
+                CameraFps* camera = static_cast<CameraFps*>(m_camera);
 
-            delete m_camera;
-            m_camera = new CameraFps(fov, pos, yaw, pitch, this);
+                glm::vec3 front = glm::normalize(camera->front());
+                //            Q_ASSERT(glm::length(front) == 1.0f);
+                glm::vec3 target = camera->position() + 200.0f * front;
+                //            glm::vec3 target = glm::vec3(0.0f, 0.0f, 0.0f);
 
-            static_cast<CameraFps*>(m_camera)->startFpsView();
+                delete m_camera;
+                m_camera = new CameraWorld(fov, pos, target);
+                //            m_camera = new CameraWorld(static_cast<CameraFps*>(m_camera));
+            } else {
+                CameraWorld* camera = static_cast<CameraWorld*>(m_camera);
+                //            glm::vec3 front = glm::normalize(camera->target() - pos);
+                glm::vec3 front = glm::normalize(camera->target() - pos);
 
-            //            m_camera = new CameraFps(static_cast<CameraWorld*>(m_camera), this);
+                //    m_yaw = glm::degrees(cosf(front.x /(sqrtf(front.x * front.x + front.z * front.z))));
+                //            float yaw = glm::degrees(atanf(front.y / front.x));
+                float yaw = glm::degrees(atan2f(front.y, front.x));
+                float pitch = glm::degrees(asinf(front.z));
+
+                delete m_camera;
+                m_camera = new CameraFps(fov, pos, yaw, pitch, this);
+
+                static_cast<CameraFps*>(m_camera)->startFpsView();
+
+                //            m_camera = new CameraFps(static_cast<CameraWorld*>(m_camera), this);
+            }
+            break;
         }
-        break;
     }
 }
 
@@ -450,16 +538,37 @@ void MainWindow3dView::keyReleaseEvent(QKeyEvent* event)
 
 void MainWindow3dView::mousePressEvent(QMouseEvent* event)
 {
-    if (event->button() == Qt::LeftButton) {
+    switch (event->button()) {
+
+    case Qt::LeftButton:
         //        front = glm::rotate()
         //        emit launchRayTracing(source, front);
         //        RayTracer::launch({source, front});
-//        if (m_ctrlPressed) {
-//            RayTracer::unselectRay(clickRay(event));
-//        } else {
+        //        if (m_ctrlPressed) {
+        //            RayTracer::unselectRay(clickRay(event));
+        //        } else {
 
-            RayTracer::selectRay(clickRay(event));
-//        }
+        if (m_transformActive) {
+//            RayTracer::setSelectRootTransform(m_transformMatrix);
+            sendTransformToScene();
+            //            m_transformMatrix = glm::mat4(1.0f);
+            //            m_transformActive = false;
+            //			setCursor(Qt::ArrowCursor);
+            setTransformInactive();
+        } else {
+            RayTracer::selectRay(clickRay(event), m_shiftPressed);
+        }
+
+        break;
+        //        }
+    case Qt::MidButton:
+        if (!m_shiftPressed) {
+            if (m_alignAxis) {
+                m_alignAxis = false;
+                updatePersepectiveProjection();
+            }
+        }
+        break;
     }
     m_camera->mousePressEvent(event);
 
@@ -480,6 +589,57 @@ void MainWindow3dView::mouseMoveEvent(QMouseEvent* event)
     //    setMouseTracking(true);
     //    centralWidget()->setMouseTracking(true);
     m_camera->mouseMoveEvent(event);
+
+    if (m_transformActive) {
+        if (m_firstTransform) {
+            m_firstTransform = false;
+
+            m_memEventPos = event->pos();
+        } else {
+            QPoint diff = m_memEventPos - event->pos();
+            float dx = diff.x();
+            float dy = diff.y();
+            m_transformMatrix = glm::mat4(1.0f);
+
+            switch (m_transform) {
+            case Transform::TRANSLATE:
+                if (m_axisTransform) {
+                    switch (m_axisFollow) {
+                    case 0:
+//                        m_transformMatrix = glm::translate(m_transformMatrix, glm::vec3(1.0f, 0.0f, 0.0f) * -dx);
+//                        m_translate += glm::vec3(1.0f, 0.0f, 0.0f);
+                        m_worldTransform = glm::translate(glm::mat4(1.0f), glm::vec3(1.0f, 0.0f, 0.0f) * -dx);
+                        break;
+                    case 1:
+//                        m_transformMatrix = glm::translate(m_transformMatrix, glm::vec3(0.0f, 1.0f, 0.0f) * dx);
+                        m_worldTransform = glm::translate(m_worldTransform, glm::vec3(0.0f, 1.0f, 0.0f) * -dx);
+                        break;
+                    case 2:
+//                        m_transformMatrix = glm::translate(m_transformMatrix, glm::vec3(0.0f, 0.0f, 1.0f) * dx);
+                        m_worldTransform = glm::translate(m_worldTransform, glm::vec3(0.0f, 0.0f, 1.0f) * -dx);
+                        break;
+                    }
+
+                } else {
+
+                    m_transformMatrix = glm::translate(m_transformMatrix, m_memRight * dx);
+                    m_transformMatrix = glm::translate(m_transformMatrix, m_memUp * dy);
+                }
+                break;
+
+            case Transform::ROTATE:
+                //                m_transformMatrix = glm::rotate(m_transformMatrix, 0.01f * dx, m_memUp);
+                //                m_transformMatrix = glm::rotate(m_transformMatrix, dy* 0.01f, m_memRight);
+                m_transformMatrix = glm::rotate(m_transformMatrix, -dx * 0.01f, m_memFront);
+                break;
+
+            case Transform::SCALE:
+                m_transformMatrix = glm::scale(m_transformMatrix, 1.0f + dx * 0.01f * m_memRight);
+                m_transformMatrix = glm::scale(m_transformMatrix, 1.0f + dy * 0.01f * m_memUp);
+                break;
+            }
+        }
+    }
     //    event->ignore();
 }
 
@@ -560,6 +720,13 @@ void MainWindow3dView::updateOrthoProjection()
     float up = right * ratio;
 
     m_projectionMatrix = glm::ortho(-right, right, -up, up, l_near, l_far);
+    m_ortho = true;
+}
+
+void MainWindow3dView::updatePersepectiveProjection()
+{
+    m_projectionMatrix = glm::perspective(glm::radians(m_camera->fov()), (float)width() / height(), l_near, l_far);
+    m_ortho = false;
 }
 
 Ray MainWindow3dView::clickRay(QMouseEvent* event)
@@ -599,7 +766,61 @@ Ray MainWindow3dView::clickRay(QMouseEvent* event)
 void MainWindow3dView::updateProjectionMatrix()
 {
     //    m_projectionMatrix = fov;
-    m_projectionMatrix = glm::perspective(glm::radians(m_camera->fov()), (float)width() / height(), l_near, l_far);
+    //    m_projectionMatrix = glm::perspective(glm::radians(m_camera->fov()), (float)width() / height(), l_near, l_far);
+    //    m_ortho = false;
+    if (m_ortho) {
+        updateOrthoProjection();
+    } else {
+        updatePersepectiveProjection();
+    }
+}
+
+void MainWindow3dView::setTransformActive()
+{
+    if (m_transformActive) {
+        //        RayTracer::setSelectRootTransform(m_transformMatrix);
+        sendTransformToScene();
+    }
+
+    m_transformActive = true;
+    m_firstTransform = true;
+    m_axisLocal = true;
+    m_memRight = m_camera->right();
+    m_memUp = m_camera->up();
+    m_memFront = m_camera->front();
+    setMouseTracking(true);
+    centralWidget()->setMouseTracking(true);
+    setCursor(Qt::SizeAllCursor);
+}
+
+void MainWindow3dView::setTransformInactive()
+{
+    m_transformActive = false;
+    m_transformMatrix = glm::mat4(1.0f);
+    setMouseTracking(false);
+    centralWidget()->setMouseTracking(false);
+    setCursor(Qt::ArrowCursor);
+
+    m_axisTransform = false;
+    m_axisLocal = false;
+    //    case Qt::Key_Enter:
+    //        m_transform = glm::mat4(1.0f);
+    //        m_transformActive = false;
+    //        setMouseTracking(false);
+    //        centralWidget()->setMouseTracking(false);
+    //        break;
+    //        break;
+
+    //    case Qt::Key_G:
+    //        m_transform = glm::scale(m_transform, glm::vec3(2.0f, 2.0f, 2.0f));
+}
+
+void MainWindow3dView::sendTransformToScene()
+{
+    RayTracer::setSelectRootTransform(m_worldTransform * m_transformMatrix);
+//    RayTracer::setSelectRootTransform(m_worldTransform * m_transformMatrix);
+    m_transformMatrix = glm::mat4(1.0f);
+    m_worldTransform = glm::mat4(1.0f);
 }
 
 bool MainWindow3dView::xRays() const

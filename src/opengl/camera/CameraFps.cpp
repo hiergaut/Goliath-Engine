@@ -206,6 +206,7 @@ void CameraFps::ProcessMouseScroll(float yoffset)
         m_fov = ZOOM_MIN;
 
     m_view->updateProjectionMatrix();
+//    m_view->updatePersepectiveProjection();
 }
 
 void CameraFps::updateCameraVectors()
@@ -421,4 +422,12 @@ glm::vec3 CameraFps::up() const
 glm::vec3 CameraFps::right() const
 {
     return m_right;
+}
+
+void CameraFps::setFront(const glm::vec3 &front)
+{
+            m_yaw = glm::degrees(atan2f(front.y, front.x));
+            m_pitch = glm::degrees(asinf(front.z));
+
+            updateCameraVectors();
 }

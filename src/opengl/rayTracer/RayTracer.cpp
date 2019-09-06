@@ -17,12 +17,35 @@ Scene * RayTracer::m_scene = nullptr;
 ////    m_rays.push_back(ray);
 //}
 
-void RayTracer::selectRay(const Ray &ray)
+void RayTracer::selectRay(const Ray &ray, bool additional)
 {
     Q_ASSERT(m_scene != nullptr);
 
-    m_scene->selectRay(ray);
+    m_scene->selectRay(ray, additional);
 }
+
+void RayTracer::setSelectRootTransform(const glm::mat4 &transformMatrix)
+{
+    Q_ASSERT(m_scene != nullptr);
+    m_scene->setSelectRootTransform(transformMatrix);
+
+}
+
+void RayTracer::setSelectFocus(CameraWorld &camera)
+{
+    m_scene->setSelectFocus(camera);
+
+}
+
+void RayTracer::deleteSelected()
+{
+    m_scene->deleteSelected();
+}
+
+//void RayTracer::updateTransform()
+//{
+
+//}
 
 //void RayTracer::unselectRay(const Ray &ray)
 //{

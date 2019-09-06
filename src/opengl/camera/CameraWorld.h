@@ -13,6 +13,9 @@
 
 class CameraWorld : public Camera {
 public:
+    glm::vec3 m_target;
+
+public:
     CameraWorld();
     CameraWorld(float fov, glm::vec3 position, glm::vec3 target);
 //    CameraWorld(CameraFps * camera);
@@ -22,6 +25,7 @@ public:
     void processSliding(float dx, float dy);
 //    float getFov() const;
 
+    void updateUpAfterReverse();
 
 
 protected:
@@ -37,7 +41,11 @@ protected:
     void wheelEvent(QWheelEvent *event) override;
 
 private:
-    glm::vec3 m_target;
+
+    bool m_reverse = false;
+    bool m_yUp = false;
+    glm::vec3 m_up = glm::vec3(0.0f, 0.0f, 1.0f);
+//    uint cpt =0;
 
     QPoint lastPos;
 
@@ -46,6 +54,8 @@ public:
     glm::vec3 up() const override;
     glm::vec3 right() const override;
     glm::vec3 front() const override;
+
+    void setFront(const glm::vec3 &front) override;
 };
 
 #endif // CAMERAWORLD_H
