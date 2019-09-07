@@ -6,14 +6,12 @@
 //}
 #include <QDebug>
 #include <glm/gtc/type_ptr.hpp>
-
-float Camera::accuracyRotate = 0.01f;
-float Camera::accuracyMove = 0.001f;
-float Camera::accuracySlide = 0.05f;
+#include <session/Session.h>
 
 
-Camera::Camera(float fov, glm::vec3 position)
-    : m_fov(fov)
+Camera::Camera(float fov, const glm::vec3 &position, const glm::vec3 &target)
+    : m_target(target)
+    , m_fov(fov)
     , m_position(position)
 {
 }
@@ -26,6 +24,8 @@ void Camera::load(std::ifstream &file)
     m_position = glm::make_vec3(data);
     m_fov = data[3];
 
+    Session::load(m_target, file);
+
 }
 
 void Camera::save(std::ofstream &file)
@@ -37,6 +37,7 @@ void Camera::save(std::ofstream &file)
 
     file.write(reinterpret_cast<const char*>(&data), sizeof (data));
 
+    Session::save(m_target, file);
 }
 
 //Camera::Camera(Camera *camera)

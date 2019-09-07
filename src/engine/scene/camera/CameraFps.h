@@ -25,9 +25,9 @@ enum Camera_Movement {
 
 //const float YAW = -90.0f;
 //const float PITCH = 0.0f;
-const float MOUSE_SPEED = 0.1f;
-const float ZOOM_SPEED = 0.1f;
-const float MOVE_SPEED = 0.1f;
+//const float MOUSE_SPEED = 0.1f;
+//const float ZOOM_SPEED = 0.1f;
+//const float MOVE_SPEED = 0.1f;
 //const float ZOOM = 60.0f;
 
 const float ZOOM_MAX = 1.0f;
@@ -39,7 +39,7 @@ class CameraFps : public Camera {
 public:
 //    CameraFps(glm::vec3 position, glm::vec3 target);
     CameraFps(MainWindow3dView *view);
-    CameraFps(float fov, glm::vec3 position, float yaw, float pitch, MainWindow3dView *view);
+    CameraFps(float fov, const glm::vec3 & position, const glm::vec3 & target, float yaw, float pitch, MainWindow3dView *view);
 //    CameraFps(CameraWorld * camera, MainWindow3dView *view);
     ~CameraFps() override;
 //    CameraFps(float posX, float posY, float posZ, float yaw, float pitch);

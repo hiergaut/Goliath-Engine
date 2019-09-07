@@ -16,6 +16,8 @@
 #include <opengl/rayTracer/Ray.h>
 //#include <opengl/rayTracer/RayTracer.h>
 #include <engine/scene/camera/CameraWorld.h>
+#include "light/Light.h"
+
 
 class Scene {
 //    Q_OBJECT
@@ -24,6 +26,8 @@ public:
     bool m_autoUpdateBoundingBox = false;
 
 public:
+    static Scene * m_scene;
+
     Scene();
     //    QStandardItemModel *model() const;
 
@@ -63,6 +67,7 @@ public:
     void setSelectFocus(CameraWorld & camera);
     void deleteSelected();
 
+    void addLight(Light::Type lightType, const glm::vec3 & position);
 
 private:
 //    void clear();
@@ -75,8 +80,9 @@ private:
 //    std::map<std::string, Model> m_models;
     std::vector<Model> m_models;
 //    Shader* m_shader;
+    std::vector<Light> m_lights;
 
-    std::list<const MainWindow3dView *> * m_views;
+    std::list<const MainWindow3dView *> * m_views; // cameras
 
     Model* m_cameraModel = nullptr;
 //    Shader* m_shaderCamera;
@@ -101,6 +107,5 @@ public:
     QStandardItemModel * fileOpennedModel();
 };
 
-//static Scene g_scene;
 
 #endif // SCENE_H

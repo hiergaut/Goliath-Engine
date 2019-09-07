@@ -13,7 +13,7 @@
 
 class CameraWorld : public Camera {
 public:
-    glm::vec3 m_target;
+//    glm::vec3 m_target;
 
 public:
     CameraWorld();

@@ -89,6 +89,21 @@
      <string>DotCloud</string>
     </property>
    </widget>
+   <widget class="QMenu" name="menuAdd">
+    <property name="title">
+     <string>Add</string>
+    </property>
+    <widget class="QMenu" name="menuLight">
+     <property name="title">
+      <string>Light</string>
+     </property>
+     <addaction name="actionDir_Light"/>
+     <addaction name="actionPoint_Light"/>
+     <addaction name="actionSpot_Light"/>
+     <addaction name="actionArea_Light"/>
+    </widget>
+    <addaction name="menuLight"/>
+   </widget>
    <addaction name="menuInteraction_Mode"/>
    <addaction name="menuCurent_Mode"/>
    <addaction name="menuX_Ray"/>
@@ -99,6 +114,7 @@
    <addaction name="menuDotCloud"/>
    <addaction name="menuShading"/>
    <addaction name="menuShading_2"/>
+   <addaction name="menuAdd"/>
   </widget>
   <action name="actionWireFrame">
    <property name="checkable">
@@ -251,6 +267,26 @@
    </property>
    <property name="text">
     <string>DotCloud</string>
+   </property>
+  </action>
+  <action name="actionDir_Light">
+   <property name="text">
+    <string>Sun</string>
+   </property>
+  </action>
+  <action name="actionPoint_Light">
+   <property name="text">
+    <string>Point</string>
+   </property>
+  </action>
+  <action name="actionSpot_Light">
+   <property name="text">
+    <string>Spot</string>
+   </property>
+  </action>
+  <action name="actionArea_Light">
+   <property name="text">
+    <string>Area</string>
    </property>
   </action>
  </widget>

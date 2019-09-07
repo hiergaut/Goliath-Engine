@@ -24,6 +24,7 @@
 //#include <opengl/OpenglContext.h>
 //#include <opengl/grid.h>
 #include <opengl/rayTracer/RayTracer.h>
+#include <engine/scene/Scene.h>
 
 std::list<const MainWindow3dView*>* MainWindow3dView::m_views;
 //Shader MainWindow3dView::m_shaders;
@@ -122,6 +123,8 @@ MainWindow3dView::MainWindow3dView(QWidget* parent)
 
     m_menus.push_back(ui->menuShading);
     m_menus.push_back(ui->menuShading_2);
+
+    m_menus.push_back(ui->menuAdd);
 
     ui->menubar->hide();
     //    for (QMenu & menu : m_menus) {
@@ -505,11 +508,11 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
 
                 glm::vec3 front = glm::normalize(camera->front());
                 //            Q_ASSERT(glm::length(front) == 1.0f);
-                glm::vec3 target = camera->position() + 200.0f * front;
+//                glm::vec3 target = camera->position() + 200.0f * front;
                 //            glm::vec3 target = glm::vec3(0.0f, 0.0f, 0.0f);
 
                 delete m_camera;
-                m_camera = new CameraWorld(fov, pos, target);
+                m_camera = new CameraWorld(fov, pos, camera->m_target);
                 //            m_camera = new CameraWorld(static_cast<CameraFps*>(m_camera));
             } else {
                 CameraWorld* camera = static_cast<CameraWorld*>(m_camera);
@@ -522,7 +525,7 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
                 float pitch = glm::degrees(asinf(front.z));
 
                 delete m_camera;
-                m_camera = new CameraFps(fov, pos, yaw, pitch, this);
+                m_camera = new CameraFps(fov, pos, m_camera->m_target, yaw, pitch, this);
 
                 static_cast<CameraFps*>(m_camera)->startFpsView();
 
@@ -1319,4 +1322,27 @@ void MainWindow3dView::on_actionEdit_Mode_triggered()
 void MainWindow3dView::on_actionPose_Mode_triggered()
 {
     setMode(POSE);
+}
+
+void MainWindow3dView::on_actionDir_Light_triggered()
+{
+    Scene::m_scene->addLight(Light::Type::SUN, m_camera->m_target);
+}
+
+void MainWindow3dView::on_actionPoint_Light_triggered()
+{
+    Scene::m_scene->addLight(Light::Type::POINT, m_camera->m_target);
+
+}
+
+void MainWindow3dView::on_actionSpot_Light_triggered()
+{
+    Scene::m_scene->addLight(Light::Type::SPOT, m_camera->m_target);
+
+}
+
+void MainWindow3dView::on_actionArea_Light_triggered()
+{
+    Scene::m_scene->addLight(Light::Type::AREA, m_camera->m_target);
+
 }

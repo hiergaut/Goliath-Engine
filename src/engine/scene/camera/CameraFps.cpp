@@ -10,9 +10,14 @@
 //{
 
 //}
+const float accuracyRotate = 0.1f;
+const float accuracyMove = 1.0f;
+//const float accuracySlide = 0.05f;
+const float accuracyZoom = 0.05;
+
 
 CameraFps::CameraFps(MainWindow3dView * view)
-    : Camera(50.0f, glm::vec3(0, 0, 0))
+    : Camera(50.0f, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f))
     , m_view(view)
 {   //    m_fov = ZOOM;
     m_type = FPS;
@@ -36,8 +41,8 @@ CameraFps::CameraFps(MainWindow3dView * view)
 
 }
 
-CameraFps::CameraFps(float fov, glm::vec3 position, float yaw, float pitch, MainWindow3dView* view)
-    : Camera(fov, position)
+CameraFps::CameraFps(float fov, const glm::vec3 &position, const glm::vec3 &target, float yaw, float pitch, MainWindow3dView* view)
+    : Camera(fov, position, target)
     , m_view(view)
     , m_yaw(yaw)
     , m_pitch(pitch)
@@ -161,7 +166,7 @@ void CameraFps::ProcessKeyboard() const
     //    qDebug() << "delta time = " << deltaTime;
     m_lastTime = currentTime;
 
-    float velocity = MOVE_SPEED * deltaTime;
+    float velocity = accuracyMove * deltaTime;
     m_position += (m_front * frontDir + m_right * sideDir) * velocity;
     //    if (direction == FORWARD)
     //        m_position += m_front * velocity;
@@ -177,8 +182,8 @@ void CameraFps::ProcessKeyboard() const
 void CameraFps::ProcessMouseMovement(float xoffset, float yoffset, bool constrainPitch /* = true */)
 {
     //    qDebug() << xoffset << yoffset;
-    xoffset *= MOUSE_SPEED;
-    yoffset *= MOUSE_SPEED;
+    xoffset *= accuracyRotate;
+    yoffset *= accuracyRotate;
 
     m_yaw += xoffset;
     m_pitch += yoffset;
@@ -199,7 +204,7 @@ void CameraFps::ProcessMouseMovement(float xoffset, float yoffset, bool constrai
 void CameraFps::ProcessMouseScroll(float yoffset)
 {
     if (m_fov >= ZOOM_MAX && m_fov <= ZOOM_MIN)
-        m_fov -= yoffset * ZOOM_SPEED;
+        m_fov -= yoffset * accuracyZoom;
     if (m_fov <= ZOOM_MAX)
         m_fov = ZOOM_MAX;
     if (m_fov >= ZOOM_MIN)

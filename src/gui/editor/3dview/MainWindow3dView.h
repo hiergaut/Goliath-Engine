@@ -1,9 +1,10 @@
 #ifndef MAINWINDOW3DVIEW_H
 #define MAINWINDOW3DVIEW_H
 
+
 #include <QMainWindow>
 //#include <opengl/axis.h>
-//#include <engine/Scene.h>
+//#include <engine/scene/Scene.h>
 
 namespace Ui {
 class MainWindow3dView;
@@ -214,6 +215,10 @@ private slots:
     void on_actionBoundingBox_triggered();
     void on_actionVertexGroup_triggered();
     void on_actionDotCloud_triggered();
+    void on_actionDir_Light_triggered();
+    void on_actionPoint_Light_triggered();
+    void on_actionSpot_Light_triggered();
+    void on_actionArea_Light_triggered();
 };
 
 #endif // MAINWINDOW3DVIEW_H

@@ -16,8 +16,10 @@ public:
         FPS,
     } m_type;
 
+    glm::vec3 m_target;
+
 public:
-    Camera(float fov, glm::vec3 position);
+    Camera(float fov, const glm::vec3 & position, const glm::vec3 & target);
 //    Camera(Camera * camera);
     virtual ~Camera() {}
 
@@ -57,9 +59,9 @@ protected:
 
 
 
-    static float accuracyRotate;
-    static float accuracyMove;
-    static float accuracySlide;
+//    static float accuracyRotate;
+//    static float accuracyMove;
+//    static float accuracySlide;
 
 public:
     float fov() const;

@@ -12,6 +12,8 @@ QStandardItemModel Scene::m_sceneModel;
 #include <opengl/geometry/DotGeometry.h>
 #include <opengl/geometry/LineGeometry.h>
 
+Scene * Scene::m_scene = nullptr;
+
 Scene::Scene()
 {
     m_models.reserve(10);
@@ -199,9 +201,9 @@ void Scene::draw(const MainWindow3dView& view)
     glDisable(GL_STENCIL_TEST);
     glLineWidth(1);
     //        glEnable(GL_DEPTH_TEST);
+    glPolygonMode(GL_FRONT, polygonMode);
 
     // -------------------------------- DRAW CAMERA VIEWS
-    glPolygonMode(GL_FRONT, polygonMode);
     for (const MainWindow3dView* otherViews : *m_views) {
         const Camera* camera = otherViews->camera();
         glm::mat4 modelMatrix = glm::inverse(camera->viewMatrix());
@@ -700,6 +702,11 @@ void Scene::deleteSelected()
     }
 
     m_models = std::move(newModels);
+}
+
+void Scene::addLight(Light::Type lightType, const glm::vec3 &position)
+{
+
 }
 
 //void Scene::clear()
