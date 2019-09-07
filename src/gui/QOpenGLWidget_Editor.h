@@ -4,13 +4,13 @@
 //#include <QWidget>
 #include <QOpenGLWidget>
 //#include <opengl/model.h>
-#include <engine/scene/model.h>
+#include <engine/scene/model/Model.h>
 #include <vector>
 #include <opengl/grid.h>
 #include <opengl/axis.h>
 #include <gui/QSplitterNode.h>
 #include <gui/editor/3dview/MainWindow3dView.h>
-#include <engine/Scene.h>
+#include <engine/scene/Scene.h>
 #include <QMainWindow>
 
 #include <opengl/TextRendering.h>

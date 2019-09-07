@@ -11,7 +11,8 @@
 #include <assimp/scene.h>
 #include <opengl/version.h>
 #include "Color.h"
-#include "Texture.h"
+//#include "Texture.h"
+#include <engine/scene/model/texture/Texture.h>
 #include <QStandardItem>
 
 class Material;

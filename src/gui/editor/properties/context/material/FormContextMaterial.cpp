@@ -1,7 +1,7 @@
 #include "FormContextMaterial.h"
 #include "ui_FormContextMaterial.h"
 
-#include <engine/Scene.h>
+#include <engine/scene/Scene.h>
 
 FormContextMaterial::FormContextMaterial(QWidget *parent) :
     QWidget(parent),

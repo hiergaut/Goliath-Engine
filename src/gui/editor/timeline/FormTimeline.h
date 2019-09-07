@@ -5,10 +5,10 @@
 
 #include <AnimTimeline/FormAnimTimeline.h>
 
-#include <engine/scene/animation/Animation.h>
+#include <engine/scene/model/animation/Animation.h>
 
 #include "../TemplateMenuBar.h"
-#include <engine/Scene.h>
+#include <engine/scene/Scene.h>
 
 class FormTimeline : public QWidget, public TemplateMenuBar {
     Q_OBJECT

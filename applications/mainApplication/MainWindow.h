@@ -14,7 +14,7 @@
 
 #include <gui/editor/3dview/MainWindow3dView.h>
 #include <gui/QOpenGLWidget_Editor.h>
-#include <engine/Scene.h>
+#include <engine/scene/Scene.h>
 #include "DialogInputGetItem.h"
 
 namespace Ui {

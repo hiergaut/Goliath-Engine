@@ -3,7 +3,7 @@
 
 #include <QStandardItemModel>
 //#include <opengl/model.h>
-#include "scene/model.h"
+#include "model/Model.h"
 #include <opengl/shader.h>
 #include <opengl/grid.h>
 #include <gui/editor/3dview/MainWindow3dView.h>
@@ -15,7 +15,7 @@
 
 #include <opengl/rayTracer/Ray.h>
 //#include <opengl/rayTracer/RayTracer.h>
-#include <opengl/camera/CameraWorld.h>
+#include <engine/scene/camera/CameraWorld.h>
 
 class Scene {
 //    Q_OBJECT

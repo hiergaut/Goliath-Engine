@@ -18,8 +18,8 @@
 #include <glm/gtc/type_ptr.hpp>
 
 //#include <QOpenGLExtraFunctions>
-#include <opengl/camera/CameraFps.h>
-#include <opengl/camera/CameraWorld.h>
+#include <engine/scene/camera/CameraFps.h>
+#include <engine/scene/camera/CameraWorld.h>
 
 //#include <opengl/OpenglContext.h>
 //#include <opengl/grid.h>
@@ -641,10 +641,12 @@ void MainWindow3dView::wheelEvent(QWheelEvent* event)
 {
     if (m_transformActive) {
         if (m_transform == Transform::TRANSLATE) {
-            float dx = event->delta();
-//            float newPos = dx + m_memAxisPos;
-            m_worldTransform = m_worldTransform * glm::translate(glm::mat4(1.0f), m_memFront * dx);
-//            m_memAxisPos = newPos;
+            if (!m_axisTransform) {
+                float dx = event->delta();
+                //            float newPos = dx + m_memAxisPos;
+                m_worldTransform = m_worldTransform * glm::translate(glm::mat4(1.0f), m_memFront * dx);
+                //            m_memAxisPos = newPos;
+            }
             return;
         }
         if (m_axisTransform) {

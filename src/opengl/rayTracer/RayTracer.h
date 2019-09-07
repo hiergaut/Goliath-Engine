@@ -2,10 +2,10 @@
 #define RAYTRACER_H
 
 #include <glm/glm.hpp>
-#include <engine/Scene.h>
+#include <engine/scene/Scene.h>
 #include "Ray.h"
 
-#include <opengl/camera/CameraWorld.h>
+#include <engine/scene/camera/CameraWorld.h>
 
 class RayTracer
 {

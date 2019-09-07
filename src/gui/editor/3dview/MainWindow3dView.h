@@ -33,7 +33,8 @@ class MainWindow3dView;
 #include <QWidget>
 
 #include "../TemplateMenuBar.h"
-#include <opengl/camera/Camera.h>
+//#include <opengl/camera/Camera.h>
+#include <engine/scene/camera/Camera.h>
 //#include <gui/editor/MainWindowEditor.h>
 //#include <gui/QOpenGLWidget_Editor.h>
 #include <opengl/rayTracer/Ray.h>
