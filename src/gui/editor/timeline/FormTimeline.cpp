@@ -9,6 +9,9 @@ const Animation* FormTimeline::m_animation = nullptr;
 std::list<FormTimeline*> FormTimeline::m_timelines;
 double FormTimeline::m_animationTime = 0.0;
 bool FormTimeline::m_play = false;
+bool FormTimeline::m_animationTimeChanged = false;
+
+//Scene * FormTimeline::m_scene = nullptr;
 
 #include <session/Session.h>
 
@@ -16,11 +19,13 @@ FormTimeline::FormTimeline(QWidget* parent)
     : QWidget(parent)
 {
     //    Q_ASSERT(m_animation != nullptr);
+//    Q_ASSERT(m_scene != nullptr);
 
     //    QWidget * widget = new FormAnimTimeline(this);
     m_animTimeline = new FormAnimTimeline(this);
     connect(m_animTimeline, &FormAnimTimeline::cursorChanged, this, &FormTimeline::onCursorChange);
     connect(m_animTimeline, &FormAnimTimeline::playClicked, this, &FormTimeline::onPlay);
+    connect(m_animTimeline, &FormAnimTimeline::pauseClicked, this, &FormTimeline::onPause);
 
     QLayout* layout = new QHBoxLayout;
     layout->addWidget(m_animTimeline);
@@ -85,8 +90,15 @@ void FormTimeline::setAnimation(const Animation* animation)
 
 void FormTimeline::onCursorChange(double time)
 {
+//    Q_ASSERT(m_scene != nullptr);
+
     if (m_animation != nullptr) {
         m_animationTime = time * m_animation->m_ticksPerSecond;
+        m_animationTimeChanged = true;
+
+        m_play = false;
+        m_animTimeline->onSetPauseMode();
+//        m_scene->updateBoundingBox();
     }
 }
 
@@ -94,6 +106,17 @@ void FormTimeline::onPlay()
 {
     m_play = true;
 }
+
+void FormTimeline::onPause()
+{
+    m_play = false;
+
+}
+
+//void FormTimeline::setScene(Scene *scene)
+//{
+//    m_scene = scene;
+//}
 
 double FormTimeline::animationTime()
 {

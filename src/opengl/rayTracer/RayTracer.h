@@ -16,7 +16,8 @@ public:
 
     static void selectRay(const Ray & ray, bool additional = false);
 //    static void unselectRay(const Ray & ray);
-    static void setSelectRootTransform(const glm::mat4 & transformMatrix);
+    static void setSelectRootTransform(const glm::mat4 & transformMatrix, const glm::mat4 &worldTransform);
+    static void setSelectToOriginTransform();
 
     static void setSelectFocus(CameraWorld & camera);
     static void deleteSelected();

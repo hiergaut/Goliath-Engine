@@ -127,6 +127,9 @@ private:
     void updateOrthoProjection();
     void updatePersepectiveProjection();
     Ray clickRay(QMouseEvent * event);
+
+    void updateTransformMatrix(float dx, float dy);
+
     //    void cameraMove();
     //    void updateProjection();
 
@@ -164,6 +167,7 @@ private:
     glm::vec3 m_memUp;
     glm::vec3 m_memFront;
 
+    float m_memAxisPos = 0.0f; //wheel
 
     //    Axis m_axis;
 

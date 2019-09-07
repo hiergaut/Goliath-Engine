@@ -25,8 +25,8 @@ public:
         //        Vertex a;
         //        Vertex b;
         vertex v;
-        int nbLine = 10;
-        int sizeLine = 10;
+        int nbLine = 100;
+        int sizeLine = 100;
         //        Line l;
         for (int i = -nbLine; i < nbLine +1; ++i) {
             //            for (int j = -10; j < 10; ++j) {

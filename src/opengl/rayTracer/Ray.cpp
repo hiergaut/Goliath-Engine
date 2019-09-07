@@ -2,12 +2,18 @@
 
 #include <iostream>
 
-Ray::Ray(const glm::vec3& source, const glm::vec3& direction)
+const float Ray::MAX_RAY_LENGTH = 1000000;
+
+Ray::Ray(const glm::vec3& source, const glm::vec3& direction, float length)
     : m_source(source)
     , m_direction(direction)
     , m_invDir(1.0f / direction)
     , m_sign { (m_invDir.x < 0), (m_invDir.y < 0), (m_invDir.z < 0) }
+    , m_length(length)
 {
+    if (length < Ray::MAX_RAY_LENGTH) {
+        m_hit = true;
+    }
     //    m_sign[0] = m_invDir < 0;
 }
 

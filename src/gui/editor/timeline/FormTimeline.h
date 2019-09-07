@@ -8,11 +8,13 @@
 #include <engine/scene/animation/Animation.h>
 
 #include "../TemplateMenuBar.h"
+#include <engine/Scene.h>
 
 class FormTimeline : public QWidget, public TemplateMenuBar {
     Q_OBJECT
 
 public:
+    static bool m_animationTimeChanged;
 
 public:
     explicit FormTimeline(QWidget* parent = nullptr);
@@ -36,13 +38,18 @@ public:
     static void load(std::ifstream & file);
 
 
+//    static void setScene(Scene *scene);
+
 signals:
 
 public slots:
     void onCursorChange(double time);
     void onPlay();
+    void onPause();
 
 private:
+//    static Scene * m_scene;
+
     static std::list<FormTimeline*> m_timelines;
     //    static FormAnimTimeline m_animTimeline;
 
@@ -51,6 +58,8 @@ private:
     const static Animation* m_animation;
     static double m_animationTime;
     static bool m_play;
+
+
 };
 
 #endif // FORMTIMELINE_H

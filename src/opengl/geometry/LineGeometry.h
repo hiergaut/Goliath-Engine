@@ -11,7 +11,8 @@ public:
     //    void updateShader(const MainWindow3dView & view) const;
     static void initializeGL();
 
-    static void draw(const glm::mat4& modelMatrix, const Shader& shader, glm::vec3 source, glm::vec3 destination);
+//    static void draw(const glm::mat4& modelMatrix, const Shader& shader, glm::vec3 source, glm::vec3 destination);
+    static void draw(const glm::vec3 & source, const glm::vec3 & destination);
     //    void drawLine(glm::mat4 model, glm::vec3 source, glm::vec3 destination) const;
 
     //    void setVP(const glm::mat4 & viewMatrix, const glm::mat4 &projectionMatrix) const;
@@ -22,6 +23,7 @@ private:
     //    UvSphereGeometry m_sphere;
 
     static uint m_vao;
+    static uint m_vbo;
     //    uint m_vao2;
 
     //    uint m_vbo;

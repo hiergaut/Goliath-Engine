@@ -21,6 +21,7 @@ class Scene {
 //    Q_OBJECT
 public:
     static QStandardItemModel m_sceneModel;
+    bool m_autoUpdateBoundingBox = false;
 
 public:
     Scene();
@@ -57,7 +58,8 @@ public:
 
     void updateBoundingBox();
 
-    void setSelectRootTransform(const glm::mat4 & transformMatrix);
+    void setSelectRootTransform(const glm::mat4 & transformMatrix, const glm::mat4 &worldTransform);
+    void setSelectToOriginTransform();
     void setSelectFocus(CameraWorld & camera);
     void deleteSelected();
 
@@ -86,7 +88,7 @@ private:
     bool initialized = false;
 
 
-//    std::vector<Ray> m_rays;
+    std::vector<Ray> m_rays;
 //    BoneGeometry * m_bone;
 
 

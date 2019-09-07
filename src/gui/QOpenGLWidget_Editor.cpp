@@ -26,6 +26,7 @@
 #include <opengl/geometry/TriangleGeometry.h>
 #include <opengl/geometry/DotGeometry.h>
 #include <opengl/geometry/AxisGeometry.h>
+#include <gui/editor/timeline/FormTimeline.h>
 
 QOpenGLWidget_Editor::QOpenGLWidget_Editor(QWidget* parent, QMainWindow* mainWindow)
     : QOpenGLWidget(parent)
@@ -123,11 +124,15 @@ void QOpenGLWidget_Editor::initializeGL()
     DotGeometry::initializeGL();
     AxisGeometry::initializeGL();
 
+//    FormTimeline::setScene(&m_scene);
 
     //    m_textRender.initialize();
     //    BoundingBox::m_cube.setupGL();
 
     m_lastFrame = QDateTime::currentMSecsSinceEpoch();
+
+//    m_scene.prepareHierarchy(0.0f);
+//    m_scene.updateBoundingBox();
 
     m_initialized = true;
 }
@@ -165,6 +170,14 @@ void QOpenGLWidget_Editor::paintGL()
 
 //    glm::mat4 modelMatrix(1.0);
 
+    bool autoUpdate = false;
+    for (const MainWindow3dView *view : *m_views) {
+        if (view->boundingBox()) {
+            autoUpdate = true;
+            break;
+        }
+    }
+    m_scene.m_autoUpdateBoundingBox = autoUpdate;
     m_scene.prepareHierarchy(currentFrameTime);
 
     for (const MainWindow3dView* view : *m_views) {

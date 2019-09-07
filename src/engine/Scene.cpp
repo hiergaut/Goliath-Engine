@@ -76,6 +76,19 @@ void Scene::prepareHierarchy(ulong frameTime)
         //        model.Draw(modelMatrix, shader, frameTime);
         model.prepareHierarchy(frameTime);
     }
+
+    if (m_autoUpdateBoundingBox) {
+        if (FormTimeline::play()) {
+            updateBoundingBox();
+        } else {
+
+            if (FormTimeline::m_animationTimeChanged) {
+                FormTimeline::m_animationTimeChanged = false;
+
+                updateBoundingBox();
+            }
+        }
+    }
 }
 
 void Scene::draw(const MainWindow3dView& view)
@@ -93,13 +106,25 @@ void Scene::draw(const MainWindow3dView& view)
     const glm::mat4& viewTransform = view.m_transformMatrix;
     const glm::mat4& viewWorldTransform = view.m_worldTransform;
 
-    // -------------------------------- DRAW RAYS
-    //    shader.setBool("userColor", true);
-    //    shader.setVec4("color", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-    //    for (const Ray & ray : m_rays) {
-    //        LineGeometry::draw(modelMatrix, shader, ray.m_source, ray.m_source + ray.m_direction * 1000.0f);
-    //    }
-    //    shader.setBool("userColor", false);
+    //     -------------------------------- DRAW RAYS
+    //    shader.use();
+    if (view.xRays()) {
+        shader.setMat4("model", onesMatrix);
+        shader.setBool("userColor", true);
+        shader.setVec4("color", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+        for (const Ray& ray : m_rays) {
+            if (!ray.m_hit) {
+                LineGeometry::draw(ray.m_source, ray.m_source + ray.m_direction * ray.m_length);
+            }
+        }
+        shader.setVec4("color", glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+        for (const Ray& ray : m_rays) {
+            if (ray.m_hit) {
+                LineGeometry::draw(ray.m_source, ray.m_source + ray.m_direction * ray.m_length);
+            }
+        }
+        shader.setBool("userColor", false);
+    }
 
     GLint polygonMode;
     glGetIntegerv(GL_POLYGON_MODE, &polygonMode);
@@ -255,8 +280,8 @@ void Scene::draw(const MainWindow3dView& view)
         if (model.m_selected) {
             //            model.Draw(modelMatrix, shader);
             //            model.Draw(modelMatrix, shader, view.m_shade, view.dotCloud());
-            AxisGeometry::draw(model.m_transform * viewTransform, shader);
-            DotGeometry::draw(model.m_transform * viewTransform, shader);
+            AxisGeometry::draw(viewWorldTransform * model.m_transform * viewTransform, shader);
+            DotGeometry::draw(viewWorldTransform * model.m_transform * viewTransform, shader);
         }
     }
     glDepthFunc(GL_LESS);
@@ -282,16 +307,55 @@ void Scene::draw(const MainWindow3dView& view)
         for (const Model& model : m_models) {
             if (model.m_selected) {
 
-                switch (view.m_axisFollow) {
-                case 0:
-                    LineGeometry::draw(model.m_transform, shader, glm::vec3(-lineSize, 0.0f, 0.0f), glm::vec3(lineSize, 0.0f, 0.0f));
-                    break;
-                case 1:
-                    LineGeometry::draw(model.m_transform, shader, glm::vec3(0.0f, -lineSize, 0.0f), glm::vec3(0.0f, lineSize, 0.0f));
-                    break;
-                case 2:
-                    LineGeometry::draw(model.m_transform, shader, glm::vec3(0.0f, 0.0f, -lineSize), glm::vec3(0.0f, 0.0f, lineSize));
-                    break;
+                if (view.m_axisLocal) {
+                    switch (view.m_axisFollow) {
+                    case 0:
+                        LineGeometry::draw(glm::vec3(-lineSize, 0.0f, 0.0f), glm::vec3(lineSize, 0.0f, 0.0f));
+                        break;
+                    case 1:
+                        LineGeometry::draw(glm::vec3(0.0f, -lineSize, 0.0f), glm::vec3(0.0f, lineSize, 0.0f));
+                        break;
+                    case 2:
+                        LineGeometry::draw(glm::vec3(0.0f, 0.0f, -lineSize), glm::vec3(0.0f, 0.0f, lineSize));
+                        break;
+                    }
+
+                } else {
+                    glm::vec3 translate = model.m_transform[3];
+                    switch (view.m_transform) {
+                    case MainWindow3dView::Transform::TRANSLATE:
+                        switch (view.m_axisFollow) {
+                        case 0:
+                            LineGeometry::draw(glm::vec3(-lineSize, 0.0f, 0.0f) + translate, glm::vec3(lineSize, 0.0f, 0.0f) + translate);
+                            break;
+                        case 1:
+                            //                        LineGeometry::draw(viewWorldTransform, shader, glm::vec3(0.0f, -lineSize, 0.0f), glm::vec3(0.0f, lineSize, 0.0f));
+                            LineGeometry::draw(glm::vec3(0.0f, -lineSize, 0.0f) + translate, glm::vec3(0.0f, lineSize, 0.0f) + translate);
+                            break;
+                        case 2:
+                            //                        LineGeometry::draw(viewWorldTransform, shader, glm::vec3(0.0f, 0.0f, -lineSize), glm::vec3(0.0f, 0.0f, lineSize));
+                            LineGeometry::draw(glm::vec3(0.0f, 0.0f, -lineSize) + translate, glm::vec3(0.0f, 0.0f, lineSize) + translate);
+                            break;
+                        }
+                        break;
+
+                    case MainWindow3dView::Transform::ROTATE:
+                    case MainWindow3dView::Transform::SCALE:
+                        switch (view.m_axisFollow) {
+                        case 0:
+                            LineGeometry::draw(glm::vec3(-lineSize, 0.0f, 0.0f), glm::vec3(lineSize, 0.0f, 0.0f));
+                            break;
+                        case 1:
+                            //                        LineGeometry::draw(viewWorldTransform, shader, glm::vec3(0.0f, -lineSize, 0.0f), glm::vec3(0.0f, lineSize, 0.0f));
+                            LineGeometry::draw(glm::vec3(0.0f, -lineSize, 0.0f), glm::vec3(0.0f, lineSize, 0.0f));
+                            break;
+                        case 2:
+                            //                        LineGeometry::draw(viewWorldTransform, shader, glm::vec3(0.0f, 0.0f, -lineSize), glm::vec3(0.0f, 0.0f, lineSize));
+                            LineGeometry::draw(glm::vec3(0.0f, 0.0f, -lineSize), glm::vec3(0.0f, 0.0f, lineSize));
+                            break;
+                        }
+                        break;
+                    }
                 }
             }
         }
@@ -312,9 +376,9 @@ void Scene::selectRay(const Ray& ray, bool additional)
 
     //    float depth;
 
-    float depthMin = 0.0f;
+    float depthMin = Ray::MAX_RAY_LENGTH;
     //    bool first = t;
-    bool find = false;
+    //    bool find = false;
 
     for (uint iModel = 0; iModel < m_models.size(); ++iModel) {
         //    for (const Model& model : m_models) {
@@ -343,20 +407,21 @@ void Scene::selectRay(const Ray& ray, bool additional)
                             const glm::vec3& v1 = model.m_transform * mesh.m_transform * glm::vec4(mesh.m_vertices[i3 + 1].Position, 1.0f);
                             const glm::vec3& v2 = model.m_transform * mesh.m_transform * glm::vec4(mesh.m_vertices[i3 + 2].Position, 1.0f);
                             if (ray.intersect(v0, v1, v2, depth)) {
-                                if (!find) {
-                                    find = true;
+                                //                                qDebug() << "intersect model " << model.filename().c_str();
+                                //                                if (!find) {
+                                //                                    find = true;
+                                //                                    iModelMin = iModel;
+                                //                                    depthMin = depth;
+                                //                                    iMeshMin = iMesh;
+                                //                                    iTriangleMin = iTriangle;
+                                //                                } else {
+                                if (depth < depthMin) {
                                     iModelMin = iModel;
                                     depthMin = depth;
                                     iMeshMin = iMesh;
                                     iTriangleMin = iTriangle;
-                                } else {
-                                    if (depth < depthMin) {
-                                        iModelMin = iModel;
-                                        depthMin = depth;
-                                        iMeshMin = iMesh;
-                                        iTriangleMin = iTriangle;
-                                    }
                                 }
+                                //                                }
                             }
                         }
 
@@ -394,25 +459,27 @@ void Scene::selectRay(const Ray& ray, bool additional)
                                             //                                m_triangles.emplace_back(v1);
                                             //                                m_triangles.emplace_back(v2);
 
-                                            //                                qDebug() << "intersect triangle " << iTriangle;
-                                            if (!find) {
-                                                find = true;
-                                                depthMin = depth;
+                                            //                                                                            qDebug() << "intersect triangle " << iTriangle;
+                                            //                                            qDebug() << "intersect model " << model.filename().c_str();
 
+                                            //                                            if (!find) {
+                                            //                                                find = true;
+                                            //                                                depthMin = depth;
+
+                                            //                                                iModelMin = iModel;
+                                            //                                                iMeshMin = iMesh;
+                                            //                                                iBoneMin = iBone;
+                                            //                                                iTriangleMin = iTriangle;
+                                            //                                            } else {
+                                            if (depth < depthMin) {
+                                                //                                    depthMin = std::min(depthMin, depth);
                                                 iModelMin = iModel;
+                                                depthMin = depth;
                                                 iMeshMin = iMesh;
                                                 iBoneMin = iBone;
                                                 iTriangleMin = iTriangle;
-                                            } else {
-                                                if (depth < depthMin) {
-                                                    //                                    depthMin = std::min(depthMin, depth);
-                                                    iModelMin = iModel;
-                                                    depthMin = depth;
-                                                    iMeshMin = iMesh;
-                                                    iBoneMin = iBone;
-                                                    iTriangleMin = iTriangle;
-                                                }
                                             }
+                                            //                                            }
                                         }
                                     }
                                 }
@@ -425,7 +492,7 @@ void Scene::selectRay(const Ray& ray, bool additional)
         }
     }
 
-    if (find) {
+    if (depthMin < Ray::MAX_RAY_LENGTH) {
 
         if (additional) {
             m_models[iModelMin].m_selected = !m_models[iModelMin].m_selected;
@@ -433,11 +500,18 @@ void Scene::selectRay(const Ray& ray, bool additional)
 
             m_models[iModelMin].m_selected = true;
         }
+
+        //        ray.m_length = depthMin;
+        //        ray.m_hit = true;
+        m_rays.emplace_back(ray.m_source, ray.m_direction, depthMin);
+    } else {
+        m_rays.emplace_back(ray.m_source, ray.m_direction);
     }
     //    for (Model & model : m_models) {
 
     //    }
-    //    m_rays.emplace_back(ray);
+    //    m_rays.emplace_back(std::move(ray));
+    //    m_rays.push_back(ray);
 }
 
 //void Scene::unselectRay(const Ray &ray)
@@ -566,16 +640,27 @@ void Scene::updateBoundingBox()
     }
 }
 
-void Scene::setSelectRootTransform(const glm::mat4& transformMatrix)
+void Scene::setSelectRootTransform(const glm::mat4& transformMatrix, const glm::mat4& worldTransform)
 {
     for (Model& model : m_models) {
         if (model.m_selected) {
             //            model.m_rootNode->m_transformation *= transformMatrix;
-            model.m_transform = transformMatrix * model.m_transform;
+            model.m_transform = worldTransform * model.m_transform * transformMatrix;
             //            model.m_rootNode->m_transformation = model.m_rootNode->m_transformation * transformMatrix;
         }
     }
     updateBoundingBox();
+}
+
+void Scene::setSelectToOriginTransform()
+{
+    for (Model& model : m_models) {
+        if (model.m_selected) {
+            //            camera.m_target = model.m_rootNode->m_transformation[3];
+            //            camera.m_target = model.m_transform[3];
+            model.m_transform = glm::mat4(1.0f);
+        }
+    }
 }
 
 void Scene::setSelectFocus(CameraWorld& camera)
