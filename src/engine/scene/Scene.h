@@ -51,7 +51,7 @@ public:
 
 //    void unselectRay(const Ray & ray);
 
-    void addModel(std::string file);
+    void addModel(std::string file, const glm::vec3 & origin);
     void delModel(std::string file);
 
     void updateSceneModel();

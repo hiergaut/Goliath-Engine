@@ -11,8 +11,9 @@ QStandardItemModel Scene::m_sceneModel;
 #include <opengl/geometry/AxisGeometry.h>
 #include <opengl/geometry/DotGeometry.h>
 #include <opengl/geometry/LineGeometry.h>
+#include <opengl/geometry/TriangleGeometry.h>
 
-Scene * Scene::m_scene = nullptr;
+Scene* Scene::m_scene = nullptr;
 
 Scene::Scene()
 {
@@ -100,7 +101,7 @@ void Scene::draw(const MainWindow3dView& view)
     glm::mat4 projectionMatrix = view.projectionMatrix();
 
     //    glm::mat4 modelMatrix(1.0);
-    glm::mat4 onesMatrix(1.0);
+    const glm::mat4 onesMatrix(1.0);
     m_grid->draw(onesMatrix, viewMatrix, projectionMatrix);
 
     const Shader& shader = view.shader();
@@ -108,9 +109,14 @@ void Scene::draw(const MainWindow3dView& view)
     const glm::mat4& viewTransform = view.m_transformMatrix;
     const glm::mat4& viewWorldTransform = view.m_worldTransform;
 
+    GLint polygonMode;
+    glGetIntegerv(GL_POLYGON_MODE, &polygonMode);
+
     //     -------------------------------- DRAW RAYS
+    //    glPolygonMode(GL_FRONT, GL_FILL);
+    glPolygonMode(GL_FRONT, GL_LINE);
     //    shader.use();
-    if (view.xRays()) {
+    if (view.intersectRay()) {
         shader.setMat4("model", onesMatrix);
         shader.setBool("userColor", true);
         shader.setVec4("color", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
@@ -120,20 +126,35 @@ void Scene::draw(const MainWindow3dView& view)
             }
         }
         shader.setVec4("color", glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+        //        std::vector<glm::vec3>
+        std::vector<glm::vec3> triangles;
         for (const Ray& ray : m_rays) {
             if (ray.m_hit) {
                 LineGeometry::draw(ray.m_source, ray.m_source + ray.m_direction * ray.m_length);
+                //                TriangleGeometry::draw(ray.m_vertices[0], ray.m_vertices[1], ray.m_vertices[2]);
+                //                for (const glm::vec3[3] & triangle : ray.m_triangles) {
+                //                TriangleGeometry::draw(ray.m_triangles);
+                triangles.insert(triangles.end(), ray.m_triangles.begin(), ray.m_triangles.end());
+                //                for (uint i = 0; i < ray.m_triangles.size() / 3; ++i) {
+                //                    const uint i3 = i * 3;
+                //                    const glm::vec3& v0 = ray.m_triangles[i3];
+                //                    const glm::vec3& v1 = ray.m_triangles[i3 + 1];
+                //                    const glm::vec3& v2 = ray.m_triangles[i3 + 2];
+
+                //                    TriangleGeometry::draw(v0, v1, v2);
+                //                }
             }
         }
+        Q_ASSERT(triangles.size() % 3 == 0);
+        TriangleGeometry::draw(triangles);
         shader.setBool("userColor", false);
     }
+    glPolygonMode(GL_FRONT, polygonMode);
 
-    GLint polygonMode;
-    glGetIntegerv(GL_POLYGON_MODE, &polygonMode);
     //    glClear(GL_DEPTH_BUFFER_BIT);
-
     //    glClear(GL_STENCIL_BUFFER_BIT);
     //    glEnable(GL_DEPTH_TEST);
+    // -------------------------------- DRAW BOUNDING BOXES
     if (view.boundingBox()) {
         for (const Model& model : m_models) {
             //            model.m_box.draw(modelMatrix, shader);
@@ -289,6 +310,7 @@ void Scene::draw(const MainWindow3dView& view)
     glDepthFunc(GL_LESS);
     glLineWidth(1);
 
+    // -------------------------------- DRAW AXIS TRANSFORM
     if (view.m_axisTransform) {
         shader.setBool("userColor", true);
         switch (view.m_axisFollow) {
@@ -306,10 +328,13 @@ void Scene::draw(const MainWindow3dView& view)
         }
 
         float lineSize = 1000.0f;
-        for (const Model& model : m_models) {
-            if (model.m_selected) {
 
-                if (view.m_axisLocal) {
+        //        shader.setMat4("model", onesMatrix);
+        if (view.m_axisLocal) {
+            for (const Model& model : m_models) {
+                if (model.m_selected) {
+                    shader.setMat4("model", model.m_transform);
+
                     switch (view.m_axisFollow) {
                     case 0:
                         LineGeometry::draw(glm::vec3(-lineSize, 0.0f, 0.0f), glm::vec3(lineSize, 0.0f, 0.0f));
@@ -321,11 +346,22 @@ void Scene::draw(const MainWindow3dView& view)
                         LineGeometry::draw(glm::vec3(0.0f, 0.0f, -lineSize), glm::vec3(0.0f, 0.0f, lineSize));
                         break;
                     }
+                }
+            }
 
-                } else {
+        } else {
+            // ------------------------ GLOBAL AXIS
+
+            shader.setMat4("model", onesMatrix);
+            for (const Model& model : m_models) {
+                if (model.m_selected) {
+
+                    //                } else {
+                    // ---------------- GLOBAL AXIS
                     glm::vec3 translate = model.m_transform[3];
                     switch (view.m_transform) {
                     case MainWindow3dView::Transform::TRANSLATE:
+                    case MainWindow3dView::Transform::SCALE:
                         switch (view.m_axisFollow) {
                         case 0:
                             LineGeometry::draw(glm::vec3(-lineSize, 0.0f, 0.0f) + translate, glm::vec3(lineSize, 0.0f, 0.0f) + translate);
@@ -342,7 +378,6 @@ void Scene::draw(const MainWindow3dView& view)
                         break;
 
                     case MainWindow3dView::Transform::ROTATE:
-                    case MainWindow3dView::Transform::SCALE:
                         switch (view.m_axisFollow) {
                         case 0:
                             LineGeometry::draw(glm::vec3(-lineSize, 0.0f, 0.0f), glm::vec3(lineSize, 0.0f, 0.0f));
@@ -381,6 +416,7 @@ void Scene::selectRay(const Ray& ray, bool additional)
     float depthMin = Ray::MAX_RAY_LENGTH;
     //    bool first = t;
     //    bool find = false;
+    std::vector<glm::vec3> triangles;
 
     for (uint iModel = 0; iModel < m_models.size(); ++iModel) {
         //    for (const Model& model : m_models) {
@@ -405,11 +441,20 @@ void Scene::selectRay(const Ray& ray, bool additional)
                     if (mesh.m_bones.size() == 0) {
                         for (uint iTriangle = 0; iTriangle < mesh.m_indices.size() / 3; ++iTriangle) {
                             uint i3 = iTriangle * 3;
-                            const glm::vec3& v0 = model.m_transform * mesh.m_transform * glm::vec4(mesh.m_vertices[i3].Position, 1.0f);
-                            const glm::vec3& v1 = model.m_transform * mesh.m_transform * glm::vec4(mesh.m_vertices[i3 + 1].Position, 1.0f);
-                            const glm::vec3& v2 = model.m_transform * mesh.m_transform * glm::vec4(mesh.m_vertices[i3 + 2].Position, 1.0f);
+
+                            glm::mat4 transform = model.m_transform * mesh.m_transform;
+                            const glm::vec3& v0 = transform * glm::vec4(mesh.m_vertices[i3].Position, 1.0f);
+                            const glm::vec3& v1 = transform * glm::vec4(mesh.m_vertices[i3 + 1].Position, 1.0f);
+                            const glm::vec3& v2 = transform * glm::vec4(mesh.m_vertices[i3 + 2].Position, 1.0f);
+
+                            //                            const glm::vec3& v0 = model.m_transform * mesh.m_transform * glm::vec4(mesh.m_vertices[i3].Position, 1.0f);
+                            //                            const glm::vec3& v1 = model.m_transform * mesh.m_transform * glm::vec4(mesh.m_vertices[i3 + 1].Position, 1.0f);
+                            //                            const glm::vec3& v2 = model.m_transform * mesh.m_transform * glm::vec4(mesh.m_vertices[i3 + 2].Position, 1.0f);
                             if (ray.intersect(v0, v1, v2, depth)) {
-                                //                                qDebug() << "intersect model " << model.filename().c_str();
+                                qDebug() << "intersect model " << model.filename().c_str() << depth;
+                                triangles.emplace_back(v0);
+                                triangles.emplace_back(v1);
+                                triangles.emplace_back(v2);
                                 //                                if (!find) {
                                 //                                    find = true;
                                 //                                    iModelMin = iModel;
@@ -448,15 +493,24 @@ void Scene::selectRay(const Ray& ray, bool additional)
                                         //                            const Vertex & v1 = mesh.m_vertices[i3 + 1];
                                         //                            const Vertex & v2 = mesh.m_vertices[i3 + 2];
                                         Q_ASSERT(mesh.m_vertices.size() > i3 + 2);
-                                        const glm::vec3& v0 = model.m_transform * bone.m_recurseModel * bone.m_offsetMatrix * glm::vec4(mesh.m_vertices[i3].Position, 1.0f);
-                                        const glm::vec3& v1 = model.m_transform * bone.m_recurseModel * bone.m_offsetMatrix * glm::vec4(mesh.m_vertices[i3 + 1].Position, 1.0f);
-                                        const glm::vec3& v2 = model.m_transform * bone.m_recurseModel * bone.m_offsetMatrix * glm::vec4(mesh.m_vertices[i3 + 2].Position, 1.0f);
-                                        //                            v0 = bone.m_recurseModel * bone.m_offsetMatrix * glm::vec4(v0, 1.0f);
+                                        glm::mat4 transform = model.m_transform * bone.m_recurseModel * bone.m_offsetMatrix;
+                                        const glm::vec3& v0 = transform * glm::vec4(mesh.m_vertices[i3].Position, 1.0f);
+                                        const glm::vec3& v1 = transform * glm::vec4(mesh.m_vertices[i3 + 1].Position, 1.0f);
+                                        const glm::vec3& v2 = transform * glm::vec4(mesh.m_vertices[i3 + 2].Position, 1.0f);
+
+                                        //                                        const glm::vec3& v0 = model.m_transform * bone.m_recurseModel * bone.m_offsetMatrix * glm::vec4(mesh.m_vertices[i3].Position, 1.0f);
+                                        //                                        const glm::vec3& v1 = model.m_transform * bone.m_recurseModel * bone.m_offsetMatrix * glm::vec4(mesh.m_vertices[i3 + 1].Position, 1.0f);
+                                        //                                        const glm::vec3& v2 = model.m_transform * bone.m_recurseModel * bone.m_offsetMatrix * glm::vec4(mesh.m_vertices[i3 + 2].Position, 1.0f);
+                                        //                                        //                            v0 = bone.m_recurseModel * bone.m_offsetMatrix * glm::vec4(v0, 1.0f);
 
                                         //                            std::cout << "v0 : " << v0.x << "  " << v0.y << "  " << v0.z << std::endl;
                                         //                            TriangleGeometry::draw(v0, v1, v2);
 
                                         if (ray.intersect(v0, v1, v2, depth)) {
+                                            qDebug() << "intersect model " << model.filename().c_str() << depth;
+                                            triangles.emplace_back(v0);
+                                            triangles.emplace_back(v1);
+                                            triangles.emplace_back(v2);
                                             //                                m_triangles.emplace_back(v0);
                                             //                                m_triangles.emplace_back(v1);
                                             //                                m_triangles.emplace_back(v2);
@@ -495,6 +549,14 @@ void Scene::selectRay(const Ray& ray, bool additional)
     }
 
     if (depthMin < Ray::MAX_RAY_LENGTH) {
+        //        const Model& model = m_models[iModelMin];
+        //        const Mesh& mesh = model.m_meshes[iMeshMin];
+        //        const Bone& bone = mesh.m_bones[iBoneMin];
+        //        uint i3 = iTriangleMin * 3;
+        //        glm::mat4 transform = model.m_transform * bone.m_recurseModel * bone.m_offsetMatrix;
+        //        const glm::vec3& v0 = transform * glm::vec4(mesh.m_vertices[i3].Position, 1.0f);
+        //        const glm::vec3& v1 = transform * glm::vec4(mesh.m_vertices[i3 + 1].Position, 1.0f);
+        //        const glm::vec3& v2 = transform * glm::vec4(mesh.m_vertices[i3 + 2].Position, 1.0f);
 
         if (additional) {
             m_models[iModelMin].m_selected = !m_models[iModelMin].m_selected;
@@ -505,7 +567,8 @@ void Scene::selectRay(const Ray& ray, bool additional)
 
         //        ray.m_length = depthMin;
         //        ray.m_hit = true;
-        m_rays.emplace_back(ray.m_source, ray.m_direction, depthMin);
+        //        Ray hitRay (ray.m_source, ray.m_direction, depthMin);
+        m_rays.emplace_back(ray.m_source, ray.m_direction, depthMin, std::move(triangles));
     } else {
         m_rays.emplace_back(ray.m_source, ray.m_direction);
     }
@@ -545,7 +608,7 @@ void Scene::selectRay(const Ray& ray, bool additional)
 //    m_rays.emplace_back(ray);
 //}
 
-void Scene::addModel(std::string file)
+void Scene::addModel(std::string file, const glm::vec3& origin)
 {
     Q_ASSERT(initialized);
     //    qDebug() << "[SCENE] add model : " << file.c_str();
@@ -560,6 +623,8 @@ void Scene::addModel(std::string file)
     //    m_models.push_back(std::move(newModel));
     //    m_models.push_back(std::move(Model(file)));
     m_models.emplace_back(file);
+
+    m_models[m_models.size() - 1].m_transform = glm::translate(glm::mat4(1.0f), origin);
 
     //    std::cout << &m_models[0] << std::endl;
     updateSceneModel();
@@ -704,9 +769,8 @@ void Scene::deleteSelected()
     m_models = std::move(newModels);
 }
 
-void Scene::addLight(Light::Type lightType, const glm::vec3 &position)
+void Scene::addLight(Light::Type lightType, const glm::vec3& position)
 {
-
 }
 
 //void Scene::clear()

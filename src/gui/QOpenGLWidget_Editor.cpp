@@ -49,7 +49,16 @@ void QOpenGLWidget_Editor::loadNewModel(std::string filename)
     //    qDebug() << "[GL_CONTEXT]" << QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
     makeCurrent();
 
-    m_scene.addModel(filename);
+    glm::vec3 origin(0.0f);
+
+    for (const MainWindow3dView * view : *m_views) {
+        if (view->hasFocus()) {
+            origin = view->m_camera->m_target;
+            break;
+        }
+    }
+
+    m_scene.addModel(filename, origin);
 }
 
 void QOpenGLWidget_Editor::load(std::ifstream& file)

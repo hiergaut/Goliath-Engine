@@ -23,8 +23,8 @@
 
 //#include <opengl/OpenglContext.h>
 //#include <opengl/grid.h>
-#include <opengl/rayTracer/RayTracer.h>
 #include <engine/scene/Scene.h>
+#include <opengl/rayTracer/RayTracer.h>
 
 std::list<const MainWindow3dView*>* MainWindow3dView::m_views;
 //Shader MainWindow3dView::m_shaders;
@@ -103,6 +103,7 @@ MainWindow3dView::MainWindow3dView(QWidget* parent)
     m_mode = EDIT;
     setMode(OBJECT);
 
+    // -----------------------------------------------
     m_menus.push_back(ui->menuX_Ray);
     ui->menuX_Ray->setIcon(ui->actionX_Rays->icon());
 
@@ -121,6 +122,10 @@ MainWindow3dView::MainWindow3dView(QWidget* parent)
     m_menus.push_back(ui->menuDotCloud);
     ui->menuDotCloud->setIcon(ui->actionDotCloud->icon());
 
+    m_menus.push_back(ui->menuIntersectRay);
+    ui->menuIntersectRay->setIcon(ui->actionIntersectRay->icon());
+
+    // -------------------------------------------------
     m_menus.push_back(ui->menuShading);
     m_menus.push_back(ui->menuShading_2);
 
@@ -171,7 +176,7 @@ void MainWindow3dView::load(std::ifstream& file)
     m_camera->load(file);
     //    setShading(WIRE_FRAME);
 
-    bool data[6];
+    bool data[7];
     file.read(reinterpret_cast<char*>(data), sizeof(data));
     //    ui->actionWireFrame->setChecked(data[0]);
     if (data[0]) {
@@ -194,6 +199,9 @@ void MainWindow3dView::load(std::ifstream& file)
     if (data[5]) {
         ui->actionDotCloud->trigger();
     }
+    if (data[6]) {
+        ui->actionIntersectRay->trigger();
+    }
     //    ui->actionX_Rays->setChecked(data[1]);
 
     file.read(reinterpret_cast<char*>(&m_shade), sizeof(m_shade));
@@ -209,13 +217,14 @@ void MainWindow3dView::save(std::ofstream& file)
     bool wireFrame = ui->actionWireFrame->isChecked();
     bool xRays = ui->actionX_Rays->isChecked();
 
-    bool data[6];
+    bool data[7];
     data[0] = wireFrame;
     data[1] = xRays;
     data[2] = ui->actionSkeleton->isChecked();
     data[3] = ui->actionNormal_2->isChecked();
     data[4] = ui->actionBoundingBox->isChecked();
     data[5] = ui->actionDotCloud->isChecked();
+    data[6] = ui->actionIntersectRay->isChecked();
     file.write(reinterpret_cast<const char*>(data), sizeof(data));
 
     file.write(reinterpret_cast<const char*>(&m_shade), sizeof(m_shade));
@@ -359,12 +368,17 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
             m_transformMatrix = glm::mat4(1.0f);
             m_worldTransform = glm::mat4(1.0f);
 
-            m_axisLocal = !m_axisLocal;
-
             m_axisTransform = true;
             //            switch (m_transform) {
             //            case Transform::TRANSLATE:
+            uint mem = m_axisFollow;
             m_axisFollow = static_cast<uint>(event->key() - Qt::Key_X);
+            if (mem != m_axisFollow) {
+                m_axisLocal = ! (m_transform == Transform::TRANSLATE);
+            } else {
+                m_axisLocal = !m_axisLocal;
+            }
+
             //                break;
 
             //            case Transform::ROTATE:
@@ -475,6 +489,10 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
         ui->actionVertexGroup->trigger();
         break;
 
+    case Qt::Key_I:
+        ui->actionIntersectRay->trigger();
+        break;
+
     case Qt::Key_N:
         if (m_shiftPressed) {
             ui->actionNormal->trigger();
@@ -508,7 +526,7 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
 
                 glm::vec3 front = glm::normalize(camera->front());
                 //            Q_ASSERT(glm::length(front) == 1.0f);
-//                glm::vec3 target = camera->position() + 200.0f * front;
+                //                glm::vec3 target = camera->position() + 200.0f * front;
                 //            glm::vec3 target = glm::vec3(0.0f, 0.0f, 0.0f);
 
                 delete m_camera;
@@ -629,9 +647,11 @@ void MainWindow3dView::mouseMoveEvent(QMouseEvent* event)
             m_firstTransform = false;
 
             m_memEventPos = event->pos();
+            m_WheelPos = 0.0f;
         } else {
             QPoint diff = m_memEventPos - event->pos();
-            float dx = diff.x() + m_memAxisPos;
+            //            float dx = diff.x() + m_memAxisPos;
+            float dx = diff.x();
             float dy = diff.y();
 
             updateTransformMatrix(dx, dy);
@@ -642,22 +662,46 @@ void MainWindow3dView::mouseMoveEvent(QMouseEvent* event)
 
 void MainWindow3dView::wheelEvent(QWheelEvent* event)
 {
-    if (m_transformActive) {
-        if (m_transform == Transform::TRANSLATE) {
-            if (!m_axisTransform) {
-                float dx = event->delta();
-                //            float newPos = dx + m_memAxisPos;
-                m_worldTransform = m_worldTransform * glm::translate(glm::mat4(1.0f), m_memFront * dx);
-                //            m_memAxisPos = newPos;
+    if (m_shiftPressed) {
+        if (m_transformActive) {
+            //            float dx = event->delta();
+            //            int diff = m_memWheelPos - event->delta();
+            if (m_firstTransform) {
+                m_WheelPos = 0.0f;
+            }
+            m_WheelPos += event->delta();
+            //            float newPos = dx + m_memAxisPos;
+            //            m_memAxisPos = newPos;
+            //        qDebug() << "transform active";
+            //            if (!m_axisTransform) {
+            //                if (m_transform == Transform::TRANSLATE) {
+            //                    qDebug() << "translate";
+            //                    //            if (!m_axisTransform) {
+            //                    //            float newPos = dx + m_memAxisPos;
+            ////                    m_worldTransform = m_worldTransform * glm::translate(glm::mat4(1.0f), m_memFront * dx);
+            //                    //            m_memAxisPos = newPos;
+            ////                    m_worldTransform = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 1.0f) * m_memWheelPos);
+            //                    //            }
+            //                    return;
+            //                }
+            //                //            if (m_transform == Transform::SCALE) {
+            //                //                m_transformMatrix = glm::scale(glm::mat4(1.0f), 1.0f + dx * 0.1f * glm::vec3(1.0f, 1.0f, 1.0f));
+            //                //                return;
+            //                //            }
+            //            }
+            //            //        if (m_axisTransform) {
+            //        else {
+            //        qDebug() << "axis active";
+
+            //            float dx = event->delta();
+            if (m_axisTransform) {
+                updateTransformMatrix(m_WheelPos + m_memAxisPos, 0.0f);
+
+            } else {
+                updateTransformMatrix(0.0f, 0.0f);
             }
             return;
-        }
-        if (m_axisTransform) {
-            float dx = event->delta();
-            float newPos = dx + m_memAxisPos;
-            updateTransformMatrix(newPos, 0.0f);
-            m_memAxisPos = newPos;
-            return;
+            //        }
         }
     }
     m_camera->wheelEvent(event);
@@ -781,6 +825,7 @@ Ray MainWindow3dView::clickRay(QMouseEvent* event)
 void MainWindow3dView::updateTransformMatrix(float dx, float dy)
 {
     m_transformMatrix = glm::mat4(1.0f);
+    //    qDebug() << "big update";
 
     switch (m_transform) {
     case Transform::TRANSLATE:
@@ -822,8 +867,9 @@ void MainWindow3dView::updateTransformMatrix(float dx, float dy)
 
         } else {
 
-            m_transformMatrix = glm::translate(glm::mat4(1.0f), m_memRight * dx);
-            m_transformMatrix = glm::translate(m_transformMatrix, m_memUp * dy);
+            m_worldTransform = glm::translate(glm::mat4(1.0f), m_memRight * dx);
+            m_worldTransform = glm::translate(m_worldTransform, m_memUp * dy);
+            m_worldTransform = glm::translate(m_worldTransform, m_memFront * m_WheelPos);
         }
         break;
 
@@ -1017,6 +1063,11 @@ bool MainWindow3dView::boundingBox() const
 bool MainWindow3dView::dotCloud() const
 {
     return ui->actionDotCloud->isChecked();
+}
+
+bool MainWindow3dView::intersectRay() const
+{
+    return ui->actionIntersectRay->isChecked();
 }
 
 bool MainWindow3dView::vertexGroupShader() const
@@ -1309,6 +1360,27 @@ void MainWindow3dView::on_actionDotCloud_triggered()
     //    ui->actionWireFrame->ic
 }
 
+void MainWindow3dView::on_actionIntersectRay_triggered()
+{
+    if (ui->actionIntersectRay->isChecked()) {
+        QPixmap pixmap(":/icons/intersectRay.png");
+        QPainter painter(&pixmap);
+        painter.setCompositionMode(QPainter::CompositionMode_SourceIn);
+
+        painter.fillRect(pixmap.rect(), QColor(255, 0, 0));
+
+        QIcon icon(pixmap);
+        //        ui->menuWireFrame->setIcon(icon);
+        ui->menuIntersectRay->setIcon(icon);
+
+    } else {
+
+        //        ui->menuWireFrame->setIcon(ui->actionWireFrame->icon());
+        ui->menuIntersectRay->setIcon(ui->actionIntersectRay->icon());
+    }
+    //    ui->actionWireFrame->ic
+}
+
 void MainWindow3dView::on_actionObject_Mode_triggered()
 {
     setMode(OBJECT);
@@ -1332,17 +1404,14 @@ void MainWindow3dView::on_actionDir_Light_triggered()
 void MainWindow3dView::on_actionPoint_Light_triggered()
 {
     Scene::m_scene->addLight(Light::Type::POINT, m_camera->m_target);
-
 }
 
 void MainWindow3dView::on_actionSpot_Light_triggered()
 {
     Scene::m_scene->addLight(Light::Type::SPOT, m_camera->m_target);
-
 }
 
 void MainWindow3dView::on_actionArea_Light_triggered()
 {
     Scene::m_scene->addLight(Light::Type::AREA, m_camera->m_target);
-
 }

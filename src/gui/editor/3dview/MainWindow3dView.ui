@@ -40,6 +40,7 @@
     <addaction name="actionNormal_2"/>
     <addaction name="actionBoundingBox"/>
     <addaction name="actionDotCloud"/>
+    <addaction name="actionIntersectRay"/>
    </widget>
    <widget class="QMenu" name="menuInteraction_Mode">
     <property name="title">
@@ -104,6 +105,11 @@
     </widget>
     <addaction name="menuLight"/>
    </widget>
+   <widget class="QMenu" name="menuIntersectRay">
+    <property name="title">
+     <string>Trace</string>
+    </property>
+   </widget>
    <addaction name="menuInteraction_Mode"/>
    <addaction name="menuCurent_Mode"/>
    <addaction name="menuX_Ray"/>
@@ -112,6 +118,7 @@
    <addaction name="menuNormal"/>
    <addaction name="menuBoundingBox"/>
    <addaction name="menuDotCloud"/>
+   <addaction name="menuIntersectRay"/>
    <addaction name="menuShading"/>
    <addaction name="menuShading_2"/>
    <addaction name="menuAdd"/>
@@ -287,6 +294,18 @@
   <action name="actionArea_Light">
    <property name="text">
     <string>Area</string>
+   </property>
+  </action>
+  <action name="actionIntersectRay">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="../../../../resources/resources.qrc">
+     <normaloff>:/icons/intersectRay.png</normaloff>:/icons/intersectRay.png</iconset>
+   </property>
+   <property name="text">
+    <string>IntersectRay</string>
    </property>
   </action>
  </widget>

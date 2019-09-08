@@ -412,6 +412,9 @@ void MainWindow::on_systemBrowserSaved(QString file)
 void MainWindow::on_systemBrowserImported(QString file)
 {
     showEditors();
+//    for (const MainWindow3dView * view : *m_views) {
+
+//    }
     editor->loadNewModel(file.toStdString());
 }
 

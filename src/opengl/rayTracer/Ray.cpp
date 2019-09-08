@@ -1,19 +1,29 @@
 #include "Ray.h"
 
 #include <iostream>
+#include <QDebug>
 
-const float Ray::MAX_RAY_LENGTH = 1000000;
+const float Ray::MAX_RAY_LENGTH = 100'000;
 
-Ray::Ray(const glm::vec3& source, const glm::vec3& direction, float length)
+Ray::Ray(const glm::vec3& source, const glm::vec3& direction, float length,
+//    const glm::vec3& v0, const glm::vec3& v1, const glm::vec3& v2)
+        std::vector<glm::vec3> && triangles)
+
     : m_source(source)
     , m_direction(direction)
     , m_invDir(1.0f / direction)
     , m_sign { (m_invDir.x < 0), (m_invDir.y < 0), (m_invDir.z < 0) }
     , m_length(length)
+    , m_hit(length < Ray::MAX_RAY_LENGTH)
+//    , m_vertices { v0, v1, v2 }
+    , m_triangles(std::move(triangles))
 {
-    if (length < Ray::MAX_RAY_LENGTH) {
-        m_hit = true;
-    }
+    //    if (length < Ray::MAX_RAY_LENGTH) {
+    //        m_hit = true;
+//    if (glm::length(v1 - v0) + glm::length(v2 - v1) + glm::length(v0 - v2) < 1.0f) {
+//        qDebug() << "bad ray";
+//    }
+    //    }
     //    m_sign[0] = m_invDir < 0;
 }
 
@@ -84,21 +94,20 @@ Ray::Ray(const glm::vec3& source, const glm::vec3& direction, float length)
 //    return true; // this ray hits the triangle
 //}
 
-
 bool Ray::intersect(
     const glm::vec3& v0, const glm::vec3& v1, const glm::vec3& v2,
     float& t) const
 {
     const float EPSILON = 0.0000001f;
     glm::vec3 edge1, edge2, h, s, q;
-    float a,f,u,v;
+    float a, f, u, v;
     edge1 = v1 - v0;
     edge2 = v2 - v0;
-    h = glm::cross( m_direction, edge2);
+    h = glm::cross(m_direction, edge2);
     a = glm::dot(edge1, h);
     if (a > -EPSILON && a < EPSILON)
-        return false;    // This ray is parallel to this triangle.
-    f = 1.0f/a;
+        return false; // This ray is parallel to this triangle.
+    f = 1.0f / a;
     s = m_source - v0;
     u = f * glm::dot(s, h);
     if (u < 0.0f || u > 1.0f)
@@ -111,9 +120,8 @@ bool Ray::intersect(
     t = f * glm::dot(edge2, q);
     if (t > EPSILON) // ray intersection
     {
-//        outIntersectionPoint = m_source + m_direction * t;
+        //        outIntersectionPoint = m_source + m_direction * t;
         return true;
-    }
-    else // This means that there is a line intersection but not a ray intersection.
+    } else // This means that there is a line intersection but not a ray intersection.
         return false;
 }

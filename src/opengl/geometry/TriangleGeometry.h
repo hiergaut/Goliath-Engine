@@ -17,6 +17,7 @@ public:
 
     //    void setVP(const glm::mat4 & viewMatrix, const glm::mat4 &projectionMatrix) const;
 
+    static void draw(const std::vector<glm::vec3> &triangles);
 private:
     static QOpenGLFunctionsCore* m_fun;
 
@@ -24,6 +25,8 @@ private:
 
     static uint m_vao;
     static uint m_vbo;
+
+    static const uint MAX_TRIANGLES = 1000;
     //    uint m_vao2;
 };
 

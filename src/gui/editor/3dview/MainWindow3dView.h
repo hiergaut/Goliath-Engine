@@ -77,6 +77,8 @@ public:
     uint m_axisFollow =0;
     bool m_axisLocal = false;
 
+    Camera* m_camera = nullptr;
+
 public:
     explicit MainWindow3dView(QWidget* parent = nullptr);
     ~MainWindow3dView() override;
@@ -150,7 +152,6 @@ private:
     bool m_ctrlPressed = false;
 
     //    Camera camera;
-    Camera* m_camera = nullptr;
 
     glm::mat4 m_projectionMatrix;
 
@@ -165,6 +166,8 @@ private:
 //    bool m_translateActive = false;
     bool m_firstTransform = false;
     QPoint m_memEventPos;
+    float m_WheelPos;
+
     glm::vec3 m_memRight;
     glm::vec3 m_memUp;
     glm::vec3 m_memFront;
@@ -193,6 +196,7 @@ public:
     bool normal() const;
     bool boundingBox() const;
     bool dotCloud() const;
+    bool intersectRay() const;
 
     bool vertexGroupShader() const;
     bool solid() const;
@@ -219,6 +223,7 @@ private slots:
     void on_actionPoint_Light_triggered();
     void on_actionSpot_Light_triggered();
     void on_actionArea_Light_triggered();
+    void on_actionIntersectRay_triggered();
 };
 
 #endif // MAINWINDOW3DVIEW_H
