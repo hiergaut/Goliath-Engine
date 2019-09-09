@@ -102,7 +102,9 @@ void Scene::draw(const MainWindow3dView& view)
 
     //    glm::mat4 modelMatrix(1.0);
     const glm::mat4 onesMatrix(1.0);
-    m_grid->draw(onesMatrix, viewMatrix, projectionMatrix);
+    if (view.m_shade != MainWindow3dView::Shading::RENDERED) {
+        m_grid->draw(onesMatrix, viewMatrix, projectionMatrix);
+    }
 
     const Shader& shader = view.shader();
 
@@ -167,6 +169,17 @@ void Scene::draw(const MainWindow3dView& view)
         }
     }
 
+    if (view.m_shade == MainWindow3dView::Shading::RENDERED) {
+                shader.setVec3("dirLight.direction", glm::vec3(0.1f, 0.1f, -1.0f));
+                shader.setVec3("dirLight.ambient", 0.3f, 0.24f, 0.14f);
+                shader.setVec3("dirLight.diffuse", 0.7f, 0.42f, 0.26f);
+                shader.setVec3("dirLight.specular", 0.5f, 0.5f, 0.5f);
+
+//        shader.setVec3("dirLight.direction", -0.2f, -1.0f, -0.3f);
+//        shader.setVec3("dirLight.ambient", 0.05f, 0.05f, 0.05f);
+//        shader.setVec3("dirLight.diffuse", 0.4f, 0.4f, 0.4f);
+//        shader.setVec3("dirLight.specular", 0.5f, 0.5f, 0.5f);
+    }
     //    glLineWidth(1);
     //    glPolygonMode(GL_FRONT, GL_LINE);
     // -------------------------------- DRAW MODELS
@@ -418,16 +431,58 @@ void Scene::selectRay(const Ray& ray, bool additional)
     //    bool find = false;
     std::vector<glm::vec3> triangles;
 
+    std::vector<float> distances(m_models.size());
+    std::list<uint> nearestModel;
     for (uint iModel = 0; iModel < m_models.size(); ++iModel) {
-        //    for (const Model& model : m_models) {
+        //        distances[iModel] = glm::length(m_models ray.m_source)
         const Model& model = m_models[iModel];
-        //        model.objectFinderRay(ray);
-        //        model.selectRay(ray);
-        //        model.selectObject(ray, depthMin, find, iModelMin, iMeshMin, iBoneMin, iTriangleMin);
         if (!additional) {
 
             model.m_selected = false;
         }
+
+        distances[iModel] = std::abs(glm::length(model.m_box.center() - ray.m_source) - model.m_box.radius());
+        //        nearestModel[iModel] = iModel;
+        //        uint iNear =0;
+        //        while (iNear < nearestModel.size() && distances[iModel] < nearestModel[iNear]) {
+        //        uint cpt =0;
+        auto it = nearestModel.begin();
+        while (it != nearestModel.end() && distances[iModel] >= distances[*it])
+            ++it;
+        //        for (uint iNear : nearestModel) {
+        //            if (distances[iModel] < distances[*it]) {
+        //                nearestModel.insert(it, iModel);
+        //                break;
+        //            }
+        //            ++cpt;
+        //            ++it;
+        //        }
+        //        if (it == nearestModel.end()) {
+        nearestModel.insert(it, iModel);
+        //        }
+
+        //        }
+    }
+    Q_ASSERT(nearestModel.size() == distances.size());
+
+    for (uint iModel : nearestModel) {
+        const Model& model = m_models[iModel];
+        float dist = distances[iModel];
+
+        if (depthMin < dist) {
+            break;
+        }
+        //        qDebug() << "model " << model.filename().c_str() << iModel << " dist " << dist;
+
+        //    }
+        //    return;
+
+        //    for (uint iModel = 0; iModel < m_models.size(); ++iModel) {
+        //    for (const Model& model : m_models) {
+        //        const Model& model = m_models[iModel];
+        //        model.objectFinderRay(ray);
+        //        model.selectRay(ray);
+        //        model.selectObject(ray, depthMin, find, iModelMin, iMeshMin, iBoneMin, iTriangleMin);
         float depth;
 
         if (model.m_box.intersect(ray)) {
@@ -443,15 +498,17 @@ void Scene::selectRay(const Ray& ray, bool additional)
                             uint i3 = iTriangle * 3;
 
                             glm::mat4 transform = model.m_transform * mesh.m_transform;
-                            const glm::vec3& v0 = transform * glm::vec4(mesh.m_vertices[i3].Position, 1.0f);
-                            const glm::vec3& v1 = transform * glm::vec4(mesh.m_vertices[i3 + 1].Position, 1.0f);
-                            const glm::vec3& v2 = transform * glm::vec4(mesh.m_vertices[i3 + 2].Position, 1.0f);
+                            const glm::vec3& v0 = transform * glm::vec4(mesh.m_vertices[mesh.m_indices[i3]].Position, 1.0f);
+                            const glm::vec3& v1 = transform * glm::vec4(mesh.m_vertices[mesh.m_indices[i3 + 1]].Position, 1.0f);
+                            const glm::vec3& v2 = transform * glm::vec4(mesh.m_vertices[mesh.m_indices[i3 + 2]].Position, 1.0f);
+                            //                            const glm::vec3& v1 = transform * glm::vec4(mesh.m_vertices[i3 + 1].Position, 1.0f);
+                            //                            const glm::vec3& v2 = transform * glm::vec4(mesh.m_vertices[i3 + 2].Position, 1.0f);
 
                             //                            const glm::vec3& v0 = model.m_transform * mesh.m_transform * glm::vec4(mesh.m_vertices[i3].Position, 1.0f);
                             //                            const glm::vec3& v1 = model.m_transform * mesh.m_transform * glm::vec4(mesh.m_vertices[i3 + 1].Position, 1.0f);
                             //                            const glm::vec3& v2 = model.m_transform * mesh.m_transform * glm::vec4(mesh.m_vertices[i3 + 2].Position, 1.0f);
                             if (ray.intersect(v0, v1, v2, depth)) {
-                                qDebug() << "intersect model " << model.filename().c_str() << depth;
+                                //                                qDebug() << "intersect model " << model.filename().c_str() << depth;
                                 triangles.emplace_back(v0);
                                 triangles.emplace_back(v1);
                                 triangles.emplace_back(v2);
@@ -463,6 +520,7 @@ void Scene::selectRay(const Ray& ray, bool additional)
                                 //                                    iTriangleMin = iTriangle;
                                 //                                } else {
                                 if (depth < depthMin) {
+                                    qDebug() << "intersect model " << model.filename().c_str() << depth;
                                     iModelMin = iModel;
                                     depthMin = depth;
                                     iMeshMin = iMesh;
@@ -507,7 +565,7 @@ void Scene::selectRay(const Ray& ray, bool additional)
                                         //                            TriangleGeometry::draw(v0, v1, v2);
 
                                         if (ray.intersect(v0, v1, v2, depth)) {
-                                            qDebug() << "intersect model " << model.filename().c_str() << depth;
+                                            //                                            qDebug() << "intersect model " << model.filename().c_str() << depth;
                                             triangles.emplace_back(v0);
                                             triangles.emplace_back(v1);
                                             triangles.emplace_back(v2);
@@ -528,6 +586,7 @@ void Scene::selectRay(const Ray& ray, bool additional)
                                             //                                                iTriangleMin = iTriangle;
                                             //                                            } else {
                                             if (depth < depthMin) {
+                                                qDebug() << "intersect model " << model.filename().c_str() << depth;
                                                 //                                    depthMin = std::min(depthMin, depth);
                                                 iModelMin = iModel;
                                                 depthMin = depth;
@@ -548,6 +607,7 @@ void Scene::selectRay(const Ray& ray, bool additional)
         }
     }
 
+    //    qDebug() << "-----------------------------------------------------------";
     if (depthMin < Ray::MAX_RAY_LENGTH) {
         //        const Model& model = m_models[iModelMin];
         //        const Mesh& mesh = model.m_meshes[iMeshMin];

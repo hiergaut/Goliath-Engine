@@ -1112,6 +1112,7 @@ const Shader& MainWindow3dView::shader() const
         break;
 
     case RENDERED:
+        shader.setVec3("viewPos", m_camera->position());
         break;
 
     case NORMAL:

@@ -62,6 +62,12 @@ glm::vec3 BoundingBox::center() const
     return (m_bounds[0] + m_bounds[1]) / 2.0f;
 }
 
+float BoundingBox::radius() const
+{
+    return glm::length(m_bounds[0] -m_bounds[1]) / 2.0f;
+
+}
+
 void BoundingBox::draw(glm::mat4 modelMatrix, const Shader& shader) const
 {
 

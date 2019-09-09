@@ -346,7 +346,7 @@ void Mesh::draw(const Shader& shader, const MainWindow3dView::Shading& shade, bo
     //    shader.setMat4("model", m_transform);
     //    shader.setMat4("model", glm::mat4(1));
 
-    if (shade == MainWindow3dView::Shading::LOOK_DEV) {
+    if (shade == MainWindow3dView::Shading::LOOK_DEV || shade == MainWindow3dView::Shading::RENDERED) {
         const Material& material = (*m_materials)[m_iMaterial];
         //        const Material& material = mesh.m_material;
         //        const Material& material = mesh.m_material;
@@ -379,7 +379,17 @@ void Mesh::draw(const Shader& shader, const MainWindow3dView::Shading& shade, bo
         if (!hasTexture) {
             shader.setVec3("material.ambient", material.m_colors[Color::AMBIENT]);
         }
+//        shader.setVec3("material.ambient", 0.5f, 0.5f, 0.5f);
+//            shader.setVec3("material.diffuse", 0.3f, 0.3f, 0.3f);
+//        shader.setVec3("material.specular", 1.0f, 1.0f, 1.0f);
+
+        shader.setVec3("material.specular", material.m_colors[Color::SPECULAR]);
+//        shader.setVec3("material.specular", material.m_colors[Color::DIFFUSE]);
+        shader.setFloat("material.shininess", material.m_shininess);
     }
+//    if (shade == MainWindow3dView::Shading::RENDERED) {
+
+//    }
 
     if (FormTimeline::animation() != nullptr) {
         if (m_bones.size() > 0) {
@@ -514,14 +524,14 @@ void Mesh::save(std::ofstream& file) const
 //    }
 //}
 
-void Mesh::updateBoundingBox(const glm::mat4 & modelTransform)
+void Mesh::updateBoundingBox(const glm::mat4& modelTransform)
 {
     //    m_box.m_cube.setupGL();
     m_box.clear();
     //    m_box = std::move(BoundingBox());
     if (m_bones.size() == 0) {
         for (const Vertex& vertex : m_vertices) {
-            const glm::vec3& pos = modelTransform *  m_transform * glm::vec4(vertex.Position, 1.0);
+            const glm::vec3& pos = modelTransform * m_transform * glm::vec4(vertex.Position, 1.0);
 
             m_box << pos;
         }
@@ -540,7 +550,7 @@ void Mesh::updateBoundingBox(const glm::mat4 & modelTransform)
                 uint first = indice - indice % 3;
 
                 for (uint i = 0; i < 3; ++i) {
-                    glm::vec3 pos =  modelTransform *bone.m_recurseModel * bone.m_offsetMatrix * glm::vec4(m_vertices[first + i].Position, 1.0);
+                    glm::vec3 pos = modelTransform * bone.m_recurseModel * bone.m_offsetMatrix * glm::vec4(m_vertices[first + i].Position, 1.0);
                     //                glm::vec3 pos = m_vertices[first + i].Position;
 
                     bone.m_box << pos;

@@ -24,6 +24,7 @@ public:
 //    BoundingBox operator *(glm::mat4 mat) const;
 
     glm::vec3 center() const;
+    float radius() const;
 
     void draw(glm::mat4 modelMatrix, const Shader &shader) const;
 
