@@ -25,7 +25,7 @@ private:
 private:
     QOpenGLFunctionsCore * m_fun;
 
-    UvSphereGeometry m_sphere;
+//    UvSphereGeometry m_sphere;
 
     uint m_vao;
 //    uint m_vao2;

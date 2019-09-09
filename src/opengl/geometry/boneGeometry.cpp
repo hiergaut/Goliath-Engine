@@ -3,7 +3,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 BoneGeometry::BoneGeometry()
-    : m_sphere(0.05)
+//    : m_sphere(0.05)
 {
     m_fun = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
 
@@ -94,7 +94,7 @@ void BoneGeometry::draw(glm::mat4 model, glm::vec3 source, glm::vec3 destination
     //    m_shader->use();
     //    shader.use();
 
-    glm::mat4 identity(1.0);
+//    glm::mat4 identity(1.0);
     glm::vec3 vDir = destination - source;
     glm::vec3 vX = glm::vec3(1, 0, 0);
 
@@ -116,6 +116,8 @@ void BoneGeometry::draw(glm::mat4 model, glm::vec3 source, glm::vec3 destination
 
     m = glm::scale(m, glm::vec3(dirLength));
 
+//    model = model * m;
+
     m_shader->setMat4("model", model * m);
 
     m_fun->glBindVertexArray(m_vao);
@@ -124,12 +126,19 @@ void BoneGeometry::draw(glm::mat4 model, glm::vec3 source, glm::vec3 destination
     m_fun->glBindVertexArray(0);
 
     //    glm::translate(m, source);
-    //    shader.setMat4("model", glm::translate(m, source));
-    m_sphere.draw();
+//        m_shader.setMat4("model", glm::translate(m, source));
+//    m_sphere.draw();
+//    model = glm::scale(model, glm::vec3(0.05f));
+    m_shader->setMat4("model", glm::scale(model * m, glm::vec3(0.05f)));
+
+    UvSphereGeometry::draw(*m_shader, glm::vec3(0.0f, 0.0f, 0.0f), 0.05f);
 
     //    shader.setMat4("model", m * glm::translate(glm::mat4(1), glm::vec3(1, 0, 0)));
-    m_shader->setMat4("model", model * glm::translate(m, glm::vec3(1, 0, 0)));
-    m_sphere.draw();
+    m_shader->setMat4("model", glm::scale(model * glm::translate(m, glm::vec3(1, 0, 0)), glm::vec3(0.05f)));
+//    m_sphere.draw();
+//    UvSphereGeometry::draw();
+//    UvSphereGeometry::draw(*m_shader, glm::vec3(1.0f, 0.0f, 0.0f), 10.0f);
+    UvSphereGeometry::draw(*m_shader, glm::vec3(0.0f), 0.05f);
 }
 
 void BoneGeometry::drawLine(glm::mat4 model, glm::vec3 source, glm::vec3 destination) const

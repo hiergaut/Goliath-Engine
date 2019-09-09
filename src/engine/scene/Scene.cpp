@@ -18,6 +18,8 @@ Scene* Scene::m_scene = nullptr;
 Scene::Scene()
 {
     m_models.reserve(10);
+    m_dirLights.reserve(10);
+    //    m_dirLights.reserve(10);
 
     QTreeView_outliner::setModelScene(&m_sceneModel);
     m_sceneModel.setHorizontalHeaderItem(0, new QStandardItem("Scene"));
@@ -169,16 +171,34 @@ void Scene::draw(const MainWindow3dView& view)
         }
     }
 
-    if (view.m_shade == MainWindow3dView::Shading::RENDERED) {
-                shader.setVec3("dirLight.direction", glm::vec3(0.1f, 0.1f, -1.0f));
-                shader.setVec3("dirLight.ambient", 0.3f, 0.24f, 0.14f);
-                shader.setVec3("dirLight.diffuse", 0.7f, 0.42f, 0.26f);
-                shader.setVec3("dirLight.specular", 0.5f, 0.5f, 0.5f);
+    for (uint i = 0; i < m_dirLights.size(); ++i) {
+        const DirLight& dirLight = m_dirLights[i];
 
-//        shader.setVec3("dirLight.direction", -0.2f, -1.0f, -0.3f);
-//        shader.setVec3("dirLight.ambient", 0.05f, 0.05f, 0.05f);
-//        shader.setVec3("dirLight.diffuse", 0.4f, 0.4f, 0.4f);
-//        shader.setVec3("dirLight.specular", 0.5f, 0.5f, 0.5f);
+        dirLight.draw(shader);
+//        qDebug() << "draw light";
+    }
+
+    if (view.m_shade == MainWindow3dView::Shading::RENDERED) {
+
+        //                for (const DirLight & dirLight : m_dirLights) {
+        for (uint i = 0; i < m_dirLights.size(); ++i) {
+            const DirLight& dirLight = m_dirLights[i];
+
+//                        dirLight.draw(shader);
+
+            shader.setVec3("dirLight[" + QString::number(i).toStdString() + ".direction", dirLight.m_direction);
+            shader.setVec3("dirLight[" + QString::number(i).toStdString() + ".ambient", dirLight.m_direction);
+            shader.setVec3("dirLight[" + QString::number(i).toStdString() + ".diffuse", dirLight.m_direction);
+            shader.setVec3("dirLight[" + QString::number(i).toStdString() + ".specular", dirLight.m_direction);
+            //                    shader.setVec3("dirLight.ambient", dirLight.m_ambient);
+            //                    shader.setVec3("dirLight.diffuse", dirLight.m_diffuse);
+            //                    shader.setVec3("dirLight.specular", dirLight.m_specular);
+        }
+
+        //        shader.setVec3("dirLight.direction", -0.2f, -1.0f, -0.3f);
+        //        shader.setVec3("dirLight.ambient", 0.05f, 0.05f, 0.05f);
+        //        shader.setVec3("dirLight.diffuse", 0.4f, 0.4f, 0.4f);
+        //        shader.setVec3("dirLight.specular", 0.5f, 0.5f, 0.5f);
     }
     //    glLineWidth(1);
     //    glPolygonMode(GL_FRONT, GL_LINE);
@@ -762,6 +782,10 @@ void Scene::save(std::ofstream& file)
 
 void Scene::updateBoundingBox()
 {
+    qDebug() << "dirLights";
+    m_dirLights.emplace_back(glm::vec3(0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f),
+        glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, -1.0f));
+    //        m_dirLights.push_back(5);
     for (Model& model : m_models) {
         model.updateBoundingBox();
     }
@@ -829,8 +853,26 @@ void Scene::deleteSelected()
     m_models = std::move(newModels);
 }
 
-void Scene::addLight(Light::Type lightType, const glm::vec3& position)
+void Scene::addLight(Light::Type lightType, const glm::vec3 position)
 {
+    //        m_dirLights.push_back(5);
+
+    switch (lightType) {
+    case Light::Type::SUN:
+
+        //        m_dirLights.push_back(Light(position));
+
+        break;
+
+    case Light::Type::AREA:
+        break;
+
+    case Light::Type::SPOT:
+        break;
+
+    case Light::Type::POINT:
+        break;
+    }
 }
 
 //void Scene::clear()

@@ -17,6 +17,7 @@
 //#include <opengl/rayTracer/RayTracer.h>
 #include <engine/scene/camera/CameraWorld.h>
 #include "light/Light.h"
+#include "light/DirLight.h"
 
 
 class Scene {
@@ -67,7 +68,7 @@ public:
     void setSelectFocus(CameraWorld & camera);
     void deleteSelected();
 
-    void addLight(Light::Type lightType, const glm::vec3 & position);
+    void addLight(Light::Type lightType, const glm::vec3 position);
 
 private:
 //    void clear();
@@ -80,7 +81,7 @@ private:
 //    std::map<std::string, Model> m_models;
     std::vector<Model> m_models;
 //    Shader* m_shader;
-    std::vector<Light> m_lights;
+    std::vector<DirLight> m_dirLights;
 
     std::list<const MainWindow3dView *> * m_views; // cameras
 

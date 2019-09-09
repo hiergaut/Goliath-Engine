@@ -26,6 +26,8 @@
 #include <opengl/geometry/TriangleGeometry.h>
 #include <opengl/geometry/DotGeometry.h>
 #include <opengl/geometry/AxisGeometry.h>
+#include <opengl/geometry/uvSphereGeometry.h>
+
 #include <gui/editor/timeline/FormTimeline.h>
 
 QOpenGLWidget_Editor::QOpenGLWidget_Editor(QWidget* parent, QMainWindow* mainWindow)
@@ -132,6 +134,8 @@ void QOpenGLWidget_Editor::initializeGL()
     TriangleGeometry::initializeGL();
     DotGeometry::initializeGL();
     AxisGeometry::initializeGL();
+    UvSphereGeometry::initializeGL();
+
 
 //    FormTimeline::setScene(&m_scene);
 

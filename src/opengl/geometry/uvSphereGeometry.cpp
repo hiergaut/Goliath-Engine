@@ -5,15 +5,23 @@
 //#define GL_GLEXT_PROTOTYPES 1
 //#include <GL/gl.h>
 //#include <GL/glext.h>
+#include <glm/gtc/matrix_transform.hpp>
 
-UvSphereGeometry::UvSphereGeometry(float radius, uint nbSlices)
-    : m_radius(radius)
-    , m_nbSlices(nbSlices)
-    , m_nbRings(nbSlices)
+//UvSphereGeometry::UvSphereGeometry(float radius, uint nbSlices)
+//    : m_radius(radius)
+//    , m_nbSlices(nbSlices)
+//    , m_nbRings(nbSlices)
+QOpenGLFunctionsCore * UvSphereGeometry::m_fun = nullptr;
+uint UvSphereGeometry::m_vao;
+uint UvSphereGeometry::m_nbIndices;
 
+void UvSphereGeometry::initializeGL()
 {
-    //  int nbRings = 10;
-    //  int nbSlices = 10;
+    m_fun = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
+
+      int m_nbRings = 10;
+      int m_nbSlices = 10;
+      float m_radius = 1.0f;
     // -----------------------------------------------------------------
 
     uint nbRect = m_nbSlices * (m_nbRings - 1);
@@ -23,12 +31,15 @@ UvSphereGeometry::UvSphereGeometry(float radius, uint nbSlices)
     //    std::cout << "nbVertices =" << nbVertices << std::endl;
     //    std::cout << "nbTriangles =" << nbTriangle << std::endl;
 
-    m_vertices.clear();
-    m_normals.clear();
-    m_indices.clear();
-    m_vertices = std::vector<glm::vec3>(nbVertices);
-    m_normals = std::vector<glm::vec3>(nbVertices);
-    m_indices = std::vector<uint>(3 * nbTriangle);
+    std::vector<glm::vec3> m_vertices(nbVertices);
+    std::vector<glm::vec3> m_normals(nbVertices);
+    std::vector<uint> m_indices(nbTriangle * 3);
+//    m_vertices.clear();
+//    m_normals.clear();
+//    m_indices.clear();
+//    m_vertices = std::vector<glm::vec3>(nbVertices);
+//    m_normals = std::vector<glm::vec3>(nbVertices);
+//    m_indices = std::vector<uint>(3 * nbTriangle);
 
     int iNorthPole = nbVertices - 2;
     m_vertices[iNorthPole] = glm::vec3(0, 0, m_radius);
@@ -109,9 +120,14 @@ UvSphereGeometry::UvSphereGeometry(float radius, uint nbSlices)
     assert(m_vertices.size() == m_normals.size());
     assert(m_indices.size() == 3 * nbTriangle);
 
+    m_nbIndices = 3 * nbTriangle;
+
     //   1. Generate geometry buffers
+    uint m_vbo;
     m_fun->glGenBuffers(1, &m_vbo);
+    uint m_nbo;
     m_fun->glGenBuffers(1, &m_nbo);
+    uint m_ebo;
     m_fun->glGenBuffers(1, &m_ebo);
     m_fun->glGenVertexArrays(1, &m_vao);
     // 2. Bind Vertex Array Object
@@ -165,6 +181,7 @@ UvSphereGeometry::UvSphereGeometry(float radius, uint nbSlices)
     m_fun->glBindVertexArray(0);
 }
 
+
 //UvSphereGeometry::~UvSphereGeometry()
 //{
 //    glDeleteBuffers(1, &m_vbo);
@@ -173,11 +190,18 @@ UvSphereGeometry::UvSphereGeometry(float radius, uint nbSlices)
 //    glDeleteVertexArrays(1, &m_vao);
 //}
 
-void UvSphereGeometry::draw() const
+//void UvSphereGeometry::draw()
+//void UvSphereGeometry::draw(const glm::vec3 &position, float radius)
+void UvSphereGeometry::draw(const Shader &shader, const glm::vec3 &position, float radius)
 {
+    Q_ASSERT(m_fun != nullptr);
+
+//    glm::mat4 model(1.0f);
+//    model = glm::scale(model, glm::vec3(radius));
+//    model = glm::translate(model, position);
+//    shader.setMat4("model", model);
+
     m_fun->glBindVertexArray(m_vao);
-    m_fun->glDrawElements(GL_TRIANGLES, m_indices.size(), GL_UNSIGNED_INT, nullptr);
+    m_fun->glDrawElements(GL_TRIANGLES, m_nbIndices, GL_UNSIGNED_INT, nullptr);
     m_fun->glBindVertexArray(0);
-
-
 }
