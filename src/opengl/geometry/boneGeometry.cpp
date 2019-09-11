@@ -131,14 +131,16 @@ void BoneGeometry::draw(glm::mat4 model, glm::vec3 source, glm::vec3 destination
 //    model = glm::scale(model, glm::vec3(0.05f));
     m_shader->setMat4("model", glm::scale(model * m, glm::vec3(0.05f)));
 
-    UvSphereGeometry::draw(*m_shader, glm::vec3(0.0f, 0.0f, 0.0f), 0.05f);
+//    UvSphereGeometry::draw(*m_shader, glm::vec3(0.0f, 0.0f, 0.0f), 0.05f);
+    UvSphereGeometry::draw();
 
     //    shader.setMat4("model", m * glm::translate(glm::mat4(1), glm::vec3(1, 0, 0)));
     m_shader->setMat4("model", glm::scale(model * glm::translate(m, glm::vec3(1, 0, 0)), glm::vec3(0.05f)));
 //    m_sphere.draw();
 //    UvSphereGeometry::draw();
 //    UvSphereGeometry::draw(*m_shader, glm::vec3(1.0f, 0.0f, 0.0f), 10.0f);
-    UvSphereGeometry::draw(*m_shader, glm::vec3(0.0f), 0.05f);
+//    UvSphereGeometry::draw(*m_shader, glm::vec3(0.0f), 0.05f);
+    UvSphereGeometry::draw();
 }
 
 void BoneGeometry::drawLine(glm::mat4 model, glm::vec3 source, glm::vec3 destination) const

@@ -196,12 +196,21 @@ void UvSphereGeometry::draw(const Shader &shader, const glm::vec3 &position, flo
 {
     Q_ASSERT(m_fun != nullptr);
 
-//    glm::mat4 model(1.0f);
-//    model = glm::scale(model, glm::vec3(radius));
-//    model = glm::translate(model, position);
-//    shader.setMat4("model", model);
+    glm::mat4 model(1.0f);
+    model = glm::translate(model, position);
+    model = glm::scale(model, glm::vec3(radius));
+    shader.setMat4("model", model);
+
 
     m_fun->glBindVertexArray(m_vao);
     m_fun->glDrawElements(GL_TRIANGLES, m_nbIndices, GL_UNSIGNED_INT, nullptr);
     m_fun->glBindVertexArray(0);
+}
+
+void UvSphereGeometry::draw()
+{
+    m_fun->glBindVertexArray(m_vao);
+    m_fun->glDrawElements(GL_TRIANGLES, m_nbIndices, GL_UNSIGNED_INT, nullptr);
+    m_fun->glBindVertexArray(0);
+
 }

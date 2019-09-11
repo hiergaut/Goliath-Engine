@@ -17,6 +17,7 @@ public:
 //    void setup();
     static void initializeGL();
     static void draw(const Shader & shader, const glm::vec3 & position, float radius);
+    static void draw();
 
 
 private:

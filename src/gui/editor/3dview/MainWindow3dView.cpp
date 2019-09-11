@@ -374,7 +374,7 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
             uint mem = m_axisFollow;
             m_axisFollow = static_cast<uint>(event->key() - Qt::Key_X);
             if (mem != m_axisFollow) {
-                m_axisLocal = ! (m_transform == Transform::TRANSLATE);
+                m_axisLocal = !(m_transform == Transform::TRANSLATE);
             } else {
                 m_axisLocal = !m_axisLocal;
             }
@@ -790,36 +790,104 @@ void MainWindow3dView::updatePersepectiveProjection()
 
 Ray MainWindow3dView::clickRay(QMouseEvent* event)
 {
-    int x = event->x();
-    int y = event->y();
-    //        emit launchRayTracing(x, y);
-
-    glm::vec3 source = m_camera->position();
+    //    QOpenGLFunctionsCore * m_fun = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
+    //    qDebug() << "ratio " << width() / height();
+//    float ratio = static_cast<float>(height()) / width();
+    float ratio = static_cast<float>(width()) / height();
     glm::vec3 front = m_camera->front();
     glm::vec3 right = m_camera->right();
     glm::vec3 up = m_camera->up();
     float fov = m_camera->fov();
-    //        float ratio = static_cast<float>(height()) / width();
-    // question : ration = w / h or h / w ? horizontal fov or vertical ?
-    float ratio = static_cast<float>(width()) / height();
+    glm::vec3 source = m_camera->position();
 
-    //        int dx = x -width() /2;
-    //        int dy = y -height() / 2;
-    float dx = fov * ratio * (static_cast<float>(x) / width() - 0.5f);
-    float dy = fov * (static_cast<float>(y) / height() - 0.5f);
+    float x = (2.0f * event->x()) / (float)width() - 1.0f;
+    float y = (2.0f * event->y()) / (float)height() - 1.0f;
+
+
+    // ------------------------------------------------------------------------------------
+    float heightNearPlane = l_near * tanf(glm::radians(m_camera->fov()) * 0.5f);
+    //    float heightNearPlane = l_near * tanf(glm::radians(m_camera->fov()) * ratio);
+//    float heightNearPlane = widthNearPlane;
+    //    float heightNearPlane = l_near * tanf(glm::radians(m_camera->fov()));
+        float widthNearPlane = heightNearPlane * ratio;
+
+    float dx = x * widthNearPlane;
+    float dy = y * heightNearPlane;
+
+    glm::vec3 hitNearPlane = source + m_camera->front() * l_near + m_camera->up() * -dy + m_camera->right() * -dx;
+
+    return { source, glm::normalize(hitNearPlane - source) };
+    // ------------------------------------------------------------------------
+
+//    float dx = x * fov * 0.5f;
+//    float dy = y * fov * 0.5f;
+
+
+//    glm::mat4 rotate(1.0f);
+//    rotate = glm::rotate(rotate, glm::radians(-dx), up);
+//    rotate = glm::rotate(rotate, glm::radians(dy), right);
+
+//    front = glm::normalize(rotate * glm::vec4(front, 1.0f));
+//    return {source, front};
+
+//    glm::vec3 hitNearPlane = source + front * l_near + up * dy + right * -dx;
+
+    //    float mx = (float)((event->x() - width() * 0.5) * (1.0 / width()) * m_camera->fov() * 0.5);
+    //    float my = (float)((event->y() - height() * 0.5) * (1.0 / width()) * m_camera->fov() * 0.5);
+    //    glm::vec3 dx = m_camera->right() * mx;
+    //    glm::vec3 dy = m_camera->up() * my;
+
+    //    glm::vec3 dir = normalize(m_camera->front() + (dx + dy) * 2.0f);
+
+    //    return {m_camera->position(), dir};
+
+    //    int y = (event->y() -height() / 2.0f) / (height() / 2.0f);
+
+    //        emit launchRayTracing(x, y);
+    //    qDebug() << "width " << width() << "height " << height() << "x" << x << "y" << y;
+
+    //    glm::mat4 projView(projectionViewMatrix());
+
+    //    glm::mat4 proj = glm::perspective(glm::radians(m_camera->fov()), (float)width() / height(), l_near, l_far);
+    //    glm::mat4 proj = m_projectionMatrix;
+    //        glm::mat4 view = m_camera->viewMatrix();
+
+    //        glm::mat4 invVP = glm::inverse(proj * view);
+    //        glm::vec4 screenPos = glm::vec4(x, -y, 1.0f, 1.0f);
+    //        glm::vec4 worldPos = invVP * screenPos;
+
+    //        glm::vec3 dir = glm::normalize(glm::vec3(worldPos));
+    //    return { m_camera->position(), dir };
+
+    ////    float rad = fov *  / 180.0f;
+    //    float rad = glm::radians(fov);
+    //    float vLength = tanf(rad / 2.0f) * l_near;
+    //    float hLength = vLength * (static_cast<float>(width()) / height());
+
+    //    up *= hLength;
+    //    right *= vLength;
+
+    //    // question : ration = w / h or h / w ? horizontal fov or vertical ?
+    ////    float ratio = static_cast<float>(width()) / height();
+
+    //    //        int dx = x -width() /2;
+    //    //        int dy = y -height() / 2;
+    //    float dx = (2.0f * static_cast<float>(x) / width() - 1.0f);
+    //    float dy = (static_cast<float>(y) / height() - 0.5f);
 
     //        qDebug() << "left click" << dx << dy;
 
-    glm::mat4 rotate(1.0f);
+    //    glm::mat4 rotate(1.0f);
     //        rotate = glm::rotate(rotate, dx, glm::vec3(0.0f, 0.0f, 1.0f));
     //        rotate = glm::rotate(rotate, dy, glm::vec3(1.0f, 0.0f, 0.0f));
 
-    rotate = glm::rotate(rotate, glm::radians(-dx), up);
-    rotate = glm::rotate(rotate, glm::radians(dy), right);
+    //    rotate = glm::rotate(rotate, glm::radians(-dx), up);
+    //    rotate = glm::rotate(rotate, glm::radians(dy), right);
 
-    front = glm::normalize(rotate * glm::vec4(front, 1.0f));
+    //    front = glm::normalize(rotate * glm::vec4(front, 1.0f));
+    //    glm::vec3 hitNearPlane = source +  front * l_near + up * dy + right * -dx;
 
-    return { source, front };
+    //    return { source, glm::normalize(hitNearPlane -source) };
 }
 
 void MainWindow3dView::updateTransformMatrix(float dx, float dy)

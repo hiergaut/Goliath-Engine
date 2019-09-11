@@ -66,6 +66,20 @@ void Scene::initialize()
     initialized = true;
     MainWindow3dView::glInitialize();
 
+    glm::vec3 ambient = 0.5f * glm::vec3(1.0f, 1.0f, 1.0f);
+    glm::vec3 diffuse = 1.0f * glm::vec3(1.0f, 1.0f, 1.0f);
+    glm::vec3 specular = 1.0f * glm::vec3(1.0f, 1.0f, 1.0f);
+    glm::vec3 direction = 1.0f * glm::vec3(0.0f, 0.0f, -1.0f);
+//    glm::vec3 ambient = 1.0f * glm::vec3(0.05f, 0.05f, 0.05f);
+//    glm::vec3 diffuse = 1.0f * glm::vec3(0.4f, 0.4f, 0.4f);
+//    glm::vec3 specular = 1.0f * glm::vec3(0.5f, 0.5f, 0.5f);
+    m_dirLights.emplace_back(glm::vec3(0.0f, 0.0f, 1000.0f), ambient, diffuse, specular, direction);
+    //    //        m_dirLights.push_back(5);
+        //            shader.setVec3("dirLight[" + QString::number(0).toStdString() + "].direction", -0.2f, -1.0f, -0.3f);
+        //            shader.setVec3("dirLight[" + QString::number(0).toStdString() + "].ambient", 0.05f, 0.05f, 0.05f);
+        //            shader.setVec3("dirLight[" + QString::number(0).toStdString() + "].diffuse", 0.4f, 0.4f, 0.4f);
+        //            shader.setVec3("dirLight[" + QString::number(0).toStdString() + "].specular", 0.5f, 0.5f, 0.5f);
+
     //    m_axis = new Axis();
 }
 
@@ -171,34 +185,42 @@ void Scene::draw(const MainWindow3dView& view)
         }
     }
 
+    //    shader.setBool("userColor", false);
     for (uint i = 0; i < m_dirLights.size(); ++i) {
         const DirLight& dirLight = m_dirLights[i];
 
         dirLight.draw(shader);
-//        qDebug() << "draw light";
+        //        qDebug() << "draw light";
     }
 
     if (view.m_shade == MainWindow3dView::Shading::RENDERED) {
 
         //                for (const DirLight & dirLight : m_dirLights) {
+        shader.setInt("nbDirLight", m_dirLights.size());
         for (uint i = 0; i < m_dirLights.size(); ++i) {
             const DirLight& dirLight = m_dirLights[i];
 
-//                        dirLight.draw(shader);
+            //                        dirLight.draw(shader);
 
-            shader.setVec3("dirLight[" + QString::number(i).toStdString() + ".direction", dirLight.m_direction);
-            shader.setVec3("dirLight[" + QString::number(i).toStdString() + ".ambient", dirLight.m_direction);
-            shader.setVec3("dirLight[" + QString::number(i).toStdString() + ".diffuse", dirLight.m_direction);
-            shader.setVec3("dirLight[" + QString::number(i).toStdString() + ".specular", dirLight.m_direction);
+            shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].direction", dirLight.m_direction);
+            shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].ambient", dirLight.m_ambient);
+            shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].diffuse", dirLight.m_diffuse);
+            shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].specular", dirLight.m_specular);
+
+            //            shader.setVec3("dirLight[" + QString::number(0).toStdString() + "].direction", -0.2f, -1.0f, -0.3f);
+            //            shader.setVec3("dirLight[" + QString::number(0).toStdString() + "].ambient", 0.05f, 0.05f, 0.05f);
+            //            shader.setVec3("dirLight[" + QString::number(0).toStdString() + "].diffuse", 0.4f, 0.4f, 0.4f);
+            //            shader.setVec3("dirLight[" + QString::number(0).toStdString() + "].specular", 0.5f, 0.5f, 0.5f);
+
             //                    shader.setVec3("dirLight.ambient", dirLight.m_ambient);
             //                    shader.setVec3("dirLight.diffuse", dirLight.m_diffuse);
             //                    shader.setVec3("dirLight.specular", dirLight.m_specular);
         }
 
-        //        shader.setVec3("dirLight.direction", -0.2f, -1.0f, -0.3f);
-        //        shader.setVec3("dirLight.ambient", 0.05f, 0.05f, 0.05f);
-        //        shader.setVec3("dirLight.diffuse", 0.4f, 0.4f, 0.4f);
-        //        shader.setVec3("dirLight.specular", 0.5f, 0.5f, 0.5f);
+        //            shader.setVec3("dirLight[" + QString::number(0).toStdString() + "].direction", -0.2f, -1.0f, -0.3f);
+        //            shader.setVec3("dirLight[" + QString::number(0).toStdString() + "].ambient", 0.05f, 0.05f, 0.05f);
+        //            shader.setVec3("dirLight[" + QString::number(0).toStdString() + "].diffuse", 0.4f, 0.4f, 0.4f);
+        //            shader.setVec3("dirLight[" + QString::number(0).toStdString() + "].specular", 0.5f, 0.5f, 0.5f);
     }
     //    glLineWidth(1);
     //    glPolygonMode(GL_FRONT, GL_LINE);
@@ -782,10 +804,10 @@ void Scene::save(std::ofstream& file)
 
 void Scene::updateBoundingBox()
 {
-    qDebug() << "dirLights";
-    m_dirLights.emplace_back(glm::vec3(0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f),
-        glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, -1.0f));
-    //        m_dirLights.push_back(5);
+    //    qDebug() << "dirLights";
+    //    m_dirLights.emplace_back(glm::vec3(0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f),
+    //        glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, -1.0f));
+    //    //        m_dirLights.push_back(5);
     for (Model& model : m_models) {
         model.updateBoundingBox();
     }
@@ -860,7 +882,9 @@ void Scene::addLight(Light::Type lightType, const glm::vec3 position)
     switch (lightType) {
     case Light::Type::SUN:
 
-        //        m_dirLights.push_back(Light(position));
+        //        m_dirLights.emplace_back(glm::vec3(0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f),
+        //            glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, -1.0f));
+        //        //        m_dirLights.push_back(Light(position));
 
         break;
 
