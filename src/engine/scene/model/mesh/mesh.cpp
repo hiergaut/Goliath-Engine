@@ -85,7 +85,9 @@ Mesh::Mesh(const aiMesh* ai_mesh, Materials* materials, Textures* textures)
         //        glm::vec3 vertex(ai_vertice->x, ai_vertice->y, ai_vertice->z);
         //        v.Position = glm::vec3(ai_vertex->x, ai_vertex->y, ai_vertex->z);
         v.Position = aiVec3ToGlm(ai_mesh->mVertices[i]);
-        v.Normal = aiVec3ToGlm(ai_mesh->mNormals[i]);
+        if (ai_mesh->HasNormals()) {
+            v.Normal = aiVec3ToGlm(ai_mesh->mNormals[i]);
+        }
         //        v.TexCoords = aiVec2ToGlm(ai_mesh->mTextureCoords[i]);
 
         if (ai_mesh->mTextureCoords[0]) // does the mesh contain texture coordinates?
@@ -379,17 +381,17 @@ void Mesh::draw(const Shader& shader, const MainWindow3dView::Shading& shade, bo
         if (!hasTexture) {
             shader.setVec3("material.ambient", material.m_colors[Color::AMBIENT]);
         }
-//        shader.setVec3("material.ambient", 0.5f, 0.5f, 0.5f);
-//            shader.setVec3("material.diffuse", 0.3f, 0.3f, 0.3f);
-//        shader.setVec3("material.specular", 1.0f, 1.0f, 1.0f);
+        //        shader.setVec3("material.ambient", 0.5f, 0.5f, 0.5f);
+        //            shader.setVec3("material.diffuse", 0.3f, 0.3f, 0.3f);
+        //        shader.setVec3("material.specular", 1.0f, 1.0f, 1.0f);
 
         shader.setVec3("material.specular", material.m_colors[Color::SPECULAR]);
-//        shader.setVec3("material.specular", material.m_colors[Color::DIFFUSE]);
+        //        shader.setVec3("material.specular", material.m_colors[Color::DIFFUSE]);
         shader.setFloat("material.shininess", material.m_shininess);
     }
-//    if (shade == MainWindow3dView::Shading::RENDERED) {
+    //    if (shade == MainWindow3dView::Shading::RENDERED) {
 
-//    }
+    //    }
 
     if (FormTimeline::animation() != nullptr) {
         if (m_bones.size() > 0) {
@@ -524,7 +526,7 @@ void Mesh::save(std::ofstream& file) const
 //    }
 //}
 
-void Mesh::updateBoundingBox(const glm::mat4& modelTransform)
+void Mesh::updateBoundingBox(const glm::mat4& modelTransform) const
 {
     //    m_box.m_cube.setupGL();
     m_box.clear();

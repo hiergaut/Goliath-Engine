@@ -25,6 +25,7 @@
 //#include <opengl/grid.h>
 #include <engine/scene/Scene.h>
 #include <opengl/rayTracer/RayTracer.h>
+#include <gui/QOpenGLWidget_Editor.h>
 
 std::list<const MainWindow3dView*>* MainWindow3dView::m_views;
 //Shader MainWindow3dView::m_shaders;
@@ -208,7 +209,7 @@ void MainWindow3dView::load(std::ifstream& file)
     setShading(m_shade);
 }
 
-void MainWindow3dView::save(std::ofstream& file)
+void MainWindow3dView::save(std::ofstream& file) const
 {
     Camera::Type type = m_camera->m_type;
     file.write(reinterpret_cast<const char*>(&type), sizeof(type));
@@ -353,11 +354,13 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
         if (m_shiftPressed) {
             if (event->key() == Qt::Key_X) {
                 ui->actionX_Rays->trigger();
+                break;
             }
             if (event->key() == Qt::Key_Z) {
 
                 //            ui->actionX_Rays->trigger();
                 ui->actionWireFrame->trigger();
+                break;
             }
         }
     case Qt::Key_Y:
@@ -374,7 +377,17 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
             uint mem = m_axisFollow;
             m_axisFollow = static_cast<uint>(event->key() - Qt::Key_X);
             if (mem != m_axisFollow) {
-                m_axisLocal = !(m_transform == Transform::TRANSLATE);
+                //                m_axisLocal = !(m_transform == Transform::TRANSLATE);
+                switch (m_transform) {
+                case TRANSLATE:
+                    m_axisLocal =false;
+                    break;
+
+                case ROTATE:
+                case SCALE:
+                    m_axisLocal =true;
+                    break;
+                }
             } else {
                 m_axisLocal = !m_axisLocal;
             }
@@ -415,6 +428,7 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
         } else {
 
             m_transform = Transform::SCALE;
+//            m_axisLocal = true;
             setTransformActive();
         }
         break;
@@ -425,6 +439,7 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
             ui->actionRendered->trigger();
         } else {
             m_transform = Transform::ROTATE;
+//            m_axisLocal = true;
             setTransformActive();
         }
         break;
@@ -440,6 +455,7 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
         //        centralWidget()->setMouseTracking(true);
         //        setCursor(Qt::SizeAllCursor);
         m_transform = Transform::TRANSLATE;
+//        m_axisLocal = false;
         setTransformActive();
         break;
 
@@ -694,12 +710,14 @@ void MainWindow3dView::wheelEvent(QWheelEvent* event)
             //        qDebug() << "axis active";
 
             //            float dx = event->delta();
-            if (m_axisTransform) {
-                updateTransformMatrix(m_WheelPos + m_memAxisPos, 0.0f);
+            //            if (m_axisTransform) {
+            //                //                updateTransformMatrix(m_WheelPos + m_memAxisPos, 0.0f);
+            //                qDebug() << "wheelPos " << m_WheelPos;
+            //                updateTransformMatrix(m_WheelPos, 0.0f);
 
-            } else {
-                updateTransformMatrix(0.0f, 0.0f);
-            }
+            //            } else {
+            //                updateTransformMatrix(0.0f, 0.0f);
+            //            }
             return;
             //        }
         }
@@ -792,7 +810,7 @@ Ray MainWindow3dView::clickRay(QMouseEvent* event)
 {
     //    QOpenGLFunctionsCore * m_fun = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
     //    qDebug() << "ratio " << width() / height();
-//    float ratio = static_cast<float>(height()) / width();
+    //    float ratio = static_cast<float>(height()) / width();
     float ratio = static_cast<float>(width()) / height();
     glm::vec3 front = m_camera->front();
     glm::vec3 right = m_camera->right();
@@ -803,13 +821,12 @@ Ray MainWindow3dView::clickRay(QMouseEvent* event)
     float x = (2.0f * event->x()) / (float)width() - 1.0f;
     float y = (2.0f * event->y()) / (float)height() - 1.0f;
 
-
     // ------------------------------------------------------------------------------------
     float heightNearPlane = l_near * tanf(glm::radians(m_camera->fov()) * 0.5f);
     //    float heightNearPlane = l_near * tanf(glm::radians(m_camera->fov()) * ratio);
-//    float heightNearPlane = widthNearPlane;
+    //    float heightNearPlane = widthNearPlane;
     //    float heightNearPlane = l_near * tanf(glm::radians(m_camera->fov()));
-        float widthNearPlane = heightNearPlane * ratio;
+    float widthNearPlane = heightNearPlane * ratio;
 
     float dx = x * widthNearPlane;
     float dy = y * heightNearPlane;
@@ -819,18 +836,17 @@ Ray MainWindow3dView::clickRay(QMouseEvent* event)
     return { source, glm::normalize(hitNearPlane - source) };
     // ------------------------------------------------------------------------
 
-//    float dx = x * fov * 0.5f;
-//    float dy = y * fov * 0.5f;
+    //    float dx = x * fov * 0.5f;
+    //    float dy = y * fov * 0.5f;
 
+    //    glm::mat4 rotate(1.0f);
+    //    rotate = glm::rotate(rotate, glm::radians(-dx), up);
+    //    rotate = glm::rotate(rotate, glm::radians(dy), right);
 
-//    glm::mat4 rotate(1.0f);
-//    rotate = glm::rotate(rotate, glm::radians(-dx), up);
-//    rotate = glm::rotate(rotate, glm::radians(dy), right);
+    //    front = glm::normalize(rotate * glm::vec4(front, 1.0f));
+    //    return {source, front};
 
-//    front = glm::normalize(rotate * glm::vec4(front, 1.0f));
-//    return {source, front};
-
-//    glm::vec3 hitNearPlane = source + front * l_near + up * dy + right * -dx;
+    //    glm::vec3 hitNearPlane = source + front * l_near + up * dy + right * -dx;
 
     //    float mx = (float)((event->x() - width() * 0.5) * (1.0 / width()) * m_camera->fov() * 0.5);
     //    float my = (float)((event->y() - height() * 0.5) * (1.0 / width()) * m_camera->fov() * 0.5);
@@ -892,8 +908,8 @@ Ray MainWindow3dView::clickRay(QMouseEvent* event)
 
 void MainWindow3dView::updateTransformMatrix(float dx, float dy)
 {
+    qDebug() << "updateTransformMatrix " << dx << dy;
     m_transformMatrix = glm::mat4(1.0f);
-    //    qDebug() << "big update";
 
     switch (m_transform) {
     case Transform::TRANSLATE:
@@ -904,15 +920,15 @@ void MainWindow3dView::updateTransformMatrix(float dx, float dy)
                 case 0:
                     //                        m_transformMatrix = glm::translate(m_transformMatrix, glm::vec3(1.0f, 0.0f, 0.0f) * -dx);
                     //                        m_translate += glm::vec3(1.0f, 0.0f, 0.0f);
-                    m_transformMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(1.0f, 0.0f, 0.0f) * -dx);
+                    m_transformMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(1.0f, 0.0f, 0.0f) * (-dx + m_WheelPos));
                     break;
                 case 1:
                     //                        m_transformMatrix = glm::translate(m_transformMatrix, glm::vec3(0.0f, 1.0f, 0.0f) * dx);
-                    m_transformMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 1.0f, 0.0f) * -dx);
+                    m_transformMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 1.0f, 0.0f) * (-dx + m_WheelPos));
                     break;
                 case 2:
                     //                        m_transformMatrix = glm::translate(m_transformMatrix, glm::vec3(0.0f, 0.0f, 1.0f) * dx);
-                    m_transformMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 1.0f) * -dx);
+                    m_transformMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 1.0f) * (-dx + m_WheelPos));
                     break;
                 }
             } else {
@@ -920,15 +936,16 @@ void MainWindow3dView::updateTransformMatrix(float dx, float dy)
                 case 0:
                     //                        m_transformMatrix = glm::translate(m_transformMatrix, glm::vec3(1.0f, 0.0f, 0.0f) * -dx);
                     //                        m_translate += glm::vec3(1.0f, 0.0f, 0.0f);
-                    m_worldTransform = glm::translate(glm::mat4(1.0f), glm::vec3(1.0f, 0.0f, 0.0f) * -dx);
+                    m_worldTransform = glm::translate(glm::mat4(1.0f), glm::vec3(1.0f, 0.0f, 0.0f) * (-dx + m_WheelPos));
+                    //            m_worldTransform = glm::translate(m_worldTransform, m_memFront * m_WheelPos);
                     break;
                 case 1:
                     //                        m_transformMatrix = glm::translate(m_transformMatrix, glm::vec3(0.0f, 1.0f, 0.0f) * dx);
-                    m_worldTransform = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 1.0f, 0.0f) * -dx);
+                    m_worldTransform = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 1.0f, 0.0f) * (-dx + m_WheelPos));
                     break;
                 case 2:
                     //                        m_transformMatrix = glm::translate(m_transformMatrix, glm::vec3(0.0f, 0.0f, 1.0f) * dx);
-                    m_worldTransform = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 1.0f) * -dx);
+                    m_worldTransform = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 1.0f) * (-dx + m_WheelPos));
                     break;
                 }
             }
@@ -1068,7 +1085,8 @@ void MainWindow3dView::setTransformActive()
     m_transformActive = true;
     m_firstTransform = true;
     m_axisTransform = false;
-    m_axisLocal = true;
+    m_axisFollow = 10;
+    //    m_axisLocal = true;
     m_memRight = m_camera->right();
     m_memUp = m_camera->up();
     m_memFront = m_camera->front();
@@ -1087,7 +1105,7 @@ void MainWindow3dView::setTransformInactive()
     setCursor(Qt::ArrowCursor);
 
     m_axisTransform = false;
-    m_axisLocal = false;
+    //    m_axisLocal = false;
     //    case Qt::Key_Enter:
     //        m_transform = glm::mat4(1.0f);
     //        m_transformActive = false;
@@ -1467,20 +1485,25 @@ void MainWindow3dView::on_actionPose_Mode_triggered()
 
 void MainWindow3dView::on_actionDir_Light_triggered()
 {
-    Scene::m_scene->addLight(Light::Type::SUN, m_camera->m_target);
+//    Scene::m_scene->addLight(Light::Type::SUN, m_camera->m_target);
+    QOpenGLWidget_Editor::editor->addLight(Light::Type::SUN, m_camera->m_target);
+
 }
 
 void MainWindow3dView::on_actionPoint_Light_triggered()
 {
-    Scene::m_scene->addLight(Light::Type::POINT, m_camera->m_target);
+//    Scene::m_scene->addLight(Light::Type::POINT, m_camera->m_target);
+    QOpenGLWidget_Editor::editor->addLight(Light::Type::POINT, m_camera->m_target);
 }
 
 void MainWindow3dView::on_actionSpot_Light_triggered()
 {
-    Scene::m_scene->addLight(Light::Type::SPOT, m_camera->m_target);
+//    Scene::m_scene->addLight(Light::Type::SPOT, m_camera->m_target);
+    QOpenGLWidget_Editor::editor->addLight(Light::Type::SPOT, m_camera->m_target);
 }
 
 void MainWindow3dView::on_actionArea_Light_triggered()
 {
-    Scene::m_scene->addLight(Light::Type::AREA, m_camera->m_target);
+//    Scene::m_scene->addLight(Light::Type::AREA, m_camera->m_target);
+    QOpenGLWidget_Editor::editor->addLight(Light::Type::AREA, m_camera->m_target);
 }

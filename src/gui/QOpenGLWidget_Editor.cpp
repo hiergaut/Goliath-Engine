@@ -30,6 +30,8 @@
 
 #include <gui/editor/timeline/FormTimeline.h>
 
+QOpenGLWidget_Editor * QOpenGLWidget_Editor::editor = nullptr;
+
 QOpenGLWidget_Editor::QOpenGLWidget_Editor(QWidget* parent, QMainWindow* mainWindow)
     : QOpenGLWidget(parent)
     , m_mainWindow(mainWindow)
@@ -43,6 +45,8 @@ QOpenGLWidget_Editor::QOpenGLWidget_Editor(QWidget* parent, QMainWindow* mainWin
     setAttribute(Qt::WA_AlwaysStackOnTop);
 
     //    m_stream << std::setprecision(2) << std::fixed;
+    Q_ASSERT(editor == nullptr);
+    editor = this;
 }
 
 void QOpenGLWidget_Editor::loadNewModel(std::string filename)
@@ -229,6 +233,12 @@ void QOpenGLWidget_Editor::paintGL()
 void QOpenGLWidget_Editor::setStatusBar(QStatusBar* statusBar)
 {
     m_statusBar = statusBar;
+}
+
+void QOpenGLWidget_Editor::addLight(Light::Type lightType, const glm::vec3 position)
+{
+    makeCurrent();
+    m_scene.addLight(lightType, position);
 }
 
 void QOpenGLWidget_Editor::setViews(std::list<const MainWindow3dView*>* views)

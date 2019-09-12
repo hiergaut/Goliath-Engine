@@ -65,6 +65,11 @@ void QTreeView_outliner::on_changingData()
 //    qDebug() << "data changed";
     expandAll();
 
+    for (uint i =0; i <m_modelScene->rowCount(); ++i) {
+//        qDebug() << m_modelScene->data(m_modelScene->index(i, 0));
+        const QModelIndex & index = m_modelScene->index(i, 0);
+        collapse(index);
+    }
 }
 
 void QTreeView_outliner::on_click(const QModelIndex &index)

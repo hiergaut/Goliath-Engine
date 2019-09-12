@@ -86,7 +86,7 @@ public:
     //    void setScene(Model *scene);
     //    void addModel(std::string file);
     void load(std::ifstream& file);
-    void save(std::ofstream& file);
+    void save(std::ofstream& file) const;
 
     void setMode(Mode mode);
     void setShading(Shading shade);

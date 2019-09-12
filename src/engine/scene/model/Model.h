@@ -50,7 +50,13 @@ public:
     mutable bool m_selected = false;
     mutable BoundingBox m_box;
     Meshes m_meshes;
-    glm::mat4 m_transform = glm::mat4(1.0f);
+    mutable glm::mat4 m_transform = glm::mat4(1.0f);
+
+//    enum Type {
+//        OBJECT,
+//        CAMERA,
+//        LIGHT
+//    } m_type;
 
 public:
     Model(const std::string& path);
@@ -71,9 +77,9 @@ public:
 
     void prepareHierarchy(ulong frameTime) const;
     void Draw(const glm::mat4 &modelMatrix, const Shader & shader, const glm::mat4 &worldTransform = glm::mat4(1.0f)) const;
-    void Draw(const glm::mat4 &modelMatrix, const Shader & shader, const MainWindow3dView::Shading &shade, const glm::mat4 &worldTransform = glm::mat4(1.0f), bool dotCloud = false) const;
+    void Draw(const glm::mat4 &modelMatrix, const Shader & shader, const MainWindow3dView & view, const glm::mat4 &worldTransform = glm::mat4(1.0f)) const;
     void drawBoundingBox(const glm::mat4 &modelMatrix, const Shader & shader) const;
-    void updateBoundingBox();
+    void updateBoundingBox() const;
 //    void selectObject(const Ray & ray, float &depthMin, bool &find, uint &iModelMin, uint &iMeshMin, uint &iBoneMin, uint &iTriangleMin, bool unselect = false) const;
 //    void unselectRay(const Ray & ray) const;
 //    void objectFinderRay(const Ray & ray) const;

@@ -349,7 +349,7 @@ void Model::Draw(const glm::mat4 &modelMatrix, const Shader &shader, const glm::
 
 //void Model::Draw(const glm::mat4& modelMatrix, const MainWindow3dView& view) const
 //void Model::Draw(const glm::mat4& modelMatrix, const Shader& shader, bool dotCloud, bool vertexGroupShader) const
-void Model::Draw(const glm::mat4 &modelMatrix, const Shader &shader, const MainWindow3dView::Shading  & shade, const glm::mat4 & worldTransform, bool dotCloud) const
+void Model::Draw(const glm::mat4 &modelMatrix, const Shader &shader, const MainWindow3dView & view, const glm::mat4 & worldTransform) const
 {
     //    model = glm::mat4(1.0f);
     //    model = glm::scale(model, glm::vec3(0.01));
@@ -368,6 +368,8 @@ void Model::Draw(const glm::mat4 &modelMatrix, const Shader &shader, const MainW
 
     //        TriangleGeometry::draw(v0, v1, v2);
     //    }
+    const MainWindow3dView::Shading & shade = view.m_shade;
+    bool dotCloud = view.dotCloud();
 
     if (shade == MainWindow3dView::Shading::VERTEX_GROUP) {
 
@@ -464,10 +466,10 @@ void Model::drawBoundingBox(const glm::mat4& modelMatrix, const Shader& shader) 
     shader.setBool("userColor", false);
 }
 
-void Model::updateBoundingBox()
+void Model::updateBoundingBox() const
 {
     m_box.clear();
-    for (Mesh& mesh : m_meshes) {
+    for (const Mesh& mesh : m_meshes) {
         mesh.updateBoundingBox(m_transform);
         m_box << mesh.m_box;
     }

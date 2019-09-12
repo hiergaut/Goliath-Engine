@@ -22,6 +22,7 @@ class QOpenGLWidget_Editor : public QOpenGLWidget
 {
     Q_OBJECT
 public:
+    static QOpenGLWidget_Editor * editor;
 
 public:
     explicit QOpenGLWidget_Editor(QWidget *parent = nullptr, QMainWindow * mainWindow = nullptr);
@@ -43,6 +44,7 @@ public:
 
     void setStatusBar(QStatusBar *statusBar);
 
+    void addLight(Light::Type lightType, const glm::vec3 position);
 protected:
     void initializeGL() override;
 //    void resizeGL(int w, int h) override;

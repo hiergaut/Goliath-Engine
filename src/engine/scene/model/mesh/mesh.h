@@ -48,7 +48,7 @@ public:
     std::vector<Vertex> m_vertices;
     std::vector<std::set<uint>> m_triangles; // triangles per vertex
 
-    BoundingBox m_box;
+    mutable BoundingBox m_box;
 
     std::string m_name;
 
@@ -75,7 +75,7 @@ public:
     void save(std::ofstream& file) const;
 
 //    void initBonesBoundingBox() const;
-    void updateBoundingBox(const glm::mat4 &modelTransform);
+    void updateBoundingBox(const glm::mat4 &modelTransform) const;
 
 private:
 //    std::vector<BoundingBox> m_box;

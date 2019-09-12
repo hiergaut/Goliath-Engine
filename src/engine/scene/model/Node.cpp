@@ -186,11 +186,12 @@ void Node::buildItemModel(QStandardItem* parent) const
     }
 
     //        m_itemTransformation = mat4BuildItemModel(m_transformation, item);
-//    QStandardItem* item2 = new QStandardItem("transformation");
-//    m_itemTransformation = new QStandardItem;
-//    mat4BuildItemModel(m_transformation, m_itemTransformation);
-//    item2->appendRow(m_itemTransformation);
-//    item->appendRow(item2);
+
+    QStandardItem* item2 = new QStandardItem("transformation");
+    m_itemTransformation = new QStandardItem;
+    mat4BuildItemModel(m_transformation, m_itemTransformation);
+    item2->appendRow(m_itemTransformation);
+    item->appendRow(item2);
 
 
     //    if (m_nodeAnims.size() > 0) {

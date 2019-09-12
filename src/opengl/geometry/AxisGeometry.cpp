@@ -33,37 +33,37 @@ void AxisGeometry::initializeGL()
 
     //    float radius = 0.1;
     //    float max = 0.3;
-        glm::vec3 origin(0.0);
-        glm::vec3 x(10.0, 0, 0);
-        glm::vec3 y(0.0, 10.0, 0.0);
-        glm::vec3 z(0.0, 0.0, 10.0);
+    float size = 100.0f;
+    glm::vec3 origin(0.0);
+    glm::vec3 x(size, 0, 0);
+    glm::vec3 y(0.0, size, 0.0);
+    glm::vec3 z(0.0, 0.0, size);
 
     std::vector<glm::vec3> m_vertices;
-//    std::vector<glm::vec3> m_normals;
+    //    std::vector<glm::vec3> m_normals;
 
-//    m_vertices.push_back(glm::vec3(0, 0, 0));
-//    m_vertices.push_back(glm::vec3(1, 0, 0));
+    //    m_vertices.push_back(glm::vec3(0, 0, 0));
+    //    m_vertices.push_back(glm::vec3(1, 0, 0));
 
-        m_vertices.push_back(origin);
-        m_vertices.push_back(x);
+    m_vertices.push_back(origin);
+    m_vertices.push_back(x);
 
-        m_vertices.push_back(origin);
-        m_vertices.push_back(y);
+    m_vertices.push_back(origin);
+    m_vertices.push_back(y);
 
-        m_vertices.push_back(origin);
-        m_vertices.push_back(z);
+    m_vertices.push_back(origin);
+    m_vertices.push_back(z);
 
-
-//    m_normals.push_back(glm::vec3(-1, 0, 0));
-//    m_normals.push_back(glm::vec3(1, 0, 0));
+    //    m_normals.push_back(glm::vec3(-1, 0, 0));
+    //    m_normals.push_back(glm::vec3(1, 0, 0));
 
     m_fun->glGenVertexArrays(1, &m_vao);
     //    uint vbo;
     uint m_vbo;
     m_fun->glGenBuffers(1, &m_vbo);
     //    m_fun->glGenBuffers(1, &m_ebo);
-//    uint m_nbo;
-//    m_fun->glGenBuffers(1, &m_nbo);
+    //    uint m_nbo;
+    //    m_fun->glGenBuffers(1, &m_nbo);
 
     m_fun->glBindVertexArray(m_vao);
 
@@ -72,10 +72,10 @@ void AxisGeometry::initializeGL()
     m_fun->glEnableVertexAttribArray(0);
     m_fun->glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
 
-//    m_fun->glBindBuffer(GL_ARRAY_BUFFER, m_nbo);
-//    m_fun->glBufferData(GL_ARRAY_BUFFER, m_normals.size() * sizeof(glm::vec3), &m_normals[0], GL_STATIC_DRAW);
-//    m_fun->glEnableVertexAttribArray(1);
-//    m_fun->glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
+    //    m_fun->glBindBuffer(GL_ARRAY_BUFFER, m_nbo);
+    //    m_fun->glBufferData(GL_ARRAY_BUFFER, m_normals.size() * sizeof(glm::vec3), &m_normals[0], GL_STATIC_DRAW);
+    //    m_fun->glEnableVertexAttribArray(1);
+    //    m_fun->glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
 
     //    m_fun->glGenVertexArrays(1, &m_vao2);
     //    m_fun->glBindVertexArray(m_vao2);
@@ -95,27 +95,27 @@ void AxisGeometry::draw(const glm::mat4& modelMatrix, const Shader& shader)
     Q_ASSERT(m_fun != nullptr);
     //    m_shader->use();
     //    glm::mat4 identity(1.0);
-//    glm::vec3 vDir = destination - source;
-//    glm::vec3 vX = glm::vec3(1, 0, 0);
+    //    glm::vec3 vDir = destination - source;
+    //    glm::vec3 vX = glm::vec3(1, 0, 0);
 
-//    float dirLength = glm::length(vDir);
-//    glm::mat4 m(1);
-//    m = glm::translate(m, source);
+    //    float dirLength = glm::length(vDir);
+    //    glm::mat4 m(1);
+    //    m = glm::translate(m, source);
 
-//    //     m = glm::lookAt(source, destination, glm::vec3(0, 0, 1)) * m;
-//    glm::vec3 vRot = glm::cross(vX, vDir);
-//    //    std::cout << "vRot length : " << vRot.length() << std::endl;
-//    if (glm::length(vRot) > 0.01) {
-//        //        vRot = glm::vec3(0, -1, 0);
-//        //    }
-//        //    m = glm::rotate(m, )
-//        glm::vec3 dirUnit = vDir / dirLength;
-//        float angle = glm::acos(glm::dot(dirUnit, vX));
+    //    //     m = glm::lookAt(source, destination, glm::vec3(0, 0, 1)) * m;
+    //    glm::vec3 vRot = glm::cross(vX, vDir);
+    //    //    std::cout << "vRot length : " << vRot.length() << std::endl;
+    //    if (glm::length(vRot) > 0.01) {
+    //        //        vRot = glm::vec3(0, -1, 0);
+    //        //    }
+    //        //    m = glm::rotate(m, )
+    //        glm::vec3 dirUnit = vDir / dirLength;
+    //        float angle = glm::acos(glm::dot(dirUnit, vX));
 
-//        m = glm::rotate(m, angle, vRot);
-//    }
+    //        m = glm::rotate(m, angle, vRot);
+    //    }
 
-//    m = glm::scale(m, glm::vec3(dirLength));
+    //    m = glm::scale(m, glm::vec3(dirLength));
 
     shader.setMat4("model", modelMatrix);
 
