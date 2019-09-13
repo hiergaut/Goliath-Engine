@@ -6,7 +6,7 @@
 #include "model/Model.h"
 #include <opengl/shader.h>
 #include <opengl/grid.h>
-//#include <gui/editor/3dview/MainWindow3dView.h>
+#include <gui/editor/3dview/MainWindow3dView.h>
 #include <opengl/axis.h>
 
 //#include <QObject>
@@ -24,15 +24,19 @@
 class Scene {
 //    Q_OBJECT
 public:
-    static QStandardItemModel m_sceneModel;
+    QStandardItemModel m_sceneModel;
     bool m_autoUpdateBoundingBox = false;
 
 
     glm::mat4 m_localTransform = glm::mat4(1.0);
     glm::mat4 m_worldTransform = glm::mat4(1.0);
 
-    static Model* m_cameraModel;
-    static Model* m_lightDirModel;
+    Model* m_cameraModel;
+    Model* m_lightDirModel;
+
+//    static std::list<Camera*> m_cameras;
+    std::vector<const Object *> m_allObjects;
+    std::vector<Model> m_models;
 
 
 public:
@@ -90,13 +94,12 @@ private:
 //    QStandardItemModel m_materialModel;
 //    std::list<std::pair<std::string, Model>> m_models;
 //    std::map<std::string, Model> m_models;
-    std::list<const Object *> m_allObjects;
 
-    std::vector<Model> m_models;
 //    Shader* m_shader;
     std::vector<DirLight> m_dirLights;
 
 //    std::list<const MainWindow3dView *> * m_views; // cameras
+
 
 //    Shader* m_shaderCamera;
 //    std::vector<const CameraWorld*> m_cameras;

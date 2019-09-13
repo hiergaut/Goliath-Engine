@@ -72,6 +72,8 @@ MainWindow3dView::MainWindow3dView(QWidget* parent)
 {
     Q_ASSERT(Scene::m_scene != nullptr);
     m_camera = new CameraWorld(50.0f, glm::vec3(200, -200, 200), glm::vec3(0, 0, 0));
+//    Scene::m_cameras.push_back(m_camera);
+    Scene::m_scene->m_allObjects.push_back(m_camera);
     //    m_camera = new CameraFps(glm::vec3(200.0f, -200.0f, 200.0f), 135.0f, -45.0f, this);
 
     ui->setupUi(this);
@@ -178,6 +180,9 @@ void MainWindow3dView::load(std::ifstream& file)
     }
 
     m_camera->load(file);
+//    Scene::m_cameras.push_back(m_camera);
+    Q_ASSERT(Scene::m_scene != nullptr);
+    Scene::m_scene->m_allObjects.push_back(m_camera);
     //    setShading(WIRE_FRAME);
 
     bool data[7];

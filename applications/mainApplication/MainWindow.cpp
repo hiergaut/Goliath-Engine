@@ -60,6 +60,7 @@ MainWindow::MainWindow(QWidget* parent)
     editor->setViews(m_views);
     editor->setStatusBar(ui->statusBar);
 
+//    Scene::m_scene->setViews(m_views);
     //    QListView_FileOpenned::setModelFileOpenned(&m_fileOpennedModel);
 
     //        ui->page_splitterRoot->load(file);

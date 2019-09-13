@@ -114,16 +114,17 @@ Model::Model(std::ifstream& file)
 Model::Model(Model&& model) noexcept
     //    : m_box(std::move(model.m_box))
 
-    : m_materials(std::move(model.m_materials))
+    : m_meshes(std::move(model.m_meshes))
+    , m_materials(std::move(model.m_materials))
     , m_textures(std::move(model.m_textures))
     , m_animations(std::move(model.m_animations))
     , m_currentAnimation(std::move(model.m_currentAnimation))
-    , m_meshes(std::move(model.m_meshes))
-    , m_rootNode(std::move(model.m_rootNode))
     , m_filename(std::move(model.m_filename))
     , directory(std::move(model.directory))
+    , m_rootNode(std::move(model.m_rootNode))
 //    , m_transform(std::move(model.m_transform))
 {
+    m_transform = std::move(model.m_transform);
 //    std::cout << "move " << std::endl;
     for (Material& material : m_materials) {
         material.m_textures = &m_textures;
@@ -141,6 +142,7 @@ Model::Model(Model&& model) noexcept
     }
 
     m_rootNode->updateReferences(&m_meshes, &m_animations);
+
 }
 
 //Model::Model(const Model &model)
@@ -162,6 +164,10 @@ Model::~Model()
 
     //    if (m_rootNode != nullptr)
     //        delete m_rootNode;
+//    auto & models = Scene::m_scene->m_models;
+//    Q_ASSERT(std::find(models.begin(), models.end(), this) != models.end());
+//    Scene::m_scene->m_models.remove(this);
+//    Scene::m_scene->m_models.erase()
 }
 
 //    static Assimp::Importer m_importer;

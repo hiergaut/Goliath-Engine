@@ -9,7 +9,7 @@ FormContextMaterial::FormContextMaterial(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    ui->listView->setModel(&Scene::m_sceneModel);
+    ui->listView->setModel(&Scene::m_scene->m_sceneModel);
 //    ui->listView->setRootIndex(Scene::m_sceneModel.index(1, 1));
 //    ui->listView->setCurrentIndex(Scene::m_sceneModel.index(1, 1));
 }

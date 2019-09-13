@@ -128,16 +128,16 @@ const glm::vec3& Camera::position() const
 void Camera::draw(const Shader &shader, bool dotCloud, const glm::mat4 &localTransform, const glm::mat4 &worldTransform) const
 {
 //    Scene::m_camera.d
-    Scene::m_cameraModel->draw(shader, dotCloud, localTransform, worldTransform);
+    Scene::m_scene->m_cameraModel->draw(shader, dotCloud, localTransform, worldTransform);
 }
 
 void Camera::draw(const Shader &shader, const glm::mat4 &localTransform, const glm::mat4 &worldTransform) const
 {
-    Scene::m_cameraModel->draw(shader, localTransform, worldTransform);
+    Scene::m_scene->m_cameraModel->draw(shader, localTransform, worldTransform);
 }
 
 void Camera::drawBoundingBox(const Shader &shader) const
 {
 //    Scene::m_cameraModel->draw(shader, localTransform, worldTransform);
-    Scene::m_cameraModel->drawBoundingBox(shader);
+    Scene::m_scene->m_cameraModel->drawBoundingBox(shader);
 }

@@ -14,6 +14,8 @@ public:
 public:
     //    Object();
 
+    virtual ~Object() = default;
+
     virtual void draw(const Shader& shader, const glm::mat4& localTransform = glm::mat4(1.0f),
         const glm::mat4& worldTransform = glm::mat4(1.0f)) const = 0;
 
