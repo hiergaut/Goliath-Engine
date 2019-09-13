@@ -70,15 +70,15 @@ void Scene::initialize()
     glm::vec3 diffuse = 1.0f * glm::vec3(1.0f, 1.0f, 1.0f);
     glm::vec3 specular = 1.0f * glm::vec3(1.0f, 1.0f, 1.0f);
     glm::vec3 direction = 1.0f * glm::vec3(0.0f, 0.0f, -1.0f);
-//    glm::vec3 ambient = 1.0f * glm::vec3(0.05f, 0.05f, 0.05f);
-//    glm::vec3 diffuse = 1.0f * glm::vec3(0.4f, 0.4f, 0.4f);
-//    glm::vec3 specular = 1.0f * glm::vec3(0.5f, 0.5f, 0.5f);
+    //    glm::vec3 ambient = 1.0f * glm::vec3(0.05f, 0.05f, 0.05f);
+    //    glm::vec3 diffuse = 1.0f * glm::vec3(0.4f, 0.4f, 0.4f);
+    //    glm::vec3 specular = 1.0f * glm::vec3(0.5f, 0.5f, 0.5f);
     m_dirLights.emplace_back(glm::vec3(0.0f, 0.0f, 1000.0f), ambient, diffuse, specular, direction);
     //    //        m_dirLights.push_back(5);
-        //            shader.setVec3("dirLight[" + QString::number(0).toStdString() + "].direction", -0.2f, -1.0f, -0.3f);
-        //            shader.setVec3("dirLight[" + QString::number(0).toStdString() + "].ambient", 0.05f, 0.05f, 0.05f);
-        //            shader.setVec3("dirLight[" + QString::number(0).toStdString() + "].diffuse", 0.4f, 0.4f, 0.4f);
-        //            shader.setVec3("dirLight[" + QString::number(0).toStdString() + "].specular", 0.5f, 0.5f, 0.5f);
+    //            shader.setVec3("dirLight[" + QString::number(0).toStdString() + "].direction", -0.2f, -1.0f, -0.3f);
+    //            shader.setVec3("dirLight[" + QString::number(0).toStdString() + "].ambient", 0.05f, 0.05f, 0.05f);
+    //            shader.setVec3("dirLight[" + QString::number(0).toStdString() + "].diffuse", 0.4f, 0.4f, 0.4f);
+    //            shader.setVec3("dirLight[" + QString::number(0).toStdString() + "].specular", 0.5f, 0.5f, 0.5f);
 
     //    m_axis = new Axis();
 }
@@ -174,24 +174,25 @@ void Scene::draw(const MainWindow3dView& view)
     //    glEnable(GL_DEPTH_TEST);
     // -------------------------------- DRAW BOUNDING BOXES
     if (view.boundingBox()) {
-        for (const Model& model : m_models) {
+        //        for (const Model& model : m_models) {
+        for (const Model* model : m_allObjects) {
             //            model.m_box.draw(modelMatrix, shader);
-            if (model.m_selected) {
+            if (model->m_selected) {
 
-                model.drawBoundingBox(onesMatrix, shader);
+                model->drawBoundingBox(onesMatrix, shader);
             } else {
-                model.drawBoundingBox(onesMatrix, shader);
+                model->drawBoundingBox(onesMatrix, shader);
             }
         }
     }
 
     //    shader.setBool("userColor", false);
-//    for (uint i = 0; i < m_dirLights.size(); ++i) {
-//        const DirLight& dirLight = m_dirLights[i];
+    //    for (uint i = 0; i < m_dirLights.size(); ++i) {
+    //        const DirLight& dirLight = m_dirLights[i];
 
-//        dirLight.draw(shader);
-//        //        qDebug() << "draw light";
-//    }
+    //        dirLight.draw(shader);
+    //        //        qDebug() << "draw light";
+    //    }
 
     if (view.m_shade == MainWindow3dView::Shading::RENDERED) {
 
@@ -225,13 +226,14 @@ void Scene::draw(const MainWindow3dView& view)
     //    glLineWidth(1);
     //    glPolygonMode(GL_FRONT, GL_LINE);
     // -------------------------------- DRAW MODELS
-    for (const Model& model : m_models) {
-        if (model.m_selected) {
-            model.Draw(viewTransform, shader, view, viewWorldTransform);
+    //    for (const Model& model : m_models) {
+    for (const Model* model : m_allObjects) {
+        if (model->m_selected) {
+            model->Draw(viewTransform, shader, view, viewWorldTransform);
 
         } else {
 
-            model.Draw(onesMatrix, shader, view, onesMatrix);
+            model->Draw(onesMatrix, shader, view, onesMatrix);
         }
     }
     glClear(GL_DEPTH_BUFFER_BIT);
@@ -245,10 +247,11 @@ void Scene::draw(const MainWindow3dView& view)
     glPolygonMode(GL_FRONT, GL_FILL);
     glStencilFunc(GL_ALWAYS, 1, 0xFF);
     glStencilMask(0xFF);
-    for (const Model& model : m_models) {
-        if (model.m_selected) {
+    //    for (const Model& model : m_models) {
+    for (const Model* model : m_allObjects) {
+        if (model->m_selected) {
             //            model.Draw(modelMatrix, shader);
-            model.Draw(viewTransform, shader, viewWorldTransform);
+            model->Draw(viewTransform, shader, viewWorldTransform);
         }
     }
     //    glClear(GL_COLOR_BUFFER_BIT);
@@ -263,10 +266,11 @@ void Scene::draw(const MainWindow3dView& view)
     //    modelMatrix = glm::scale(modelMatrix, glm::vec3(1.1f, 1.1f, 1.1f));
     shader.setBool("userColor", true);
     shader.setVec4("color", glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));
-    for (const Model& model : m_models) {
-        if (model.m_selected) {
+    //    for (const Model& model : m_models) {
+    for (const Model* model : m_allObjects) {
+        if (model->m_selected) {
             //            model.Draw(modelMatrix, shader);
-            model.Draw(viewTransform, shader, viewWorldTransform);
+            model->Draw(viewTransform, shader, viewWorldTransform);
             //            DotGeometry::draw(modelMatrix, shader, model.m_rootNode->m_transformation[3]);
         }
     }
@@ -311,18 +315,19 @@ void Scene::draw(const MainWindow3dView& view)
         //        glDisable(GL_BLEND);
         //        glCullFace(GL_BACK);
         //        normalShader->setMat4("model", modelMatrix);
-        for (const Model& model : m_models) {
+        //        for (const Model& model : m_models) {
+        for (const Model* model : m_allObjects) {
             //	    glm::mat4 model(1.0);
             //        glm::mat4 modelMatrix(1.0);
             //        modelMatrix = glm::scale(modelMatrix, glm::vec3(0.01));
             //        modelMatrix = glm::rotate(modelMatrix, 1.57f, glm::vec3(1, 0, 0));
             //        m_shader->setMat4("model", modelMatrix);
 
-            if (model.m_selected) {
+            if (model->m_selected) {
 
-                model.Draw(viewTransform, *normalShader, view, viewWorldTransform);
+                model->Draw(viewTransform, *normalShader, view, viewWorldTransform);
             } else {
-                model.Draw(onesMatrix, *normalShader, view, onesMatrix);
+                model->Draw(onesMatrix, *normalShader, view, onesMatrix);
             }
         }
     }
@@ -330,6 +335,7 @@ void Scene::draw(const MainWindow3dView& view)
     // -------------------------------- SKELETON
     if (view.skeleton()) {
         //        modelMatrix = glm::mat4(1.0f);
+        //        for (const Model& model : m_models) {
         for (const Model& model : m_models) {
             //	    glm::mat4 model(1.0);
             //        glm::mat4 modelMatrix(1.0);
@@ -354,12 +360,13 @@ void Scene::draw(const MainWindow3dView& view)
     glDepthFunc(GL_ALWAYS);
     glLineWidth(2);
     //    glPolygonMode(GL_FRONT, GL_LINE);
-    for (const Model& model : m_models) {
-        if (model.m_selected) {
+    //    for (const Model& model : m_models) {
+    for (const Model* model : m_allObjects) {
+        if (model->m_selected) {
             //            model.Draw(modelMatrix, shader);
             //            model.Draw(modelMatrix, shader, view.m_shade, view.dotCloud());
-            AxisGeometry::draw(viewWorldTransform * model.m_transform * viewTransform, shader);
-            DotGeometry::draw(viewWorldTransform * model.m_transform * viewTransform, shader);
+            AxisGeometry::draw(viewWorldTransform * model->m_transform * viewTransform, shader);
+            DotGeometry::draw(viewWorldTransform * model->m_transform * viewTransform, shader);
         }
     }
     glDepthFunc(GL_LESS);
@@ -386,9 +393,10 @@ void Scene::draw(const MainWindow3dView& view)
 
         //        shader.setMat4("model", onesMatrix);
         if (view.m_axisLocal) {
-            for (const Model& model : m_models) {
-                if (model.m_selected) {
-                    shader.setMat4("model", model.m_transform);
+            //            for (const Model& model : m_models) {
+            for (const Model* model : m_allObjects) {
+                if (model->m_selected) {
+                    shader.setMat4("model", model->m_transform);
 
                     switch (view.m_axisFollow) {
                     case 0:
@@ -408,12 +416,13 @@ void Scene::draw(const MainWindow3dView& view)
             // ------------------------ GLOBAL AXIS
 
             shader.setMat4("model", onesMatrix);
-            for (const Model& model : m_models) {
-                if (model.m_selected) {
+            //            for (const Model& model : m_models) {
+            for (const Model* model : m_allObjects) {
+                if (model->m_selected) {
 
                     //                } else {
                     // ---------------- GLOBAL AXIS
-                    glm::vec3 translate = model.m_transform[3];
+                    glm::vec3 translate = model->m_transform[3];
                     switch (view.m_transform) {
                     case MainWindow3dView::Transform::TRANSLATE:
                     case MainWindow3dView::Transform::SCALE:
@@ -774,12 +783,15 @@ void Scene::load(std::ifstream& file)
     Session::load(size, file);
 
     m_models.clear();
+    m_allObjects.clear();
     //    m_models.resize(size);
 
     //    for (const Model & model : m_models) {
     for (uint i = 0; i < size; ++i) {
         //        model.load(file);
         m_models.emplace_back(file);
+
+        m_allObjects.push_back(&m_models.back());
     }
 
     updateSceneModel();

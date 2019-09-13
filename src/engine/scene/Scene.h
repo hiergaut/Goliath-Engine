@@ -79,6 +79,8 @@ private:
 //    QStandardItemModel m_materialModel;
 //    std::list<std::pair<std::string, Model>> m_models;
 //    std::map<std::string, Model> m_models;
+    std::vector<const Model *> m_allObjects;
+
     std::vector<Model> m_models;
 //    Shader* m_shader;
     std::vector<DirLight> m_dirLights;

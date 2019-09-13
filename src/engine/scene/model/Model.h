@@ -52,6 +52,8 @@ public:
     Meshes m_meshes;
     mutable glm::mat4 m_transform = glm::mat4(1.0f);
 
+//    float m_radius;
+
 //    enum Type {
 //        OBJECT,
 //        CAMERA,
