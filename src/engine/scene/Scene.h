@@ -58,7 +58,6 @@ public:
     void updateSceneModel();
 //    void modelChanged();
 
-//    void clear();
     void load(std::ifstream & file);
     void save(std::ofstream & file);
 
@@ -71,8 +70,6 @@ public:
 
     void addLight(Light::Type lightType, const glm::vec3 position);
 
-//    void updateAllObjects();
-
 private:
 //    void clear();
 
@@ -82,17 +79,13 @@ private:
 //    QStandardItemModel m_materialModel;
 //    std::list<std::pair<std::string, Model>> m_models;
 //    std::map<std::string, Model> m_models;
-//    Shader* m_shader;
-    std::vector<const Model*> m_allObjects;
-
     std::vector<Model> m_models;
+//    Shader* m_shader;
     std::vector<DirLight> m_dirLights;
 
     std::list<const MainWindow3dView *> * m_views; // cameras
 
-//    Model* m_cameraModel = nullptr;
-//    Model* m_sun = nullptr;
-
+    Model* m_cameraModel = nullptr;
 //    Shader* m_shaderCamera;
 //    std::vector<const CameraWorld*> m_cameras;
 //    Axis * m_axis;
