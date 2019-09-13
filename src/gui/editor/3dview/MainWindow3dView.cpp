@@ -908,7 +908,7 @@ Ray MainWindow3dView::clickRay(QMouseEvent* event)
 
 void MainWindow3dView::updateTransformMatrix(float dx, float dy)
 {
-    qDebug() << "updateTransformMatrix " << dx << dy;
+//    qDebug() << "updateTransformMatrix " << dx << dy;
     m_transformMatrix = glm::mat4(1.0f);
 
     switch (m_transform) {

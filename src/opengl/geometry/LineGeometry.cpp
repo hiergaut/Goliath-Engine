@@ -1,6 +1,7 @@
 #include "LineGeometry.h"
 
 #include <glm/gtc/matrix_transform.hpp>
+#include <QDebug>
 
 QOpenGLFunctionsCore* LineGeometry::m_fun = nullptr;
 uint LineGeometry::m_vao;
@@ -75,6 +76,7 @@ void LineGeometry::initializeGL()
 void LineGeometry::draw(const glm::vec3 &source, const glm::vec3 &destination)
 {
     Q_ASSERT(m_fun != nullptr);
+//    qDebug() << "context " << m_fun;
     glm::vec3 v01[2] { source, destination };
     //    }
 

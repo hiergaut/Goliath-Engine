@@ -152,6 +152,7 @@ void Scene::draw(const MainWindow3dView& view)
         std::vector<glm::vec3> triangles;
         for (const Ray& ray : m_rays) {
             if (ray.m_hit) {
+//                qDebug() << "fuck";
                 LineGeometry::draw(ray.m_source, ray.m_source + ray.m_direction * ray.m_length);
                 //                TriangleGeometry::draw(ray.m_vertices[0], ray.m_vertices[1], ray.m_vertices[2]);
                 //                for (const glm::vec3[3] & triangle : ray.m_triangles) {
@@ -364,14 +365,15 @@ void Scene::draw(const MainWindow3dView& view)
     shader.use(); // skeleton use owner
     glDepthFunc(GL_ALWAYS);
     glLineWidth(2);
-    //    glPolygonMode(GL_FRONT, GL_LINE);
-//    for (const Model& model : m_models) {
-    for (const Model* model : m_allObjects) {
-        if (model->m_selected) {
+//    shader.setMat4("model", onesMatrix);
+//        glPolygonMode(GL_FRONT, GL_LINE);
+    for (const Model& model : m_models) {
+//    for (const Model* model : m_allObjects) {
+        if (model.m_selected) {
             //            model.Draw(modelMatrix, shader);
             //            model.Draw(modelMatrix, shader, view.m_shade, view.dotCloud());
-            AxisGeometry::draw(viewWorldTransform * model->m_transform * viewTransform, shader);
-            DotGeometry::draw(viewWorldTransform * model->m_transform * viewTransform, shader);
+            AxisGeometry::draw(viewWorldTransform * model.m_transform * viewTransform, shader);
+            DotGeometry::draw(viewWorldTransform * model.m_transform * viewTransform, shader);
         }
     }
     glDepthFunc(GL_LESS);
@@ -782,6 +784,12 @@ void Scene::updateSceneModel()
     //    }
 }
 
+//void Scene::clear()
+//{
+
+
+//}
+
 void Scene::load(std::ifstream& file)
 {
     //    clear();
@@ -789,6 +797,7 @@ void Scene::load(std::ifstream& file)
     //    file.read(reinterpret_cast<char *>(&size), sizeof(size));
     Session::load(size, file);
     m_models.clear();
+    m_allObjects.clear();
     //    m_models.resize(size);
 
     //    for (const Model & model : m_models) {
@@ -915,6 +924,8 @@ void Scene::deleteSelected()
         }
     }
     m_models = std::move(newModels);
+
+    updateSceneModel();
 }
 
 void Scene::addLight(Light::Type lightType, const glm::vec3 position)

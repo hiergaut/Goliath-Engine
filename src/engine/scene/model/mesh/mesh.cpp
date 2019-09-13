@@ -342,6 +342,7 @@ void Mesh::draw(const Shader& shader) const
 
 void Mesh::draw(const Shader& shader, const MainWindow3dView::Shading& shade, bool dotCloud) const
 {
+//    qDebug() << "context " << m_fun;
     //    Q_ASSERT(m_box != nullptr);
     //    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     //    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);

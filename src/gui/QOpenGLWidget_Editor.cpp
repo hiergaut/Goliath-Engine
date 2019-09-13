@@ -75,6 +75,7 @@ void QOpenGLWidget_Editor::load(std::ifstream& file)
 
     makeCurrent();
 
+//    m_scene.clear();
     m_scene.load(file);
 }
 
