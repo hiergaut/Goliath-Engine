@@ -21,16 +21,16 @@
 //#include FT_FREETYPE_H
 
 #include <iomanip>
-#include <opengl/geometry/LineGeometry.h>
-#include <opengl/geometry/CubeGeometry.h>
-#include <opengl/geometry/TriangleGeometry.h>
-#include <opengl/geometry/DotGeometry.h>
 #include <opengl/geometry/AxisGeometry.h>
+#include <opengl/geometry/CubeGeometry.h>
+#include <opengl/geometry/DotGeometry.h>
+#include <opengl/geometry/LineGeometry.h>
+#include <opengl/geometry/TriangleGeometry.h>
 #include <opengl/geometry/uvSphereGeometry.h>
 
 #include <gui/editor/timeline/FormTimeline.h>
 
-QOpenGLWidget_Editor * QOpenGLWidget_Editor::editor = nullptr;
+QOpenGLWidget_Editor* QOpenGLWidget_Editor::editor = nullptr;
 
 QOpenGLWidget_Editor::QOpenGLWidget_Editor(QWidget* parent, QMainWindow* mainWindow)
     : QOpenGLWidget(parent)
@@ -57,9 +57,18 @@ void QOpenGLWidget_Editor::loadNewModel(std::string filename)
 
     glm::vec3 origin(0.0f);
 
-    for (const MainWindow3dView * view : *m_views) {
+    for (const MainWindow3dView* view : *m_views) {
         if (view->hasFocus()) {
-            origin = view->m_camera->m_target;
+            switch (view->m_camera->m_type) {
+            case Camera::Type::FPS:
+                //            origin = static_cast<CameraFps*>(view->m_camera)->m_target;
+                origin = glm::vec3(0.0f, 0.0f, 0.0f);
+                break;
+
+            case Camera::Type::WORLD:
+                origin = static_cast<CameraWorld*>(view->m_camera)->m_target;
+                break;
+            }
             break;
         }
     }
@@ -75,7 +84,7 @@ void QOpenGLWidget_Editor::load(std::ifstream& file)
 
     makeCurrent();
 
-//    m_scene.clear();
+    //    m_scene.clear();
     m_scene.load(file);
 }
 
@@ -121,6 +130,7 @@ void QOpenGLWidget_Editor::initializeGL()
     glEnable(GL_POINT_SMOOTH);
     //    glEnable(GL_BLEND);
     //    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    Shader::glInitialize();
 
     m_axis = new Axis();
 
@@ -130,9 +140,9 @@ void QOpenGLWidget_Editor::initializeGL()
 
     //    shaderAxis = new Shader(shaderPath + "axis.vsh", shaderPath + "axis.fsh");
     //    g_env.m_scene.initialize();
-    m_scene.initialize();
+    m_scene.initializeGL();
 
-//    RayTracer::setBone(new BoneGeometry);
+    //    RayTracer::setBone(new BoneGeometry);
 
     LineGeometry::initializeGL();
     CubeGeometry::initializeGL();
@@ -141,16 +151,15 @@ void QOpenGLWidget_Editor::initializeGL()
     AxisGeometry::initializeGL();
     UvSphereGeometry::initializeGL();
 
-
-//    FormTimeline::setScene(&m_scene);
+    //    FormTimeline::setScene(&m_scene);
 
     //    m_textRender.initialize();
     //    BoundingBox::m_cube.setupGL();
 
     m_lastFrame = QDateTime::currentMSecsSinceEpoch();
 
-//    m_scene.prepareHierarchy(0.0f);
-//    m_scene.updateBoundingBox();
+    //    m_scene.prepareHierarchy(0.0f);
+    //    m_scene.updateBoundingBox();
 
     m_initialized = true;
 }
@@ -186,10 +195,10 @@ void QOpenGLWidget_Editor::paintGL()
     //    glViewport(100, 100, 100, 100);
     // -------------------------------------------------------------------------------
 
-//    glm::mat4 modelMatrix(1.0);
+    //    glm::mat4 modelMatrix(1.0);
 
     bool autoUpdate = false;
-    for (const MainWindow3dView *view : *m_views) {
+    for (const MainWindow3dView* view : *m_views) {
         if (view->boundingBox()) {
             autoUpdate = true;
             break;
@@ -212,9 +221,9 @@ void QOpenGLWidget_Editor::paintGL()
         int y = m_mainWindow->height() - point.y() - view->height() + 5;
         glViewport(x, y, view->width(), view->height());
 
-//        glm::mat4 projectionMatrix = view->projectionMatrix();
+        //        glm::mat4 projectionMatrix = view->projectionMatrix();
         m_scene.draw(*view);
-//        RayTracer::draw(modelMatrix, viewMatrix, projectionMatrix);
+        //        RayTracer::draw(modelMatrix, viewMatrix, projectionMatrix);
 
         int minSide = qMin(view->width(), view->height());
         glViewport(x + 5, y + 5, minSide / 10, minSide / 10);
@@ -245,5 +254,5 @@ void QOpenGLWidget_Editor::addLight(Light::Type lightType, const glm::vec3 posit
 void QOpenGLWidget_Editor::setViews(std::list<const MainWindow3dView*>* views)
 {
     m_views = views;
-    m_scene.setViews(views);
+//    m_scene.setViews(views);
 }

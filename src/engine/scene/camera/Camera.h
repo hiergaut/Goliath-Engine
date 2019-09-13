@@ -6,9 +6,11 @@
 #include <QKeyEvent>
 
 //#include <session/Session.h>
+#include <engine/scene/Object.h>
+//#include <engine/scene/model/Model.h>
 
 
-class Camera
+class Camera : public Object
 {
 public:
     enum Type {
@@ -16,10 +18,11 @@ public:
         FPS,
     } m_type;
 
-    glm::vec3 m_target;
+//    glm::vec3 m_target;
+//    static Model * m_modelCamera;
 
 public:
-    Camera(float fov, const glm::vec3 & position, const glm::vec3 & target);
+    Camera(float fov, const glm::vec3 & position);
 //    Camera(Camera * camera);
     virtual ~Camera() {}
 
@@ -49,8 +52,14 @@ public:
     virtual glm::vec3 up() const = 0;
 
     virtual void setFront(const glm::vec3 & front) = 0;
+    virtual glm::vec3 target() const = 0;
 
 protected:
+    void drawBoundingBox(const Shader &shader) const override;
+    void draw(const Shader &shader, const glm::mat4 &localTransform = glm::mat4(1.0f), const glm::mat4 &worldTransform = glm::mat4(1.0f)) const override;
+    void draw(const Shader &shader, bool dotCloud, const glm::mat4 &localTransform = glm::mat4(1.0f), const glm::mat4 &worldTransform = glm::mat4(1.0f)) const override;
+
+
     float m_fov;
     mutable glm::vec3 m_position;
 

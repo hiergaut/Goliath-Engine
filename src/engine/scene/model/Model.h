@@ -39,18 +39,20 @@
 #include "animation/Animation.h"
 #include <memory>
 #include <opengl/geometry/boneGeometry.h>
-#include <gui/editor/3dview/MainWindow3dView.h>
+//#include <gui/editor/3dview/MainWindow3dView.h>
 #include <opengl/BoundingBox.h>
 #include <opengl/rayTracer/Ray.h>
 //#include <gui/editor/MainWindowEditor.h>
-#include <gui/editor/3dview/MainWindow3dView.h>
+//#include <gui/editor/3dview/MainWindow3dView.h>
 
-class Model {
+#include <engine/scene/Object.h>
+
+class Model : public Object {
 public:
-    mutable bool m_selected = false;
+//    mutable bool m_selected = false;
     mutable BoundingBox m_box;
     Meshes m_meshes;
-    mutable glm::mat4 m_transform = glm::mat4(1.0f);
+//    mutable glm::mat4 m_transform = glm::mat4(1.0f);
 
 //    float m_radius;
 
@@ -78,9 +80,13 @@ public:
     ~Model();
 
     void prepareHierarchy(ulong frameTime) const;
-    void Draw(const glm::mat4 &modelMatrix, const Shader & shader, const glm::mat4 &worldTransform = glm::mat4(1.0f)) const;
-    void Draw(const glm::mat4 &modelMatrix, const Shader & shader, const MainWindow3dView & view, const glm::mat4 &worldTransform = glm::mat4(1.0f)) const;
-    void drawBoundingBox(const glm::mat4 &modelMatrix, const Shader & shader) const;
+
+    void draw(const Shader & shader, const glm::mat4 &modelMatrix = glm::mat4(1.0f), const glm::mat4 &worldTransform = glm::mat4(1.0f)) const override;
+    void draw(const Shader &shader, bool dotCloud, const glm::mat4 &modelMatrix = glm::mat4(1.0f), const glm::mat4 & worldTransform = glm::mat4(1.0f)) const override;
+//    void draw(const glm::mat4 &modelMatrix, const Shader & shader, const MainWindow3dView & view, const glm::mat4 &worldTransform = glm::mat4(1.0f)) const override;
+
+    void drawBoundingBox(const Shader & shader) const override;
+
     void updateBoundingBox() const;
 //    void selectObject(const Ray & ray, float &depthMin, bool &find, uint &iModelMin, uint &iMeshMin, uint &iBoneMin, uint &iTriangleMin, bool unselect = false) const;
 //    void unselectRay(const Ray & ray) const;

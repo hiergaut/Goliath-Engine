@@ -29,7 +29,7 @@
 
 std::list<const MainWindow3dView*>* MainWindow3dView::m_views;
 //Shader MainWindow3dView::m_shaders;
-Shader* MainWindow3dView::m_shaders[Shading::size];
+//Shader* MainWindow3dView::m_shaders[Shading::size];
 
 namespace {
 float l_near = 0.1f;
@@ -52,6 +52,8 @@ MainWindow3dView::MainWindow3dView(QWidget* parent)
     //    : QWidget(parent),
     : QMainWindow(parent)
     , ui(new Ui::MainWindow3dView)
+    , m_localTransform(Scene::m_scene->m_localTransform)
+    , m_worldTransform(Scene::m_scene->m_worldTransform)
 //{
 //    ui->setupUi(this);
 //}
@@ -68,6 +70,7 @@ MainWindow3dView::MainWindow3dView(QWidget* parent)
 //    , m_shader(":/shader/model_loading.vsh", ":/shader/model_loading.fsh")
 //    , m_ebo(QOpenGLBuffer::IndexBuffer)
 {
+    Q_ASSERT(Scene::m_scene != nullptr);
     m_camera = new CameraWorld(50.0f, glm::vec3(200, -200, 200), glm::vec3(0, 0, 0));
     //    m_camera = new CameraFps(glm::vec3(200.0f, -200.0f, 200.0f), 135.0f, -45.0f, this);
 
@@ -138,7 +141,7 @@ MainWindow3dView::MainWindow3dView(QWidget* parent)
     //    }
     //    m_menus.push_back(shading);
     //    setShading(WIRE_FRAME);
-    setShading(SOLID);
+    setShading(Shader::Type::SOLID);
 
     //    connect(centralWidget(), &QWidget::mouseMoveEvent, this, &MainWindow3dView::mouseMoveEvent);
     //    installEventFilter(this);
@@ -255,7 +258,7 @@ void MainWindow3dView::setMode(MainWindow3dView::Mode mode)
     m_mode = mode;
 }
 
-void MainWindow3dView::setShading(Shading shade)
+void MainWindow3dView::setShading(Shader::Type shade)
 {
     switch (shade) {
         //    case WIRE_FRAME:
@@ -266,32 +269,32 @@ void MainWindow3dView::setShading(Shading shade)
         //        //        m_shader = new Shader("model_loading.vsh", "model_loading.fsh");
         //        break;
 
-    case SOLID:
+    case Shader::Type::SOLID:
         ui->menuShading->setIcon(ui->actionSolid->icon());
         ui->menuShading_2->setTitle("Solid");
         break;
 
-    case LOOK_DEV:
+    case Shader::Type::LOOK_DEV:
         ui->menuShading->setIcon(ui->actionLook_dev->icon());
         ui->menuShading_2->setTitle("LookDev");
         break;
 
-    case RENDERED:
+    case Shader::Type::RENDERED:
         ui->menuShading->setIcon(ui->actionRendered->icon());
         ui->menuShading_2->setTitle("Rendered");
         break;
 
-    case NORMAL:
+    case Shader::Type::NORMAL:
         ui->menuShading->setIcon(ui->actionNormal->icon());
         ui->menuShading_2->setTitle("Normal");
         break;
 
-    case DEPTH:
+    case Shader::Type::DEPTH:
         ui->menuShading->setIcon(ui->actionDepth->icon());
         ui->menuShading_2->setTitle("Depth");
         break;
 
-    case VERTEX_GROUP:
+    case Shader::Type::VERTEX_GROUP:
         ui->menuShading->setIcon(ui->actionVertexGroup->icon());
         ui->menuShading_2->setTitle("Vertex_Group");
         break;
@@ -300,16 +303,16 @@ void MainWindow3dView::setShading(Shading shade)
     m_shade = shade;
 }
 
-void MainWindow3dView::glInitialize()
-{
-    //    m_shaders[Shading::WIRE_FRAME] = new Shader("shading/wireFrame.vsh", "shading/wireFrame.fsh");
-    m_shaders[Shading::SOLID] = new Shader("shading/solid.vsh", "shading/solid.fsh");
-    m_shaders[Shading::LOOK_DEV] = new Shader("shading/lookDev.vsh", "shading/lookDev.fsh");
-    m_shaders[Shading::RENDERED] = new Shader("shading/rendered.vsh", "shading/rendered.fsh");
-    m_shaders[Shading::NORMAL] = new Shader("shading/normal.vsh", "shading/normal.fsh");
-    m_shaders[Shading::DEPTH] = new Shader("shading/depth.vsh", "shading/depth.fsh");
-    m_shaders[Shading::VERTEX_GROUP] = new Shader("shading/vertexGroup.vsh", "shading/vertexGroup.fsh");
-}
+//void MainWindow3dView::glInitialize()
+//{
+//    //    m_shaders[Shading::WIRE_FRAME] = new Shader("shading/wireFrame.vsh", "shading/wireFrame.fsh");
+//    m_shaders[Shading::SOLID] = new Shader("shading/solid.vsh", "shading/solid.fsh");
+//    m_shaders[Shading::LOOK_DEV] = new Shader("shading/lookDev.vsh", "shading/lookDev.fsh");
+//    m_shaders[Shading::RENDERED] = new Shader("shading/rendered.vsh", "shading/rendered.fsh");
+//    m_shaders[Shading::NORMAL] = new Shader("shading/normal.vsh", "shading/normal.fsh");
+//    m_shaders[Shading::DEPTH] = new Shader("shading/depth.vsh", "shading/depth.fsh");
+//    m_shaders[Shading::VERTEX_GROUP] = new Shader("shading/vertexGroup.vsh", "shading/vertexGroup.fsh");
+//}
 
 void MainWindow3dView::keyPressEvent(QKeyEvent* event)
 {
@@ -368,8 +371,10 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
 
         if (m_transformActive) {
             //            sendTransformToScene();
-            m_transformMatrix = glm::mat4(1.0f);
+            m_localTransform = glm::mat4(1.0f);
+//            Scene::m_scene->m_transformMatrix = glm::mat4(1.0f);
             m_worldTransform = glm::mat4(1.0f);
+//            Scene::m_scene->m_worldTransform = glm::mat4(1.0f);
 
             m_axisTransform = true;
             //            switch (m_transform) {
@@ -538,15 +543,18 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
             glm::vec3 pos = m_camera->position();
             float fov = m_camera->fov();
             if (m_camera->m_type == Camera::FPS) {
-                CameraFps* camera = static_cast<CameraFps*>(m_camera);
+//                CameraFps* camera = static_cast<CameraFps*>(m_camera);
 
-                glm::vec3 front = glm::normalize(camera->front());
+//                glm::vec3 front = glm::normalize(camera->front());
                 //            Q_ASSERT(glm::length(front) == 1.0f);
-                //                glm::vec3 target = camera->position() + 200.0f * front;
+
+//                                glm::vec3 target = camera->position() + 200.0f * front;
+                                glm::vec3 target = m_camera->target();
                 //            glm::vec3 target = glm::vec3(0.0f, 0.0f, 0.0f);
 
                 delete m_camera;
-                m_camera = new CameraWorld(fov, pos, camera->m_target);
+//                m_camera = new CameraWorld(fov, pos, camera->m_target);
+                m_camera = new CameraWorld(fov, pos, target);
                 //            m_camera = new CameraWorld(static_cast<CameraFps*>(m_camera));
             } else {
                 CameraWorld* camera = static_cast<CameraWorld*>(m_camera);
@@ -559,7 +567,7 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
                 float pitch = glm::degrees(asinf(front.z));
 
                 delete m_camera;
-                m_camera = new CameraFps(fov, pos, m_camera->m_target, yaw, pitch, this);
+                m_camera = new CameraFps(fov, pos, yaw, pitch, this);
 
                 static_cast<CameraFps*>(m_camera)->startFpsView();
 
@@ -786,7 +794,8 @@ void MainWindow3dView::updateOrthoProjection()
 {
     float targetDist;
     if (m_camera->m_type == Camera::WORLD) {
-        glm::vec3 target = static_cast<CameraWorld*>(m_camera)->target();
+//        glm::vec3 target = static_cast<CameraWorld*>(m_camera)->target();
+        glm::vec3 target = m_camera->target();
         targetDist = glm::length(camera()->position() - target);
     } else {
         targetDist = 200.0f;
@@ -909,7 +918,10 @@ Ray MainWindow3dView::clickRay(QMouseEvent* event)
 void MainWindow3dView::updateTransformMatrix(float dx, float dy)
 {
 //    qDebug() << "updateTransformMatrix " << dx << dy;
-    m_transformMatrix = glm::mat4(1.0f);
+//    glm::mat4 & m_transformMatrix = Scene::m_scene->m_transformMatrix;
+//    glm::mat4 & m_worldTransform = Scene::m_scene->m_worldTransform;
+
+    m_localTransform = glm::mat4(1.0f);
 
     switch (m_transform) {
     case Transform::TRANSLATE:
@@ -920,15 +932,15 @@ void MainWindow3dView::updateTransformMatrix(float dx, float dy)
                 case 0:
                     //                        m_transformMatrix = glm::translate(m_transformMatrix, glm::vec3(1.0f, 0.0f, 0.0f) * -dx);
                     //                        m_translate += glm::vec3(1.0f, 0.0f, 0.0f);
-                    m_transformMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(1.0f, 0.0f, 0.0f) * (-dx + m_WheelPos));
+                    m_localTransform = glm::translate(glm::mat4(1.0f), glm::vec3(1.0f, 0.0f, 0.0f) * (-dx + m_WheelPos));
                     break;
                 case 1:
                     //                        m_transformMatrix = glm::translate(m_transformMatrix, glm::vec3(0.0f, 1.0f, 0.0f) * dx);
-                    m_transformMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 1.0f, 0.0f) * (-dx + m_WheelPos));
+                    m_localTransform = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 1.0f, 0.0f) * (-dx + m_WheelPos));
                     break;
                 case 2:
                     //                        m_transformMatrix = glm::translate(m_transformMatrix, glm::vec3(0.0f, 0.0f, 1.0f) * dx);
-                    m_transformMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 1.0f) * (-dx + m_WheelPos));
+                    m_localTransform = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 1.0f) * (-dx + m_WheelPos));
                     break;
                 }
             } else {
@@ -967,17 +979,17 @@ void MainWindow3dView::updateTransformMatrix(float dx, float dy)
                     //                        m_transformMatrix = glm::translate(m_transformMatrix, glm::vec3(1.0f, 0.0f, 0.0f) * -dx);
                     //                        m_translate += glm::vec3(1.0f, 0.0f, 0.0f);
                     //                            m_transformMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(1.0f, 0.0f, 0.0f) * -dx);
-                    m_transformMatrix = glm::rotate(m_transformMatrix, -dx * 0.01f, glm::vec3(1.0f, 0.0f, 0.0f));
+                    m_localTransform = glm::rotate(m_localTransform, -dx * 0.01f, glm::vec3(1.0f, 0.0f, 0.0f));
                     break;
                 case 1:
                     //                        m_transformMatrix = glm::translate(m_transformMatrix, glm::vec3(0.0f, 1.0f, 0.0f) * dx);
                     //                            m_transformMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 1.0f, 0.0f) * -dx);
-                    m_transformMatrix = glm::rotate(m_transformMatrix, -dx * 0.01f, glm::vec3(0.0f, 1.0f, 0.0f));
+                    m_localTransform = glm::rotate(m_localTransform, -dx * 0.01f, glm::vec3(0.0f, 1.0f, 0.0f));
                     break;
                 case 2:
                     //                        m_transformMatrix = glm::translate(m_transformMatrix, glm::vec3(0.0f, 0.0f, 1.0f) * dx);
                     //                            m_transformMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 1.0f) * -dx);
-                    m_transformMatrix = glm::rotate(m_transformMatrix, -dx * 0.01f, glm::vec3(0.0f, 0.0f, 1.0f));
+                    m_localTransform = glm::rotate(m_localTransform, -dx * 0.01f, glm::vec3(0.0f, 0.0f, 1.0f));
                     break;
                 }
             } else {
@@ -1005,7 +1017,7 @@ void MainWindow3dView::updateTransformMatrix(float dx, float dy)
 
             //                m_transformMatrix = glm::rotate(m_transformMatrix, 0.01f * dx, m_memUp);
             //                m_transformMatrix = glm::rotate(m_transformMatrix, dy* 0.01f, m_memRight);
-            m_transformMatrix = glm::rotate(m_transformMatrix, -dx * 0.01f, m_memFront);
+            m_localTransform = glm::rotate(m_localTransform, -dx * 0.01f, m_memFront);
         }
         break;
 
@@ -1018,17 +1030,17 @@ void MainWindow3dView::updateTransformMatrix(float dx, float dy)
                     //                        m_transformMatrix = glm::translate(m_transformMatrix, glm::vec3(1.0f, 0.0f, 0.0f) * -dx);
                     //                        m_translate += glm::vec3(1.0f, 0.0f, 0.0f);
                     //                            m_transformMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(1.0f, 0.0f, 0.0f) * -dx);
-                    m_transformMatrix = glm::scale(m_transformMatrix, 1.0f + dx * 0.01f * glm::vec3(1.0f, 0.0f, 0.0f));
+                    m_localTransform = glm::scale(m_localTransform, 1.0f + dx * 0.01f * glm::vec3(1.0f, 0.0f, 0.0f));
                     break;
                 case 1:
-                    //                        m_transformMatrix = glm::translate(m_transformMatrix, glm::vec3(0.0f, 1.0f, 0.0f) * dx);
+                    //                        m_localTransform = glm::translate(m_transformMatrix, glm::vec3(0.0f, 1.0f, 0.0f) * dx);
                     //                            m_transformMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 1.0f, 0.0f) * -dx);
-                    m_transformMatrix = glm::scale(m_transformMatrix, 1.0f + dx * 0.01f * glm::vec3(0.0f, 1.0f, 0.0f));
+                    m_localTransform = glm::scale(m_localTransform, 1.0f + dx * 0.01f * glm::vec3(0.0f, 1.0f, 0.0f));
                     break;
                 case 2:
                     //                        m_transformMatrix = glm::translate(m_transformMatrix, glm::vec3(0.0f, 0.0f, 1.0f) * dx);
                     //                            m_transformMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 1.0f) * -dx);
-                    m_transformMatrix = glm::scale(m_transformMatrix, 1.0f + dx * 0.01f * glm::vec3(0.0f, 0.0f, 1.0f));
+                    m_localTransform = glm::scale(m_localTransform, 1.0f + dx * 0.01f * glm::vec3(0.0f, 0.0f, 1.0f));
                     break;
                 }
             } else {
@@ -1056,7 +1068,7 @@ void MainWindow3dView::updateTransformMatrix(float dx, float dy)
 
             //                    m_transformMatrix = glm::scale(m_transformMatrix, 1.0f + dx * 0.01f * m_memRight);
             //                    m_transformMatrix = glm::scale(m_transformMatrix, 1.0f + dy * 0.01f * m_memUp);
-            m_transformMatrix = glm::scale(m_transformMatrix, 1.0f + dx * 0.01f * glm::vec3(1.0f, 1.0f, 1.0f));
+            m_localTransform = glm::scale(m_localTransform, 1.0f + dx * 0.01f * glm::vec3(1.0f, 1.0f, 1.0f));
         }
         break;
     }
@@ -1098,7 +1110,7 @@ void MainWindow3dView::setTransformActive()
 void MainWindow3dView::setTransformInactive()
 {
     m_transformActive = false;
-    m_transformMatrix = glm::mat4(1.0f);
+    m_localTransform = glm::mat4(1.0f);
     m_worldTransform = glm::mat4(1.0f);
     setMouseTracking(false);
     centralWidget()->setMouseTracking(false);
@@ -1120,9 +1132,9 @@ void MainWindow3dView::setTransformInactive()
 
 void MainWindow3dView::sendTransformToScene()
 {
-    RayTracer::setSelectRootTransform(m_transformMatrix, m_worldTransform);
+    RayTracer::setSelectRootTransform(m_localTransform, m_worldTransform);
     //    RayTracer::setSelectRootTransform(m_worldTransform * m_transformMatrix);
-    m_transformMatrix = glm::mat4(1.0f);
+    m_localTransform = glm::mat4(1.0f);
     m_worldTransform = glm::mat4(1.0f);
 }
 
@@ -1158,12 +1170,12 @@ bool MainWindow3dView::intersectRay() const
 
 bool MainWindow3dView::vertexGroupShader() const
 {
-    return m_shade == Shading::VERTEX_GROUP;
+    return m_shade == Shader::Type::VERTEX_GROUP;
 }
 
 bool MainWindow3dView::solid() const
 {
-    return m_shade == Shading::SOLID;
+    return m_shade == Shader::Type::SOLID;
 }
 
 void MainWindow3dView::setCursorToCenter()
@@ -1175,7 +1187,7 @@ void MainWindow3dView::setCursorToCenter()
 const Shader& MainWindow3dView::shader() const
 {
     //    return *m_shader;
-    const Shader& shader = *m_shaders[m_shade];
+    const Shader& shader = *Shader::m_shaders[m_shade];
 
     shader.use();
     shader.setMat4("view", viewMatrix());
@@ -1186,7 +1198,7 @@ const Shader& MainWindow3dView::shader() const
         //        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
         //        break;
 
-    case SOLID:
+    case Shader::Type::SOLID:
         shader.setVec3("viewPos", m_camera->position());
         shader.setVec3("material.ambient", 0.5f, 0.5f, 0.5f);
         //    m_shader->setVec3("material.diffuse", 0.3f, 0.3f, 0.3f);
@@ -1194,20 +1206,20 @@ const Shader& MainWindow3dView::shader() const
         shader.setFloat("material.shininess", 1.0f);
         break;
 
-    case LOOK_DEV:
+    case Shader::Type::LOOK_DEV:
         break;
 
-    case RENDERED:
+    case Shader::Type::RENDERED:
         shader.setVec3("viewPos", m_camera->position());
         break;
 
-    case NORMAL:
+    case Shader::Type::NORMAL:
         break;
 
-    case DEPTH:
+    case Shader::Type::DEPTH:
         break;
 
-    case VERTEX_GROUP:
+    case Shader::Type::VERTEX_GROUP:
         break;
     }
 
@@ -1238,7 +1250,9 @@ const Shader& MainWindow3dView::shader() const
         glEnable(GL_CULL_FACE);
     }
 
-    return *m_shaders[m_shade];
+//    return *m_shaders[m_shade];
+//    return *Shader::m_shaders[m_shade];
+    return shader;
 }
 
 //std::list<QMenu> MainWindow3dView::menus() const
@@ -1291,32 +1305,32 @@ glm::mat4 MainWindow3dView::projectionMatrixZoom() const
 
 void MainWindow3dView::on_actionSolid_triggered()
 {
-    setShading(SOLID);
+    setShading(Shader::Type::SOLID);
 }
 
 void MainWindow3dView::on_actionLook_dev_triggered()
 {
-    setShading(LOOK_DEV);
+    setShading(Shader::Type::LOOK_DEV);
 }
 
 void MainWindow3dView::on_actionRendered_triggered()
 {
-    setShading(RENDERED);
+    setShading(Shader::Type::RENDERED);
 }
 
 void MainWindow3dView::on_actionNormal_triggered()
 {
-    setShading(NORMAL);
+    setShading(Shader::Type::NORMAL);
 }
 
 void MainWindow3dView::on_actionDepth_triggered()
 {
-    setShading(DEPTH);
+    setShading(Shader::Type::DEPTH);
 }
 
 void MainWindow3dView::on_actionVertexGroup_triggered()
 {
-    setShading(VERTEX_GROUP);
+    setShading(Shader::Type::VERTEX_GROUP);
 }
 
 void MainWindow3dView::on_actionWireFrame_triggered()
@@ -1486,24 +1500,24 @@ void MainWindow3dView::on_actionPose_Mode_triggered()
 void MainWindow3dView::on_actionDir_Light_triggered()
 {
 //    Scene::m_scene->addLight(Light::Type::SUN, m_camera->m_target);
-    QOpenGLWidget_Editor::editor->addLight(Light::Type::SUN, m_camera->m_target);
+    QOpenGLWidget_Editor::editor->addLight(Light::Type::SUN, m_camera->target());
 
 }
 
 void MainWindow3dView::on_actionPoint_Light_triggered()
 {
 //    Scene::m_scene->addLight(Light::Type::POINT, m_camera->m_target);
-    QOpenGLWidget_Editor::editor->addLight(Light::Type::POINT, m_camera->m_target);
+    QOpenGLWidget_Editor::editor->addLight(Light::Type::POINT, m_camera->target());
 }
 
 void MainWindow3dView::on_actionSpot_Light_triggered()
 {
 //    Scene::m_scene->addLight(Light::Type::SPOT, m_camera->m_target);
-    QOpenGLWidget_Editor::editor->addLight(Light::Type::SPOT, m_camera->m_target);
+    QOpenGLWidget_Editor::editor->addLight(Light::Type::SPOT, m_camera->target());
 }
 
 void MainWindow3dView::on_actionArea_Light_triggered()
 {
 //    Scene::m_scene->addLight(Light::Type::AREA, m_camera->m_target);
-    QOpenGLWidget_Editor::editor->addLight(Light::Type::AREA, m_camera->m_target);
+    QOpenGLWidget_Editor::editor->addLight(Light::Type::AREA, m_camera->target());
 }

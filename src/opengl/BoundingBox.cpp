@@ -68,9 +68,10 @@ float BoundingBox::radius() const
 
 }
 
-void BoundingBox::draw(glm::mat4 modelMatrix, const Shader& shader) const
+void BoundingBox::draw(const Shader& shader) const
 {
 
+    glm::mat4 modelMatrix(1.0f);
     glm::vec3 diag(m_bounds[1] - m_bounds[0]);
     modelMatrix = glm::translate(modelMatrix, center());
     modelMatrix = glm::scale(modelMatrix, diag);

@@ -17,7 +17,7 @@ const float accuracyZoom = 0.05;
 
 
 CameraFps::CameraFps(MainWindow3dView * view)
-    : Camera(50.0f, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f))
+    : Camera(50.0f, glm::vec3(0.0f, 0.0f, 0.0f))
     , m_view(view)
 {   //    m_fov = ZOOM;
     m_type = FPS;
@@ -41,8 +41,8 @@ CameraFps::CameraFps(MainWindow3dView * view)
 
 }
 
-CameraFps::CameraFps(float fov, const glm::vec3 &position, const glm::vec3 &target, float yaw, float pitch, MainWindow3dView* view)
-    : Camera(fov, position, target)
+CameraFps::CameraFps(float fov, const glm::vec3 &position, float yaw, float pitch, MainWindow3dView* view)
+    : Camera(fov, position)
     , m_view(view)
     , m_yaw(yaw)
     , m_pitch(pitch)
@@ -435,4 +435,9 @@ void CameraFps::setFront(const glm::vec3 &front)
             m_pitch = glm::degrees(asinf(front.z));
 
             updateCameraVectors();
+}
+
+glm::vec3 CameraFps::target() const
+{
+        return m_position + 200.0f * m_front;
 }

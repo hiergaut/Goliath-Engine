@@ -122,7 +122,7 @@ Model::Model(Model&& model) noexcept
     , m_rootNode(std::move(model.m_rootNode))
     , m_filename(std::move(model.m_filename))
     , directory(std::move(model.directory))
-    , m_transform(std::move(model.m_transform))
+//    , m_transform(std::move(model.m_transform))
 {
 //    std::cout << "move " << std::endl;
     for (Material& material : m_materials) {
@@ -334,7 +334,9 @@ void Model::prepareHierarchy(ulong frameTime) const
     //    updateBoundingBoxing();
 }
 
-void Model::Draw(const glm::mat4 &modelMatrix, const Shader &shader, const glm::mat4 & worldTransform) const
+
+//void Model::draw(const glm::mat4 &modelMatrix, const Shader &shader, const glm::mat4 & worldTransform) const
+void Model::draw(const Shader &shader, const glm::mat4 &modelMatrix, const glm::mat4 &worldTransform) const
 {
         for (const Mesh& mesh : m_meshes) {
             //        const Mesh& mesh = m_meshes[i];
@@ -349,7 +351,8 @@ void Model::Draw(const glm::mat4 &modelMatrix, const Shader &shader, const glm::
 
 //void Model::Draw(const glm::mat4& modelMatrix, const MainWindow3dView& view) const
 //void Model::Draw(const glm::mat4& modelMatrix, const Shader& shader, bool dotCloud, bool vertexGroupShader) const
-void Model::Draw(const glm::mat4 &modelMatrix, const Shader &shader, const MainWindow3dView & view, const glm::mat4 & worldTransform) const
+//void Model::draw(const glm::mat4 &modelMatrix, const Shader &shader, bool dotCloud, const glm::mat4 & worldTransform) const
+void Model::draw(const Shader &shader, bool dotCloud, const glm::mat4 &modelMatrix, const glm::mat4 &worldTransform) const
 {
     //    model = glm::mat4(1.0f);
     //    model = glm::scale(model, glm::vec3(0.01));
@@ -368,10 +371,10 @@ void Model::Draw(const glm::mat4 &modelMatrix, const Shader &shader, const MainW
 
     //        TriangleGeometry::draw(v0, v1, v2);
     //    }
-    const MainWindow3dView::Shading & shade = view.m_shade;
-    bool dotCloud = view.dotCloud();
+//    const MainWindow3dView::Shading & shade = view.m_shade;
+//    bool dotCloud = view.dotCloud();
 
-    if (shade == MainWindow3dView::Shading::VERTEX_GROUP) {
+    if (shader.m_shade == Shader::Type::VERTEX_GROUP) {
 
         for (uint i = 0; i < m_meshes.size(); ++i) {
             //    for (const Mesh& mesh : m_meshes) {
@@ -397,7 +400,7 @@ void Model::Draw(const glm::mat4 &modelMatrix, const Shader &shader, const MainW
                 shader.setVec4("color", glm::vec4(r, g, b, 1.0f));
             }
             shader.setMat4("model", worldTransform * m_transform * modelMatrix * mesh.m_transform);
-            mesh.draw(shader, shade, dotCloud);
+            mesh.draw(shader, dotCloud);
             //        shader.setBool("userColor", false);
 
             //        mesh.m_box->draw(modelMatrix * mesh.m_transform, shader);
@@ -410,7 +413,7 @@ void Model::Draw(const glm::mat4 &modelMatrix, const Shader &shader, const MainW
 
             shader.setMat4("model",worldTransform * m_transform * modelMatrix * mesh.m_transform);
 
-            mesh.draw(shader, shade, dotCloud);
+            mesh.draw(shader, dotCloud);
         }
         //        shader.setBool("userColor", false);
     }
@@ -422,7 +425,8 @@ void Model::Draw(const glm::mat4 &modelMatrix, const Shader &shader, const MainW
     //    shader.use();
 }
 
-void Model::drawBoundingBox(const glm::mat4& modelMatrix, const Shader& shader) const
+//void Model::drawBoundingBox(const glm::mat4& modelMatrix, const Shader& shader) const
+void Model::drawBoundingBox(const Shader &shader) const
 {
     //    for (const Mesh& mesh : m_meshes) {
     //        //        shader.setMat4("model", modelMatrix);
@@ -437,7 +441,7 @@ void Model::drawBoundingBox(const glm::mat4& modelMatrix, const Shader& shader) 
     shader.setBool("userColor", true);
     //    m_rootNode->drawBoundingBox(modelMatrix, shader);
     shader.setVec4("color", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-    m_box.draw(modelMatrix, shader);
+    m_box.draw(shader);
 
     for (uint i = 0; i < m_meshes.size(); ++i) {
         //    for (const Mesh& mesh : m_meshes) {
@@ -457,9 +461,9 @@ void Model::drawBoundingBox(const glm::mat4& modelMatrix, const Shader& shader) 
         shader.setVec4("color", glm::vec4(r, g, b, 1.0f));
 
         //        shader.setVec3("color", glm::vec3(1.0f, 1.0f, 1.0f));
-        mesh.m_box.draw(modelMatrix, shader);
+        mesh.m_box.draw(shader);
 
-        mesh.drawBoundingBox(modelMatrix, shader);
+        mesh.drawBoundingBox(shader);
 
         //        mesh.m_box->draw(modelMatrix * mesh.m_transform, shader);
     }

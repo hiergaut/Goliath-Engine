@@ -11,9 +11,10 @@
 #include "CameraFps.h"
 
 
+
 class CameraWorld : public Camera {
 public:
-//    glm::vec3 m_target;
+    glm::vec3 m_target;
 
 public:
     CameraWorld();
@@ -33,6 +34,10 @@ protected:
     void save(std::ofstream & file) override;
     glm::mat4 viewMatrix() const override;
 
+//    void draw(const Shader &shader, bool dotCloud, const glm::mat4 &localTransform = glm::mat4(1.0f), const glm::mat4 &worldTransform = glm::mat4(1.0f)) const override;
+//    void draw(const Shader &shader, const glm::mat4 &localTransform = glm::mat4(1.0f), const glm::mat4 &worldTransform = glm::mat4(1.0f)) const override;
+//    void drawBoundingBox(const Shader &shader) const override;
+
 
     void mousePressEvent(QMouseEvent *event) override;
 //    void mouseReleaseEvent(QMouseEvent *event);
@@ -50,7 +55,7 @@ private:
     QPoint lastPos;
 
 public:
-    glm::vec3 target() const;
+    glm::vec3 target() const override;
     glm::vec3 up() const override;
     glm::vec3 right() const override;
     glm::vec3 front() const override;

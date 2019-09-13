@@ -340,7 +340,7 @@ void Mesh::draw(const Shader& shader) const
     m_fun->glActiveTexture(GL_TEXTURE0);
 }
 
-void Mesh::draw(const Shader& shader, const MainWindow3dView::Shading& shade, bool dotCloud) const
+void Mesh::draw(const Shader& shader, bool dotCloud) const
 {
 //    qDebug() << "context " << m_fun;
     //    Q_ASSERT(m_box != nullptr);
@@ -349,7 +349,7 @@ void Mesh::draw(const Shader& shader, const MainWindow3dView::Shading& shade, bo
     //    shader.setMat4("model", m_transform);
     //    shader.setMat4("model", glm::mat4(1));
 
-    if (shade == MainWindow3dView::Shading::LOOK_DEV || shade == MainWindow3dView::Shading::RENDERED) {
+    if (shader.m_shade == Shader::Type::LOOK_DEV || shader.m_shade == Shader::Type::RENDERED) {
         const Material& material = (*m_materials)[m_iMaterial];
         //        const Material& material = mesh.m_material;
         //        const Material& material = mesh.m_material;
@@ -431,7 +431,7 @@ void Mesh::draw(const Shader& shader, const MainWindow3dView::Shading& shade, bo
     m_fun->glActiveTexture(GL_TEXTURE0);
 }
 
-void Mesh::drawBoundingBox(glm::mat4 modelMatrix, const Shader& shader) const
+void Mesh::drawBoundingBox(const Shader& shader) const
 {
     //    shader.use();
     //    BoundingBox box;
@@ -450,7 +450,7 @@ void Mesh::drawBoundingBox(glm::mat4 modelMatrix, const Shader& shader) const
 
         shader.setVec4("color", glm::vec4(r, g, b, 1.0f));
 
-        bone.m_box.draw(modelMatrix, shader);
+        bone.m_box.draw(shader);
         //        box << bone.m_box;
         //        m_box.draw(modelMatrix, shader);
     }

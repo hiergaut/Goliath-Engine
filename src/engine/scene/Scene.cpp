@@ -6,7 +6,6 @@
 #include <opengl/version.h>
 //#include <opengl/shader.h>
 
-QStandardItemModel Scene::m_sceneModel;
 #include <gui/editor/timeline/FormTimeline.h>
 #include <opengl/geometry/AxisGeometry.h>
 #include <opengl/geometry/DotGeometry.h>
@@ -14,9 +13,15 @@ QStandardItemModel Scene::m_sceneModel;
 #include <opengl/geometry/TriangleGeometry.h>
 
 Scene* Scene::m_scene = nullptr;
+QStandardItemModel Scene::m_sceneModel;
+Model* Scene::m_cameraModel = nullptr;
+Model* Scene::m_lightDirModel = nullptr;
 
 Scene::Scene()
 {
+    Q_ASSERT(m_scene == nullptr);
+    m_scene = this;
+
     m_models.reserve(10);
     m_dirLights.reserve(10);
     //    m_dirLights.reserve(10);
@@ -51,9 +56,10 @@ Scene::Scene()
     //    model->appendColumn(item0);
 }
 
-void Scene::initialize()
+void Scene::initializeGL()
 {
     m_cameraModel = new Model(g_resourcesPath + "models/camera/camera.obj");
+    m_lightDirModel = new Model(g_resourcesPath + "models/sun/sun.obj");
 
     //    m_shaderCamera = new Shader("camera.vsh", "camera.fsh");
     //    m_shader = new Shader("model_loading.vsh", "model_loading.fsh");
@@ -64,7 +70,7 @@ void Scene::initialize()
     //    m_bone = new BoneGeometry;
 
     initialized = true;
-    MainWindow3dView::glInitialize();
+    //    MainWindow3dView::glInitialize();
 
     glm::vec3 ambient = 0.5f * glm::vec3(1.0f, 1.0f, 1.0f);
     glm::vec3 diffuse = 1.0f * glm::vec3(1.0f, 1.0f, 1.0f);
@@ -118,14 +124,16 @@ void Scene::draw(const MainWindow3dView& view)
 
     //    glm::mat4 modelMatrix(1.0);
     const glm::mat4 onesMatrix(1.0);
-    if (view.m_shade != MainWindow3dView::Shading::RENDERED) {
+    if (view.m_shade != Shader::Type::RENDERED) {
         m_grid->draw(onesMatrix, viewMatrix, projectionMatrix);
     }
 
     const Shader& shader = view.shader();
 
-    const glm::mat4& viewTransform = view.m_transformMatrix;
-    const glm::mat4& viewWorldTransform = view.m_worldTransform;
+    //    const glm::mat4& viewTransform = view.m_transformMatrix;
+    //    const glm::mat4& viewWorldTransform = view.m_worldTransform;
+    const glm::mat4& viewLocalTransform = m_localTransform;
+    const glm::mat4& viewWorldTransform = m_worldTransform;
 
     GLint polygonMode;
     glGetIntegerv(GL_POLYGON_MODE, &polygonMode);
@@ -173,16 +181,18 @@ void Scene::draw(const MainWindow3dView& view)
     //    glClear(GL_STENCIL_BUFFER_BIT);
     //    glEnable(GL_DEPTH_TEST);
     // -------------------------------- DRAW BOUNDING BOXES
+//    shader.setMat4("model", onesMatrix);
     if (view.boundingBox()) {
         //        for (const Model& model : m_models) {
-        for (const Model* model : m_allObjects) {
+        for (const Object* object : m_allObjects) {
             //            model.m_box.draw(modelMatrix, shader);
-            if (model->m_selected) {
+            object->drawBoundingBox(shader);
+            //            if (object->m_selected) {
 
-                model->drawBoundingBox(onesMatrix, shader);
-            } else {
-                model->drawBoundingBox(onesMatrix, shader);
-            }
+            ////                object->drawBoundingBox(viewWorldTransform, shader);
+            //            } else {
+            //                object->drawBoundingBox(onesMatrix, shader);
+            //            }
         }
     }
 
@@ -194,7 +204,7 @@ void Scene::draw(const MainWindow3dView& view)
     //        //        qDebug() << "draw light";
     //    }
 
-    if (view.m_shade == MainWindow3dView::Shading::RENDERED) {
+    if (view.m_shade == Shader::Type::RENDERED) {
 
         //                for (const DirLight & dirLight : m_dirLights) {
         shader.setInt("nbDirLight", m_dirLights.size());
@@ -227,13 +237,13 @@ void Scene::draw(const MainWindow3dView& view)
     //    glPolygonMode(GL_FRONT, GL_LINE);
     // -------------------------------- DRAW MODELS
     //    for (const Model& model : m_models) {
-    for (const Model* model : m_allObjects) {
-        if (model->m_selected) {
-            model->Draw(viewTransform, shader, view, viewWorldTransform);
+    for (const Object* object : m_allObjects) {
+        if (object->m_selected) {
+            object->draw(shader, view.dotCloud(), viewLocalTransform, viewWorldTransform);
 
         } else {
 
-            model->Draw(onesMatrix, shader, view, onesMatrix);
+            object->draw(shader, view.dotCloud(), onesMatrix, onesMatrix);
         }
     }
     glClear(GL_DEPTH_BUFFER_BIT);
@@ -248,10 +258,10 @@ void Scene::draw(const MainWindow3dView& view)
     glStencilFunc(GL_ALWAYS, 1, 0xFF);
     glStencilMask(0xFF);
     //    for (const Model& model : m_models) {
-    for (const Model* model : m_allObjects) {
-        if (model->m_selected) {
+    for (const Object* object : m_allObjects) {
+        if (object->m_selected) {
             //            model.Draw(modelMatrix, shader);
-            model->Draw(viewTransform, shader, viewWorldTransform);
+            object->draw(shader, viewLocalTransform, viewWorldTransform);
         }
     }
     //    glClear(GL_COLOR_BUFFER_BIT);
@@ -267,10 +277,10 @@ void Scene::draw(const MainWindow3dView& view)
     shader.setBool("userColor", true);
     shader.setVec4("color", glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));
     //    for (const Model& model : m_models) {
-    for (const Model* model : m_allObjects) {
-        if (model->m_selected) {
+    for (const Object* object : m_allObjects) {
+        if (object->m_selected) {
             //            model.Draw(modelMatrix, shader);
-            model->Draw(viewTransform, shader, viewWorldTransform);
+            object->draw(shader, viewLocalTransform, viewWorldTransform);
             //            DotGeometry::draw(modelMatrix, shader, model.m_rootNode->m_transformation[3]);
         }
     }
@@ -284,12 +294,12 @@ void Scene::draw(const MainWindow3dView& view)
     glPolygonMode(GL_FRONT, polygonMode);
 
     // -------------------------------- DRAW CAMERA VIEWS
-    for (const MainWindow3dView* otherViews : *m_views) {
-        const Camera* camera = otherViews->camera();
-        glm::mat4 modelMatrix = glm::inverse(camera->viewMatrix());
-        Q_ASSERT(m_cameraModel != nullptr);
-        m_cameraModel->Draw(modelMatrix, shader, view);
-    }
+    //    for (const MainWindow3dView* otherViews : *m_views) {
+    //        const Camera* camera = otherViews->camera();
+    //        glm::mat4 modelMatrix = glm::inverse(camera->viewMatrix());
+    //        Q_ASSERT(m_cameraModel != nullptr);
+    //        m_cameraModel->draw(shader, view.dotCloud(), modelMatrix);
+    //    }
 
     switch (view.m_mode) {
     case MainWindow3dView::Mode::OBJECT:
@@ -316,18 +326,19 @@ void Scene::draw(const MainWindow3dView& view)
         //        glCullFace(GL_BACK);
         //        normalShader->setMat4("model", modelMatrix);
         //        for (const Model& model : m_models) {
-        for (const Model* model : m_allObjects) {
+        for (const Object* object : m_allObjects) {
             //	    glm::mat4 model(1.0);
             //        glm::mat4 modelMatrix(1.0);
             //        modelMatrix = glm::scale(modelMatrix, glm::vec3(0.01));
             //        modelMatrix = glm::rotate(modelMatrix, 1.57f, glm::vec3(1, 0, 0));
             //        m_shader->setMat4("model", modelMatrix);
 
-            if (model->m_selected) {
+            normalShader->m_shade = view.m_shade;
+            if (object->m_selected) {
 
-                model->Draw(viewTransform, *normalShader, view, viewWorldTransform);
+                object->draw(*normalShader, view.dotCloud(), viewLocalTransform, viewWorldTransform);
             } else {
-                model->Draw(onesMatrix, *normalShader, view, onesMatrix);
+                object->draw(*normalShader, view.dotCloud(), onesMatrix, onesMatrix);
             }
         }
     }
@@ -345,7 +356,7 @@ void Scene::draw(const MainWindow3dView& view)
 
             if (model.m_selected) {
 
-                model.DrawHierarchy(viewTransform, view, viewWorldTransform);
+                model.DrawHierarchy(viewLocalTransform, view, viewWorldTransform);
             } else {
                 model.DrawHierarchy(onesMatrix, view);
             }
@@ -357,16 +368,20 @@ void Scene::draw(const MainWindow3dView& view)
     // -------------------------------- DRAW ORIGINS MODELS
     //    glClear(GL_DEPTH_BUFFER_BIT);
     shader.use(); // skeleton use owner
+    shader.setMat4("model", onesMatrix);
     glDepthFunc(GL_ALWAYS);
     glLineWidth(2);
     //    glPolygonMode(GL_FRONT, GL_LINE);
     //    for (const Model& model : m_models) {
-    for (const Model* model : m_allObjects) {
-        if (model->m_selected) {
+    for (const Object* object : m_allObjects) {
+        if (object->m_selected) {
             //            model.Draw(modelMatrix, shader);
             //            model.Draw(modelMatrix, shader, view.m_shade, view.dotCloud());
-            AxisGeometry::draw(viewWorldTransform * model->m_transform * viewTransform, shader);
-            DotGeometry::draw(viewWorldTransform * model->m_transform * viewTransform, shader);
+
+            // TODO
+            AxisGeometry::draw(viewWorldTransform * object->m_transform * viewLocalTransform, shader);
+            DotGeometry::draw(viewWorldTransform * object->m_transform * viewLocalTransform, shader);
+            //            object->drawOrigin(viewWorldTransform, viewTransform, shader);
         }
     }
     glDepthFunc(GL_LESS);
@@ -394,9 +409,9 @@ void Scene::draw(const MainWindow3dView& view)
         //        shader.setMat4("model", onesMatrix);
         if (view.m_axisLocal) {
             //            for (const Model& model : m_models) {
-            for (const Model* model : m_allObjects) {
-                if (model->m_selected) {
-                    shader.setMat4("model", model->m_transform);
+            for (const Object* object : m_allObjects) {
+                if (object->m_selected) {
+                    shader.setMat4("model", object->m_transform);
 
                     switch (view.m_axisFollow) {
                     case 0:
@@ -417,12 +432,12 @@ void Scene::draw(const MainWindow3dView& view)
 
             shader.setMat4("model", onesMatrix);
             //            for (const Model& model : m_models) {
-            for (const Model* model : m_allObjects) {
-                if (model->m_selected) {
+            for (const Object* object : m_allObjects) {
+                if (object->m_selected) {
 
                     //                } else {
                     // ---------------- GLOBAL AXIS
-                    glm::vec3 translate = model->m_transform[3];
+                    glm::vec3 translate = object->m_transform[3];
                     switch (view.m_transform) {
                     case MainWindow3dView::Transform::TRANSLATE:
                     case MainWindow3dView::Transform::SCALE:
@@ -571,7 +586,7 @@ void Scene::selectRay(const Ray& ray, bool additional)
                                 //                                    iTriangleMin = iTriangle;
                                 //                                } else {
                                 if (depth < depthMin) {
-                                    qDebug() << "intersect model " << model.filename().c_str() << depth;
+                                    //                                    qDebug() << "intersect model " << model.filename().c_str() << depth;
                                     iModelMin = iModel;
                                     depthMin = depth;
                                     iMeshMin = iMesh;
@@ -637,7 +652,7 @@ void Scene::selectRay(const Ray& ray, bool additional)
                                             //                                                iTriangleMin = iTriangle;
                                             //                                            } else {
                                             if (depth < depthMin) {
-                                                qDebug() << "intersect model " << model.filename().c_str() << depth;
+                                                //                                                qDebug() << "intersect model " << model.filename().c_str() << depth;
                                                 //                                    depthMin = std::min(depthMin, depth);
                                                 iModelMin = iModel;
                                                 depthMin = depth;
@@ -926,10 +941,10 @@ void Scene::addLight(Light::Type lightType, const glm::vec3 position)
 //    return m_itemModel;
 //}
 
-void Scene::setViews(std::list<const MainWindow3dView*>* views)
-{
-    m_views = views;
-}
+//void Scene::setViews(std::list<const MainWindow3dView*>* views)
+//{
+//    m_views = views;
+//}
 
 //std::vector<const CameraWorld &> & Scene::cameras() const
 //{

@@ -1,5 +1,8 @@
 #include "CameraWorld.h"
 
+#include <session/Session.h>
+#include <engine/scene/Scene.h>
+
 const float accuracyRotate = 0.01f;
 const float accuracyMove = 0.001f;
 const float accuracySlide = 1.0f;
@@ -7,13 +10,16 @@ const float accuracySlide = 1.0f;
 
 
 CameraWorld::CameraWorld()
-    : Camera(60.0f, glm::vec3(100.0f, 100.0f, 100.0f), glm::vec3(0.0f))
+
+    : Camera(60.0f, glm::vec3(100.0f, 100.0f, 100.0f))
+    , m_target(glm::vec3(0.0f, 0.0f, 0.0f))
 {
     m_type = WORLD;
 }
 
 CameraWorld::CameraWorld(float fov, glm::vec3 position, glm::vec3 target)
-    : Camera(fov, position, target)
+    : Camera(fov, position)
+    , m_target(target)
     //    : m_position { position }
 //    , m_target { target }
 {
@@ -155,6 +161,7 @@ void CameraWorld::load(std::ifstream& file)
     //    qDebug() << m_position.x << m_position.y << m_position.z;
     //    qDebug() << m_target.x << m_target.y << m_target.z;
     //    qDebug() << m_fov;
+    Session::load(m_target, file);
 }
 void CameraWorld::save(std::ofstream& file)
 {
@@ -175,6 +182,7 @@ void CameraWorld::save(std::ofstream& file)
 //    //        size_t size;
 //    //        size = sizeof(m_position);
 //    file.write(reinterpret_cast<const char*>(&data), sizeof(data));
+    Session::save(m_target, file);
 }
 
 glm::mat4 CameraWorld::viewMatrix() const

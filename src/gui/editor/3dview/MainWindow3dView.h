@@ -39,21 +39,24 @@ class MainWindow3dView;
 //#include <gui/editor/MainWindowEditor.h>
 //#include <gui/QOpenGLWidget_Editor.h>
 #include <opengl/rayTracer/Ray.h>
+#include <opengl/shader.h>
 
 class MainWindow3dView : public QMainWindow, public TemplateMenuBar {
     Q_OBJECT
 
 public:
-    enum Shading {
-        //        WIRE_FRAME = 0,
-        SOLID = 0,
-        LOOK_DEV,
-        RENDERED,
-        NORMAL,
-        DEPTH,
-        VERTEX_GROUP,
-        size
-    } m_shade;
+//    enum Shading {
+//        //        WIRE_FRAME = 0,
+//        SOLID = 0,
+//        LOOK_DEV,
+//        RENDERED,
+//        NORMAL,
+//        DEPTH,
+//        VERTEX_GROUP,
+//        size
+//    } m_shade;
+//    Shader::
+    Shader::Type m_shade;
 
 
     enum Mode {
@@ -70,9 +73,11 @@ public:
 
 //    Mode m_mode;
 //    Shading m_shade;
-    glm::mat4 m_transformMatrix = glm::mat4(1.0);
+//    glm::mat4 m_transformMatrix = glm::mat4(1.0);
+    glm::mat4 & m_localTransform;
+    glm::mat4 & m_worldTransform;
 //    glm::vec3 m_translate = glm::vec3(0.0f);
-    glm::mat4 m_worldTransform = glm::mat4(1.0);
+//    glm::mat4 m_worldTransform = glm::mat4(1.0);
     bool m_axisTransform = false;
     uint m_axisFollow =0;
     bool m_axisLocal = false;
@@ -89,9 +94,9 @@ public:
     void save(std::ofstream& file) const;
 
     void setMode(Mode mode);
-    void setShading(Shading shade);
+    void setShading(Shader::Type shade);
 
-    static void glInitialize();
+//    static void glInitialize();
 
     void setCursorToCenter();
 
@@ -160,7 +165,7 @@ private:
     //    Shader* m_shader = nullptr;
     Mode m_previousMode;
 
-    static Shader* m_shaders[Shading::size];
+//    static Shader* m_shaders[Shading::size];
 
     bool m_transformActive = false;
 //    bool m_translateActive = false;

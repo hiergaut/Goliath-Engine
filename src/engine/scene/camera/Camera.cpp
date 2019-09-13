@@ -7,11 +7,12 @@
 #include <QDebug>
 #include <glm/gtc/type_ptr.hpp>
 #include <session/Session.h>
+#include <engine/scene/Scene.h>
 
 
-Camera::Camera(float fov, const glm::vec3 &position, const glm::vec3 &target)
-    : m_target(target)
-    , m_fov(fov)
+Camera::Camera(float fov, const glm::vec3 &position)
+//    : m_target(target)
+    : m_fov(fov)
     , m_position(position)
 {
 }
@@ -24,7 +25,7 @@ void Camera::load(std::ifstream &file)
     m_position = glm::make_vec3(data);
     m_fov = data[3];
 
-    Session::load(m_target, file);
+//    Session::load(m_target, file);
 
 }
 
@@ -37,7 +38,7 @@ void Camera::save(std::ofstream &file)
 
     file.write(reinterpret_cast<const char*>(&data), sizeof (data));
 
-    Session::save(m_target, file);
+//    Session::save(m_target, file);
 }
 
 //Camera::Camera(Camera *camera)
@@ -122,4 +123,21 @@ float Camera::fov() const
 const glm::vec3& Camera::position() const
 {
     return m_position;
+}
+
+void Camera::draw(const Shader &shader, bool dotCloud, const glm::mat4 &localTransform, const glm::mat4 &worldTransform) const
+{
+//    Scene::m_camera.d
+    Scene::m_cameraModel->draw(shader, dotCloud, localTransform, worldTransform);
+}
+
+void Camera::draw(const Shader &shader, const glm::mat4 &localTransform, const glm::mat4 &worldTransform) const
+{
+    Scene::m_cameraModel->draw(shader, localTransform, worldTransform);
+}
+
+void Camera::drawBoundingBox(const Shader &shader) const
+{
+//    Scene::m_cameraModel->draw(shader, localTransform, worldTransform);
+    Scene::m_cameraModel->drawBoundingBox(shader);
 }

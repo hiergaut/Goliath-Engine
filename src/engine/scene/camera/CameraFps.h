@@ -39,7 +39,7 @@ class CameraFps : public Camera {
 public:
 //    CameraFps(glm::vec3 position, glm::vec3 target);
     CameraFps(MainWindow3dView *view);
-    CameraFps(float fov, const glm::vec3 & position, const glm::vec3 & target, float yaw, float pitch, MainWindow3dView *view);
+    CameraFps(float fov, const glm::vec3 & position, float yaw, float pitch, MainWindow3dView *view);
 //    CameraFps(CameraWorld * camera, MainWindow3dView *view);
     ~CameraFps() override;
 //    CameraFps(float posX, float posY, float posZ, float yaw, float pitch);
@@ -80,6 +80,7 @@ public:
     glm::vec3 right() const override;
 
     void setFront(const glm::vec3 &front) override;
+    glm::vec3 target() const override;
 
 private:
     //    QWidget * m_view;

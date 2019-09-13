@@ -26,7 +26,7 @@ public:
     glm::vec3 center() const;
     float radius() const;
 
-    void draw(glm::mat4 modelMatrix, const Shader &shader) const;
+    void draw(const Shader &shader) const;
 
     bool intersect(const Ray & ray) const;
 

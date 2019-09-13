@@ -32,7 +32,7 @@
 #include "../material/Material.h"
 
 #include <opengl/BoundingBox.h>
-#include <gui/editor/3dview/MainWindow3dView.h>
+//#include <gui/editor/3dview/MainWindow3dView.h>
 
 class Mesh;
 using Meshes = std::vector<Mesh>;
@@ -69,8 +69,8 @@ public:
     void buildItemModel(QStandardItem* parent) const;
     void setupMesh();
     void draw(const Shader& shader) const;
-    void draw(const Shader& shader, const MainWindow3dView::Shading & shade, bool dotCloud = false) const;
-    void drawBoundingBox(glm::mat4 modelMatrix, const Shader & shader) const;
+    void draw(const Shader& shader, bool dotCloud) const;
+    void drawBoundingBox(const Shader & shader) const;
 
     void save(std::ofstream& file) const;
 
