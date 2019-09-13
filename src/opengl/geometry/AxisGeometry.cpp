@@ -33,7 +33,7 @@ void AxisGeometry::initializeGL()
 
     //    float radius = 0.1;
     //    float max = 0.3;
-    float size = 20.0f;
+    float size = 10.0f;
     glm::vec3 origin(0.0);
     glm::vec3 x(size, 0, 0);
     glm::vec3 y(0.0, size, 0.0);
@@ -118,6 +118,7 @@ void AxisGeometry::draw(const glm::mat4& modelMatrix, const Shader& shader)
     //    m = glm::scale(m, glm::vec3(dirLength));
 
     shader.setMat4("model", modelMatrix);
+//    shader.setMat4("model", glm::mat4(1.0f));
 
     m_fun->glBindVertexArray(m_vao);
     //    m_fun->glDrawElements(GL_TRIANGLES, 8 * 3, GL_UNSIGNED_INT, nullptr);

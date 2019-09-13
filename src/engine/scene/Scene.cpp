@@ -368,7 +368,10 @@ void Scene::draw(const MainWindow3dView& view)
     // -------------------------------- DRAW ORIGINS MODELS
     //    glClear(GL_DEPTH_BUFFER_BIT);
     shader.use(); // skeleton use owner
-    shader.setMat4("model", onesMatrix);
+    shader.setBool("isSkeleton", false);
+//    shader.setMat4("view", viewMatrix);
+//    shader.setMat4("projection", projectionMatrix);
+//    shader.setMat4("model", onesMatrix);
     glDepthFunc(GL_ALWAYS);
     glLineWidth(2);
     //    glPolygonMode(GL_FRONT, GL_LINE);
