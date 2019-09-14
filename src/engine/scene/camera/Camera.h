@@ -7,7 +7,7 @@
 
 //#include <session/Session.h>
 #include <engine/scene/Object.h>
-//#include <engine/scene/model/Model.h>
+#include <engine/scene/model/Model.h>
 
 
 class Camera : public Object

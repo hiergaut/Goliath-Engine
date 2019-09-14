@@ -82,7 +82,8 @@ public:
     uint m_axisFollow =0;
     bool m_axisLocal = false;
 
-    Camera* m_camera = nullptr;
+//    Camera* m_camera = nullptr;
+    uint m_iCamera = 0;
 
 public:
     explicit MainWindow3dView(QWidget* parent = nullptr);

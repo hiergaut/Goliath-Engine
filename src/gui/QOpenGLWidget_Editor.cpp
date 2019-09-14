@@ -59,14 +59,14 @@ void QOpenGLWidget_Editor::loadNewModel(std::string filename)
 
     for (const MainWindow3dView* view : *m_views) {
         if (view->hasFocus()) {
-            switch (view->m_camera->m_type) {
+            switch (view->camera()->m_type) {
             case Camera::Type::FPS:
                 //            origin = static_cast<CameraFps*>(view->m_camera)->m_target;
                 origin = glm::vec3(0.0f, 0.0f, 0.0f);
                 break;
 
             case Camera::Type::WORLD:
-                origin = static_cast<CameraWorld*>(view->m_camera)->m_target;
+                origin = static_cast<const CameraWorld*>(view->camera())->m_target;
                 break;
             }
             break;
@@ -209,27 +209,29 @@ void QOpenGLWidget_Editor::paintGL()
     m_scene.prepareHierarchy(currentFrameTime);
 
     for (const MainWindow3dView* view : *m_views) {
+        if (view->m_iCamera < Scene::m_cameras.size()) {
 
-        Q_ASSERT(view->parent()->parent());
-        Q_ASSERT(m_mainWindow->isAncestorOf(view));
-        //        if (! m_mainWindow->isAncestorOf(view)) {
-        //            continue;
-        //        }
+            Q_ASSERT(view->parent()->parent());
+            Q_ASSERT(m_mainWindow->isAncestorOf(view));
+            //        if (! m_mainWindow->isAncestorOf(view)) {
+            //            continue;
+            //        }
 
-        QPoint point = view->mapTo(m_mainWindow, view->pos());
+            QPoint point = view->mapTo(m_mainWindow, view->pos());
 
-        int x = point.x();
-        int y = m_mainWindow->height() - point.y() - view->height() + 5;
-        glViewport(x, y, view->width(), view->height());
+            int x = point.x();
+            int y = m_mainWindow->height() - point.y() - view->height() + 5;
+            glViewport(x, y, view->width(), view->height());
 
-        //        glm::mat4 projectionMatrix = view->projectionMatrix();
-        m_scene.draw(*view);
-        //        RayTracer::draw(modelMatrix, viewMatrix, projectionMatrix);
+            //        glm::mat4 projectionMatrix = view->projectionMatrix();
+            m_scene.draw(*view);
+            //        RayTracer::draw(modelMatrix, viewMatrix, projectionMatrix);
 
-        int minSide = qMin(view->width(), view->height());
-        glViewport(x + 5, y + 5, minSide / 10, minSide / 10);
-        glm::mat4 viewMatrix = view->viewMatrix();
-        m_axis->draw(viewMatrix);
+            int minSide = qMin(view->width(), view->height());
+            glViewport(x + 5, y + 5, minSide / 10, minSide / 10);
+            glm::mat4 viewMatrix = view->viewMatrix();
+            m_axis->draw(viewMatrix);
+        }
 
         //        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     }

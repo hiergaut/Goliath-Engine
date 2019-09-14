@@ -219,11 +219,15 @@ void BoneGeometry::drawLine(glm::mat4 model, glm::vec3 source, glm::vec3 destina
 //    m_shader->setMat4("projection", projectionMatrix);
 //}
 
-void BoneGeometry::updateShader(const MainWindow3dView &view)
+void BoneGeometry::updateShader(const glm::mat4 & viewMatrix, const glm::mat4 & projectionMatrix, const glm::vec3 & cameraPos)
 {
     m_shader->use();
-    m_shader->setMat4("view", view.viewMatrix());
-    m_shader->setMat4("projection", view.projectionMatrix());
+//    m_shader->setMat4("view", view.viewMatrix());
+//    m_shader->setMat4("projection", view.projectionMatrix());
 
-    m_shader->setVec3("viewPos", view.camera()->position());
+//    m_shader->setVec3("viewPos", view.camera()->position());
+    m_shader->setMat4("view", viewMatrix);
+    m_shader->setMat4("projection", projectionMatrix);
+
+    m_shader->setVec3("viewPos", cameraPos);
 }

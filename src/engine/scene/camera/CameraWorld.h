@@ -19,6 +19,7 @@ public:
 public:
     CameraWorld();
     CameraWorld(float fov, glm::vec3 position, glm::vec3 target);
+//    CameraWorld(float fov, glm::vec3 position, glm::vec3 target, Model &model);
 //    CameraWorld(CameraFps * camera);
 
     void processMouseMovement(float xoffset, float yoffset);

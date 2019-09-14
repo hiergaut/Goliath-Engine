@@ -11,13 +11,15 @@
 #include <opengl/geometry/DotGeometry.h>
 #include <opengl/geometry/LineGeometry.h>
 #include <opengl/geometry/TriangleGeometry.h>
+#include "camera/CameraWorld.h"
 
 Scene* Scene::m_scene = nullptr;
 //QStandardItemModel Scene::m_sceneModel;
-Model* Scene::m_cameraModel = nullptr;
-Model* Scene::m_lightDirModel = nullptr;
+//Model* Scene::m_cameraModel = nullptr;
+//Model* Scene::m_lightDirModel = nullptr;
 //std::list<Camera*> Scene::m_cameras;
 //std::list<const Object *> Scene::m_objects;
+std::vector<Camera*> Scene::m_cameras; // legacy
 
 Scene::Scene()
 {
@@ -54,6 +56,7 @@ Scene::Scene()
     //    }
 
     //    g_cameras = &m_cameras;
+//    m_cameras.push_back(new CameraWorld(50.0f, glm::vec3(200, -200, 200), glm::vec3(0, 0, 0)));
 
     //    m_itemModel.appendColumn();
     //    model->appendColumn(item0);
@@ -61,11 +64,13 @@ Scene::Scene()
 
 void Scene::initializeGL()
 {
-    m_cameraModel = new Model(g_resourcesPath + "models/camera/camera.obj");
-    m_lightDirModel = new Model(g_resourcesPath + "models/sun/sun.obj");
+//    m_cameraModel = new Model(g_resourcesPath + "models/camera/camera.obj");
+//    m_lightDirModel = new Model(g_resourcesPath + "models/sun/sun.obj");
 
     //    m_shaderCamera = new Shader("camera.vsh", "camera.fsh");
     //    m_shader = new Shader("model_loading.vsh", "model_loading.fsh");
+
+    m_cameras.push_back(new CameraWorld(50.0f, glm::vec3(200, -200, 200), glm::vec3(0, 0, 0)));
 
     m_grid = new Grid;
     normalShader = new Shader("normalVector.vsh", "normalVector.fsh", "normalVector.gsh");
@@ -94,7 +99,7 @@ void Scene::initializeGL()
 
 void Scene::prepareHierarchy(ulong frameTime)
 {
-    for (const Model& model : m_models) {
+    for (const Object& object : m_models) {
         //	    glm::mat4 model(1.0);
         //        glm::mat4 modelMatrix(1.0);
         //        modelMatrix = glm::scale(modelMatrix, glm::vec3(0.01));
@@ -102,7 +107,8 @@ void Scene::prepareHierarchy(ulong frameTime)
         //        m_shader->setMat4("model", modelMatrix);
 
         //        model.Draw(modelMatrix, shader, frameTime);
-        model.prepareHierarchy(frameTime);
+        object.m_model.prepareHierarchy(frameTime);
+        //        model.prepareHierarchy(frameTime);
     }
 
     if (m_autoUpdateBoundingBox) {
@@ -122,12 +128,19 @@ void Scene::prepareHierarchy(ulong frameTime)
 void Scene::draw(const MainWindow3dView& view)
 {
     //    qDebug() << m_objects.size();
+//    if (view.m_iCamera >= m_cameras.size()) {
+//        return;
+//    }
+    Object* viewCameraObject = m_cameras[view.m_iCamera];
 
     Q_ASSERT(initialized);
     glm::mat4 viewMatrix = view.viewMatrix();
     glm::mat4 projectionMatrix = view.projectionMatrix();
 
-    Object* viewCameraObject = view.m_camera;
+//    Object* viewCameraObject = view.m_camera;
+
+//    glm::vec3 cameraPos = view.m_camera->position();
+    glm::vec3 cameraPos = m_cameras[view.m_iCamera]->position();
 
     //    glm::mat4 modelMatrix(1.0);
     const glm::mat4 onesMatrix(1.0);
@@ -358,7 +371,7 @@ void Scene::draw(const MainWindow3dView& view)
     if (view.skeleton()) {
         //        modelMatrix = glm::mat4(1.0f);
         //        for (const Model& model : m_models) {
-        for (const Model& model : m_models) {
+        for (const Object& model : m_models) {
             //	    glm::mat4 model(1.0);
             //        glm::mat4 modelMatrix(1.0);
             //        modelMatrix = glm::scale(modelMatrix, glm::vec3(0.01));
@@ -366,10 +379,12 @@ void Scene::draw(const MainWindow3dView& view)
             //        m_shader->setMat4("model", modelMatrix);
 
             if (model.m_selected) {
+                model.m_model.DrawHierarchy(viewLocalTransform, viewMatrix, projectionMatrix, cameraPos, viewWorldTransform);
 
-                model.DrawHierarchy(viewLocalTransform, view, viewWorldTransform);
+                //                model.m_model.DrawHierarchy(viewLocalTransform, view, viewWorldTransform);
             } else {
-                model.DrawHierarchy(onesMatrix, view);
+                //                model.DrawHierarchy(onesMatrix, view);
+                model.m_model.DrawHierarchy(onesMatrix, viewMatrix, projectionMatrix, cameraPos);
             }
         }
     }
@@ -393,8 +408,8 @@ void Scene::draw(const MainWindow3dView& view)
             //            model.Draw(modelMatrix, shader, view.m_shade, view.dotCloud());
 
             // TODO
-            AxisGeometry::draw(viewWorldTransform * object->m_transform * viewLocalTransform, shader);
-            DotGeometry::draw(viewWorldTransform * object->m_transform * viewLocalTransform, shader);
+            AxisGeometry::draw(viewWorldTransform * object->m_model.m_transform * viewLocalTransform, shader);
+            DotGeometry::draw(viewWorldTransform * object->m_model.m_transform * viewLocalTransform, shader);
             //            object->drawOrigin(viewWorldTransform, viewTransform, shader);
         }
     }
@@ -425,7 +440,7 @@ void Scene::draw(const MainWindow3dView& view)
             //            for (const Model& model : m_models) {
             for (const Object* object : m_objects) {
                 if (object->m_selected) {
-                    shader.setMat4("model", object->m_transform);
+                    shader.setMat4("model", object->m_model.m_transform);
 
                     switch (view.m_axisFollow) {
                     case 0:
@@ -451,7 +466,7 @@ void Scene::draw(const MainWindow3dView& view)
 
                     //                } else {
                     // ---------------- GLOBAL AXIS
-                    glm::vec3 translate = object->m_transform[3];
+                    glm::vec3 translate = object->m_model.m_transform[3];
                     switch (view.m_transform) {
                     case MainWindow3dView::Transform::TRANSLATE:
                     case MainWindow3dView::Transform::SCALE:
@@ -502,7 +517,8 @@ void Scene::selectRay(const Ray& ray, bool additional)
     //    std::vector<const Model *> models;
     //    models.insert(models.end(), m_models.begin(), m_models.end());
 
-    uint iModelMin = 0;
+    //    uint iModelMin = 0;
+    uint iObjectMin = 0;
     uint iMeshMin = 0;
     uint iBoneMin = 0;
     uint iTriangleMin = 0;
@@ -514,23 +530,27 @@ void Scene::selectRay(const Ray& ray, bool additional)
     //    bool find = false;
     std::vector<glm::vec3> triangles;
 
-    std::vector<float> distances(m_models.size());
+    std::vector<float> distances(m_objects.size());
     std::list<uint> nearestModel;
-    for (uint iModel = 0; iModel < m_models.size(); ++iModel) {
+    uint iObject = 0;
+    //    for (uint iObject = 0; iObject < m_objects.size(); ++iObject) {
+    for (const Object* object : m_objects) {
+        //    for (uint iModel = 0; iModel < m_models.size(); ++iModel) {
         //        distances[iModel] = glm::length(m_models ray.m_source)
-        const Model& model = m_models[iModel];
+        //        const Model& model = m_models[iModel];
+        //        const Object& object = m_objects
         if (!additional) {
 
-            model.m_selected = false;
+            object->m_selected = false;
         }
 
-        distances[iModel] = std::abs(glm::length(model.m_box.center() - ray.m_source) - model.m_box.radius());
+        distances[iObject] = std::abs(glm::length(object->m_model.m_box.center() - ray.m_source) - object->m_model.m_box.radius());
         //        nearestModel[iModel] = iModel;
         //        uint iNear =0;
         //        while (iNear < nearestModel.size() && distances[iModel] < nearestModel[iNear]) {
         //        uint cpt =0;
         auto it = nearestModel.begin();
-        while (it != nearestModel.end() && distances[iModel] >= distances[*it])
+        while (it != nearestModel.end() && distances[iObject] >= distances[*it])
             ++it;
         //        for (uint iNear : nearestModel) {
         //            if (distances[iModel] < distances[*it]) {
@@ -541,16 +561,19 @@ void Scene::selectRay(const Ray& ray, bool additional)
         //            ++it;
         //        }
         //        if (it == nearestModel.end()) {
-        nearestModel.insert(it, iModel);
+        nearestModel.insert(it, iObject);
         //        }
 
         //        }
+        ++iObject;
     }
     Q_ASSERT(nearestModel.size() == distances.size());
 
-    for (uint iModel : nearestModel) {
-        const Model& model = m_models[iModel];
-        float dist = distances[iModel];
+    //    for (uint iObject : nearestModel) {
+    iObject = 0;
+    for (const Object* object : m_objects) {
+        //        const Object& object = m_models[iObject];
+        float dist = distances[iObject];
 
         if (depthMin < dist) {
             break;
@@ -568,11 +591,11 @@ void Scene::selectRay(const Ray& ray, bool additional)
         //        model.selectObject(ray, depthMin, find, iModelMin, iMeshMin, iBoneMin, iTriangleMin);
         float depth;
 
-        if (model.m_box.intersect(ray)) {
+        if (object->m_model.m_box.intersect(ray)) {
 
-            for (uint iMesh = 0; iMesh < model.m_meshes.size(); ++iMesh) {
+            for (uint iMesh = 0; iMesh < object->m_model.m_meshes.size(); ++iMesh) {
                 //        for (const Mesh& mesh : m_meshes) {
-                const Mesh& mesh = model.m_meshes[iMesh];
+                const Mesh& mesh = object->m_model.m_meshes[iMesh];
 
                 if (mesh.m_box.intersect(ray)) {
                     //                qDebug() << "select mesh " << mesh.m_name.c_str();
@@ -580,7 +603,7 @@ void Scene::selectRay(const Ray& ray, bool additional)
                         for (uint iTriangle = 0; iTriangle < mesh.m_indices.size() / 3; ++iTriangle) {
                             uint i3 = iTriangle * 3;
 
-                            glm::mat4 transform = model.m_transform * mesh.m_transform;
+                            glm::mat4 transform = object->m_model.m_transform * mesh.m_transform;
                             const glm::vec3& v0 = transform * glm::vec4(mesh.m_vertices[mesh.m_indices[i3]].Position, 1.0f);
                             const glm::vec3& v1 = transform * glm::vec4(mesh.m_vertices[mesh.m_indices[i3 + 1]].Position, 1.0f);
                             const glm::vec3& v2 = transform * glm::vec4(mesh.m_vertices[mesh.m_indices[i3 + 2]].Position, 1.0f);
@@ -604,7 +627,7 @@ void Scene::selectRay(const Ray& ray, bool additional)
                                 //                                } else {
                                 if (depth < depthMin) {
                                     //                                    qDebug() << "intersect model " << model.filename().c_str() << depth;
-                                    iModelMin = iModel;
+                                    iObjectMin = iObject;
                                     depthMin = depth;
                                     iMeshMin = iMesh;
                                     iTriangleMin = iTriangle;
@@ -634,7 +657,7 @@ void Scene::selectRay(const Ray& ray, bool additional)
                                         //                            const Vertex & v1 = mesh.m_vertices[i3 + 1];
                                         //                            const Vertex & v2 = mesh.m_vertices[i3 + 2];
                                         Q_ASSERT(mesh.m_vertices.size() > i3 + 2);
-                                        glm::mat4 transform = model.m_transform * bone.m_recurseModel * bone.m_offsetMatrix;
+                                        glm::mat4 transform = object->m_model.m_transform * bone.m_recurseModel * bone.m_offsetMatrix;
                                         const glm::vec3& v0 = transform * glm::vec4(mesh.m_vertices[i3].Position, 1.0f);
                                         const glm::vec3& v1 = transform * glm::vec4(mesh.m_vertices[i3 + 1].Position, 1.0f);
                                         const glm::vec3& v2 = transform * glm::vec4(mesh.m_vertices[i3 + 2].Position, 1.0f);
@@ -671,7 +694,7 @@ void Scene::selectRay(const Ray& ray, bool additional)
                                             if (depth < depthMin) {
                                                 //                                                qDebug() << "intersect model " << model.filename().c_str() << depth;
                                                 //                                    depthMin = std::min(depthMin, depth);
-                                                iModelMin = iModel;
+                                                iObjectMin = iObject;
                                                 depthMin = depth;
                                                 iMeshMin = iMesh;
                                                 iBoneMin = iBone;
@@ -687,8 +710,10 @@ void Scene::selectRay(const Ray& ray, bool additional)
                 }
             }
             // end for iMesh
-        }
-    }
+        } // if insersect
+
+        ++iObject;
+    } // end loop m_objects
 
     //    qDebug() << "-----------------------------------------------------------";
     if (depthMin < Ray::MAX_RAY_LENGTH) {
@@ -702,10 +727,10 @@ void Scene::selectRay(const Ray& ray, bool additional)
         //        const glm::vec3& v2 = transform * glm::vec4(mesh.m_vertices[i3 + 2].Position, 1.0f);
 
         if (additional) {
-            m_models[iModelMin].m_selected = !m_models[iModelMin].m_selected;
+            m_models[iObjectMin].m_selected = !m_models[iObjectMin].m_selected;
         } else {
 
-            m_models[iModelMin].m_selected = true;
+            m_models[iObjectMin].m_selected = true;
         }
 
         //        ray.m_length = depthMin;
@@ -769,10 +794,10 @@ void Scene::addModel(std::string file, const glm::vec3& origin)
     m_models.emplace_back(file);
 
     //    m_models[m_models.size() - 1].m_transform = glm::translate(glm::mat4(1.0f), origin);
-    m_models.back().m_transform = glm::translate(glm::mat4(1.0f), origin);
+    m_models.back().m_model.m_transform = glm::translate(glm::mat4(1.0f), origin);
 
     //    std::cout << &m_models[0] << std::endl;
-    updateSceneModel();
+    updateSceneItemModel();
 }
 
 void Scene::delModel(std::string file)
@@ -787,17 +812,17 @@ void Scene::delModel(std::string file)
     //    std::pair<std::string, Model> & pair =
 }
 
-void Scene::updateSceneModel()
+void Scene::updateSceneItemModel()
 {
     m_sceneModel.clear();
 
     //    QStandardItemModel model;
     QStandardItem* parentItem = m_sceneModel.invisibleRootItem();
-    for (const Model& model : m_models) {
-        QStandardItem* item = new QStandardItem(model.filename().c_str());
+    for (const Object& object : m_models) {
+        QStandardItem* item = new QStandardItem(object.m_model.filename().c_str());
         parentItem->appendRow(item);
 
-        model.buildItemModel(item);
+        object.m_model.buildItemModel(item);
     }
 
     emit m_sceneModel.dataChanged(m_sceneModel.index(0, 0), m_sceneModel.index(0, 0));
@@ -829,11 +854,13 @@ void Scene::load(std::ifstream& file)
         m_objects.push_back(&m_models.back());
     }
 
-    for (const MainWindow3dView* view : *m_views) {
-        m_objects.push_back(view->m_camera);
-    }
+//    m_cameras.clear();
 
-    updateSceneModel();
+//    for (const MainWindow3dView* view : *m_views) {
+//        m_objects.push_back(view->m_camera);
+//    }
+
+    updateSceneItemModel();
 
     FormTimeline::load(file);
 }
@@ -844,8 +871,8 @@ void Scene::save(std::ofstream& file)
     //    file.write(reinterpret_cast<const char *>(&size), sizeof(size));
     Session::save(size, file);
 
-    for (const Model& model : m_models) {
-        model.save(file);
+    for (const Object& object : m_models) {
+        object.m_model.save(file);
     }
 
     FormTimeline::save(file);
@@ -859,20 +886,20 @@ void Scene::updateBoundingBox()
     //    m_dirLights.emplace_back(glm::vec3(0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f),
     //        glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, -1.0f));
     //    //        m_dirLights.push_back(5);
-//    for (Model& model : m_models) {
-//        model.updateBoundingBox();
-//    }
-    for (const Object * object : m_objects) {
+    //    for (Model& model : m_models) {
+    //        model.updateBoundingBox();
+    //    }
+    for (const Object* object : m_objects) {
         object->updateBoundingBox();
     }
 }
 
 void Scene::setSelectRootTransform(const glm::mat4& transformMatrix, const glm::mat4& worldTransform)
 {
-    for (Model& model : m_models) {
-        if (model.m_selected) {
+    for (Object& object : m_models) {
+        if (object.m_selected) {
             //            model.m_rootNode->m_transformation *= transformMatrix;
-            model.m_transform = worldTransform * model.m_transform * transformMatrix;
+            object.m_model.m_transform = worldTransform * object.m_model.m_transform * transformMatrix;
             //            model.m_rootNode->m_transformation = model.m_rootNode->m_transformation * transformMatrix;
         }
     }
@@ -881,21 +908,21 @@ void Scene::setSelectRootTransform(const glm::mat4& transformMatrix, const glm::
 
 void Scene::setSelectToOriginTransform()
 {
-    for (Model& model : m_models) {
-        if (model.m_selected) {
+    for (Object& object : m_models) {
+        if (object.m_selected) {
             //            camera.m_target = model.m_rootNode->m_transformation[3];
             //            camera.m_target = model.m_transform[3];
-            model.m_transform = glm::mat4(1.0f);
+            object.m_model.m_transform = glm::mat4(1.0f);
         }
     }
 }
 
 void Scene::setSelectFocus(CameraWorld& camera)
 {
-    for (const Model& model : m_models) {
-        if (model.m_selected) {
+    for (const Object& object : m_models) {
+        if (object.m_selected) {
             //            camera.m_target = model.m_rootNode->m_transformation[3];
-            camera.m_target = model.m_transform[3];
+            camera.m_target = object.m_model.m_transform[3];
         }
     }
 }
@@ -931,15 +958,15 @@ void Scene::deleteSelected()
     //    for ()
     m_objects.clear();
 
-    std::vector<Model> newModels;
+    std::vector<Object> newModels;
     newModels.reserve(10);
-    for (Model& model : m_models) {
+    for (Object& object : m_models) {
         //        if (model.m_selected) {
         //            m_objects.remove(&model);
         //        }
-        if (!model.m_selected) {
+        if (!object.m_selected) {
             //        else {
-            newModels.emplace_back(std::move(model));
+            newModels.emplace_back(std::move(object));
             m_objects.push_back(&newModels.back());
             //            newModels[++cpt] = std::move(model);
         }

@@ -6,7 +6,7 @@
 #include <opengl/shader.h>
 //#include <opengl/geometry/uvSphereGeometry.h>
 #include "uvSphereGeometry.h"
-#include <gui/editor/3dview/MainWindow3dView.h>
+//#include <gui/editor/3dview/MainWindow3dView.h>
 
 class BoneGeometry
 {
@@ -19,7 +19,8 @@ public:
     static void drawLine(glm::mat4 model, glm::vec3 source, glm::vec3 destination);
 
 //    void setVP(const glm::mat4 & viewMatrix, const glm::mat4 &projectionMatrix) const;
-    static void updateShader(const MainWindow3dView & view);
+//    static void updateShader(const MainWindow3dView & view);
+    static void updateShader(const glm::mat4 &viewMatrix, const glm::mat4 &projectionMatrix, const glm::vec3 &cameraPos);
 
 private:
 //    void setup();

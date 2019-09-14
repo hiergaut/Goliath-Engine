@@ -76,10 +76,11 @@ MainWindow3dView::MainWindow3dView(QWidget* parent)
     //    Scene::m_scene->addCamera(50.0f, glm::vec3(200, -200, 200), glm::vec3(0.0, 0.0, 0.0));
     //    m_camera = Scene::m_scene->m_cameras.back();
 
-    m_camera = new CameraWorld(50.0f, glm::vec3(200, -200, 200), glm::vec3(0, 0, 0));
+    //    m_camera = new CameraWorld(50.0f, glm::vec3(200, -200, 200), glm::vec3(0, 0, 0));
+
     //    Scene::m_cameras.push_back(m_camera);
-//    Scene::m_scene->m_allObjects.push_back(m_camera);
-//        m_camera = new CameraFps(glm::vec3(200.0f, -200.0f, 200.0f), 135.0f, -45.0f, this);
+    //    Scene::m_scene->m_allObjects.push_back(m_camera);
+    //        m_camera = new CameraFps(glm::vec3(200.0f, -200.0f, 200.0f), 135.0f, -45.0f, this);
 
     ui->setupUi(this);
     //    g_openglContext.
@@ -89,7 +90,9 @@ MainWindow3dView::MainWindow3dView(QWidget* parent)
     //    setFocusPolicy(Qt::ClickFocus);
 
     //    setAutoFillBackground(false);
-    m_projectionMatrix = glm::perspective(glm::radians(m_camera->fov()), (float)width() / height(), l_near, l_far);
+
+    //    m_projectionMatrix = glm::perspective(glm::radians(m_camera->fov()), (float)width() / height(), l_near, l_far);
+
     //    setMouseTracking(true);
     //    setFocus();
     //    initializeOpenGLFunctions();
@@ -171,31 +174,32 @@ MainWindow3dView::~MainWindow3dView()
 
 void MainWindow3dView::load(std::ifstream& file)
 {
-    Camera::Type type;
-    file.read(reinterpret_cast<char*>(&type), sizeof(type));
-    if (m_camera != nullptr) {
-//        auto& list = Scene::m_scene->m_allObjects;
-//        Q_ASSERT(std::find(list.begin(), list.end(), m_camera) != list.end());
-//        uint size = Scene::m_scene->m_allObjects.size();
-//        list.remove(m_camera);
-//        Q_ASSERT(Scene::m_scene->m_allObjects.size() == size - 1);
-        delete m_camera;
-    }
+    //    Camera::Type type;
+    //    file.read(reinterpret_cast<char*>(&type), sizeof(type));
+    //    if (m_camera != nullptr) {
+    ////        auto& list = Scene::m_scene->m_allObjects;
+    ////        Q_ASSERT(std::find(list.begin(), list.end(), m_camera) != list.end());
+    ////        uint size = Scene::m_scene->m_allObjects.size();
+    ////        list.remove(m_camera);
+    ////        Q_ASSERT(Scene::m_scene->m_allObjects.size() == size - 1);
+    //        delete m_camera;
+    //    }
 
-    switch (type) {
-    case Camera::FPS:
-        m_camera = new CameraFps(this);
-        break;
+    //    switch (type) {
+    //    case Camera::FPS:
+    //        m_camera = new CameraFps(this);
+    //        break;
 
-    case Camera::WORLD:
-        m_camera = new CameraWorld;
-        break;
-    }
+    //    case Camera::WORLD:
+    //        m_camera = new CameraWorld;
+    //        break;
+    //    }
 
-    m_camera->load(file);
+    //    m_camera->load(file);
+
     //    Scene::m_cameras.push_back(m_camera);
-//    Q_ASSERT(Scene::m_scene != nullptr);
-//    Scene::m_scene->m_allObjects.push_back(m_camera);
+    //    Q_ASSERT(Scene::m_scene != nullptr);
+    //    Scene::m_scene->m_allObjects.push_back(m_camera);
     //    setShading(WIRE_FRAME);
 
     bool data[7];
@@ -232,9 +236,9 @@ void MainWindow3dView::load(std::ifstream& file)
 
 void MainWindow3dView::save(std::ofstream& file) const
 {
-    Camera::Type type = m_camera->m_type;
-    file.write(reinterpret_cast<const char*>(&type), sizeof(type));
-    m_camera->save(file);
+    //    Camera::Type type = m_camera->m_type;
+    //    file.write(reinterpret_cast<const char*>(&type), sizeof(type));
+    //    m_camera->save(file);
 
     bool wireFrame = ui->actionWireFrame->isChecked();
     bool xRays = ui->actionX_Rays->isChecked();
@@ -335,280 +339,286 @@ void MainWindow3dView::setShading(Shader::Type shade)
 void MainWindow3dView::keyPressEvent(QKeyEvent* event)
 {
     //                qDebug() << this << ": keyPressEvent" << event;
-    m_camera->keyPressEvent(event);
+    if (m_iCamera < Scene::m_cameras.size()) {
+        Camera* m_camera = Scene::m_cameras[m_iCamera];
+        m_camera->keyPressEvent(event);
 
-    switch (event->key()) {
+        switch (event->key()) {
 
-    case Qt::Key_Dollar:
-        setMode(m_previousMode);
-        //        std::swap(m_mode, m_previousMode);
-        //        Mode temp = m_mode;
-        //        m_mode = m_previousMode;
-        break;
+        case Qt::Key_Dollar:
+            setMode(m_previousMode);
+            //        std::swap(m_mode, m_previousMode);
+            //        Mode temp = m_mode;
+            //        m_mode = m_previousMode;
+            break;
 
-    case Qt::Key_Delete:
-        //        qDebug() << "delete";
-        RayTracer::deleteSelected();
-        break;
+        case Qt::Key_Delete:
+            //        qDebug() << "delete";
+            RayTracer::deleteSelected();
+            break;
 
-    case Qt::Key_Shift:
-        m_shiftPressed = true;
-        break;
+        case Qt::Key_Shift:
+            m_shiftPressed = true;
+            break;
 
-    case Qt::Key_Control:
-        m_ctrlPressed = true;
-        break;
+        case Qt::Key_Control:
+            m_ctrlPressed = true;
+            break;
 
-    case Qt::Key_Space:
-        if (m_transformActive) {
-            sendTransformToScene();
-            m_firstTransform = true;
-        }
-        break;
-
-    case Qt::Key_0:
-        RayTracer::setSelectToOriginTransform();
-        break;
-
-    case Qt::Key_X:
-    case Qt::Key_Z:
-        if (m_shiftPressed) {
-            if (event->key() == Qt::Key_X) {
-                ui->actionX_Rays->trigger();
-                break;
+        case Qt::Key_Space:
+            if (m_transformActive) {
+                sendTransformToScene();
+                m_firstTransform = true;
             }
-            if (event->key() == Qt::Key_Z) {
+            break;
 
-                //            ui->actionX_Rays->trigger();
-                ui->actionWireFrame->trigger();
-                break;
-            }
-        }
-    case Qt::Key_Y:
-        //        else {
+        case Qt::Key_0:
+            RayTracer::setSelectToOriginTransform();
+            break;
 
-        if (m_transformActive) {
-            //            sendTransformToScene();
-            m_localTransform = glm::mat4(1.0f);
-            //            Scene::m_scene->m_transformMatrix = glm::mat4(1.0f);
-            m_worldTransform = glm::mat4(1.0f);
-            //            Scene::m_scene->m_worldTransform = glm::mat4(1.0f);
-
-            m_axisTransform = true;
-            //            switch (m_transform) {
-            //            case Transform::TRANSLATE:
-            uint mem = m_axisFollow;
-            m_axisFollow = static_cast<uint>(event->key() - Qt::Key_X);
-            if (mem != m_axisFollow) {
-                //                m_axisLocal = !(m_transform == Transform::TRANSLATE);
-                switch (m_transform) {
-                case TRANSLATE:
-                    m_axisLocal = false;
-                    break;
-
-                case ROTATE:
-                case SCALE:
-                    m_axisLocal = true;
+        case Qt::Key_X:
+        case Qt::Key_Z:
+            if (m_shiftPressed) {
+                if (event->key() == Qt::Key_X) {
+                    ui->actionX_Rays->trigger();
                     break;
                 }
-            } else {
-                m_axisLocal = !m_axisLocal;
+                if (event->key() == Qt::Key_Z) {
+
+                    //            ui->actionX_Rays->trigger();
+                    ui->actionWireFrame->trigger();
+                    break;
+                }
             }
+        case Qt::Key_Y:
+            //        else {
 
-            //                break;
+            if (m_transformActive) {
+                //            sendTransformToScene();
+                m_localTransform = glm::mat4(1.0f);
+                //            Scene::m_scene->m_transformMatrix = glm::mat4(1.0f);
+                m_worldTransform = glm::mat4(1.0f);
+                //            Scene::m_scene->m_worldTransform = glm::mat4(1.0f);
 
-            //            case Transform::ROTATE:
-            //            m_axisFollow = static_cast<uint>(event->key() - Qt::Key_X);
-            //                break;
+                m_axisTransform = true;
+                //            switch (m_transform) {
+                //            case Transform::TRANSLATE:
+                uint mem = m_axisFollow;
+                m_axisFollow = static_cast<uint>(event->key() - Qt::Key_X);
+                if (mem != m_axisFollow) {
+                    //                m_axisLocal = !(m_transform == Transform::TRANSLATE);
+                    switch (m_transform) {
+                    case TRANSLATE:
+                        m_axisLocal = false;
+                        break;
 
-            //            case Transform::SCALE:
-            //            m_axisFollow = static_cast<uint>(event->key() - Qt::Key_X);
-            //                break;
-            //            }
-        }
-        break;
+                    case ROTATE:
+                    case SCALE:
+                        m_axisLocal = true;
+                        break;
+                    }
+                } else {
+                    m_axisLocal = !m_axisLocal;
+                }
 
-    case Qt::Key_Escape:
-        setTransformInactive();
-        //        m_transformMatrix = glm::mat4(1.0f);
-        //        m_transformActive = false;
-        //        setMouseTracking(false);
-        //        centralWidget()->setMouseTracking(false);
-        //        setCursor(Qt::ArrowCursor);
-        break;
+                //                break;
 
-        //    case Qt::Key_Enter:
-        //        m_transform = glm::mat4(1.0f);
-        //        m_transformActive = false;
-        //        setMouseTracking(false);
-        //        centralWidget()->setMouseTracking(false);
-        //        break;
-        //        break;
-    case Qt::Key_S:
-        if (m_shiftPressed) {
+                //            case Transform::ROTATE:
+                //            m_axisFollow = static_cast<uint>(event->key() - Qt::Key_X);
+                //                break;
 
-            ui->actionSolid->trigger();
-        } else {
+                //            case Transform::SCALE:
+                //            m_axisFollow = static_cast<uint>(event->key() - Qt::Key_X);
+                //                break;
+                //            }
+            }
+            break;
 
-            m_transform = Transform::SCALE;
-            //            m_axisLocal = true;
+        case Qt::Key_Escape:
+            setTransformInactive();
+            //        m_transformMatrix = glm::mat4(1.0f);
+            //        m_transformActive = false;
+            //        setMouseTracking(false);
+            //        centralWidget()->setMouseTracking(false);
+            //        setCursor(Qt::ArrowCursor);
+            break;
+
+            //    case Qt::Key_Enter:
+            //        m_transform = glm::mat4(1.0f);
+            //        m_transformActive = false;
+            //        setMouseTracking(false);
+            //        centralWidget()->setMouseTracking(false);
+            //        break;
+            //        break;
+        case Qt::Key_S:
+            if (m_shiftPressed) {
+
+                ui->actionSolid->trigger();
+            } else {
+
+                m_transform = Transform::SCALE;
+                //            m_axisLocal = true;
+                setTransformActive();
+            }
+            break;
+
+        case Qt::Key_R:
+            if (m_shiftPressed) {
+
+                ui->actionRendered->trigger();
+            } else {
+                m_transform = Transform::ROTATE;
+                //            m_axisLocal = true;
+                setTransformActive();
+            }
+            break;
+
+        case Qt::Key_G:
+            //        m_transform = glm::scale(m_transform, glm::vec3(2.0f, 2.0f, 2.0f));
+            //        m_transformActive = true;
+            //        m_transform = Transform::TRANSLATE;
+            //        m_firstTransform = true;
+            //        m_memRight = m_camera->right();
+            //        m_memUp = m_camera->up();
+            //        setMouseTracking(true);
+            //        centralWidget()->setMouseTracking(true);
+            //        setCursor(Qt::SizeAllCursor);
+            m_transform = Transform::TRANSLATE;
+            //        m_axisLocal = false;
             setTransformActive();
-        }
-        break;
+            break;
 
-    case Qt::Key_R:
-        if (m_shiftPressed) {
-
-            ui->actionRendered->trigger();
-        } else {
-            m_transform = Transform::ROTATE;
-            //            m_axisLocal = true;
-            setTransformActive();
-        }
-        break;
-
-    case Qt::Key_G:
-        //        m_transform = glm::scale(m_transform, glm::vec3(2.0f, 2.0f, 2.0f));
-        //        m_transformActive = true;
-        //        m_transform = Transform::TRANSLATE;
-        //        m_firstTransform = true;
-        //        m_memRight = m_camera->right();
-        //        m_memUp = m_camera->up();
-        //        setMouseTracking(true);
-        //        centralWidget()->setMouseTracking(true);
-        //        setCursor(Qt::SizeAllCursor);
-        m_transform = Transform::TRANSLATE;
-        //        m_axisLocal = false;
-        setTransformActive();
-        break;
-
-    case Qt::Key_End:
-        //        qDebug() << "y";
-        m_camera->setFront(glm::vec3(0.0f, 1.0f, 0.0f));
-        updateOrthoProjection();
-        //        m_ortho = true;
-        m_alignAxis = true;
-        break;
-
-    case Qt::Key_PageDown:
-        //        qDebug() << "x";
-        m_camera->setFront(glm::vec3(-1.0f, 0.0f, 0.0f));
-        updateOrthoProjection();
-        m_alignAxis = true;
-        //        m_ortho = true;
-        break;
-
-    case Qt::Key_Home:
-        //        qDebug() << "z";
-        m_camera->setFront(glm::vec3(0.0f, 0.0f, -1.0f));
-        updateOrthoProjection();
-        m_alignAxis = true;
-        //        m_ortho = true;
-        break;
-
-    case Qt::Key_Clear:
-        //        qDebug() << "change projection";
-        if (m_ortho) {
-            //            m_projectionMatrix = glm::perspective(glm::radians(m_camera->fov()), (float)width() / height(), l_near, l_far);
-            //            updateProjectionMatrix();
-            updatePersepectiveProjection();
-        } else {
+        case Qt::Key_End:
+            //        qDebug() << "y";
+            m_camera->setFront(glm::vec3(0.0f, 1.0f, 0.0f));
             updateOrthoProjection();
-        }
-        //        m_ortho = !m_ortho;
-        //        update();
-        break;
+            //        m_ortho = true;
+            m_alignAxis = true;
+            break;
 
-    case Qt::Key_L:
-        //        on_actionLook_dev_triggered();
-        ui->actionLook_dev->trigger();
-        break;
+        case Qt::Key_PageDown:
+            //        qDebug() << "x";
+            m_camera->setFront(glm::vec3(-1.0f, 0.0f, 0.0f));
+            updateOrthoProjection();
+            m_alignAxis = true;
+            //        m_ortho = true;
+            break;
 
-    case Qt::Key_V:
-        ui->actionVertexGroup->trigger();
-        break;
+        case Qt::Key_Home:
+            //        qDebug() << "z";
+            m_camera->setFront(glm::vec3(0.0f, 0.0f, -1.0f));
+            updateOrthoProjection();
+            m_alignAxis = true;
+            //        m_ortho = true;
+            break;
 
-    case Qt::Key_I:
-        ui->actionIntersectRay->trigger();
-        break;
-
-    case Qt::Key_N:
-        if (m_shiftPressed) {
-            ui->actionNormal->trigger();
-        } else {
-            ui->actionNormal_2->trigger();
-        }
-        break;
-
-    case Qt::Key_D:
-        if (m_shiftPressed) {
-            ui->actionDepth->trigger();
-        } else {
-            ui->actionDotCloud->trigger();
-        }
-        break;
-
-    case Qt::Key_B:
-        if (m_shiftPressed) {
-            ui->actionBoundingBox->trigger();
-        } else {
-            ui->actionSkeleton->trigger();
-        }
-        break;
-
-    case Qt::Key_F:
-        if (m_shiftPressed) {
-            glm::vec3 pos = m_camera->position();
-            float fov = m_camera->fov();
-            if (m_camera->m_type == Camera::FPS) {
-                //                CameraFps* camera = static_cast<CameraFps*>(m_camera);
-
-                //                glm::vec3 front = glm::normalize(camera->front());
-                //            Q_ASSERT(glm::length(front) == 1.0f);
-
-                //                                glm::vec3 target = camera->position() + 200.0f * front;
-                glm::vec3 target = m_camera->target();
-                //            glm::vec3 target = glm::vec3(0.0f, 0.0f, 0.0f);
-
-                Scene::m_scene->m_allObjects.remove(m_camera);
-                delete m_camera;
-                //                m_camera = new CameraWorld(fov, pos, camera->m_target);
-                m_camera = new CameraWorld(fov, pos, target);
-                Scene::m_scene->m_allObjects.push_back(m_camera);
-                //            m_camera = new CameraWorld(static_cast<CameraFps*>(m_camera));
+        case Qt::Key_Clear:
+            //        qDebug() << "change projection";
+            if (m_ortho) {
+                //            m_projectionMatrix = glm::perspective(glm::radians(m_camera->fov()), (float)width() / height(), l_near, l_far);
+                //            updateProjectionMatrix();
+                updatePersepectiveProjection();
             } else {
-                CameraWorld* camera = static_cast<CameraWorld*>(m_camera);
-                //            glm::vec3 front = glm::normalize(camera->target() - pos);
-                glm::vec3 front = glm::normalize(camera->target() - pos);
-
-                //    m_yaw = glm::degrees(cosf(front.x /(sqrtf(front.x * front.x + front.z * front.z))));
-                //            float yaw = glm::degrees(atanf(front.y / front.x));
-                float yaw = glm::degrees(atan2f(front.y, front.x));
-                float pitch = glm::degrees(asinf(front.z));
-
-                Scene::m_scene->m_allObjects.remove(m_camera);
-                delete m_camera;
-                m_camera = new CameraFps(fov, pos, yaw, pitch, this);
-                Scene::m_scene->m_allObjects.push_back(m_camera);
-
-                static_cast<CameraFps*>(m_camera)->startFpsView();
-
-                //            m_camera = new CameraFps(static_cast<CameraWorld*>(m_camera), this);
+                updateOrthoProjection();
             }
+            //        m_ortho = !m_ortho;
+            //        update();
+            break;
 
-        } else {
-            if (m_camera->m_type == Camera::WORLD) {
-                CameraWorld* camera = static_cast<CameraWorld*>(m_camera);
-                RayTracer::setSelectFocus(*camera);
+        case Qt::Key_L:
+            //        on_actionLook_dev_triggered();
+            ui->actionLook_dev->trigger();
+            break;
+
+        case Qt::Key_V:
+            ui->actionVertexGroup->trigger();
+            break;
+
+        case Qt::Key_I:
+            ui->actionIntersectRay->trigger();
+            break;
+
+        case Qt::Key_N:
+            if (m_shiftPressed) {
+                ui->actionNormal->trigger();
+            } else {
+                ui->actionNormal_2->trigger();
             }
+            break;
+
+        case Qt::Key_D:
+            if (m_shiftPressed) {
+                ui->actionDepth->trigger();
+            } else {
+                ui->actionDotCloud->trigger();
+            }
+            break;
+
+        case Qt::Key_B:
+            if (m_shiftPressed) {
+                ui->actionBoundingBox->trigger();
+            } else {
+                ui->actionSkeleton->trigger();
+            }
+            break;
+
+        case Qt::Key_F:
+            if (m_shiftPressed) {
+                glm::vec3 pos = m_camera->position();
+                float fov = m_camera->fov();
+                if (m_camera->m_type == Camera::FPS) {
+                    //                CameraFps* camera = static_cast<CameraFps*>(m_camera);
+
+                    //                glm::vec3 front = glm::normalize(camera->front());
+                    //            Q_ASSERT(glm::length(front) == 1.0f);
+
+                    //                                glm::vec3 target = camera->position() + 200.0f * front;
+                    glm::vec3 target = m_camera->target();
+                    //            glm::vec3 target = glm::vec3(0.0f, 0.0f, 0.0f);
+
+                    Scene::m_scene->m_objects.remove(m_camera);
+                    delete m_camera;
+                    //                m_camera = new CameraWorld(fov, pos, camera->m_target);
+                    m_camera = new CameraWorld(fov, pos, target);
+                    Scene::m_scene->m_objects.push_back(m_camera);
+                    //            m_camera = new CameraWorld(static_cast<CameraFps*>(m_camera));
+                } else {
+                    CameraWorld* camera = static_cast<CameraWorld*>(m_camera);
+                    //            glm::vec3 front = glm::normalize(camera->target() - pos);
+                    glm::vec3 front = glm::normalize(camera->target() - pos);
+
+                    //    m_yaw = glm::degrees(cosf(front.x /(sqrtf(front.x * front.x + front.z * front.z))));
+                    //            float yaw = glm::degrees(atanf(front.y / front.x));
+                    float yaw = glm::degrees(atan2f(front.y, front.x));
+                    float pitch = glm::degrees(asinf(front.z));
+
+                    Scene::m_scene->m_objects.remove(m_camera);
+                    delete m_camera;
+                    m_camera = new CameraFps(fov, pos, yaw, pitch, this);
+                    Scene::m_scene->m_objects.push_back(m_camera);
+
+                    static_cast<CameraFps*>(m_camera)->startFpsView();
+
+                    //            m_camera = new CameraFps(static_cast<CameraWorld*>(m_camera), this);
+                }
+
+            } else {
+                if (m_camera->m_type == Camera::WORLD) {
+                    CameraWorld* camera = static_cast<CameraWorld*>(m_camera);
+                    RayTracer::setSelectFocus(*camera);
+                }
+            }
+            break;
         }
-        break;
     }
 }
 
 void MainWindow3dView::keyReleaseEvent(QKeyEvent* event)
 {
-    m_camera->keyReleaseEvent(event);
+    if (m_iCamera < Scene::m_cameras.size()) {
+        Camera* m_camera = Scene::m_cameras[m_iCamera];
+        m_camera->keyReleaseEvent(event);
+    }
 
     switch (event->key()) {
     case Qt::Key_Shift:
@@ -636,39 +646,44 @@ void MainWindow3dView::keyReleaseEvent(QKeyEvent* event)
 
 void MainWindow3dView::mousePressEvent(QMouseEvent* event)
 {
-    switch (event->button()) {
+    if (m_iCamera < Scene::m_cameras.size()) {
+        Camera* m_camera = Scene::m_cameras[m_iCamera];
+        m_camera->mousePressEvent(event);
 
-    case Qt::LeftButton:
-        //        front = glm::rotate()
-        //        emit launchRayTracing(source, front);
-        //        RayTracer::launch({source, front});
-        //        if (m_ctrlPressed) {
-        //            RayTracer::unselectRay(clickRay(event));
-        //        } else {
 
-        if (m_transformActive) {
-            //            RayTracer::setSelectRootTransform(m_transformMatrix);
-            sendTransformToScene();
-            //            m_transformMatrix = glm::mat4(1.0f);
-            //            m_transformActive = false;
-            //			setCursor(Qt::ArrowCursor);
-            setTransformInactive();
-        } else {
-            RayTracer::selectRay(clickRay(event), m_shiftPressed);
-        }
+        switch (event->button()) {
 
-        break;
-        //        }
-    case Qt::MidButton:
-        if (!m_shiftPressed) {
-            if (m_alignAxis) {
-                m_alignAxis = false;
-                updatePersepectiveProjection();
+        case Qt::LeftButton:
+            //        front = glm::rotate()
+            //        emit launchRayTracing(source, front);
+            //        RayTracer::launch({source, front});
+            //        if (m_ctrlPressed) {
+            //            RayTracer::unselectRay(clickRay(event));
+            //        } else {
+
+            if (m_transformActive) {
+                //            RayTracer::setSelectRootTransform(m_transformMatrix);
+                sendTransformToScene();
+                //            m_transformMatrix = glm::mat4(1.0f);
+                //            m_transformActive = false;
+                //			setCursor(Qt::ArrowCursor);
+                setTransformInactive();
+            } else {
+                RayTracer::selectRay(clickRay(event), m_shiftPressed);
             }
+
+            break;
+            //        }
+        case Qt::MidButton:
+            if (!m_shiftPressed) {
+                if (m_alignAxis) {
+                    m_alignAxis = false;
+                    updatePersepectiveProjection();
+                }
+            }
+            break;
         }
-        break;
     }
-    m_camera->mousePressEvent(event);
 
     //    qDebug() << "[3dView]" << QWidget::mapToGlobal(pos());
     //    setMouseTracking(true);
@@ -679,14 +694,20 @@ void MainWindow3dView::mousePressEvent(QMouseEvent* event)
 void MainWindow3dView::mouseReleaseEvent(QMouseEvent* event)
 {
     //    setMouseTracking(true);
-    m_camera->mouseReleaseEvent(event);
+    if (m_iCamera < Scene::m_cameras.size()) {
+        Camera* m_camera = Scene::m_cameras[m_iCamera];
+        m_camera->mouseReleaseEvent(event);
+    }
 }
 
 void MainWindow3dView::mouseMoveEvent(QMouseEvent* event)
 {
     //    setMouseTracking(true);
     //    centralWidget()->setMouseTracking(true);
-    m_camera->mouseMoveEvent(event);
+    if (m_iCamera < Scene::m_cameras.size()) {
+        Camera* m_camera = Scene::m_cameras[m_iCamera];
+        m_camera->mouseMoveEvent(event);
+    }
 
     if (m_transformActive) {
         if (m_firstTransform) {
@@ -752,7 +773,10 @@ void MainWindow3dView::wheelEvent(QWheelEvent* event)
             //        }
         }
     }
-    m_camera->wheelEvent(event);
+    if (m_iCamera < Scene::m_cameras.size()) {
+        Camera* m_camera = Scene::m_cameras[m_iCamera];
+        m_camera->wheelEvent(event);
+    }
 
     if (m_ortho)
         updateOrthoProjection();
@@ -780,9 +804,12 @@ void MainWindow3dView::focusInEvent(QFocusEvent* event)
     //    qDebug() << "MainWindow3dView::focusInEvnt";
     //    centralWidget()->setFocus();
     //    centralWidget()->setFocus();
-    m_camera->focusInEvent(event);
+    if (m_iCamera < Scene::m_cameras.size()) {
+        Camera* m_camera = Scene::m_cameras[m_iCamera];
+        m_camera->focusInEvent(event);
 
-    m_shiftPressed = false;
+        m_shiftPressed = false;
+    }
     //    qDebug() << this << ": focusInEvent";
     //    setCursorToCenter();
     //    setCursor(Qt::BlankCursor);
@@ -797,9 +824,12 @@ void MainWindow3dView::focusInEvent(QFocusEvent* event)
 
 void MainWindow3dView::resizeEvent(QResizeEvent* event)
 {
-    m_camera->resizeEvent(event);
+    if (m_iCamera < Scene::m_cameras.size()) {
+        Camera* m_camera = Scene::m_cameras[m_iCamera];
+        m_camera->resizeEvent(event);
 
-    m_projectionMatrix = glm::perspective(glm::radians(m_camera->fov()), (float)width() / height(), l_near, l_far);
+        m_projectionMatrix = glm::perspective(glm::radians(m_camera->fov()), (float)width() / height(), l_near, l_far);
+    }
 }
 
 void MainWindow3dView::setFocusPolicy(Qt::FocusPolicy policy)
@@ -814,31 +844,39 @@ QWidget* MainWindow3dView::widget()
 
 void MainWindow3dView::updateOrthoProjection()
 {
-    float targetDist;
-    if (m_camera->m_type == Camera::WORLD) {
-        //        glm::vec3 target = static_cast<CameraWorld*>(m_camera)->target();
-        glm::vec3 target = m_camera->target();
-        targetDist = glm::length(camera()->position() - target);
-    } else {
-        targetDist = 200.0f;
-    }
-    float fov = glm::radians(m_camera->fov());
-    float right = targetDist * tanf(fov / 2);
-    float ratio = (float)height() / width();
-    float up = right * ratio;
+    if (m_iCamera < Scene::m_cameras.size()) {
+        Camera* m_camera = Scene::m_cameras[m_iCamera];
+        float targetDist;
+        if (m_camera->m_type == Camera::WORLD) {
+            //        glm::vec3 target = static_cast<CameraWorld*>(m_camera)->target();
+            glm::vec3 target = m_camera->target();
+            targetDist = glm::length(camera()->position() - target);
+        } else {
+            targetDist = 200.0f;
+        }
+        float fov = glm::radians(m_camera->fov());
+        float right = targetDist * tanf(fov / 2);
+        float ratio = (float)height() / width();
+        float up = right * ratio;
 
-    m_projectionMatrix = glm::ortho(-right, right, -up, up, l_near, l_far);
-    m_ortho = true;
+        m_projectionMatrix = glm::ortho(-right, right, -up, up, l_near, l_far);
+        m_ortho = true;
+    }
 }
 
 void MainWindow3dView::updatePersepectiveProjection()
 {
-    m_projectionMatrix = glm::perspective(glm::radians(m_camera->fov()), (float)width() / height(), l_near, l_far);
-    m_ortho = false;
+    if (m_iCamera < Scene::m_cameras.size()) {
+        Camera* m_camera = Scene::m_cameras[m_iCamera];
+        m_projectionMatrix = glm::perspective(glm::radians(m_camera->fov()), (float)width() / height(), l_near, l_far);
+        m_ortho = false;
+    }
 }
 
 Ray MainWindow3dView::clickRay(QMouseEvent* event)
 {
+    Q_ASSERT(m_iCamera < Scene::m_cameras.size());
+    Camera* m_camera = Scene::m_cameras[m_iCamera];
     //    QOpenGLFunctionsCore * m_fun = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
     //    qDebug() << "ratio " << width() / height();
     //    float ratio = static_cast<float>(height()) / width();
@@ -1114,19 +1152,22 @@ void MainWindow3dView::setTransformActive()
     //        //        RayTracer::setSelectRootTransform(m_transformMatrix);
     //        sendTransformToScene();
     //    }
+    if (m_iCamera < Scene::m_cameras.size()) {
+        Camera* m_camera = Scene::m_cameras[m_iCamera];
 
-    m_memAxisPos = 0.0f;
-    m_transformActive = true;
-    m_firstTransform = true;
-    m_axisTransform = false;
-    m_axisFollow = 10;
-    //    m_axisLocal = true;
-    m_memRight = m_camera->right();
-    m_memUp = m_camera->up();
-    m_memFront = m_camera->front();
-    setMouseTracking(true);
-    centralWidget()->setMouseTracking(true);
-    setCursor(Qt::SizeAllCursor);
+        m_memAxisPos = 0.0f;
+        m_transformActive = true;
+        m_firstTransform = true;
+        m_axisTransform = false;
+        m_axisFollow = 10;
+        //    m_axisLocal = true;
+        m_memRight = m_camera->right();
+        m_memUp = m_camera->up();
+        m_memFront = m_camera->front();
+        setMouseTracking(true);
+        centralWidget()->setMouseTracking(true);
+        setCursor(Qt::SizeAllCursor);
+    }
 }
 
 void MainWindow3dView::setTransformInactive()
@@ -1209,6 +1250,9 @@ void MainWindow3dView::setCursorToCenter()
 const Shader& MainWindow3dView::shader() const
 {
     //    return *m_shader;
+    Q_ASSERT(m_iCamera < Scene::m_cameras.size());
+
+    Camera* m_camera = Scene::m_cameras[m_iCamera];
     const Shader& shader = *Shader::m_shaders[m_shade];
 
     shader.use();
@@ -1284,6 +1328,8 @@ const Shader& MainWindow3dView::shader() const
 
 const Camera* MainWindow3dView::camera() const
 {
+    Q_ASSERT(m_iCamera < Scene::m_cameras.size());
+    Camera* m_camera = Scene::m_cameras[m_iCamera];
     Q_ASSERT(m_camera != nullptr);
     return m_camera;
 }
@@ -1295,13 +1341,20 @@ const Camera* MainWindow3dView::camera() const
 
 glm::mat4 MainWindow3dView::viewMatrix() const
 {
+    Q_ASSERT(m_iCamera < Scene::m_cameras.size());
+    Camera* m_camera = Scene::m_cameras[m_iCamera];
     //    return m_viewMatrix;
     Q_ASSERT(m_camera != nullptr);
     return m_camera->viewMatrix();
+    //    }
+
+    //    return glm::mat4(1.0f);
 }
 
 glm::mat4 MainWindow3dView::projectionViewMatrix() const
 {
+    Q_ASSERT(m_iCamera < Scene::m_cameras.size());
+    Camera* m_camera = Scene::m_cameras[m_iCamera];
     return m_projectionMatrix * m_camera->viewMatrix();
 }
 
@@ -1317,6 +1370,8 @@ glm::mat4 MainWindow3dView::projectionMatrix() const
 
 glm::mat4 MainWindow3dView::projectionMatrixZoom() const
 {
+    Q_ASSERT((m_iCamera < Scene::m_cameras.size()));
+    Camera* m_camera = Scene::m_cameras[m_iCamera];
     return glm::perspective(glm::radians(m_camera->fov() - 1), (float)width() / height(), l_near, l_far);
 }
 
@@ -1521,24 +1576,32 @@ void MainWindow3dView::on_actionPose_Mode_triggered()
 
 void MainWindow3dView::on_actionDir_Light_triggered()
 {
+    Q_ASSERT(m_iCamera < Scene::m_cameras.size());
+    Camera* m_camera = Scene::m_cameras[m_iCamera];
     //    Scene::m_scene->addLight(Light::Type::SUN, m_camera->m_target);
     QOpenGLWidget_Editor::editor->addLight(Light::Type::SUN, m_camera->target());
 }
 
 void MainWindow3dView::on_actionPoint_Light_triggered()
 {
+    Q_ASSERT(m_iCamera < Scene::m_cameras.size());
+    Camera* m_camera = Scene::m_cameras[m_iCamera];
     //    Scene::m_scene->addLight(Light::Type::POINT, m_camera->m_target);
     QOpenGLWidget_Editor::editor->addLight(Light::Type::POINT, m_camera->target());
 }
 
 void MainWindow3dView::on_actionSpot_Light_triggered()
 {
+    Q_ASSERT(m_iCamera < Scene::m_cameras.size());
+    Camera* m_camera = Scene::m_cameras[m_iCamera];
     //    Scene::m_scene->addLight(Light::Type::SPOT, m_camera->m_target);
     QOpenGLWidget_Editor::editor->addLight(Light::Type::SPOT, m_camera->target());
 }
 
 void MainWindow3dView::on_actionArea_Light_triggered()
 {
+    Q_ASSERT(m_iCamera < Scene::m_cameras.size());
+    Camera* m_camera = Scene::m_cameras[m_iCamera];
     //    Scene::m_scene->addLight(Light::Type::AREA, m_camera->m_target);
     QOpenGLWidget_Editor::editor->addLight(Light::Type::AREA, m_camera->target());
 }

@@ -31,13 +31,14 @@ public:
     glm::mat4 m_localTransform = glm::mat4(1.0);
     glm::mat4 m_worldTransform = glm::mat4(1.0);
 
-    static Model* m_cameraModel;
-    static Model* m_lightDirModel;
+//    static Model* m_cameraModel;
+//    static Model* m_lightDirModel;
 
     std::list<const Object *> m_objects;
 
-    std::vector<Model> m_models;
-//    static std::vector<Camera*> m_cameras; // legacy
+//    std::vector<Model> m_models;
+    std::vector<Object> m_models;
+    static std::vector<Camera*> m_cameras; // legacy
 
 
 public:
@@ -69,7 +70,7 @@ public:
     void addModel(std::string file, const glm::vec3 & origin);
     void delModel(std::string file);
 
-    void updateSceneModel();
+    void updateSceneItemModel();
 //    void modelChanged();
 
     void load(std::ifstream & file);

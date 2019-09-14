@@ -13,7 +13,8 @@
 
 Camera::Camera(float fov, const glm::vec3 &position)
 //    : m_target(target)
-    : m_fov(fov)
+    : Object(Model(g_resourcesPath + "models/camera/camera.obj"))
+    , m_fov(fov)
     , m_position(position)
 {
 }

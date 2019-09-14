@@ -528,7 +528,7 @@ void Model::drawBoundingBox(const Shader &shader) const
 
 //}
 
-void Model::DrawHierarchy(const glm::mat4& modelMatrix, const MainWindow3dView& view, const glm::mat4 & worldTransform) const
+void Model::DrawHierarchy(const glm::mat4& modelMatrix, const glm::mat4 &viewMatrix, const glm::mat4 &projectionMatrix, const glm::vec3 &cameraPos, const glm::mat4 & worldTransform) const
 {
     //    const Shader& shader = view.shader();
     //    shader.use();
@@ -542,7 +542,7 @@ void Model::DrawHierarchy(const glm::mat4& modelMatrix, const MainWindow3dView& 
 
     //    m_boneGeometry.setVP(viewMatrix, projectionMatrix);
 //    m_boneGeometry.updateShader(view);
-    BoneGeometry::updateShader(view);
+    BoneGeometry::updateShader(viewMatrix, projectionMatrix, cameraPos);
     m_rootNode->drawHierarchy(worldTransform * m_transform * modelMatrix);
     //        glDepthFunc(GL_LESS);
 }
