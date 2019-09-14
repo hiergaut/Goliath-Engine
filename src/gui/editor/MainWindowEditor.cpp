@@ -17,6 +17,7 @@
 #include <QDateTime>
 //#include <AnimTimeline/FormAnimTimeline.h>
 #include "timeline/FormTimeline.h"
+//#include <gui/QOpenGLWidget_Editor.h>
 
 MainWindowEditor::MainWindowEditor(QWidget* parent)
     : QMainWindow(parent)
@@ -58,6 +59,9 @@ void MainWindowEditor::setEditor(Editor::id id)
     //    QOpenGLContext* ctx = QOpenGLContext::currentContext();
     //    qDebug() << "[CONTEXT] Editor : " << ctx;
     delete m_centralWidget;
+
+//    QOpenGLWidget_Editor::m_editor->
+
 //    for (QMenu * menu : m_menus) {
 //        ui->menubar.d
 //    }
@@ -242,11 +246,13 @@ void MainWindowEditor::on_action3D_View_triggered()
     ////        g_env.m_views.remov
     //    }
     setEditor(Editor::id::VIEW);
+//    Scene::m_scene->removeHideCamera();
 }
 
 void MainWindowEditor::on_actionOutliner_triggered()
 {
     setEditor(Editor::id::OUTLINER);
+//    Scene::m_scene->removeHideCamera();
 }
 
 //QWidget* MainWindowEditor::centralWidget()

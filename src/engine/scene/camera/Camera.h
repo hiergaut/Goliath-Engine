@@ -56,6 +56,8 @@ public:
     virtual void setFront(const glm::vec3 & front) = 0;
     virtual glm::vec3 target() const = 0;
 
+    virtual void setDefault();
+
 protected:
     void draw(const Shader &shader, bool dotCloud, const glm::mat4 &localTransform = glm::mat4(1.0f), const glm::mat4 &worldTransform = glm::mat4(1.0f)) const override;
     void draw(const Shader &shader, const glm::mat4 &localTransform = glm::mat4(1.0f), const glm::mat4 &worldTransform = glm::mat4(1.0f)) const override;

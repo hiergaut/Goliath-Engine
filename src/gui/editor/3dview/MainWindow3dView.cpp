@@ -76,7 +76,7 @@ MainWindow3dView::MainWindow3dView(QWidget* parent)
     //    Scene::m_scene->addCamera(50.0f, glm::vec3(200, -200, 200), glm::vec3(0.0, 0.0, 0.0));
     //    m_camera = Scene::m_scene->m_cameras.back();
 
-//        m_camera = new CameraWorld(50.0f, glm::vec3(200, -200, 200), glm::vec3(0, 0, 0));
+    //        m_camera = new CameraWorld(50.0f, glm::vec3(200, -200, 200), glm::vec3(0, 0, 0));
 
     //    Scene::m_cameras.push_back(m_camera);
     //    Scene::m_scene->m_allObjects.push_back(m_camera);
@@ -93,7 +93,7 @@ MainWindow3dView::MainWindow3dView(QWidget* parent)
 
     //    m_projectionMatrix = glm::perspective(glm::radians(m_camera->fov()), (float)width() / height(), l_near, l_far);
     //    Scene::m_cameras.push_back(new CameraWorld(50.0f, glm::vec3(200, -200, 200), glm::vec3(0, 0, 0)));
-//    QOpenGLWidget_Editor::m_editor->addCameraWorld(50.0f, glm::vec3(200, -200, 200), glm::vec3(0, 0, 0));
+    //    QOpenGLWidget_Editor::m_editor->addCameraWorld(50.0f, glm::vec3(200, -200, 200), glm::vec3(0, 0, 0));
 
     m_iCamera = m_views->size();
 
@@ -175,7 +175,7 @@ MainWindow3dView::~MainWindow3dView()
     Q_ASSERT(m_views);
     m_views->remove(this);
 
-//    QOpenGLWidget_Editor::m_editor->deleteCamera(m_iCamera);
+    //    QOpenGLWidget_Editor::m_editor->deleteCamera(m_iCamera);
     //    delete m_grid;
     //    delete m_shader;
     //    doneCurrent();
@@ -473,7 +473,13 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
             break;
 
         case Qt::Key_0:
-            RayTracer::setSelectToOriginTransform();
+            if (m_transformActive) {
+                RayTracer::setSelectToOriginTransform();
+            }
+            else {
+                m_camera->setDefault();
+            }
+
             break;
 
         case Qt::Key_X:

@@ -247,6 +247,12 @@ void CameraWorld::wheelEvent(QWheelEvent* event)
     //    updateProjection();
 }
 
+void CameraWorld::setDefault()
+{
+
+    m_target = glm::vec3(0.0f, 0.0f, 0.0f);
+}
+
 glm::vec3 CameraWorld::target() const
 {
     return m_target;

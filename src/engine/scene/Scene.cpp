@@ -259,7 +259,7 @@ void Scene::draw(const MainWindow3dView& view)
     //    glPolygonMode(GL_FRONT, GL_LINE);
     // -------------------------------- DRAW MODELS
     //    for (const Model& model : m_models) {
-    //        qDebug() << m_objects;
+    //            qDebug() << m_objects;
     for (const Object* object : m_objects) {
         if (object != viewCameraObject) {
             if (object->m_selected) {
@@ -796,6 +796,8 @@ void Scene::addModel(std::string file, const glm::vec3& origin)
 
     //    m_models[m_models.size() - 1].m_transform = glm::translate(glm::mat4(1.0f), origin);
     m_models.back().m_model.m_transform = glm::translate(glm::mat4(1.0f), origin);
+
+    m_objects.push_back(&m_models.back());
 
     //    std::cout << &m_models[0] << std::endl;
     updateSceneItemModel();

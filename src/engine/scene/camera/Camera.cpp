@@ -5,27 +5,26 @@
 
 //}
 #include <QDebug>
+#include <engine/scene/Scene.h>
 #include <glm/gtc/type_ptr.hpp>
 #include <session/Session.h>
-#include <engine/scene/Scene.h>
 
 //static const Model * cameraModel = Scene::m_scene->m_cameraModel;
 
-Camera::Camera(float fov, const glm::vec3 &position)
-//    : m_target(target)
-//    : Object(std::move(Model(g_resourcesPath + "models/camera/camera.obj")))
+Camera::Camera(float fov, const glm::vec3& position)
+    //    : m_target(target)
+    //    : Object(std::move(Model(g_resourcesPath + "models/camera/camera.obj")))
     : Object(g_resourcesPath + "models/camera/camera.obj")
     , m_fov(fov)
     , m_position(position)
 {
 }
 
-Camera::Camera(std::ifstream &file)
+Camera::Camera(std::ifstream& file)
     : Object(g_resourcesPath + "models/camera/camera.obj")
 {
     Session::load(m_fov, file);
     Session::load(m_position, file);
-
 }
 
 //void Camera::load(std::ifstream &file)
@@ -40,18 +39,18 @@ Camera::Camera(std::ifstream &file)
 
 //}
 
-void Camera::save(std::ofstream &file)
+void Camera::save(std::ofstream& file)
 {
-//    float data[4];
+    //    float data[4];
 
-//    std::memcpy(data, glm::value_ptr(m_position), 3 * sizeof(float));
-//    data[3] = m_fov;
+    //    std::memcpy(data, glm::value_ptr(m_position), 3 * sizeof(float));
+    //    data[3] = m_fov;
 
-//    file.write(reinterpret_cast<const char*>(&data), sizeof (data));
+    //    file.write(reinterpret_cast<const char*>(&data), sizeof (data));
     Session::save(m_fov, file);
     Session::save(m_position, file);
 
-//    Session::save(m_target, file);
+    //    Session::save(m_target, file);
 }
 
 //Camera::Camera(Camera *camera)
@@ -106,7 +105,7 @@ void Camera::mouseReleaseEvent(QMouseEvent* event)
     if (event->button() == Qt::MiddleButton) {
         m_middleClicked = false;
     }
-//    event->ignore();
+    //    event->ignore();
 }
 
 void Camera::mouseMoveEvent(QMouseEvent* event)
@@ -117,15 +116,19 @@ void Camera::wheelEvent(QWheelEvent* event)
 {
 }
 
-void Camera::focusInEvent(QFocusEvent *event)
+void Camera::focusInEvent(QFocusEvent* event)
 {
     m_shiftPressed = false;
-
 }
 
-void Camera::resizeEvent(QResizeEvent *event)
+void Camera::resizeEvent(QResizeEvent* event)
 {
+}
 
+void Camera::setDefault()
+{
+    m_fov = 60.0f;
+    m_position = glm::vec3(200.0f, -200.0f, 200.0f);
 }
 
 float Camera::fov() const
@@ -138,28 +141,33 @@ const glm::vec3& Camera::position() const
     return m_position;
 }
 
-void Camera::draw(const Shader &shader, bool dotCloud, const glm::mat4 &localTransform, const glm::mat4 &worldTransform) const
+void Camera::draw(const Shader& shader, bool dotCloud, const glm::mat4& localTransform, const glm::mat4& worldTransform) const
 {
-//    Scene::m_camera.d
-//    Scene::m_scene->m_cameraModel->draw(shader, dotCloud, localTransform, worldTransform);
-//    qDebug() << "draw camera";
-//    cameraModel->draw(shader, dotCloud, localTransform, glm::inverse(viewMatrix()) * worldTransform);
+    m_model.draw(shader, dotCloud, localTransform, glm::inverse(viewMatrix()) * worldTransform);
+//    m_model.draw(shader, dotCloud, localTransform,  worldTransform);
+    //    Scene::m_camera.d
+    //    Scene::m_scene->m_cameraModel->draw(shader, dotCloud, localTransform, worldTransform);
+    //    qDebug() << "draw camera";
+    //    cameraModel->draw(shader, dotCloud, localTransform, glm::inverse(viewMatrix()) * worldTransform);
 }
 
-void Camera::draw(const Shader &shader, const glm::mat4 &localTransform, const glm::mat4 &worldTransform) const
+void Camera::draw(const Shader& shader, const glm::mat4& localTransform, const glm::mat4& worldTransform) const
 {
-//    cameraModel->draw(shader, localTransform, worldTransform);
+    m_model.draw(shader, localTransform, worldTransform);
+    //    cameraModel->draw(shader, localTransform, worldTransform);
 }
 
 void Camera::updateBoundingBox() const
 {
-//    Scene::m_scene
-//    cameraModel->updateBoundingBox(m_box);
-
+//    m_model.m_transform = glm::inverse(viewMatrix());
+    m_model.updateBoundingBox();
+    //    Scene::m_scene
+    //    cameraModel->updateBoundingBox(m_box);
 }
 
-void Camera::drawBoundingBox(const Shader &shader) const
+void Camera::drawBoundingBox(const Shader& shader) const
 {
-//    Scene::m_cameraModel->draw(shader, localTransform, worldTransform);
-//    cameraModel->drawBoundingBox(shader);
+    m_model.drawBoundingBox(shader);
+    //    Scene::m_cameraModel->draw(shader, localTransform, worldTransform);
+    //    cameraModel->drawBoundingBox(shader);
 }

@@ -15,7 +15,8 @@ public:
     Model m_model;
 
 public:
-    Object(Model && model) noexcept;
+//    Object(Model && model) noexcept;
+    Object(std::ifstream & file);
     Object(const std::string & path);
     Object(Object && object) noexcept = default;
 

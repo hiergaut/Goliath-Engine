@@ -10,8 +10,14 @@
 //{
 //}
 
-Object::Object(Model &&model) noexcept
-    : m_model(std::move(model))
+//Object::Object(Model &&model) noexcept
+//    : m_model(std::move(model))
+//{
+
+//}
+
+Object::Object(std::ifstream &file)
+    : m_model(file)
 {
 
 }
