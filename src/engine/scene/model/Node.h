@@ -27,7 +27,7 @@ public:
 //    void prepareHierarchy(glm::mat4 & model, const Animation & animation, double animationTime) const;
     void prepareHierarchy(glm::mat4 model, const Animation *animation = nullptr, double animationTime = 0.0) const;
 //    void drawBones(const Shader & shader, glm::mat4 model, const Animation *animation = nullptr, double animationTime = 0.0) const;
-    void drawHierarchy(const BoneGeometry &boneGeometry, const glm::mat4 & modelMatrix) const;
+    void drawHierarchy(const glm::mat4 & modelMatrix) const;
 //    void drawBoundingBox(const glm::mat4 & modelMatrix, const Shader & shader) const;
 
     uint recurseNbBones() const;

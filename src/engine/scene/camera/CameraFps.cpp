@@ -11,9 +11,9 @@
 
 //}
 const float accuracyRotate = 0.1f;
-const float accuracyMove = 1.0f;
+const float accuracyMove = 0.5f;
 //const float accuracySlide = 0.05f;
-const float accuracyZoom = 0.05;
+const float accuracyZoom = 0.05f;
 
 
 CameraFps::CameraFps(MainWindow3dView * view)

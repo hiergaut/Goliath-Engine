@@ -31,12 +31,13 @@ public:
     glm::mat4 m_localTransform = glm::mat4(1.0);
     glm::mat4 m_worldTransform = glm::mat4(1.0);
 
-    Model* m_cameraModel;
-    Model* m_lightDirModel;
+    static Model* m_cameraModel;
+    static Model* m_lightDirModel;
 
-//    static std::list<Camera*> m_cameras;
-    std::vector<const Object *> m_allObjects;
+    std::list<const Object *> m_objects;
+
     std::vector<Model> m_models;
+//    static std::vector<Camera*> m_cameras; // legacy
 
 
 public:
@@ -82,6 +83,7 @@ public:
     void deleteSelected();
 
     void addLight(Light::Type lightType, const glm::vec3 position);
+//    void addCamera(float fov, const glm::vec3 & position, const glm::vec3 &target);
 
     void updateTransformationMatrix(float dx, float dy);
 
@@ -98,7 +100,7 @@ private:
 //    Shader* m_shader;
     std::vector<DirLight> m_dirLights;
 
-//    std::list<const MainWindow3dView *> * m_views; // cameras
+    std::list<const MainWindow3dView *> * m_views; // cameras
 
 
 //    Shader* m_shaderCamera;
@@ -118,7 +120,7 @@ public:
 //    QStandardItemModel* itemModel();
 //    std::vector<MainWindow3dView *> views() const;
 //    std::vector<const CameraWorld &> & cameras() const;
-//    void setViews(std::list<const MainWindow3dView *> *views);
+    void setViews(std::list<const MainWindow3dView *> *views);
     const QStandardItemModel & itemModel() const;
     QStandardItemModel * fileOpennedModel();
 };

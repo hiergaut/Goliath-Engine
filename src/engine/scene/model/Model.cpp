@@ -341,20 +341,6 @@ void Model::prepareHierarchy(ulong frameTime) const
 }
 
 
-//void Model::draw(const glm::mat4 &modelMatrix, const Shader &shader, const glm::mat4 & worldTransform) const
-void Model::draw(const Shader &shader, const glm::mat4 &modelMatrix, const glm::mat4 &worldTransform) const
-{
-        for (const Mesh& mesh : m_meshes) {
-            //        const Mesh& mesh = m_meshes[i];
-
-            shader.setMat4("model", worldTransform * m_transform *modelMatrix* mesh.m_transform);
-
-            mesh.draw(shader);
-        }
-        //        shader.setBool("userColor", false);
-
-}
-
 //void Model::Draw(const glm::mat4& modelMatrix, const MainWindow3dView& view) const
 //void Model::Draw(const glm::mat4& modelMatrix, const Shader& shader, bool dotCloud, bool vertexGroupShader) const
 //void Model::draw(const glm::mat4 &modelMatrix, const Shader &shader, bool dotCloud, const glm::mat4 & worldTransform) const
@@ -430,6 +416,33 @@ void Model::draw(const Shader &shader, bool dotCloud, const glm::mat4 &modelMatr
 
     //    shader.use();
 }
+//void Model::draw(const glm::mat4 &modelMatrix, const Shader &shader, const glm::mat4 & worldTransform) const
+void Model::draw(const Shader &shader, const glm::mat4 &modelMatrix, const glm::mat4 &worldTransform) const
+{
+        for (const Mesh& mesh : m_meshes) {
+            //        const Mesh& mesh = m_meshes[i];
+
+            shader.setMat4("model", worldTransform * m_transform *modelMatrix* mesh.m_transform);
+
+            mesh.draw(shader);
+        }
+        //        shader.setBool("userColor", false);
+
+}
+
+
+void Model::updateBoundingBox() const
+{
+    m_box.clear();
+    for (const Mesh& mesh : m_meshes) {
+        mesh.updateBoundingBox(m_transform);
+        m_box << mesh.m_box;
+    }
+    //    for (uint i = 0; i < m_meshes.size(); ++i) {
+    //        const Mesh& mesh = m_meshes[i];
+
+    //    }
+}
 
 //void Model::drawBoundingBox(const glm::mat4& modelMatrix, const Shader& shader) const
 void Model::drawBoundingBox(const Shader &shader) const
@@ -476,18 +489,6 @@ void Model::drawBoundingBox(const Shader &shader) const
     shader.setBool("userColor", false);
 }
 
-void Model::updateBoundingBox() const
-{
-    m_box.clear();
-    for (const Mesh& mesh : m_meshes) {
-        mesh.updateBoundingBox(m_transform);
-        m_box << mesh.m_box;
-    }
-    //    for (uint i = 0; i < m_meshes.size(); ++i) {
-    //        const Mesh& mesh = m_meshes[i];
-
-    //    }
-}
 
 //void Model::selectRay(const Ray& ray) const
 //void Model::selectObject(const Ray& ray, float& depthMin, bool& find, uint& iModelMin, uint& iMeshMin, uint& iBoneMin, uint& iTriangleMin, bool unselect /* = false */) const
@@ -540,8 +541,9 @@ void Model::DrawHierarchy(const glm::mat4& modelMatrix, const MainWindow3dView& 
     glClear(GL_DEPTH_BUFFER_BIT);
 
     //    m_boneGeometry.setVP(viewMatrix, projectionMatrix);
-    m_boneGeometry.updateShader(view);
-    m_rootNode->drawHierarchy(m_boneGeometry, worldTransform * m_transform * modelMatrix);
+//    m_boneGeometry.updateShader(view);
+    BoneGeometry::updateShader(view);
+    m_rootNode->drawHierarchy(worldTransform * m_transform * modelMatrix);
     //        glDepthFunc(GL_LESS);
 }
 

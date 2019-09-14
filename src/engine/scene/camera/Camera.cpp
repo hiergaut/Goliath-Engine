@@ -9,6 +9,7 @@
 #include <session/Session.h>
 #include <engine/scene/Scene.h>
 
+//static const Model * cameraModel = Scene::m_scene->m_cameraModel;
 
 Camera::Camera(float fov, const glm::vec3 &position)
 //    : m_target(target)
@@ -128,16 +129,25 @@ const glm::vec3& Camera::position() const
 void Camera::draw(const Shader &shader, bool dotCloud, const glm::mat4 &localTransform, const glm::mat4 &worldTransform) const
 {
 //    Scene::m_camera.d
-    Scene::m_scene->m_cameraModel->draw(shader, dotCloud, localTransform, worldTransform);
+//    Scene::m_scene->m_cameraModel->draw(shader, dotCloud, localTransform, worldTransform);
+//    qDebug() << "draw camera";
+//    cameraModel->draw(shader, dotCloud, localTransform, glm::inverse(viewMatrix()) * worldTransform);
 }
 
 void Camera::draw(const Shader &shader, const glm::mat4 &localTransform, const glm::mat4 &worldTransform) const
 {
-    Scene::m_scene->m_cameraModel->draw(shader, localTransform, worldTransform);
+//    cameraModel->draw(shader, localTransform, worldTransform);
+}
+
+void Camera::updateBoundingBox() const
+{
+//    Scene::m_scene
+//    cameraModel->updateBoundingBox(m_box);
+
 }
 
 void Camera::drawBoundingBox(const Shader &shader) const
 {
 //    Scene::m_cameraModel->draw(shader, localTransform, worldTransform);
-    Scene::m_scene->m_cameraModel->drawBoundingBox(shader);
+//    cameraModel->drawBoundingBox(shader);
 }

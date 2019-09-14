@@ -11,37 +11,41 @@
 class BoneGeometry
 {
 public:
-    BoneGeometry();
+    BoneGeometry() = delete;
 
-    void draw(glm::mat4 model, glm::vec3 source, glm::vec3 destination) const;
-    void drawLine(glm::mat4 model, glm::vec3 source, glm::vec3 destination) const;
+    static void initializeGL();
+
+    static void draw(glm::mat4 model, glm::vec3 source, glm::vec3 destination);
+    static void drawLine(glm::mat4 model, glm::vec3 source, glm::vec3 destination);
 
 //    void setVP(const glm::mat4 & viewMatrix, const glm::mat4 &projectionMatrix) const;
-    void updateShader(const MainWindow3dView & view) const;
+    static void updateShader(const MainWindow3dView & view);
 
 private:
-    void setup();
+//    void setup();
 
 private:
-    QOpenGLFunctionsCore * m_fun;
+    static QOpenGLFunctionsCore * m_fun;
 
 //    UvSphereGeometry m_sphere;
 
-    uint m_vao;
+    static uint m_vao;
 //    uint m_vao2;
 
-    uint m_vbo;
-    uint m_ebo;
+//    uint m_vbo;
+//    uint m_ebo;
 //    uint m_ebo2;
-    uint m_nbo;
+//    uint m_nbo;
 
-    Shader * m_shader;
+    static Shader * m_shader;
 
 
-    std::vector<glm::vec3> m_vertices;
-    std::vector<glm::vec3> m_normals;
+//    std::vector<glm::vec3> m_vertices;
+//    std::vector<glm::vec3> m_normals;
+
 //    std::vector<uint> m_indices;
-    std::vector<glm::uvec3> m_indices;
+
+//    static std::vector<glm::uvec3> m_indices;
 //    std::vector<glm::uvec2> m_indicesLine;
 };
 

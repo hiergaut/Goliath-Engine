@@ -150,6 +150,7 @@ void QOpenGLWidget_Editor::initializeGL()
     DotGeometry::initializeGL();
     AxisGeometry::initializeGL();
     UvSphereGeometry::initializeGL();
+    BoneGeometry::initializeGL();
 
     //    FormTimeline::setScene(&m_scene);
 
@@ -254,5 +255,5 @@ void QOpenGLWidget_Editor::addLight(Light::Type lightType, const glm::vec3 posit
 void QOpenGLWidget_Editor::setViews(std::list<const MainWindow3dView*>* views)
 {
     m_views = views;
-//    m_scene.setViews(views);
+    m_scene.setViews(views);
 }

@@ -55,16 +55,19 @@ public:
     virtual glm::vec3 target() const = 0;
 
 protected:
-    void drawBoundingBox(const Shader &shader) const override;
-    void draw(const Shader &shader, const glm::mat4 &localTransform = glm::mat4(1.0f), const glm::mat4 &worldTransform = glm::mat4(1.0f)) const override;
     void draw(const Shader &shader, bool dotCloud, const glm::mat4 &localTransform = glm::mat4(1.0f), const glm::mat4 &worldTransform = glm::mat4(1.0f)) const override;
+    void draw(const Shader &shader, const glm::mat4 &localTransform = glm::mat4(1.0f), const glm::mat4 &worldTransform = glm::mat4(1.0f)) const override;
 
+    void updateBoundingBox() const override;
+    void drawBoundingBox(const Shader &shader) const override;
 
     float m_fov;
     mutable glm::vec3 m_position;
 
     bool m_middleClicked = false;
     bool m_shiftPressed = false;
+
+
 
 
 

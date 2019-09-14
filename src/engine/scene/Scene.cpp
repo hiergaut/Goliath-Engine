@@ -14,10 +14,10 @@
 
 Scene* Scene::m_scene = nullptr;
 //QStandardItemModel Scene::m_sceneModel;
-//Model* Scene::m_cameraModel = nullptr;
-//Model* Scene::m_lightDirModel = nullptr;
+Model* Scene::m_cameraModel = nullptr;
+Model* Scene::m_lightDirModel = nullptr;
 //std::list<Camera*> Scene::m_cameras;
-//std::list<const Object *> Scene::m_allObjects;
+//std::list<const Object *> Scene::m_objects;
 
 Scene::Scene()
 {
@@ -26,6 +26,7 @@ Scene::Scene()
 
     m_models.reserve(10);
     m_dirLights.reserve(10);
+    //    m_objects.reserve(50);
     //    m_dirLights.reserve(10);
 
     QTreeView_outliner::setModelScene(&m_sceneModel);
@@ -93,7 +94,7 @@ void Scene::initializeGL()
 
 void Scene::prepareHierarchy(ulong frameTime)
 {
-    for (const Model & model : m_models) {
+    for (const Model& model : m_models) {
         //	    glm::mat4 model(1.0);
         //        glm::mat4 modelMatrix(1.0);
         //        modelMatrix = glm::scale(modelMatrix, glm::vec3(0.01));
@@ -120,14 +121,19 @@ void Scene::prepareHierarchy(ulong frameTime)
 
 void Scene::draw(const MainWindow3dView& view)
 {
+    //    qDebug() << m_objects.size();
+
     Q_ASSERT(initialized);
     glm::mat4 viewMatrix = view.viewMatrix();
     glm::mat4 projectionMatrix = view.projectionMatrix();
+
+    Object* viewCameraObject = view.m_camera;
 
     //    glm::mat4 modelMatrix(1.0);
     const glm::mat4 onesMatrix(1.0);
     if (view.m_shade != Shader::Type::RENDERED) {
         m_grid->draw(onesMatrix, viewMatrix, projectionMatrix);
+        //        m_grid->draw(glm::scale(onesMatrix, glm::vec3(1.0f) * glm::length(glm::vec3(viewMatrix[3]))), viewMatrix, projectionMatrix);
     }
 
     const Shader& shader = view.shader();
@@ -186,7 +192,7 @@ void Scene::draw(const MainWindow3dView& view)
     //    shader.setMat4("model", onesMatrix);
     if (view.boundingBox()) {
         //        for (const Model& model : m_models) {
-        for (const Object* object : m_allObjects) {
+        for (const Object* object : m_objects) {
             //            model.m_box.draw(modelMatrix, shader);
             object->drawBoundingBox(shader);
             //            if (object->m_selected) {
@@ -239,13 +245,16 @@ void Scene::draw(const MainWindow3dView& view)
     //    glPolygonMode(GL_FRONT, GL_LINE);
     // -------------------------------- DRAW MODELS
     //    for (const Model& model : m_models) {
-    for (const Object* object : m_allObjects) {
-        if (object->m_selected) {
-            object->draw(shader, view.dotCloud(), viewLocalTransform, viewWorldTransform);
+    //    qDebug() << m_objects;
+    for (const Object* object : m_objects) {
+        if (object != viewCameraObject) {
+            if (object->m_selected) {
+                object->draw(shader, view.dotCloud(), viewLocalTransform, viewWorldTransform);
 
-        } else {
+            } else {
 
-            object->draw(shader, view.dotCloud(), onesMatrix, onesMatrix);
+                object->draw(shader, view.dotCloud(), onesMatrix, onesMatrix);
+            }
         }
     }
     glClear(GL_DEPTH_BUFFER_BIT);
@@ -260,7 +269,7 @@ void Scene::draw(const MainWindow3dView& view)
     glStencilFunc(GL_ALWAYS, 1, 0xFF);
     glStencilMask(0xFF);
     //    for (const Model& model : m_models) {
-    for (const Object* object : m_allObjects) {
+    for (const Object* object : m_objects) {
         if (object->m_selected) {
             //            model.Draw(modelMatrix, shader);
             object->draw(shader, viewLocalTransform, viewWorldTransform);
@@ -279,7 +288,7 @@ void Scene::draw(const MainWindow3dView& view)
     shader.setBool("userColor", true);
     shader.setVec4("color", glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));
     //    for (const Model& model : m_models) {
-    for (const Object* object : m_allObjects) {
+    for (const Object* object : m_objects) {
         if (object->m_selected) {
             //            model.Draw(modelMatrix, shader);
             object->draw(shader, viewLocalTransform, viewWorldTransform);
@@ -296,12 +305,12 @@ void Scene::draw(const MainWindow3dView& view)
     glPolygonMode(GL_FRONT, polygonMode);
 
     // -------------------------------- DRAW CAMERA VIEWS
-//    for (const MainWindow3dView* otherViews : *m_views) {
-//        const Camera* camera = otherViews->camera();
-//        glm::mat4 modelMatrix = glm::inverse(camera->viewMatrix());
-//        Q_ASSERT(m_cameraModel != nullptr);
-//        m_cameraModel->draw(shader, view.dotCloud(), modelMatrix);
-//    }
+    //    for (const MainWindow3dView* otherViews : *m_views) {
+    //        const Camera* camera = otherViews->camera();
+    //        glm::mat4 modelMatrix = glm::inverse(camera->viewMatrix());
+    //        Q_ASSERT(m_cameraModel != nullptr);
+    //        m_cameraModel->draw(shader, view.dotCloud(), modelMatrix);
+    //    }
 
     switch (view.m_mode) {
     case MainWindow3dView::Mode::OBJECT:
@@ -328,7 +337,7 @@ void Scene::draw(const MainWindow3dView& view)
         //        glCullFace(GL_BACK);
         //        normalShader->setMat4("model", modelMatrix);
         //        for (const Model& model : m_models) {
-        for (const Object* object : m_allObjects) {
+        for (const Object* object : m_objects) {
             //	    glm::mat4 model(1.0);
             //        glm::mat4 modelMatrix(1.0);
             //        modelMatrix = glm::scale(modelMatrix, glm::vec3(0.01));
@@ -349,7 +358,7 @@ void Scene::draw(const MainWindow3dView& view)
     if (view.skeleton()) {
         //        modelMatrix = glm::mat4(1.0f);
         //        for (const Model& model : m_models) {
-        for (const Model & model : m_models) {
+        for (const Model& model : m_models) {
             //	    glm::mat4 model(1.0);
             //        glm::mat4 modelMatrix(1.0);
             //        modelMatrix = glm::scale(modelMatrix, glm::vec3(0.01));
@@ -378,7 +387,7 @@ void Scene::draw(const MainWindow3dView& view)
     glLineWidth(2);
     //    glPolygonMode(GL_FRONT, GL_LINE);
     //    for (const Model& model : m_models) {
-    for (const Object* object : m_allObjects) {
+    for (const Object* object : m_objects) {
         if (object->m_selected) {
             //            model.Draw(modelMatrix, shader);
             //            model.Draw(modelMatrix, shader, view.m_shade, view.dotCloud());
@@ -414,7 +423,7 @@ void Scene::draw(const MainWindow3dView& view)
         //        shader.setMat4("model", onesMatrix);
         if (view.m_axisLocal) {
             //            for (const Model& model : m_models) {
-            for (const Object* object : m_allObjects) {
+            for (const Object* object : m_objects) {
                 if (object->m_selected) {
                     shader.setMat4("model", object->m_transform);
 
@@ -437,7 +446,7 @@ void Scene::draw(const MainWindow3dView& view)
 
             shader.setMat4("model", onesMatrix);
             //            for (const Model& model : m_models) {
-            for (const Object* object : m_allObjects) {
+            for (const Object* object : m_objects) {
                 if (object->m_selected) {
 
                     //                } else {
@@ -490,8 +499,8 @@ void Scene::selectRay(const Ray& ray, bool additional)
 {
     updateBoundingBox();
 
-//    std::vector<const Model *> models;
-//    models.insert(models.end(), m_models.begin(), m_models.end());
+    //    std::vector<const Model *> models;
+    //    models.insert(models.end(), m_models.begin(), m_models.end());
 
     uint iModelMin = 0;
     uint iMeshMin = 0;
@@ -509,7 +518,7 @@ void Scene::selectRay(const Ray& ray, bool additional)
     std::list<uint> nearestModel;
     for (uint iModel = 0; iModel < m_models.size(); ++iModel) {
         //        distances[iModel] = glm::length(m_models ray.m_source)
-        const Model &  model = m_models[iModel];
+        const Model& model = m_models[iModel];
         if (!additional) {
 
             model.m_selected = false;
@@ -540,7 +549,7 @@ void Scene::selectRay(const Ray& ray, bool additional)
     Q_ASSERT(nearestModel.size() == distances.size());
 
     for (uint iModel : nearestModel) {
-        const Model & model = m_models[iModel];
+        const Model& model = m_models[iModel];
         float dist = distances[iModel];
 
         if (depthMin < dist) {
@@ -756,10 +765,10 @@ void Scene::addModel(std::string file, const glm::vec3& origin)
     //    m_models.insert(std::make_pair(file, std::move(newModel)));
     //    m_models.push_back(std::move(newModel));
     //    m_models.push_back(std::move(Model(file)));
-//    m_models.emplace_back(file);
+    //    m_models.emplace_back(file);
     m_models.emplace_back(file);
 
-//    m_models[m_models.size() - 1].m_transform = glm::translate(glm::mat4(1.0f), origin);
+    //    m_models[m_models.size() - 1].m_transform = glm::translate(glm::mat4(1.0f), origin);
     m_models.back().m_transform = glm::translate(glm::mat4(1.0f), origin);
 
     //    std::cout << &m_models[0] << std::endl;
@@ -784,7 +793,7 @@ void Scene::updateSceneModel()
 
     //    QStandardItemModel model;
     QStandardItem* parentItem = m_sceneModel.invisibleRootItem();
-    for (const Model & model : m_models) {
+    for (const Model& model : m_models) {
         QStandardItem* item = new QStandardItem(model.filename().c_str());
         parentItem->appendRow(item);
 
@@ -808,16 +817,20 @@ void Scene::load(std::ifstream& file)
     Session::load(size, file);
 
     m_models.clear();
-    m_allObjects.clear();
+    m_objects.clear();
     //    m_models.resize(size);
 
     //    for (const Model & model : m_models) {
     for (uint i = 0; i < size; ++i) {
         //        model.load(file);
-//        m_models.emplace_back(file);
+        //        m_models.emplace_back(file);
         m_models.emplace_back(file);
 
-        m_allObjects.push_back(&m_models.back());
+        m_objects.push_back(&m_models.back());
+    }
+
+    for (const MainWindow3dView* view : *m_views) {
+        m_objects.push_back(view->m_camera);
     }
 
     updateSceneModel();
@@ -831,7 +844,7 @@ void Scene::save(std::ofstream& file)
     //    file.write(reinterpret_cast<const char *>(&size), sizeof(size));
     Session::save(size, file);
 
-    for (const Model & model : m_models) {
+    for (const Model& model : m_models) {
         model.save(file);
     }
 
@@ -846,14 +859,17 @@ void Scene::updateBoundingBox()
     //    m_dirLights.emplace_back(glm::vec3(0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f),
     //        glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, -1.0f));
     //    //        m_dirLights.push_back(5);
-    for (Model & model : m_models) {
-        model.updateBoundingBox();
+//    for (Model& model : m_models) {
+//        model.updateBoundingBox();
+//    }
+    for (const Object * object : m_objects) {
+        object->updateBoundingBox();
     }
 }
 
 void Scene::setSelectRootTransform(const glm::mat4& transformMatrix, const glm::mat4& worldTransform)
 {
-    for (Model & model : m_models) {
+    for (Model& model : m_models) {
         if (model.m_selected) {
             //            model.m_rootNode->m_transformation *= transformMatrix;
             model.m_transform = worldTransform * model.m_transform * transformMatrix;
@@ -865,7 +881,7 @@ void Scene::setSelectRootTransform(const glm::mat4& transformMatrix, const glm::
 
 void Scene::setSelectToOriginTransform()
 {
-    for (Model & model : m_models) {
+    for (Model& model : m_models) {
         if (model.m_selected) {
             //            camera.m_target = model.m_rootNode->m_transformation[3];
             //            camera.m_target = model.m_transform[3];
@@ -876,7 +892,7 @@ void Scene::setSelectToOriginTransform()
 
 void Scene::setSelectFocus(CameraWorld& camera)
 {
-    for (const Model & model : m_models) {
+    for (const Model& model : m_models) {
         if (model.m_selected) {
             //            camera.m_target = model.m_rootNode->m_transformation[3];
             camera.m_target = model.m_transform[3];
@@ -901,36 +917,43 @@ void Scene::deleteSelected()
     //    }
 
     //    int cpt = -1;
-//    std::list<const Object *> allObjects;
+    //    std::list<const Object *> allObjects;
 
-//    for (const Object * object : m_allObjects) {
-//        if (object->m_selected) {
+    //    for (const Object * object : m_objects) {
+    //        if (object->m_selected) {
 
-////            Q_ASSERT(std::find(m_allObjects.begin(), m_allObjects.end(), object) != m_allObjects.end());
-////            m_allObjects.remove(object);
-//            delete object;
-//        }
-//    }
-//    std::vector<const Object *> newObjects;
-//    for ()
-    m_allObjects.clear();
+    ////            Q_ASSERT(std::find(m_objects.begin(), m_objects.end(), object) != m_objects.end());
+    ////            m_objects.remove(object);
+    //            delete object;
+    //        }
+    //    }
+    //    std::vector<const Object *> newObjects;
+    //    for ()
+    m_objects.clear();
 
     std::vector<Model> newModels;
     newModels.reserve(10);
     for (Model& model : m_models) {
-//        if (model.m_selected) {
-//            m_allObjects.remove(&model);
-//        }
+        //        if (model.m_selected) {
+        //            m_objects.remove(&model);
+        //        }
         if (!model.m_selected) {
-//        else {
+            //        else {
             newModels.emplace_back(std::move(model));
-            m_allObjects.push_back(&newModels.back());
+            m_objects.push_back(&newModels.back());
             //            newModels[++cpt] = std::move(model);
         }
     }
 
+    //    for (DirLight & dirLight : m_dirLights) {
+    //        if (! dirLight.m_s)
+    //    }
+    //    for (Camera & camera : m_cameras) {
+
+    //    }
+
     m_models = std::move(newModels);
-//    m_allObjects = std::move(newObjects);
+    //    m_objects = std::move(newObjects);
 }
 
 void Scene::addLight(Light::Type lightType, const glm::vec3 position)
@@ -957,6 +980,14 @@ void Scene::addLight(Light::Type lightType, const glm::vec3 position)
     }
 }
 
+//void Scene::addCamera(float fov, const glm::vec3 &position, const glm::vec3 &target)
+//{
+//    // question : camera is actually && references
+////    m_cameras.push_back(fov);
+//    m_cameras.emplace_back(new CameraWorld(fov, position, target));
+//    m_objects.push_back(m_cameras.back());
+//}
+
 //void Scene::clear()
 //{
 //    m_models.clear();
@@ -972,10 +1003,10 @@ void Scene::addLight(Light::Type lightType, const glm::vec3 position)
 //    return m_itemModel;
 //}
 
-//void Scene::setViews(std::list<const MainWindow3dView*>* views)
-//{
-//    m_views = views;
-//}
+void Scene::setViews(std::list<const MainWindow3dView*>* views)
+{
+    m_views = views;
+}
 
 //std::vector<const CameraWorld &> & Scene::cameras() const
 //{

@@ -2,13 +2,41 @@
 #include <assert.h>
 #include <glm/gtc/matrix_transform.hpp>
 
-BoneGeometry::BoneGeometry()
-//    : m_sphere(0.05)
+//BoneGeometry::BoneGeometry()
+////    : m_sphere(0.05)
+//{
+//}
+
+//void BoneGeometry::setup()
+//{
+//}
+QOpenGLFunctionsCore * BoneGeometry::m_fun = nullptr;
+uint BoneGeometry::m_vao;
+Shader * BoneGeometry::m_shader = nullptr;
+
+
+void BoneGeometry::initializeGL()
 {
     m_fun = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
 
     float radius = 0.1;
     float max = 0.3;
+
+    uint m_vbo;
+    uint m_ebo;
+//    uint m_ebo2;
+    uint m_nbo;
+
+//    static Shader * m_shader;
+
+
+    std::vector<glm::vec3> m_vertices;
+    std::vector<glm::vec3> m_normals;
+
+//    std::vector<uint> m_indices;
+
+    static std::vector<glm::uvec3> m_indices;
+//    std::vector<glm::uvec2> m_indicesLine;
 
     m_vertices.push_back(glm::vec3(0, 0, 0));
     m_vertices.push_back(glm::vec3(1, 0, 0));
@@ -40,7 +68,7 @@ BoneGeometry::BoneGeometry()
 
     //        assert(m_indices.size() == 8);
 
-    setup();
+//    setup();
 
     m_shader = new Shader("bone.vsh", "bone.fsh");
     m_shader->use();
@@ -48,10 +76,8 @@ BoneGeometry::BoneGeometry()
 //    m_shader->setVec3("material.diffuse", 0.3f, 0.3f, 0.3f);
     m_shader->setVec3("material.specular", 1.0f, 1.0f, 0.5f);
     m_shader->setFloat("material.shininess", 1.0f);
-}
 
-void BoneGeometry::setup()
-{
+
     m_fun->glGenVertexArrays(1, &m_vao);
     //    uint vbo;
     m_fun->glGenBuffers(1, &m_vbo);
@@ -86,8 +112,9 @@ void BoneGeometry::setup()
     m_fun->glBindVertexArray(0);
 }
 
-void BoneGeometry::draw(glm::mat4 model, glm::vec3 source, glm::vec3 destination) const
+void BoneGeometry::draw(glm::mat4 model, glm::vec3 source, glm::vec3 destination)
 {
+    Q_ASSERT(m_fun != nullptr);
     //    m_shader->use();
 //    m_shader->setBool("isSkeleton", false);
     //    shader.use();
@@ -143,8 +170,9 @@ void BoneGeometry::draw(glm::mat4 model, glm::vec3 source, glm::vec3 destination
     UvSphereGeometry::draw();
 }
 
-void BoneGeometry::drawLine(glm::mat4 model, glm::vec3 source, glm::vec3 destination) const
+void BoneGeometry::drawLine(glm::mat4 model, glm::vec3 source, glm::vec3 destination)
 {
+    Q_ASSERT(m_fun != nullptr);
 //    m_shader->setBool("isSkeleton", false);
 
     glm::mat4 identity(1.0);
@@ -191,7 +219,7 @@ void BoneGeometry::drawLine(glm::mat4 model, glm::vec3 source, glm::vec3 destina
 //    m_shader->setMat4("projection", projectionMatrix);
 //}
 
-void BoneGeometry::updateShader(const MainWindow3dView &view) const
+void BoneGeometry::updateShader(const MainWindow3dView &view)
 {
     m_shader->use();
     m_shader->setMat4("view", view.viewMatrix());

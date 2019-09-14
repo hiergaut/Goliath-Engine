@@ -24,8 +24,8 @@
 //#include <opengl/OpenglContext.h>
 //#include <opengl/grid.h>
 #include <engine/scene/Scene.h>
-#include <opengl/rayTracer/RayTracer.h>
 #include <gui/QOpenGLWidget_Editor.h>
+#include <opengl/rayTracer/RayTracer.h>
 
 std::list<const MainWindow3dView*>* MainWindow3dView::m_views;
 //Shader MainWindow3dView::m_shaders;
@@ -71,10 +71,15 @@ MainWindow3dView::MainWindow3dView(QWidget* parent)
 //    , m_ebo(QOpenGLBuffer::IndexBuffer)
 {
     Q_ASSERT(Scene::m_scene != nullptr);
+    //    Scene::m_scene->m_cameras.emplace_back(50.0f, glm::vec3(200, -200, 200), glm::vec3(0, 0, 0));
+    // question : use emplace back, args ... to place directly in vector
+    //    Scene::m_scene->addCamera(50.0f, glm::vec3(200, -200, 200), glm::vec3(0.0, 0.0, 0.0));
+    //    m_camera = Scene::m_scene->m_cameras.back();
+
     m_camera = new CameraWorld(50.0f, glm::vec3(200, -200, 200), glm::vec3(0, 0, 0));
-//    Scene::m_cameras.push_back(m_camera);
-    Scene::m_scene->m_allObjects.push_back(m_camera);
-    //    m_camera = new CameraFps(glm::vec3(200.0f, -200.0f, 200.0f), 135.0f, -45.0f, this);
+    //    Scene::m_cameras.push_back(m_camera);
+//    Scene::m_scene->m_allObjects.push_back(m_camera);
+//        m_camera = new CameraFps(glm::vec3(200.0f, -200.0f, 200.0f), 135.0f, -45.0f, this);
 
     ui->setupUi(this);
     //    g_openglContext.
@@ -168,6 +173,14 @@ void MainWindow3dView::load(std::ifstream& file)
 {
     Camera::Type type;
     file.read(reinterpret_cast<char*>(&type), sizeof(type));
+    if (m_camera != nullptr) {
+//        auto& list = Scene::m_scene->m_allObjects;
+//        Q_ASSERT(std::find(list.begin(), list.end(), m_camera) != list.end());
+//        uint size = Scene::m_scene->m_allObjects.size();
+//        list.remove(m_camera);
+//        Q_ASSERT(Scene::m_scene->m_allObjects.size() == size - 1);
+        delete m_camera;
+    }
 
     switch (type) {
     case Camera::FPS:
@@ -180,9 +193,9 @@ void MainWindow3dView::load(std::ifstream& file)
     }
 
     m_camera->load(file);
-//    Scene::m_cameras.push_back(m_camera);
-    Q_ASSERT(Scene::m_scene != nullptr);
-    Scene::m_scene->m_allObjects.push_back(m_camera);
+    //    Scene::m_cameras.push_back(m_camera);
+//    Q_ASSERT(Scene::m_scene != nullptr);
+//    Scene::m_scene->m_allObjects.push_back(m_camera);
     //    setShading(WIRE_FRAME);
 
     bool data[7];
@@ -377,9 +390,9 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
         if (m_transformActive) {
             //            sendTransformToScene();
             m_localTransform = glm::mat4(1.0f);
-//            Scene::m_scene->m_transformMatrix = glm::mat4(1.0f);
+            //            Scene::m_scene->m_transformMatrix = glm::mat4(1.0f);
             m_worldTransform = glm::mat4(1.0f);
-//            Scene::m_scene->m_worldTransform = glm::mat4(1.0f);
+            //            Scene::m_scene->m_worldTransform = glm::mat4(1.0f);
 
             m_axisTransform = true;
             //            switch (m_transform) {
@@ -390,12 +403,12 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
                 //                m_axisLocal = !(m_transform == Transform::TRANSLATE);
                 switch (m_transform) {
                 case TRANSLATE:
-                    m_axisLocal =false;
+                    m_axisLocal = false;
                     break;
 
                 case ROTATE:
                 case SCALE:
-                    m_axisLocal =true;
+                    m_axisLocal = true;
                     break;
                 }
             } else {
@@ -438,7 +451,7 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
         } else {
 
             m_transform = Transform::SCALE;
-//            m_axisLocal = true;
+            //            m_axisLocal = true;
             setTransformActive();
         }
         break;
@@ -449,7 +462,7 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
             ui->actionRendered->trigger();
         } else {
             m_transform = Transform::ROTATE;
-//            m_axisLocal = true;
+            //            m_axisLocal = true;
             setTransformActive();
         }
         break;
@@ -465,7 +478,7 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
         //        centralWidget()->setMouseTracking(true);
         //        setCursor(Qt::SizeAllCursor);
         m_transform = Transform::TRANSLATE;
-//        m_axisLocal = false;
+        //        m_axisLocal = false;
         setTransformActive();
         break;
 
@@ -548,18 +561,20 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
             glm::vec3 pos = m_camera->position();
             float fov = m_camera->fov();
             if (m_camera->m_type == Camera::FPS) {
-//                CameraFps* camera = static_cast<CameraFps*>(m_camera);
+                //                CameraFps* camera = static_cast<CameraFps*>(m_camera);
 
-//                glm::vec3 front = glm::normalize(camera->front());
+                //                glm::vec3 front = glm::normalize(camera->front());
                 //            Q_ASSERT(glm::length(front) == 1.0f);
 
-//                                glm::vec3 target = camera->position() + 200.0f * front;
-                                glm::vec3 target = m_camera->target();
+                //                                glm::vec3 target = camera->position() + 200.0f * front;
+                glm::vec3 target = m_camera->target();
                 //            glm::vec3 target = glm::vec3(0.0f, 0.0f, 0.0f);
 
+                Scene::m_scene->m_allObjects.remove(m_camera);
                 delete m_camera;
-//                m_camera = new CameraWorld(fov, pos, camera->m_target);
+                //                m_camera = new CameraWorld(fov, pos, camera->m_target);
                 m_camera = new CameraWorld(fov, pos, target);
+                Scene::m_scene->m_allObjects.push_back(m_camera);
                 //            m_camera = new CameraWorld(static_cast<CameraFps*>(m_camera));
             } else {
                 CameraWorld* camera = static_cast<CameraWorld*>(m_camera);
@@ -571,8 +586,10 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
                 float yaw = glm::degrees(atan2f(front.y, front.x));
                 float pitch = glm::degrees(asinf(front.z));
 
+                Scene::m_scene->m_allObjects.remove(m_camera);
                 delete m_camera;
                 m_camera = new CameraFps(fov, pos, yaw, pitch, this);
+                Scene::m_scene->m_allObjects.push_back(m_camera);
 
                 static_cast<CameraFps*>(m_camera)->startFpsView();
 
@@ -799,7 +816,7 @@ void MainWindow3dView::updateOrthoProjection()
 {
     float targetDist;
     if (m_camera->m_type == Camera::WORLD) {
-//        glm::vec3 target = static_cast<CameraWorld*>(m_camera)->target();
+        //        glm::vec3 target = static_cast<CameraWorld*>(m_camera)->target();
         glm::vec3 target = m_camera->target();
         targetDist = glm::length(camera()->position() - target);
     } else {
@@ -922,9 +939,9 @@ Ray MainWindow3dView::clickRay(QMouseEvent* event)
 
 void MainWindow3dView::updateTransformMatrix(float dx, float dy)
 {
-//    qDebug() << "updateTransformMatrix " << dx << dy;
-//    glm::mat4 & m_transformMatrix = Scene::m_scene->m_transformMatrix;
-//    glm::mat4 & m_worldTransform = Scene::m_scene->m_worldTransform;
+    //    qDebug() << "updateTransformMatrix " << dx << dy;
+    //    glm::mat4 & m_transformMatrix = Scene::m_scene->m_transformMatrix;
+    //    glm::mat4 & m_worldTransform = Scene::m_scene->m_worldTransform;
 
     m_localTransform = glm::mat4(1.0f);
 
@@ -1255,8 +1272,8 @@ const Shader& MainWindow3dView::shader() const
         glEnable(GL_CULL_FACE);
     }
 
-//    return *m_shaders[m_shade];
-//    return *Shader::m_shaders[m_shade];
+    //    return *m_shaders[m_shade];
+    //    return *Shader::m_shaders[m_shade];
     return shader;
 }
 
@@ -1504,25 +1521,24 @@ void MainWindow3dView::on_actionPose_Mode_triggered()
 
 void MainWindow3dView::on_actionDir_Light_triggered()
 {
-//    Scene::m_scene->addLight(Light::Type::SUN, m_camera->m_target);
+    //    Scene::m_scene->addLight(Light::Type::SUN, m_camera->m_target);
     QOpenGLWidget_Editor::editor->addLight(Light::Type::SUN, m_camera->target());
-
 }
 
 void MainWindow3dView::on_actionPoint_Light_triggered()
 {
-//    Scene::m_scene->addLight(Light::Type::POINT, m_camera->m_target);
+    //    Scene::m_scene->addLight(Light::Type::POINT, m_camera->m_target);
     QOpenGLWidget_Editor::editor->addLight(Light::Type::POINT, m_camera->target());
 }
 
 void MainWindow3dView::on_actionSpot_Light_triggered()
 {
-//    Scene::m_scene->addLight(Light::Type::SPOT, m_camera->m_target);
+    //    Scene::m_scene->addLight(Light::Type::SPOT, m_camera->m_target);
     QOpenGLWidget_Editor::editor->addLight(Light::Type::SPOT, m_camera->target());
 }
 
 void MainWindow3dView::on_actionArea_Light_triggered()
 {
-//    Scene::m_scene->addLight(Light::Type::AREA, m_camera->m_target);
+    //    Scene::m_scene->addLight(Light::Type::AREA, m_camera->m_target);
     QOpenGLWidget_Editor::editor->addLight(Light::Type::AREA, m_camera->target());
 }

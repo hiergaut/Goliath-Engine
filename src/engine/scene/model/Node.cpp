@@ -412,7 +412,7 @@ void Node::prepareHierarchy(glm::mat4 model, const Animation* animation, double 
     }
 }
 
-void Node::drawHierarchy(const BoneGeometry& boneGeometry, const glm::mat4& modelMatrix) const
+void Node::drawHierarchy(const glm::mat4& modelMatrix) const
 {
     glm::mat4 model = modelMatrix * m_recurseModel;
     for (const Node& node : m_children) {
@@ -420,17 +420,17 @@ void Node::drawHierarchy(const BoneGeometry& boneGeometry, const glm::mat4& mode
         glm::vec3 childPos = glm::vec3(node.m_transformation[3]);
 
         if (m_isBone) {
-            boneGeometry.draw(model, glm::vec3(0), childPos);
+            BoneGeometry::draw(model, glm::vec3(0), childPos);
 
             //            const Bone& bone = (*m_meshes)[m_iBone.first].m_bones[m_iBone.second];
             //            bone.m_box.draw(model, shader);
 
         } else {
             //            m_boneGeometry.draw(model, shader, glm::vec3(0), childPos);
-            boneGeometry.drawLine(model, glm::vec3(0), childPos);
+            BoneGeometry::drawLine(model, glm::vec3(0), childPos);
         }
 
-        node.drawHierarchy(boneGeometry, modelMatrix);
+        node.drawHierarchy(modelMatrix);
     }
 }
 
