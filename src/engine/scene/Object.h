@@ -16,7 +16,10 @@ public:
 
 public:
     Object(Model && model) noexcept;
+    Object(const std::string & path);
     Object(Object && object) noexcept = default;
+
+//    virtual ~Object();
 
 
     //    Object() = delete;

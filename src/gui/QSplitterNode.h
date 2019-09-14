@@ -13,18 +13,18 @@ namespace  {
 //    static int iNode;
 
 }
-class QWidgetTemplate : public QWidget {
-    //    Q_OBJECT
-public:
-    QWidgetTemplate(QWidget* parent = nullptr)
-        : QWidget(parent)
-    {
-        int rand1 = 100 + qrand() % 155;
-        int rand2 = 100 + qrand() % 155;
-        int rand3 = 100 + qrand() % 155;
-        this->setStyleSheet(QString("background-color: rgb(%1,%2,%3);").arg(rand1).arg(rand2).arg(rand3));
-    }
-};
+//class QWidgetTemplate : public QWidget {
+//    //    Q_OBJECT
+//public:
+//    QWidgetTemplate(QWidget* parent = nullptr)
+//        : QWidget(parent)
+//    {
+//        int rand1 = 100 + qrand() % 155;
+//        int rand2 = 100 + qrand() % 155;
+//        int rand3 = 100 + qrand() % 155;
+//        this->setStyleSheet(QString("background-color: rgb(%1,%2,%3);").arg(rand1).arg(rand2).arg(rand3));
+//    }
+//};
 
 
 //using widgetTemplate = QWidgetTemplate;

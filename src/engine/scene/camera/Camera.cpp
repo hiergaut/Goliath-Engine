@@ -13,32 +13,43 @@
 
 Camera::Camera(float fov, const glm::vec3 &position)
 //    : m_target(target)
-    : Object(Model(g_resourcesPath + "models/camera/camera.obj"))
+//    : Object(std::move(Model(g_resourcesPath + "models/camera/camera.obj")))
+    : Object(g_resourcesPath + "models/camera/camera.obj")
     , m_fov(fov)
     , m_position(position)
 {
 }
 
-void Camera::load(std::ifstream &file)
+Camera::Camera(std::ifstream &file)
+    : Object(g_resourcesPath + "models/camera/camera.obj")
 {
-    float data[4];
-    file.read(reinterpret_cast<char*>(&data), sizeof (data));
-
-    m_position = glm::make_vec3(data);
-    m_fov = data[3];
-
-//    Session::load(m_target, file);
+    Session::load(m_fov, file);
+    Session::load(m_position, file);
 
 }
 
+//void Camera::load(std::ifstream &file)
+//{
+//    float data[4];
+//    file.read(reinterpret_cast<char*>(&data), sizeof (data));
+
+//    m_position = glm::make_vec3(data);
+//    m_fov = data[3];
+
+////    Session::load(m_target, file);
+
+//}
+
 void Camera::save(std::ofstream &file)
 {
-    float data[4];
+//    float data[4];
 
-    std::memcpy(data, glm::value_ptr(m_position), 3 * sizeof(float));
-    data[3] = m_fov;
+//    std::memcpy(data, glm::value_ptr(m_position), 3 * sizeof(float));
+//    data[3] = m_fov;
 
-    file.write(reinterpret_cast<const char*>(&data), sizeof (data));
+//    file.write(reinterpret_cast<const char*>(&data), sizeof (data));
+    Session::save(m_fov, file);
+    Session::save(m_position, file);
 
 //    Session::save(m_target, file);
 }

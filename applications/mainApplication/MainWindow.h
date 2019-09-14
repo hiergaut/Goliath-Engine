@@ -29,6 +29,8 @@ public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+    void createStartupSession();
+
     void loadEnv(std::string filename);
     void saveEnv(std::string filename);
     void showSystemBrowser();

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>800</width>
-    <height>600</height>
+    <width>1103</width>
+    <height>652</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,7 +19,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>800</width>
+     <width>1103</width>
      <height>19</height>
     </rect>
    </property>
@@ -110,8 +110,17 @@
      <string>Trace</string>
     </property>
    </widget>
+   <widget class="QMenu" name="menuCameraId">
+    <property name="title">
+     <string>CameraId</string>
+    </property>
+   </widget>
+   <addaction name="menuCameraId"/>
    <addaction name="menuInteraction_Mode"/>
    <addaction name="menuCurent_Mode"/>
+   <addaction name="menuShading"/>
+   <addaction name="menuShading_2"/>
+   <addaction name="menuAdd"/>
    <addaction name="menuX_Ray"/>
    <addaction name="menuWireFrame"/>
    <addaction name="menuSkeleton"/>
@@ -119,9 +128,6 @@
    <addaction name="menuBoundingBox"/>
    <addaction name="menuDotCloud"/>
    <addaction name="menuIntersectRay"/>
-   <addaction name="menuShading"/>
-   <addaction name="menuShading_2"/>
-   <addaction name="menuAdd"/>
   </widget>
   <action name="actionWireFrame">
    <property name="checkable">

@@ -76,7 +76,7 @@ MainWindow3dView::MainWindow3dView(QWidget* parent)
     //    Scene::m_scene->addCamera(50.0f, glm::vec3(200, -200, 200), glm::vec3(0.0, 0.0, 0.0));
     //    m_camera = Scene::m_scene->m_cameras.back();
 
-    //    m_camera = new CameraWorld(50.0f, glm::vec3(200, -200, 200), glm::vec3(0, 0, 0));
+//        m_camera = new CameraWorld(50.0f, glm::vec3(200, -200, 200), glm::vec3(0, 0, 0));
 
     //    Scene::m_cameras.push_back(m_camera);
     //    Scene::m_scene->m_allObjects.push_back(m_camera);
@@ -92,6 +92,10 @@ MainWindow3dView::MainWindow3dView(QWidget* parent)
     //    setAutoFillBackground(false);
 
     //    m_projectionMatrix = glm::perspective(glm::radians(m_camera->fov()), (float)width() / height(), l_near, l_far);
+    //    Scene::m_cameras.push_back(new CameraWorld(50.0f, glm::vec3(200, -200, 200), glm::vec3(0, 0, 0)));
+//    QOpenGLWidget_Editor::m_editor->addCameraWorld(50.0f, glm::vec3(200, -200, 200), glm::vec3(0, 0, 0));
+
+    m_iCamera = m_views->size();
 
     //    setMouseTracking(true);
     //    setFocus();
@@ -109,6 +113,9 @@ MainWindow3dView::MainWindow3dView(QWidget* parent)
     //    m_menus.emplace_back(std::move(shading));
     //    m_menus.push_back(std::move(shading));
     //    m_menus.emplace_back("Shading");
+    m_menus.push_back(ui->menuCameraId);
+    //    ui->menuCameraId->setTitle("Camera Init");
+    updateCameraId();
 
     m_menus.push_back(ui->menuInteraction_Mode);
     //    ui->menuInteraction_Mode->setIcon(ui->actionObject_Mode->icon());
@@ -116,6 +123,12 @@ MainWindow3dView::MainWindow3dView(QWidget* parent)
 
     m_mode = EDIT;
     setMode(OBJECT);
+
+    // ----------------------------------------------
+    m_menus.push_back(ui->menuShading);
+    m_menus.push_back(ui->menuShading_2);
+
+    m_menus.push_back(ui->menuAdd);
 
     // -----------------------------------------------
     m_menus.push_back(ui->menuX_Ray);
@@ -140,11 +153,6 @@ MainWindow3dView::MainWindow3dView(QWidget* parent)
     ui->menuIntersectRay->setIcon(ui->actionIntersectRay->icon());
 
     // -------------------------------------------------
-    m_menus.push_back(ui->menuShading);
-    m_menus.push_back(ui->menuShading_2);
-
-    m_menus.push_back(ui->menuAdd);
-
     ui->menubar->hide();
     //    for (QMenu & menu : m_menus) {
     //        qDebug() << menu.title();
@@ -167,6 +175,7 @@ MainWindow3dView::~MainWindow3dView()
     Q_ASSERT(m_views);
     m_views->remove(this);
 
+//    QOpenGLWidget_Editor::m_editor->deleteCamera(m_iCamera);
     //    delete m_grid;
     //    delete m_shader;
     //    doneCurrent();
@@ -201,6 +210,8 @@ void MainWindow3dView::load(std::ifstream& file)
     //    Q_ASSERT(Scene::m_scene != nullptr);
     //    Scene::m_scene->m_allObjects.push_back(m_camera);
     //    setShading(WIRE_FRAME);
+    Session::load(m_iCamera, file);
+    updateCameraId();
 
     bool data[7];
     file.read(reinterpret_cast<char*>(data), sizeof(data));
@@ -239,6 +250,7 @@ void MainWindow3dView::save(std::ofstream& file) const
     //    Camera::Type type = m_camera->m_type;
     //    file.write(reinterpret_cast<const char*>(&type), sizeof(type));
     //    m_camera->save(file);
+    Session::save(m_iCamera, file);
 
     bool wireFrame = ui->actionWireFrame->isChecked();
     bool xRays = ui->actionX_Rays->isChecked();
@@ -339,30 +351,118 @@ void MainWindow3dView::setShading(Shader::Type shade)
 void MainWindow3dView::keyPressEvent(QKeyEvent* event)
 {
     //                qDebug() << this << ": keyPressEvent" << event;
+    uint size = Scene::m_cameras.size();
+
+    switch (event->key()) {
+
+    case Qt::Key_C:
+        //        if (size == 0) {
+        //            ui->menuCameraId->setTitle("No Camera");
+        //        } else {
+
+        if (size > 1) {
+            m_iCamera = (m_iCamera + 1) % size;
+            updateCameraId();
+        }
+        //            ui->menuCameraId->setTitle(QString("Camera ") + QString::number(m_iCamera));
+        //    }
+        break;
+
+    case Qt::Key_Dollar:
+        setMode(m_previousMode);
+        //        std::swap(m_mode, m_previousMode);
+        //        Mode temp = m_mode;
+        //        m_mode = m_previousMode;
+        break;
+
+    case Qt::Key_Shift:
+        m_shiftPressed = true;
+        break;
+
+    case Qt::Key_Control:
+        m_ctrlPressed = true;
+        break;
+
+    case Qt::Key_X:
+        if (m_shiftPressed) {
+            if (event->key() == Qt::Key_X) {
+                ui->actionX_Rays->trigger();
+                break;
+            }
+        }
+        break;
+    case Qt::Key_Z:
+        if (m_shiftPressed) {
+            if (event->key() == Qt::Key_Z) {
+
+                //            ui->actionX_Rays->trigger();
+                ui->actionWireFrame->trigger();
+                break;
+            }
+        }
+        break;
+
+    case Qt::Key_S:
+        if (m_shiftPressed) {
+
+            ui->actionSolid->trigger();
+        }
+        break;
+
+    case Qt::Key_R:
+        if (m_shiftPressed) {
+
+            ui->actionRendered->trigger();
+        }
+        break;
+    case Qt::Key_L:
+        //        on_actionLook_dev_triggered();
+        ui->actionLook_dev->trigger();
+        break;
+
+    case Qt::Key_V:
+        ui->actionVertexGroup->trigger();
+        break;
+
+    case Qt::Key_I:
+        ui->actionIntersectRay->trigger();
+        break;
+
+    case Qt::Key_N:
+        if (m_shiftPressed) {
+            ui->actionNormal->trigger();
+        } else {
+            ui->actionNormal_2->trigger();
+        }
+        break;
+
+    case Qt::Key_D:
+        if (m_shiftPressed) {
+            ui->actionDepth->trigger();
+        } else {
+            ui->actionDotCloud->trigger();
+        }
+        break;
+
+    case Qt::Key_B:
+        if (m_shiftPressed) {
+            ui->actionBoundingBox->trigger();
+        } else {
+            ui->actionSkeleton->trigger();
+        }
+        break;
+    } // end switch
+
+    // -----------------------------------------------------------------------------
     if (m_iCamera < Scene::m_cameras.size()) {
         Camera* m_camera = Scene::m_cameras[m_iCamera];
         m_camera->keyPressEvent(event);
 
         switch (event->key()) {
 
-        case Qt::Key_Dollar:
-            setMode(m_previousMode);
-            //        std::swap(m_mode, m_previousMode);
-            //        Mode temp = m_mode;
-            //        m_mode = m_previousMode;
-            break;
-
         case Qt::Key_Delete:
             //        qDebug() << "delete";
             RayTracer::deleteSelected();
-            break;
-
-        case Qt::Key_Shift:
-            m_shiftPressed = true;
-            break;
-
-        case Qt::Key_Control:
-            m_ctrlPressed = true;
             break;
 
         case Qt::Key_Space:
@@ -378,18 +478,18 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
 
         case Qt::Key_X:
         case Qt::Key_Z:
-            if (m_shiftPressed) {
-                if (event->key() == Qt::Key_X) {
-                    ui->actionX_Rays->trigger();
-                    break;
-                }
-                if (event->key() == Qt::Key_Z) {
+            //            if (m_shiftPressed) {
+            //                if (event->key() == Qt::Key_X) {
+            //                    ui->actionX_Rays->trigger();
+            //                    break;
+            //                }
+            //                if (event->key() == Qt::Key_Z) {
 
-                    //            ui->actionX_Rays->trigger();
-                    ui->actionWireFrame->trigger();
-                    break;
-                }
-            }
+            //                    //            ui->actionX_Rays->trigger();
+            //                    ui->actionWireFrame->trigger();
+            //                    break;
+            //                }
+            //            }
         case Qt::Key_Y:
             //        else {
 
@@ -451,10 +551,11 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
             //        break;
             //        break;
         case Qt::Key_S:
-            if (m_shiftPressed) {
+            //            if (m_shiftPressed) {
 
-                ui->actionSolid->trigger();
-            } else {
+            //                ui->actionSolid->trigger();
+            //            } else {
+            if (!m_shiftPressed) {
 
                 m_transform = Transform::SCALE;
                 //            m_axisLocal = true;
@@ -463,10 +564,11 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
             break;
 
         case Qt::Key_R:
-            if (m_shiftPressed) {
+            //            if (m_shiftPressed) {
 
-                ui->actionRendered->trigger();
-            } else {
+            //                ui->actionRendered->trigger();
+            //            } else {
+            if (!m_shiftPressed) {
                 m_transform = Transform::ROTATE;
                 //            m_axisLocal = true;
                 setTransformActive();
@@ -525,43 +627,6 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
             //        update();
             break;
 
-        case Qt::Key_L:
-            //        on_actionLook_dev_triggered();
-            ui->actionLook_dev->trigger();
-            break;
-
-        case Qt::Key_V:
-            ui->actionVertexGroup->trigger();
-            break;
-
-        case Qt::Key_I:
-            ui->actionIntersectRay->trigger();
-            break;
-
-        case Qt::Key_N:
-            if (m_shiftPressed) {
-                ui->actionNormal->trigger();
-            } else {
-                ui->actionNormal_2->trigger();
-            }
-            break;
-
-        case Qt::Key_D:
-            if (m_shiftPressed) {
-                ui->actionDepth->trigger();
-            } else {
-                ui->actionDotCloud->trigger();
-            }
-            break;
-
-        case Qt::Key_B:
-            if (m_shiftPressed) {
-                ui->actionBoundingBox->trigger();
-            } else {
-                ui->actionSkeleton->trigger();
-            }
-            break;
-
         case Qt::Key_F:
             if (m_shiftPressed) {
                 glm::vec3 pos = m_camera->position();
@@ -610,7 +675,8 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
             }
             break;
         }
-    }
+
+    } // end if camera
 }
 
 void MainWindow3dView::keyReleaseEvent(QKeyEvent* event)
@@ -649,7 +715,6 @@ void MainWindow3dView::mousePressEvent(QMouseEvent* event)
     if (m_iCamera < Scene::m_cameras.size()) {
         Camera* m_camera = Scene::m_cameras[m_iCamera];
         m_camera->mousePressEvent(event);
-
 
         switch (event->button()) {
 
@@ -1201,6 +1266,19 @@ void MainWindow3dView::sendTransformToScene()
     m_worldTransform = glm::mat4(1.0f);
 }
 
+void MainWindow3dView::updateCameraId() const
+{
+    //    ui->menuCameraId->setTitle(QString("Camera " + QString::number(m_iCamera)));
+    uint size = Scene::m_cameras.size();
+    if (size == 0) {
+        ui->menuCameraId->setTitle("No Camera");
+    } else {
+
+        //        m_iCamera = (m_iCamera + 1) % size;
+        ui->menuCameraId->setTitle(QString("Camera ") + QString::number(m_iCamera));
+    }
+}
+
 bool MainWindow3dView::xRays() const
 {
     return ui->actionX_Rays->isChecked();
@@ -1579,7 +1657,7 @@ void MainWindow3dView::on_actionDir_Light_triggered()
     Q_ASSERT(m_iCamera < Scene::m_cameras.size());
     Camera* m_camera = Scene::m_cameras[m_iCamera];
     //    Scene::m_scene->addLight(Light::Type::SUN, m_camera->m_target);
-    QOpenGLWidget_Editor::editor->addLight(Light::Type::SUN, m_camera->target());
+    QOpenGLWidget_Editor::m_editor->addLight(Light::Type::SUN, m_camera->target());
 }
 
 void MainWindow3dView::on_actionPoint_Light_triggered()
@@ -1587,7 +1665,7 @@ void MainWindow3dView::on_actionPoint_Light_triggered()
     Q_ASSERT(m_iCamera < Scene::m_cameras.size());
     Camera* m_camera = Scene::m_cameras[m_iCamera];
     //    Scene::m_scene->addLight(Light::Type::POINT, m_camera->m_target);
-    QOpenGLWidget_Editor::editor->addLight(Light::Type::POINT, m_camera->target());
+    QOpenGLWidget_Editor::m_editor->addLight(Light::Type::POINT, m_camera->target());
 }
 
 void MainWindow3dView::on_actionSpot_Light_triggered()
@@ -1595,7 +1673,7 @@ void MainWindow3dView::on_actionSpot_Light_triggered()
     Q_ASSERT(m_iCamera < Scene::m_cameras.size());
     Camera* m_camera = Scene::m_cameras[m_iCamera];
     //    Scene::m_scene->addLight(Light::Type::SPOT, m_camera->m_target);
-    QOpenGLWidget_Editor::editor->addLight(Light::Type::SPOT, m_camera->target());
+    QOpenGLWidget_Editor::m_editor->addLight(Light::Type::SPOT, m_camera->target());
 }
 
 void MainWindow3dView::on_actionArea_Light_triggered()
@@ -1603,5 +1681,5 @@ void MainWindow3dView::on_actionArea_Light_triggered()
     Q_ASSERT(m_iCamera < Scene::m_cameras.size());
     Camera* m_camera = Scene::m_cameras[m_iCamera];
     //    Scene::m_scene->addLight(Light::Type::AREA, m_camera->m_target);
-    QOpenGLWidget_Editor::editor->addLight(Light::Type::AREA, m_camera->target());
+    QOpenGLWidget_Editor::m_editor->addLight(Light::Type::AREA, m_camera->target());
 }

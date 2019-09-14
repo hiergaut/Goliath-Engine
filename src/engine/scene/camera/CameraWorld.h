@@ -17,7 +17,8 @@ public:
     glm::vec3 m_target;
 
 public:
-    CameraWorld();
+//    CameraWorld();
+    CameraWorld(std::ifstream & file);
     CameraWorld(float fov, glm::vec3 position, glm::vec3 target);
 //    CameraWorld(float fov, glm::vec3 position, glm::vec3 target, Model &model);
 //    CameraWorld(CameraFps * camera);
@@ -31,7 +32,7 @@ public:
 
 
 protected:
-    void load(std::ifstream & file) override;
+//    void load(std::ifstream & file) override;
     void save(std::ofstream & file) override;
     glm::mat4 viewMatrix() const override;
 

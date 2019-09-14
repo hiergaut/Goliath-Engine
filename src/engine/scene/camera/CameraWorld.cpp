@@ -1,26 +1,31 @@
 #include "CameraWorld.h"
 
-#include <session/Session.h>
 #include <engine/scene/Scene.h>
+#include <session/Session.h>
 
 const float accuracyRotate = 0.01f;
 const float accuracyMove = 0.001f;
 const float accuracySlide = 1.0f;
 
+//CameraWorld::CameraWorld()
 
+//    : Camera(60.0f, glm::vec3(100.0f, 100.0f, 100.0f))
+//    , m_target(glm::vec3(0.0f, 0.0f, 0.0f))
+//{
+//    m_type = WORLD;
+//}
 
-CameraWorld::CameraWorld()
-
-    : Camera(60.0f, glm::vec3(100.0f, 100.0f, 100.0f))
-    , m_target(glm::vec3(0.0f, 0.0f, 0.0f))
+CameraWorld::CameraWorld(std::ifstream& file)
+    : Camera(file)
 {
+    Session::load(m_target, file);
     m_type = WORLD;
 }
 
 CameraWorld::CameraWorld(float fov, glm::vec3 position, glm::vec3 target)
     : Camera(fov, position)
     , m_target(target)
-    //    : m_position { position }
+//    : m_position { position }
 //    , m_target { target }
 {
     m_type = WORLD;
@@ -144,25 +149,26 @@ void CameraWorld::updateUpAfterReverse()
     }
 }
 
-void CameraWorld::load(std::ifstream& file)
-{
-    Camera::load(file);
-    //    qDebug() << "[CameraWorld]" << this << "load" << m_position.x << m_position.y << m_position.z;
-//    float data[3];
-    //        size_t size;
-    //        size = sizeof(m_position);
-//    file.read(reinterpret_cast<char*>(&data), sizeof(data));
+//void CameraWorld::load(std::ifstream& file)
+//{
+//    Camera::load(file);
+//    //    qDebug() << "[CameraWorld]" << this << "load" << m_position.x << m_position.y << m_position.z;
+////    float data[3];
+//    //        size_t size;
+//    //        size = sizeof(m_position);
+////    file.read(reinterpret_cast<char*>(&data), sizeof(data));
 
-    //    m_position = glm::make_vec3(data);
-//    m_target = glm::make_vec3(data);
-    //    m_fov = data[6];
+//    //    m_position = glm::make_vec3(data);
+////    m_target = glm::make_vec3(data);
+//    //    m_fov = data[6];
 
-    //    qDebug() << "[CAMERA WORLD] load" << this;
-    //    qDebug() << m_position.x << m_position.y << m_position.z;
-    //    qDebug() << m_target.x << m_target.y << m_target.z;
-    //    qDebug() << m_fov;
-    Session::load(m_target, file);
-}
+//    //    qDebug() << "[CAMERA WORLD] load" << this;
+//    //    qDebug() << m_position.x << m_position.y << m_position.z;
+//    //    qDebug() << m_target.x << m_target.y << m_target.z;
+//    //    qDebug() << m_fov;
+//    Session::load(m_target, file);
+//}
+
 void CameraWorld::save(std::ofstream& file)
 {
     Camera::save(file);
@@ -175,13 +181,13 @@ void CameraWorld::save(std::ofstream& file)
     //    qDebug() << m_target.x << m_target.y << m_target.z;
     //    qDebug() << m_fov << "loaded";
 
-//    float data[3];
-//    std::memcpy(data, glm::value_ptr(m_target), 3 * sizeof(float));
-//    //    std::memcpy(&data[3], glm::value_ptr(m_target), 3 * sizeof(float));
-//    //    data[6] = m_fov;
-//    //        size_t size;
-//    //        size = sizeof(m_position);
-//    file.write(reinterpret_cast<const char*>(&data), sizeof(data));
+    //    float data[3];
+    //    std::memcpy(data, glm::value_ptr(m_target), 3 * sizeof(float));
+    //    //    std::memcpy(&data[3], glm::value_ptr(m_target), 3 * sizeof(float));
+    //    //    data[6] = m_fov;
+    //    //        size_t size;
+    //    //        size = sizeof(m_position);
+    //    file.write(reinterpret_cast<const char*>(&data), sizeof(data));
     Session::save(m_target, file);
 }
 

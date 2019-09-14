@@ -16,6 +16,26 @@ const float accuracyMove = 0.5f;
 const float accuracyZoom = 0.05f;
 
 
+CameraFps::CameraFps(std::ifstream &file)
+    : Camera(file)
+{
+//    Session::load(m_view, file);
+
+    m_type = FPS;
+////    Camera::load(file);
+
+//    float data[2];
+//    file.read(reinterpret_cast<char*>(data), sizeof(data));
+    Session::load(m_yaw, file);
+    Session::load(m_pitch, file);
+
+//    m_yaw = data[0];
+//    m_pitch = data[1];
+
+    updateCameraVectors();
+    m_lastTime = QDateTime::currentMSecsSinceEpoch();
+}
+
 CameraFps::CameraFps(MainWindow3dView * view)
     : Camera(50.0f, glm::vec3(0.0f, 0.0f, 0.0f))
     , m_view(view)
@@ -105,18 +125,18 @@ CameraFps::~CameraFps()
     trackingOff();
 }
 
-void CameraFps::load(std::ifstream &file)
-{
-    Camera::load(file);
+//void CameraFps::load(std::ifstream &file)
+//{
+////    Camera::load(file);
 
-    float data[2];
-    file.read(reinterpret_cast<char*>(data), sizeof(data));
+//    float data[2];
+//    file.read(reinterpret_cast<char*>(data), sizeof(data));
 
-    m_yaw = data[0];
-    m_pitch = data[1];
+//    m_yaw = data[0];
+//    m_pitch = data[1];
 
-    updateCameraVectors();
-}
+//    updateCameraVectors();
+//}
 
 void CameraFps::save(std::ofstream &file)
 {

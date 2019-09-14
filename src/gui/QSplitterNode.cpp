@@ -13,6 +13,7 @@
 
 #include <QLabel>
 //#include <engine/Environment.h>
+#include <gui/QOpenGLWidget_Editor.h>
 
 namespace {
 QSizePolicy::Policy singlePolicy(QSizePolicy::Policy::Ignored);
@@ -204,6 +205,7 @@ void QSplitterNode::mousePressEvent(QMouseEvent* ev)
             //        widget->setStyleSheet(QString("background-color: rgb(%1,%2,%3);").arg(rand1).arg(rand2).arg(rand3));
             MainWindowEditor* newWidget = new MainWindowEditor;
             newWidget->setEditor(Editor::id::VIEW);
+            QOpenGLWidget_Editor::m_editor->addDefaultCamera();
             //        QWidget* newWidget = new widgetTemplate;
 
             QSplitterNode* parent = static_cast<QSplitterNode*>(this->parentWidget());
@@ -289,14 +291,18 @@ void QSplitterNode::onSplitterMoved(int pos, int index)
     if (orientation() == Qt::Horizontal) {
         if (widget(index - 1)->width() == 0) {
             delete widget(index - 1);
+            Scene::m_scene->removeHideCamera();
         } else if (widget(index)->width() == 0) {
             delete widget(index);
+            Scene::m_scene->removeHideCamera();
         }
     } else {
         if (widget(index - 1)->height() == 0) {
             delete widget(index - 1);
+            Scene::m_scene->removeHideCamera();
         } else if (widget(index)->height() == 0) {
             delete widget(index);
+            Scene::m_scene->removeHideCamera();
         }
     }
 
@@ -319,6 +325,9 @@ void QSplitterNode::onSplitterMoved(int pos, int index)
             //            son->widget(i)->setParent(this);
             //                addWidget(son->widget(i));
         }
+
+//        MainWindowEditor * win = son;
+
         delete son;
         //        son->setParent(nullptr);
         ////            son->setParent(nullptr);

@@ -88,6 +88,9 @@ public:
 
     void updateTransformationMatrix(float dx, float dy);
 
+//    void removeCamera(uint iCamera);
+    void removeHideCamera();
+
 private:
 //    void clear();
 

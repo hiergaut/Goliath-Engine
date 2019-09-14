@@ -83,7 +83,7 @@ public:
     bool m_axisLocal = false;
 
 //    Camera* m_camera = nullptr;
-    uint m_iCamera = 0;
+    mutable uint m_iCamera = 0;
 
 public:
     explicit MainWindow3dView(QWidget* parent = nullptr);
@@ -107,6 +107,7 @@ public:
     void setTransformInactive();
     void sendTransformToScene();
 //    void swapProjection();
+    void updateCameraId() const;
 
 signals:
 //    void launchRayTracing(glm::vec3 source, glm::vec3 direction);

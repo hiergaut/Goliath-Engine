@@ -30,7 +30,7 @@
 
 #include <gui/editor/timeline/FormTimeline.h>
 
-QOpenGLWidget_Editor* QOpenGLWidget_Editor::editor = nullptr;
+QOpenGLWidget_Editor* QOpenGLWidget_Editor::m_editor = nullptr;
 
 QOpenGLWidget_Editor::QOpenGLWidget_Editor(QWidget* parent, QMainWindow* mainWindow)
     : QOpenGLWidget(parent)
@@ -45,8 +45,8 @@ QOpenGLWidget_Editor::QOpenGLWidget_Editor(QWidget* parent, QMainWindow* mainWin
     setAttribute(Qt::WA_AlwaysStackOnTop);
 
     //    m_stream << std::setprecision(2) << std::fixed;
-    Q_ASSERT(editor == nullptr);
-    editor = this;
+    Q_ASSERT(m_editor == nullptr);
+    m_editor = this;
 }
 
 void QOpenGLWidget_Editor::loadNewModel(std::string filename)
@@ -185,7 +185,7 @@ void QOpenGLWidget_Editor::paintGL()
         //        std::string str;
         //    m_stream << m_fps << "\n";
         //        std::cout << "fps : " << m_fps << std::endl;
-        m_statusBar->showMessage("fps:" + QString::number(m_fps));
+        m_statusBar->showMessage("fps:" + QString::number(m_fps) + "  camera:" + QString::number(m_scene.m_cameras.size()));
     }
     //        glClearColor(0.0f, 1.0f, 0.0f, 0.5f);
     //    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
@@ -250,9 +250,51 @@ void QOpenGLWidget_Editor::setStatusBar(QStatusBar* statusBar)
 
 void QOpenGLWidget_Editor::addLight(Light::Type lightType, const glm::vec3 position)
 {
+    Q_ASSERT(m_initialized);
     makeCurrent();
     m_scene.addLight(lightType, position);
 }
+
+void QOpenGLWidget_Editor::addDefaultCamera()
+{
+    Q_ASSERT(m_initialized);
+    makeCurrent();
+    m_scene.m_cameras.push_back(new CameraWorld(60.0f, glm::vec3(200.0f, -200.0f, 200.0f), glm::vec3(0.0f, 0.0f, 0.0f)));
+
+    for (const MainWindow3dView* view : *m_views) {
+        view->updateCameraId();
+    }
+}
+
+void QOpenGLWidget_Editor::addCameraWorld(float fov, glm::vec3&& position, glm::vec3&& target)
+{
+    Q_ASSERT(m_initialized);
+    makeCurrent();
+    m_scene.m_cameras.push_back(new CameraWorld(fov, position, target));
+}
+
+//void QOpenGLWidget_Editor::deleteCamera(uint iCamera)
+//{
+//    bool other = false;
+//    for (const MainWindow3dView* view : *m_views) {
+//        if (view->m_iCamera == iCamera) {
+//            other = true;
+//            break;
+//        }
+//    }
+
+//    if (!other) {
+//        m_scene.removeCamera(iCamera);
+////        m_scene.m_cameras.erase(m_scene.m_cameras.begin() + iCamera);
+////        m_scene.m_cameras.remove(
+////        for (const MainWindow3dView* view : *m_views) {
+////            if (view->m_iCamera == iCamera) {
+////                other = true;
+////                break;
+////            }
+////        }
+//    }
+//}
 
 void QOpenGLWidget_Editor::setViews(std::list<const MainWindow3dView*>* views)
 {

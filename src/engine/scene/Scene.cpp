@@ -6,12 +6,12 @@
 #include <opengl/version.h>
 //#include <opengl/shader.h>
 
+#include "camera/CameraWorld.h"
 #include <gui/editor/timeline/FormTimeline.h>
 #include <opengl/geometry/AxisGeometry.h>
 #include <opengl/geometry/DotGeometry.h>
 #include <opengl/geometry/LineGeometry.h>
 #include <opengl/geometry/TriangleGeometry.h>
-#include "camera/CameraWorld.h"
 
 Scene* Scene::m_scene = nullptr;
 //QStandardItemModel Scene::m_sceneModel;
@@ -56,7 +56,7 @@ Scene::Scene()
     //    }
 
     //    g_cameras = &m_cameras;
-//    m_cameras.push_back(new CameraWorld(50.0f, glm::vec3(200, -200, 200), glm::vec3(0, 0, 0)));
+    //    m_cameras.push_back(new CameraWorld(50.0f, glm::vec3(200, -200, 200), glm::vec3(0, 0, 0)));
 
     //    m_itemModel.appendColumn();
     //    model->appendColumn(item0);
@@ -64,13 +64,13 @@ Scene::Scene()
 
 void Scene::initializeGL()
 {
-//    m_cameraModel = new Model(g_resourcesPath + "models/camera/camera.obj");
-//    m_lightDirModel = new Model(g_resourcesPath + "models/sun/sun.obj");
+    //    m_cameraModel = new Model(g_resourcesPath + "models/camera/camera.obj");
+    //    m_lightDirModel = new Model(g_resourcesPath + "models/sun/sun.obj");
 
     //    m_shaderCamera = new Shader("camera.vsh", "camera.fsh");
     //    m_shader = new Shader("model_loading.vsh", "model_loading.fsh");
 
-    m_cameras.push_back(new CameraWorld(50.0f, glm::vec3(200, -200, 200), glm::vec3(0, 0, 0)));
+    //    m_cameras.push_back(new CameraWorld(50.0f, glm::vec3(200, -200, 200), glm::vec3(0, 0, 0)));
 
     m_grid = new Grid;
     normalShader = new Shader("normalVector.vsh", "normalVector.fsh", "normalVector.gsh");
@@ -127,19 +127,20 @@ void Scene::prepareHierarchy(ulong frameTime)
 
 void Scene::draw(const MainWindow3dView& view)
 {
+    //    qDebug() << m_cameras.size();
     //    qDebug() << m_objects.size();
-//    if (view.m_iCamera >= m_cameras.size()) {
-//        return;
-//    }
+    //    if (view.m_iCamera >= m_cameras.size()) {
+    //        return;
+    //    }
     Object* viewCameraObject = m_cameras[view.m_iCamera];
 
     Q_ASSERT(initialized);
     glm::mat4 viewMatrix = view.viewMatrix();
     glm::mat4 projectionMatrix = view.projectionMatrix();
 
-//    Object* viewCameraObject = view.m_camera;
+    //    Object* viewCameraObject = view.m_camera;
 
-//    glm::vec3 cameraPos = view.m_camera->position();
+    //    glm::vec3 cameraPos = view.m_camera->position();
     glm::vec3 cameraPos = m_cameras[view.m_iCamera]->position();
 
     //    glm::mat4 modelMatrix(1.0);
@@ -258,7 +259,7 @@ void Scene::draw(const MainWindow3dView& view)
     //    glPolygonMode(GL_FRONT, GL_LINE);
     // -------------------------------- DRAW MODELS
     //    for (const Model& model : m_models) {
-    //    qDebug() << m_objects;
+    //        qDebug() << m_objects;
     for (const Object* object : m_objects) {
         if (object != viewCameraObject) {
             if (object->m_selected) {
@@ -854,25 +855,58 @@ void Scene::load(std::ifstream& file)
         m_objects.push_back(&m_models.back());
     }
 
-//    m_cameras.clear();
+    //    m_cameras.clear();
 
-//    for (const MainWindow3dView* view : *m_views) {
-//        m_objects.push_back(view->m_camera);
-//    }
+    //    for (const MainWindow3dView* view : *m_views) {
+    //        m_objects.push_back(view->m_camera);
+    //    }
+    m_cameras.clear();
+    Session::load(size, file);
+    for (uint i = 0; i < size; ++i) {
+        Camera::Type type;
+        type = static_cast<Camera::Type>(Session::loadEnum(file));
+
+        //        Camera * camera = new Camera();
+        Camera* camera;
+
+        switch (type) {
+        case Camera::WORLD:
+            camera = new CameraWorld(file);
+            //            m_objects.push_back(camera);
+            break;
+
+        case Camera::FPS:
+            camera = new CameraFps(file);
+            //            m_objects.push_back(camera);
+            break;
+        }
+        m_cameras.push_back(camera);
+        m_objects.push_back(camera);
+    }
 
     updateSceneItemModel();
 
     FormTimeline::load(file);
+
+    //    for (const MainWindow3dView * view : *m_views) {
+    //        view->updateCameraId();
+    //    }
 }
 
 void Scene::save(std::ofstream& file)
 {
-    uint size = m_models.size();
     //    file.write(reinterpret_cast<const char *>(&size), sizeof(size));
+    uint size = m_models.size();
     Session::save(size, file);
-
     for (const Object& object : m_models) {
         object.m_model.save(file);
+    }
+
+    size = m_cameras.size();
+    Session::save(size, file);
+    for (Camera* camera : m_cameras) {
+        Session::saveEnum(camera->m_type, file);
+        camera->save(file);
     }
 
     FormTimeline::save(file);
@@ -1005,6 +1039,76 @@ void Scene::addLight(Light::Type lightType, const glm::vec3 position)
     case Light::Type::POINT:
         break;
     }
+}
+
+//void Scene::removeCamera(uint iCamera)
+//{
+//    std::vector<Camera*> newCameras;
+//    uint i =0;
+//    for (Camera * camera : m_cameras) {
+//        if (i == iCamera) {
+//            m_objects.remove(camera);
+//            delete camera;
+//        }
+//        else {
+//            newCameras.emplace_back(camera);
+//        }
+
+//        ++i;
+//    }
+////    newCameras.insert(m_cameras.begin(), m_cameras.begin() + iCamera - 1, newCameras.end());
+////    newCameras.insert(m_cameras.begin() + iCamera, m_cameras.end(), newCameras.end());
+
+//    m_cameras = std::move(newCameras);
+//    //    m_cameras.remove()
+//}
+
+void Scene::removeHideCamera()
+{
+    std::vector<Camera*> newCameras;
+    //    uint i =0;
+    //    for (Camera * camera : m_cameras) {
+    //        if (i == iCamera) {
+    //            m_objects.remove(camera);
+    //            delete camera;
+    //        }
+    //        else {
+    //            newCameras.emplace_back(camera);
+    //        }
+
+    //        ++i;
+    //    }
+    ////    newCameras.insert(m_cameras.begin(), m_cameras.begin() + iCamera - 1, newCameras.end());
+    //    newCameras.insert(m_cameras.begin() + iCamera, m_cameras.end(), newCameras.end());
+
+    //    m_cameras = std::move(newCameras);
+    uint iNewIndices[m_cameras.size()];
+    //    for (uint i =0; i <m_cameras.size(); ++i) {
+    //        iNewIndices
+    //    }
+
+    std::list<uint> iCameras;
+    for (const MainWindow3dView* view : *m_views) {
+        iCameras.push_back(view->m_iCamera);
+    }
+
+    //    for (Camera * camera : m_cameras) {
+    uint i = 0;
+    for (uint iCamera : iCameras) {
+        Camera* camera = m_cameras[iCamera];
+
+        newCameras.push_back(camera);
+        iNewIndices[iCamera] = i;
+        ++i;
+    }
+
+    for (const MainWindow3dView* view : *m_views) {
+        view->m_iCamera = iNewIndices[view->m_iCamera];
+        view->updateCameraId();
+    }
+    //    m_cameras.remove()
+
+    m_cameras = std::move(newCameras);
 }
 
 //void Scene::addCamera(float fov, const glm::vec3 &position, const glm::vec3 &target)

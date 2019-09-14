@@ -46,6 +46,7 @@ int main(int argc, char* argv[])
 //    w.loadFile("temp.dat");
 //    w.loadLastSession();
 
+//    w.createStartupSession(); // nead opengl context to create camera view model
     w.loadLastSession(); // here because opengl context is initialized
 
 //    QThread::sleep(1);

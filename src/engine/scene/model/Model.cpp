@@ -134,6 +134,7 @@ Model::Model(Model&& model) noexcept
     //        m_materials.emplace_back(material);
     //    }
 
+
     for (Mesh& mesh : m_meshes) {
         //        const_cast<Materials&>(mesh.m_materials) = m_materials;
         //        const_cast<Textures&>(mesh.m_textures) = m_textures;
@@ -143,6 +144,9 @@ Model::Model(Model&& model) noexcept
 
     m_rootNode->updateReferences(&m_meshes, &m_animations);
 
+    std::cout << "\033[35m";
+    std::cout << "[Model] " << &model  << "  '" << m_filename << "' moved to " << this << std::endl;
+    std::cout << "\033[0m";
 }
 
 //Model::Model(const Model &model)

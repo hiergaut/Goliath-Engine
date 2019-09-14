@@ -23,10 +23,12 @@ public:
 
 public:
     Camera(float fov, const glm::vec3 & position);
+    Camera(std::ifstream & file);
+
 //    Camera(Camera * camera);
     virtual ~Camera() {}
 
-    virtual void load(std::ifstream & file);
+//    virtual void load(std::ifstream & file);
     virtual void save(std::ofstream & file);
 
     virtual glm::mat4 viewMatrix() const = 0;

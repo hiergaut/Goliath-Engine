@@ -38,13 +38,14 @@ const float ZOOM_MIN = 170.0f;
 class CameraFps : public Camera {
 public:
 //    CameraFps(glm::vec3 position, glm::vec3 target);
+    CameraFps(std::ifstream & file);
     CameraFps(MainWindow3dView *view);
     CameraFps(float fov, const glm::vec3 & position, float yaw, float pitch, MainWindow3dView *view);
 //    CameraFps(CameraWorld * camera, MainWindow3dView *view);
     ~CameraFps() override;
 //    CameraFps(float posX, float posY, float posZ, float yaw, float pitch);
 
-    void load(std::ifstream &file) override;
+//    void load(std::ifstream &file) override;
     void save(std::ofstream &file) override;
 
     glm::mat4 viewMatrix() const override;

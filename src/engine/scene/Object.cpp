@@ -16,6 +16,21 @@ Object::Object(Model &&model) noexcept
 
 }
 
+//Object::~Object()
+//{
+//    std::cout << "\033[35m";
+//    std::cout << "[Object] '" << "' deleted " << this << std::endl;
+//    std::cout << "\033[0m";
+
+
+//}
+
+Object::Object(const std::string &path)
+    : m_model(path)
+{
+
+}
+
 void Object::draw(const Shader& shader, bool dotCloud, const glm::mat4& localTransform, const glm::mat4& worldTransform) const
 {
     m_model.draw(shader, dotCloud, localTransform, worldTransform);

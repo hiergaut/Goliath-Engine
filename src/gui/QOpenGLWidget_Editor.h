@@ -22,7 +22,8 @@ class QOpenGLWidget_Editor : public QOpenGLWidget
 {
     Q_OBJECT
 public:
-    static QOpenGLWidget_Editor * editor;
+    static QOpenGLWidget_Editor * m_editor;
+    bool m_initialized = false;
 
 public:
     explicit QOpenGLWidget_Editor(QWidget *parent = nullptr, QMainWindow * mainWindow = nullptr);
@@ -45,6 +46,10 @@ public:
     void setStatusBar(QStatusBar *statusBar);
 
     void addLight(Light::Type lightType, const glm::vec3 position);
+    void addDefaultCamera();
+    void addCameraWorld(float fov, glm::vec3 && position, glm::vec3 && target);
+//    void deleteCamera(uint iCamera);
+
 protected:
     void initializeGL() override;
 //    void resizeGL(int w, int h) override;
@@ -81,7 +86,6 @@ private:
 //    Model * m_scene;
 //    QStandardItemModel m_sceneModel;
 //    QStandardItemModel m_fileOpennedModel;
-    bool m_initialized = false;
 
     uint64_t m_deltaTime;
     uint64_t m_lastFrame;

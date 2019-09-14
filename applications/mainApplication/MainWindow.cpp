@@ -63,6 +63,28 @@ MainWindow::MainWindow(QWidget* parent)
 //    Scene::m_scene->setViews(m_views);
     //    QListView_FileOpenned::setModelFileOpenned(&m_fileOpennedModel);
 
+
+    m_previousEnv = new QStringListModel(this);
+    QStringList previous = m_settings.value(opennedGoliathFile).value<QStringList>();
+    m_previousEnv->setStringList(previous);
+
+    m_dialogInput.setModel(m_previousEnv);
+    connect(&m_dialogInput, &DialogInputGetItem::openEnv, this, &MainWindow::on_dialogOpenPrevious);
+    //    connect(m_previousEnv, &QStringListModel::layoutChanged, &m_dialogInput, &DialogInputGetItem::on_dataChange);
+    //    m_dialogInput.show();
+}
+
+MainWindow::~MainWindow()
+{
+    delete m_previousEnv;
+    delete editor;
+    delete ui;
+    //    delete m_views;
+    //    delete m_splitterRoot;
+}
+
+void MainWindow::createStartupSession()
+{
     //        ui->page_splitterRoot->load(file);
     MainWindowEditor* w = new MainWindowEditor;
     //    qDebug() << "[mainApplication] create mainWindowEditor" << w;
@@ -100,6 +122,7 @@ MainWindow::MainWindow(QWidget* parent)
     ui->page_splitterRoot->setSizes(QList<int>({ width() - 300, 300 }));
     //    ui->page_splitterRoot->addWidget(w);
 
+    editor->addDefaultCamera();
     //    on_actionLoad_Factory_Settings_triggered();
     //    loadLastSession();
     //    saveEnv("factory.dat");
@@ -108,27 +131,12 @@ MainWindow::MainWindow(QWidget* parent)
     //    loadNewSession();
     setFocus();
 
-    m_previousEnv = new QStringListModel(this);
-    QStringList previous = m_settings.value(opennedGoliathFile).value<QStringList>();
-    m_previousEnv->setStringList(previous);
-
-    m_dialogInput.setModel(m_previousEnv);
-    connect(&m_dialogInput, &DialogInputGetItem::openEnv, this, &MainWindow::on_dialogOpenPrevious);
-    //    connect(m_previousEnv, &QStringListModel::layoutChanged, &m_dialogInput, &DialogInputGetItem::on_dataChange);
-    //    m_dialogInput.show();
 }
 
-MainWindow::~MainWindow()
-{
-    delete m_previousEnv;
-    delete editor;
-    delete ui;
-    //    delete m_views;
-    //    delete m_splitterRoot;
-}
 
 void MainWindow::loadEnv(std::string filename)
 {
+    Q_ASSERT(editor->m_initialized);
 
     //    std::cout << *ui->page_splitterRoot;
 
@@ -138,6 +146,10 @@ void MainWindow::loadEnv(std::string filename)
         std::cerr << "cannot open file" << std::endl;
         exit(1);
     } else {
+
+        editor->load(file);
+
+
         ui->stackedWidget->removeWidget(ui->page_splitterRoot);
         delete ui->page_splitterRoot;
         //        ui->page_splitterRoot = new QSplitterNode(ui->stackedWidget);
@@ -152,7 +164,6 @@ void MainWindow::loadEnv(std::string filename)
 
         //        g_env.load(file);
         //        editor->clear();
-        editor->load(file);
         //        m_fileOpennedModel.load(file);
 
         file.close();
@@ -185,9 +196,13 @@ void MainWindow::saveEnv(std::string filename)
         std::cerr << "cannot open file" << std::endl;
         exit(1);
     }
-    ui->page_splitterRoot->save(file);
-    //    g_env.save(file);
+
     editor->save(file);
+
+
+    ui->page_splitterRoot->save(file);
+
+    //    g_env.save(file);
     //    m_fileOpennedModel.save(file);
 
     file.close();
@@ -252,6 +267,7 @@ void MainWindow::loadLastSession() // call by main
             loadEnv(startupFile.fileName().toStdString());
         } else {
             //            loadEnv(g_resourcesPath + "dat/factory.dat");
+            createStartupSession();
 
             dir.mkpath(".");
             saveEnv(startupFile.fileName().toStdString());
