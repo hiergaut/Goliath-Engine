@@ -494,6 +494,10 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
 
             break;
 
+        case Qt::Key_F5:
+            m_camera->setDefault();
+            break;
+
         case Qt::Key_X:
         case Qt::Key_Z:
             //            if (m_shiftPressed) {

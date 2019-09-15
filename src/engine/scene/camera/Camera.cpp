@@ -78,25 +78,26 @@ void Camera::save(std::ofstream& file)
 ////    Session::load(m_target, file);
 
 //}
-//void Camera::setDefault()
-//{
-//    m_fov = 60.0f;
+void Camera::setDefault()
+{
+    m_fov = 60.0f;
 
-////    m_cameraStrategy->setDefault();
-//    //    m_position = glm::vec3(200.0f, -200.0f, 200.0f);
-////    delete m_cameraStrategy;
-////    m_cameraStrategy = new CameraWorld(glm::vec3(200.0f, -200.0f, 200.0f), glm::vec3(0.0f), m_model.m_transform);
-//    switch (m_cameraStrategy->m_type) {
-//    case CameraStrategy::WORLD:
+//    m_cameraStrategy->setDefault();
+    //    m_position = glm::vec3(200.0f, -200.0f, 200.0f);
+//    delete m_cameraStrategy;
+//    m_cameraStrategy = new CameraWorld(glm::vec3(200.0f, -200.0f, 200.0f), glm::vec3(0.0f), m_model.m_transform);
+    switch (m_cameraStrategy->m_type) {
+    case CameraStrategy::WORLD:
+        m_cameraStrategy = new CameraWorld(glm::vec3(200.0f, -200.0f, 200.0f), glm::vec3(0.0f), m_model.m_transform);
 //        CameraWorld * cameraWorld = static_cast<CameraWorld*>(m_cameraStrategy);
 //        cameraWorld->m_target = glm::vec3(0.0f);
-//        break;
+        break;
 
-//    case CameraStrategy::FPS:
-//        break;
+    case CameraStrategy::FPS:
+        break;
 
-//    }
-//}
+    }
+}
 
 
 glm::mat4 Camera::viewMatrix()
@@ -155,6 +156,11 @@ void Camera::drawBoundingBox(const Shader& shader) const
     //    Scene::m_cameraModel->draw(shader, localTransform, worldTransform);
     //    cameraModel->drawBoundingBox(shader);
 }
+
+//void Camera::setDefault()
+//{
+
+//}
 
 void Camera::setTarget(const glm::vec3 &target)
 {

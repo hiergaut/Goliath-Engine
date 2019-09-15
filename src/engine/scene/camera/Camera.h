@@ -42,6 +42,7 @@ protected:
 private:
 
 public:
+    void setDefault();
     void setTarget(const glm::vec3 & target);
     void setFront(const glm::vec3& front);
 

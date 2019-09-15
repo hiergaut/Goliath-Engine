@@ -58,7 +58,9 @@ void MainWindowEditor::setEditor(Editor::id id)
 {
     //    QOpenGLContext* ctx = QOpenGLContext::currentContext();
     //    qDebug() << "[CONTEXT] Editor : " << ctx;
-    delete m_centralWidget;
+    if (m_centralWidget != nullptr)
+        delete m_centralWidget;
+
 
 //    QOpenGLWidget_Editor::m_editor->
 
@@ -245,8 +247,10 @@ void MainWindowEditor::on_action3D_View_triggered()
     //    if (m_id == VIEW) {
     ////        g_env.m_views.remov
     //    }
+//    delete m_centralWidget;
+//    m_centralWidget = nullptr;
+//    Scene::m_scene->removeNoViewCamera();
     setEditor(Editor::id::VIEW);
-//    Scene::m_scene->removeHideCamera();
 }
 
 void MainWindowEditor::on_actionOutliner_triggered()
