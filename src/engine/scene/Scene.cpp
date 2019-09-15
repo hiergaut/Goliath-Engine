@@ -80,14 +80,17 @@ void Scene::initializeGL()
     initialized = true;
     //    MainWindow3dView::glInitialize();
 
-    glm::vec3 ambient = 0.5f * glm::vec3(1.0f, 1.0f, 1.0f);
-    glm::vec3 diffuse = 1.0f * glm::vec3(1.0f, 1.0f, 1.0f);
-    glm::vec3 specular = 1.0f * glm::vec3(1.0f, 1.0f, 1.0f);
-    glm::vec3 direction = 1.0f * glm::vec3(0.0f, 0.0f, -1.0f);
+    //    glm::vec3 ambient = 0.5f * glm::vec3(1.0f, 1.0f, 1.0f);
+    //    glm::vec3 diffuse = 1.0f * glm::vec3(1.0f, 1.0f, 1.0f);
+    //    glm::vec3 specular = 1.0f * glm::vec3(1.0f, 1.0f, 1.0f);
+    //    glm::vec3 direction = 1.0f * glm::vec3(0.0f, 0.0f, -1.0f);
+
     //    glm::vec3 ambient = 1.0f * glm::vec3(0.05f, 0.05f, 0.05f);
     //    glm::vec3 diffuse = 1.0f * glm::vec3(0.4f, 0.4f, 0.4f);
     //    glm::vec3 specular = 1.0f * glm::vec3(0.5f, 0.5f, 0.5f);
-    m_dirLights.emplace_back(glm::vec3(0.0f, 0.0f, 1000.0f), ambient, diffuse, specular, direction);
+
+    //    m_dirLights.emplace_back(glm::vec3(0.0f, 0.0f, 1000.0f), ambient, diffuse, specular, direction);
+
     //    //        m_dirLights.push_back(5);
     //            shader.setVec3("dirLight[" + QString::number(0).toStdString() + "].direction", -0.2f, -1.0f, -0.3f);
     //            shader.setVec3("dirLight[" + QString::number(0).toStdString() + "].ambient", 0.05f, 0.05f, 0.05f);
@@ -236,7 +239,7 @@ void Scene::draw(const MainWindow3dView& view)
 
             //                        dirLight.draw(shader);
 
-            shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].direction", dirLight.m_direction);
+            shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].direction", viewLocalTransform * glm::vec4(dirLight.direction(), 1.0f));
             shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].ambient", dirLight.m_ambient);
             shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].diffuse", dirLight.m_diffuse);
             shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].specular", dirLight.m_specular);
@@ -410,7 +413,7 @@ void Scene::draw(const MainWindow3dView& view)
             //            model.Draw(modelMatrix, shader, view.m_shade, view.dotCloud());
 
             // TODO
-            AxisGeometry::draw(viewWorldTransform * object->m_model.m_transform * viewLocalTransform, shader);
+            AxisGeometry::draw(viewWorldTransform * object->m_model.m_transform * viewLocalTransform * glm::scale(glm::mat4(1.0f), glm::vec3(1.0f) * 0.5f * object->m_model.m_box.radius()), shader);
             DotGeometry::draw(viewWorldTransform * object->m_model.m_transform * viewLocalTransform, shader);
             //            object->drawOrigin(viewWorldTransform, viewTransform, shader);
         }
@@ -514,6 +517,7 @@ void Scene::draw(const MainWindow3dView& view)
 
 void Scene::selectRay(const Ray& ray, bool additional)
 {
+//    qDebug() << "--------------------------------------------------";
     updateBoundingBox();
 
     //    std::vector<const Model *> models;
@@ -571,6 +575,11 @@ void Scene::selectRay(const Ray& ray, bool additional)
     }
     Q_ASSERT(nearestModel.size() == distances.size());
 
+//    for (uint iObject : nearestModel) {
+//        qDebug() << m_objects[iObject]->m_model.filename().c_str() << distances[iObject];
+//    }
+//    qDebug() << "------------------------";
+
     //    for (uint iObject : nearestModel) {
     iObject = 0;
     for (const Object* object : m_objects) {
@@ -601,6 +610,7 @@ void Scene::selectRay(const Ray& ray, bool additional)
 
                 if (mesh.m_box.intersect(ray)) {
                     //                qDebug() << "select mesh " << mesh.m_name.c_str();
+                    // ----------------------------------------- FIXED MESH
                     if (mesh.m_bones.size() == 0) {
                         for (uint iTriangle = 0; iTriangle < mesh.m_indices.size() / 3; ++iTriangle) {
                             uint i3 = iTriangle * 3;
@@ -628,7 +638,7 @@ void Scene::selectRay(const Ray& ray, bool additional)
                                 //                                    iTriangleMin = iTriangle;
                                 //                                } else {
                                 if (depth < depthMin) {
-                                    qDebug() << "intersect model " << object->m_model.filename().c_str() << depth;
+//                                    qDebug() << "intersect model " << object->m_model.filename().c_str() << depth;
 
                                     iObjectMin = iObject;
                                     depthMin = depth;
@@ -641,6 +651,7 @@ void Scene::selectRay(const Ray& ray, bool additional)
 
                     } else {
 
+                        // ------------------------------------------------ ANIMATE
                         for (uint iBone = 0; iBone < mesh.m_bones.size(); ++iBone) {
                             //                for (const Bone& bone : mesh.m_bones) {
                             const Bone& bone = mesh.m_bones[iBone];
@@ -695,7 +706,7 @@ void Scene::selectRay(const Ray& ray, bool additional)
                                             //                                                iTriangleMin = iTriangle;
                                             //                                            } else {
                                             if (depth < depthMin) {
-                                                qDebug() << "intersect model " << object->m_model.filename().c_str() << depth;
+//                                                qDebug() << "intersect model " << object->m_model.filename().c_str() << depth;
                                                 //                                    depthMin = std::min(depthMin, depth);
                                                 iObjectMin = iObject;
                                                 depthMin = depth;
@@ -728,7 +739,7 @@ void Scene::selectRay(const Ray& ray, bool additional)
         //        const glm::vec3& v0 = transform * glm::vec4(mesh.m_vertices[i3].Position, 1.0f);
         //        const glm::vec3& v1 = transform * glm::vec4(mesh.m_vertices[i3 + 1].Position, 1.0f);
         //        const glm::vec3& v2 = transform * glm::vec4(mesh.m_vertices[i3 + 2].Position, 1.0f);
-//        qDebug() << "intersect model " << object->m_model.filename().c_str() << depth;
+        //        qDebug() << "intersect model " << object->m_model.filename().c_str() << depth;
 
         if (additional) {
             m_objects[iObjectMin]->m_selected = !m_objects[iObjectMin]->m_selected;
@@ -780,7 +791,7 @@ void Scene::selectRay(const Ray& ray, bool additional)
 //    m_rays.emplace_back(ray);
 //}
 
-void Scene::addModel(std::string file, const glm::vec3& origin)
+void Scene::addModel(std::string file, const glm::vec3& spawn)
 {
     Q_ASSERT(initialized);
     //    qDebug() << "[SCENE] add model : " << file.c_str();
@@ -798,7 +809,7 @@ void Scene::addModel(std::string file, const glm::vec3& origin)
     m_models.emplace_back(file);
 
     //    m_models[m_models.size() - 1].m_transform = glm::translate(glm::mat4(1.0f), origin);
-    m_models.back().m_model.m_transform = glm::translate(glm::mat4(1.0f), origin);
+    m_models.back().m_model.m_transform = glm::translate(glm::mat4(1.0f), spawn);
 
     m_objects.push_back(&m_models.back());
 
@@ -868,25 +879,32 @@ void Scene::load(std::ifstream& file)
     m_cameras.clear();
     Session::load(size, file);
     for (uint i = 0; i < size; ++i) {
-        Camera::Type type;
-        type = static_cast<Camera::Type>(Session::loadEnum(file));
+        //        Camera::Type type;
+        //        type = static_cast<Camera::Type>(Session::loadEnum(file));
 
         //        Camera * camera = new Camera();
-        Camera* camera;
+        Camera* camera = new Camera(file);
 
-        switch (type) {
-        case Camera::WORLD:
-            camera = new CameraWorld(file);
-            //            m_objects.push_back(camera);
-            break;
+        //        switch (type) {
+        //        case Camera::WORLD:
+        //            camera = new CameraWorld(file);
+        //            //            m_objects.push_back(camera);
+        //            break;
 
-        case Camera::FPS:
-            camera = new CameraFps(file);
-            //            m_objects.push_back(camera);
-            break;
-        }
+        //        case Camera::FPS:
+        //            camera = new CameraFps(file);
+        //            //            m_objects.push_back(camera);
+        //            break;
+        //        }
         m_cameras.push_back(camera);
         m_objects.push_back(camera);
+    }
+
+    m_dirLights.clear();
+    Session::load(size, file);
+    for (uint i = 0; i < size; ++i) {
+        m_dirLights.emplace_back(file);
+        m_objects.push_back(&m_dirLights.back());
     }
 
     updateSceneItemModel();
@@ -910,8 +928,13 @@ void Scene::save(std::ofstream& file)
     size = m_cameras.size();
     Session::save(size, file);
     for (Camera* camera : m_cameras) {
-        Session::saveEnum(camera->m_type, file);
         camera->save(file);
+    }
+
+    size = m_dirLights.size();
+    Session::save(size, file);
+    for (const DirLight& dirLight : m_dirLights) {
+        dirLight.save(file);
     }
 
     FormTimeline::save(file);
@@ -935,7 +958,7 @@ void Scene::updateBoundingBox()
 
 void Scene::setSelectRootTransform(const glm::mat4& transformMatrix, const glm::mat4& worldTransform)
 {
-//    for (Object& object : m_models) {
+    //    for (Object& object : m_models) {
     for (const Object* object : m_objects) {
         if (object->m_selected) {
             //            model.m_rootNode->m_transformation *= transformMatrix;
@@ -948,7 +971,7 @@ void Scene::setSelectRootTransform(const glm::mat4& transformMatrix, const glm::
 
 void Scene::setSelectToOriginTransform()
 {
-//    for (Object& object : m_models) {
+    //    for (Object& object : m_models) {
     for (const Object* object : m_objects) {
         if (object->m_selected) {
             //            camera.m_target = model.m_rootNode->m_transformation[3];
@@ -960,11 +983,12 @@ void Scene::setSelectToOriginTransform()
 
 void Scene::setSelectFocus(CameraWorld& camera)
 {
-//    for (const Object& object : m_models) {
+    //    for (const Object& object : m_models) {
     for (const Object* object : m_objects) {
         if (object->m_selected) {
             //            camera.m_target = model.m_rootNode->m_transformation[3];
-            camera.m_target = object->m_model.m_transform[3];
+            //            camera.m_target = object->m_model.m_transform[3];
+            camera.setTarget(object->m_model.m_transform[3]);
             break;
         }
     }
@@ -1014,6 +1038,17 @@ void Scene::deleteSelected()
             //            newModels[++cpt] = std::move(model);
         }
     }
+    m_models = std::move(newModels);
+
+    std::vector<DirLight> newDirLights;
+    newDirLights.reserve(10);
+    for (DirLight & dirLight : m_dirLights) {
+        if (! dirLight.m_selected) {
+            newDirLights.emplace_back(std::move(dirLight));
+            m_objects.push_back(&newDirLights.back());
+        }
+    }
+    m_dirLights = std::move(newDirLights);
 
     //    for (DirLight & dirLight : m_dirLights) {
     //        if (! dirLight.m_s)
@@ -1022,7 +1057,6 @@ void Scene::deleteSelected()
 
     //    }
 
-    m_models = std::move(newModels);
     //    m_objects = std::move(newObjects);
 }
 
@@ -1033,8 +1067,10 @@ void Scene::addLight(Light::Type lightType, const glm::vec3 position)
     switch (lightType) {
     case Light::Type::SUN:
 
-        //        m_dirLights.emplace_back(glm::vec3(0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f),
-        //            glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, -1.0f));
+        m_dirLights.emplace_back(glm::vec3(0.0f, 0.0f, 1000.0f), 0.5f * glm::vec3(1.0f), glm::vec3(1.0f),
+            glm::vec3(1.0f), glm::vec3(0.0f, 0.0f, -1.0f));
+
+        m_objects.push_back(&m_dirLights.back());
         //        //        m_dirLights.push_back(Light(position));
 
         break;

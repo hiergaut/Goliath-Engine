@@ -6,22 +6,25 @@
 #include <opengl/geometry/uvSphereGeometry.h>
 
 #include <engine/scene/model/Model.h>
+#include <engine/scene/Object.h>
 
-class DirLight : public Light
+class DirLight : public Light, public Object
 {
 public:
-    glm::vec3 m_direction;
+//    glm::vec3 m_direction;
 
-    Model* m_model = nullptr;
+//    Model* m_model = nullptr;
 
 public:
     DirLight(const glm::vec3 position, const glm::vec3 ambient, const glm::vec3 diffuse, const glm::vec3 specular, const glm::vec3 direction);
     DirLight(std::ifstream &file);
-    ~DirLight();
+    DirLight(DirLight && dirLight) noexcept = default;
+//    ~DirLight();
 
 //    void load(std::ifstream& file);
     void save(std::ofstream& file) const;
 //    void draw(const Shader & shader) const;
+    glm::vec3 direction() const;
 
 private:
 //    UvSphereGeometry m_sphere;

@@ -19,16 +19,52 @@ Camera::Camera(float fov)
     , m_fov(fov)
 //    , m_position(position)
 {
-//    m_model.m_transform = transform;
+    //    m_model.m_transform = transform;
+    m_cameraStrategy = new CameraWorld(glm::vec3(200.0f, -200.0f, 200.0f), glm::vec3(0.0f), m_model.m_transform);
 }
 
 Camera::Camera(std::ifstream& file)
     : Object(g_resourcesPath + "models/camera/camera.obj")
 {
+    //    Camera::Type type;
+
     Session::load(m_fov, file);
-//    Session::load(m_position, file);
+    //    Session::load(m_position, file);
     Session::load(m_model.m_transform, file);
-//    Session::load(m_model.m_transform, file);
+    //    Session::load(m_model.m_transform, file);
+
+    CameraStrategy::Type type;
+    //    Session::loadEnum(file);
+    type = static_cast<CameraStrategy::Type>(Session::loadEnum(file));
+    switch (type) {
+    case CameraStrategy::WORLD:
+        m_cameraStrategy = new CameraWorld(file, m_model.m_transform);
+        break;
+
+    case CameraStrategy::FPS:
+        m_cameraStrategy = new CameraFps(file, m_model.m_transform, m_fov);
+        break;
+    }
+}
+
+void Camera::save(std::ofstream& file)
+{
+    //    float data[4];
+
+    //    Session::saveEnum(m_type, file);
+
+    //    std::memcpy(data, glm::value_ptr(m_position), 3 * sizeof(float));
+    //    data[3] = m_fov;
+
+    //    file.write(reinterpret_cast<const char*>(&data), sizeof (data));
+    Session::save(m_fov, file);
+    //    Session::save(m_position, file);
+    Session::save(m_model.m_transform, file);
+
+    Session::saveEnum(m_cameraStrategy->m_type, file);
+//    Session::save(m_cameraStrategy, file);
+    m_cameraStrategy->save(file);
+    //    Session::save(m_target, file);
 }
 
 //void Camera::load(std::ifstream &file)
@@ -42,122 +78,57 @@ Camera::Camera(std::ifstream& file)
 ////    Session::load(m_target, file);
 
 //}
-
-void Camera::save(std::ofstream& file)
-{
-    //    float data[4];
-
-    //    std::memcpy(data, glm::value_ptr(m_position), 3 * sizeof(float));
-    //    data[3] = m_fov;
-
-    //    file.write(reinterpret_cast<const char*>(&data), sizeof (data));
-    Session::save(m_fov, file);
-//    Session::save(m_position, file);
-    Session::save(m_model.m_transform, file);
-
-    //    Session::save(m_target, file);
-}
-
-//Camera::Camera(Camera *camera)
-//    : m_fov(camera->m_fov)
-//    , m_position(camera->m_position)
+//void Camera::setDefault()
 //{
+//    m_fov = 60.0f;
+
+////    m_cameraStrategy->setDefault();
+//    //    m_position = glm::vec3(200.0f, -200.0f, 200.0f);
+////    delete m_cameraStrategy;
+////    m_cameraStrategy = new CameraWorld(glm::vec3(200.0f, -200.0f, 200.0f), glm::vec3(0.0f), m_model.m_transform);
+//    switch (m_cameraStrategy->m_type) {
+//    case CameraStrategy::WORLD:
+//        CameraWorld * cameraWorld = static_cast<CameraWorld*>(m_cameraStrategy);
+//        cameraWorld->m_target = glm::vec3(0.0f);
+//        break;
+
+//    case CameraStrategy::FPS:
+//        break;
+
+//    }
 //}
 
-void Camera::keyPressEvent(QKeyEvent* event)
+
+glm::mat4 Camera::viewMatrix()
 {
-    switch (event->key()) {
-    case Qt::Key_Shift:
-        m_shiftPressed = true;
-        break;
+    // question : return mat4 &&
+    if (m_selected) {
+        return glm::inverse(Scene::m_scene->m_worldTransform * m_model.m_transform * Scene::m_scene->m_localTransform);
+
+    } else {
+        return glm::inverse(m_model.m_transform);
     }
 }
 
-void Camera::keyReleaseEvent(QKeyEvent* event)
-{
-    switch (event->key()) {
-    case Qt::Key_Shift:
-        m_shiftPressed = false;
-        //        qDebug() << "shift pressed";
-        break;
-        //    case Qt::Key_Up:
-        //    case Qt::Key_Comma:
-        //    case Qt::Key_Down:
-        //    case Qt::Key_O:
-        //        frontDir = 0;
-        //        break;
+//void Camera::switchStrategy()
+//{
+//    glm::vec3 pos = position();
+//    glm::vec3 target_ = target();
 
-        //    case Qt::Key_Left:
-        //    case Qt::Key_A:
-        //    case Qt::Key_Right:
-        //    case Qt::Key_E:
-        //        sideDir = 0;
-        //        break;
-    }
-}
+//    //        float fov = m_fov;
 
-void Camera::mousePressEvent(QMouseEvent* event)
-{
-    if (event->button() == Qt::MiddleButton) {
-        m_middleClicked = true;
-        //    } else if (event->button() == Qt::LeftButton) {
-        //        qDebug() << this << "left clicked";
-    }
-}
-
-void Camera::mouseReleaseEvent(QMouseEvent* event)
-{
-    if (event->button() == Qt::MiddleButton) {
-        m_middleClicked = false;
-    }
-    //    event->ignore();
-}
-
-void Camera::mouseMoveEvent(QMouseEvent* event)
-{
-}
-
-void Camera::wheelEvent(QWheelEvent* event)
-{
-}
-
-void Camera::focusInEvent(QFocusEvent* event)
-{
-    m_shiftPressed = false;
-}
-
-void Camera::resizeEvent(QResizeEvent* event)
-{
-}
-
-void Camera::setDefault()
-{
-    m_fov = 60.0f;
-//    m_position = glm::vec3(200.0f, -200.0f, 200.0f);
-}
+//}
 
 void Camera::prepareHierarchy(ulong frameTime) const
 {
-//    m_model.m_transform = glm::inverse(viewMatrix());
+    //    m_model.m_transform = glm::inverse(viewMatrix());
     m_model.prepareHierarchy(frameTime);
-
-}
-
-float Camera::fov() const
-{
-    return m_fov;
-}
-
-const glm::vec3 Camera::position() const
-{
-    return glm::vec3(m_model.m_transform[3]);
-//    return m_position;
 }
 
 void Camera::draw(const Shader& shader, bool dotCloud, const glm::mat4& localTransform, const glm::mat4& worldTransform) const
 {
-//    m_model.draw(shader, dotCloud, localTransform, glm::inverse(viewMatrix()) * worldTransform);
-    m_model.draw(shader, dotCloud, localTransform,  worldTransform);
+    //    m_model.draw(shader, dotCloud, localTransform, glm::inverse(viewMatrix()) * worldTransform);
+    m_model.draw(shader, dotCloud, localTransform, worldTransform);
     //    Scene::m_camera.d
     //    Scene::m_scene->m_cameraModel->draw(shader, dotCloud, localTransform, worldTransform);
     //    qDebug() << "draw camera";
@@ -172,7 +143,7 @@ void Camera::draw(const Shader& shader, const glm::mat4& localTransform, const g
 
 void Camera::updateBoundingBox() const
 {
-//    m_model.m_transform = glm::inverse(viewMatrix());
+    //    m_model.m_transform = glm::inverse(viewMatrix());
     m_model.updateBoundingBox();
     //    Scene::m_scene
     //    cameraModel->updateBoundingBox(m_box);
@@ -183,4 +154,60 @@ void Camera::drawBoundingBox(const Shader& shader) const
     m_model.drawBoundingBox(shader);
     //    Scene::m_cameraModel->draw(shader, localTransform, worldTransform);
     //    cameraModel->drawBoundingBox(shader);
+}
+
+void Camera::setTarget(const glm::vec3 &target)
+{
+    m_cameraStrategy->setTarget(target);
+
+
+//    m_cameraStrategy->setDefault();
+    //    m_position = glm::vec3(200.0f, -200.0f, 200.0f);
+//    delete m_cameraStrategy;
+//    m_cameraStrategy = new CameraWorld(glm::vec3(200.0f, -200.0f, 200.0f), glm::vec3(0.0f), m_model.m_transform);
+//    switch (m_cameraStrategy->m_type) {
+//    case CameraStrategy::WORLD:
+//        static_cast<CameraWorld*>(m_cameraStrategy)->m_target = target;
+////        cameraWorld->m_target = glm::vec3(0.0f);
+//        break;
+
+//    case CameraStrategy::FPS:
+//        break;
+
+//    }
+//}
+}
+
+void Camera::setFront(const glm::vec3 &front)
+{
+    m_cameraStrategy->setFront(front);
+
+}
+
+glm::vec3 Camera::front() const
+{
+    return m_cameraStrategy->front();
+}
+
+glm::vec3 Camera::right() const
+{
+    return m_cameraStrategy->right();
+
+}
+
+glm::vec3 Camera::up() const
+{
+    return m_cameraStrategy->up();
+}
+
+glm::vec3 Camera::target() const
+{
+    return m_cameraStrategy->target();
+
+}
+
+const glm::vec3 Camera::position() const
+{
+    return m_model.m_transform[3];
+
 }

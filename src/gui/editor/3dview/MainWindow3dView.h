@@ -5,6 +5,7 @@
 #include <QMainWindow>
 //#include <opengl/axis.h>
 //#include <engine/scene/Scene.h>
+#include <QTimer>
 
 namespace Ui {
 class MainWindow3dView;
@@ -84,6 +85,7 @@ public:
 
 //    Camera* m_camera = nullptr;
     mutable uint m_iCamera = 0;
+    QTimer * m_timer = nullptr;
 
 public:
     explicit MainWindow3dView(QWidget* parent = nullptr);
@@ -111,6 +113,9 @@ public:
 
 signals:
 //    void launchRayTracing(glm::vec3 source, glm::vec3 direction);
+
+public slots:
+    void onUpdateCameraFps();
 
 protected:
     //    void initializeGL() override;
@@ -148,6 +153,7 @@ private:
     Ui::MainWindow3dView* ui;
 
     bool m_middleClicked = false;
+
 
     bool m_ortho = false;
     float orthoSize = 10.0f;

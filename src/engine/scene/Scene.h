@@ -39,6 +39,7 @@ public:
 //    std::vector<Model> m_models;
     std::vector<Object> m_models;
     static std::vector<Camera*> m_cameras; // legacy
+    std::vector<DirLight> m_dirLights;
 
 
 public:
@@ -67,7 +68,7 @@ public:
 
 //    void unselectRay(const Ray & ray);
 
-    void addModel(std::string file, const glm::vec3 & origin);
+    void addModel(std::string file, const glm::vec3 & spawn);
     void delModel(std::string file);
 
     void updateSceneItemModel();
@@ -103,7 +104,6 @@ private:
 //    std::map<std::string, Model> m_models;
 
 //    Shader* m_shader;
-    std::vector<DirLight> m_dirLights;
 
     std::list<const MainWindow3dView *> * m_views; // cameras
 

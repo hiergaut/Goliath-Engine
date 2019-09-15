@@ -47,7 +47,7 @@ public:
 
     void addLight(Light::Type lightType, const glm::vec3 position);
     void addDefaultCamera();
-    void addCameraWorld(float fov, glm::vec3 && position, glm::vec3 && target);
+//    void addCameraWorld(float fov, glm::vec3 && position, glm::vec3 && target);
 //    void deleteCamera(uint iCamera);
 
 protected:

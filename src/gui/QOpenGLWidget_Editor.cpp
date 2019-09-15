@@ -55,25 +55,27 @@ void QOpenGLWidget_Editor::loadNewModel(std::string filename)
     //    qDebug() << "[GL_CONTEXT]" << QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
     makeCurrent();
 
-    glm::vec3 origin(0.0f);
+    glm::vec3 spawn(0.0f);
 
     for (const MainWindow3dView* view : *m_views) {
         if (view->hasFocus()) {
-            switch (view->camera()->m_type) {
-            case Camera::Type::FPS:
-                //            origin = static_cast<CameraFps*>(view->m_camera)->m_target;
-                origin = glm::vec3(0.0f, 0.0f, 0.0f);
-                break;
-
-            case Camera::Type::WORLD:
-                origin = static_cast<const CameraWorld*>(view->camera())->m_target;
-                break;
-            }
+            spawn = view->camera()->target();
             break;
+//            switch (view->camera()->m_type) {
+//            case Camera::Type::FPS:
+//                //            origin = static_cast<CameraFps*>(view->m_camera)->m_target;
+//                spawn = glm::vec3(0.0f, 0.0f, 0.0f);
+//                break;
+
+//            case Camera::Type::WORLD:
+//                spawn = static_cast<const CameraWorld*>(view->camera())->m_target;
+//                break;
+//            }
+//            break;
         }
     }
 
-    m_scene.addModel(filename, origin);
+    m_scene.addModel(filename, spawn);
 }
 
 void QOpenGLWidget_Editor::load(std::ifstream& file)
@@ -185,7 +187,7 @@ void QOpenGLWidget_Editor::paintGL()
         //        std::string str;
         //    m_stream << m_fps << "\n";
         //        std::cout << "fps : " << m_fps << std::endl;
-        m_statusBar->showMessage("fps:" + QString::number(m_fps) + "  camera:" + QString::number(m_scene.m_cameras.size()));
+        m_statusBar->showMessage("fps:" + QString::number(m_fps) + "  camera:" + QString::number(m_scene.m_cameras.size()) + "  light:" + QString::number(m_scene.m_dirLights.size()));
     }
     //        glClearColor(0.0f, 1.0f, 0.0f, 0.5f);
     //    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
@@ -259,19 +261,20 @@ void QOpenGLWidget_Editor::addDefaultCamera()
 {
     Q_ASSERT(m_initialized);
     makeCurrent();
-    m_scene.m_cameras.push_back(new CameraWorld(60.0f, glm::vec3(200.0f, -200.0f, 200.0f), glm::vec3(0.0f, 0.0f, 0.0f)));
+//    m_scene.m_cameras.push_back(new CameraWorld(60.0f, glm::vec3(200.0f, -200.0f, 200.0f), glm::vec3(0.0f, 0.0f, 0.0f)));
+    m_scene.m_cameras.push_back(new Camera(60.0f));
 
     for (const MainWindow3dView* view : *m_views) {
         view->updateCameraId();
     }
 }
 
-void QOpenGLWidget_Editor::addCameraWorld(float fov, glm::vec3&& position, glm::vec3&& target)
-{
-    Q_ASSERT(m_initialized);
-    makeCurrent();
-    m_scene.m_cameras.push_back(new CameraWorld(fov, position, target));
-}
+//void QOpenGLWidget_Editor::addCameraWorld(float fov, glm::vec3&& position, glm::vec3&& target)
+//{
+//    Q_ASSERT(m_initialized);
+//    makeCurrent();
+//    m_scene.m_cameras.push_back(new CameraWorld(position, target));
+//}
 
 //void QOpenGLWidget_Editor::deleteCamera(uint iCamera)
 //{

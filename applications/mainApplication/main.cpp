@@ -21,6 +21,7 @@ int main(int argc, char* argv[])
 //    format.setSamples(4);
 //    QSurfaceFormat::setDefaultFormat(format);
 
+
     //    g_openglContext = new OpenglContext;
 
     //    qDebug() << "[CONTEXT] main : " << QOpenGLContext::globalShareContext();

@@ -32,6 +32,15 @@ QTreeView_outliner::QTreeView_outliner(QWidget *parent) : QTreeView(parent)
 
     connect(this, &QTreeView::clicked, this, &QTreeView_outliner::on_click);
 
+
+    expandAll();
+
+    for (uint i =0; i <m_modelScene->rowCount(); ++i) {
+//        qDebug() << m_modelScene->data(m_modelScene->index(i, 0));
+        const QModelIndex & index = m_modelScene->index(i, 0);
+        collapse(index);
+    }
+
 //    this->setRootIndex(m_modelScene->index(0, 0));
 //    this->setCurrentIndex(m_modelScene->index(0, 0));
 //    setExpandsOnDoubleClick(true);

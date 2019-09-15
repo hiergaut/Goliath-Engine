@@ -6,11 +6,15 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "Camera.h"
+//#include "Camera.h"
+#include "CameraStrategy.h"
 //#include "CameraWorld.h"
 #include <vector>
 #include <QWidget>
 #include <gui/editor/3dview/MainWindow3dView.h>
+//#include <QTimer>
+//#include <QObject>
+//#include <QWidget>
 
 // Defines several possible options for camera movement. Used as abstraction to stay away from window-system specific input methods
 enum Camera_Movement {
@@ -35,12 +39,19 @@ const float ZOOM_MIN = 170.0f;
 //}
 
 // An abstract camera class that processes input and calculates the corresponding Euler Angles, Vectors and Matrices for use in OpenGL
-class CameraFps : public Camera {
+class CameraFps : public CameraStrategy {
+//    Q_OBJECT
+public:
+    MainWindow3dView * m_view = nullptr;
+
 public:
 //    CameraFps(glm::vec3 position, glm::vec3 target);
-    CameraFps(std::ifstream & file);
-    CameraFps(MainWindow3dView *view);
-    CameraFps(float fov, const glm::vec3 & position, float yaw, float pitch, MainWindow3dView *view);
+//    CameraFps(std::ifstream & file);
+//    CameraFps(MainWindow3dView *view);
+//    CameraFps(float fov, const glm::vec3 & position, float yaw, float pitch, MainWindow3dView *view);
+    CameraFps(std::ifstream &file, glm::mat4 &modelTransform, float & fov);
+//    CameraFps(MainWindow3dView *view, glm::mat4 &modelTransform);
+    CameraFps(const glm::vec3 &position, float yaw, float pitch, MainWindow3dView *view, glm::mat4 &modelTransform, float & fov);
 //    CameraFps(CameraWorld * camera, MainWindow3dView *view);
     ~CameraFps() override;
 //    CameraFps(float posX, float posY, float posZ, float yaw, float pitch);
@@ -48,7 +59,7 @@ public:
 //    void load(std::ifstream &file) override;
     void save(std::ofstream &file) override;
 
-    glm::mat4 viewMatrix() const override;
+//    glm::mat4 viewMatrix() const override;
     void ProcessKeyboard() const;
 
     void ProcessMouseMovement(float xoffset, float yoffset, bool constrainPitch = true);
@@ -75,17 +86,11 @@ public:
 //    void focusInEvent(QFocusEvent *event) override;
     void resizeEvent(QResizeEvent *event) override;
 
-
-    glm::vec3 front() const override;
-    glm::vec3 up() const override;
-    glm::vec3 right() const override;
-
-    void setFront(const glm::vec3 &front) override;
-    glm::vec3 target() const override;
-
 private:
+    float & m_fov;
+
+//    QTimer * timer;
     //    QWidget * m_view;
-    MainWindow3dView * m_view;
     // Camera Attributes
     QPoint m_center;
     QPoint m_centerLocal;
@@ -110,7 +115,17 @@ private:
 
     // Constructor with vectors
 
-private:
     // Calculates the front vector from the Camera's (updated) Euler Angles
+public:
+//    void setDefault() override;
+    void setTarget(const glm::vec3 &target) override;
+    void setFront(const glm::vec3 &front) override;
+
+    glm::vec3 front() const override;
+    glm::vec3 up() const override;
+    glm::vec3 right() const override;
+    glm::vec3 target() const override;
+
+//    void autoRefreshMoving();
 };
 #endif

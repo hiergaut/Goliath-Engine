@@ -26,6 +26,7 @@
 #include <engine/scene/Scene.h>
 #include <gui/QOpenGLWidget_Editor.h>
 #include <opengl/rayTracer/RayTracer.h>
+//#include <engine/scene/camera/CameraStrategy.h>
 
 std::list<const MainWindow3dView*>* MainWindow3dView::m_views;
 //Shader MainWindow3dView::m_shaders;
@@ -163,6 +164,9 @@ MainWindow3dView::MainWindow3dView(QWidget* parent)
 
     //    connect(centralWidget(), &QWidget::mouseMoveEvent, this, &MainWindow3dView::mouseMoveEvent);
     //    installEventFilter(this);
+
+    m_timer = new QTimer(this);
+    connect(m_timer, &QTimer::timeout, this, &MainWindow3dView::onUpdateCameraFps);
 }
 
 MainWindow3dView::~MainWindow3dView()
@@ -212,6 +216,11 @@ void MainWindow3dView::load(std::ifstream& file)
     //    setShading(WIRE_FRAME);
     Session::load(m_iCamera, file);
     updateCameraId();
+
+    Camera* m_camera = Scene::m_cameras[m_iCamera];
+    if (m_camera->m_cameraStrategy->m_type == CameraStrategy::FPS) {
+        static_cast<CameraFps*>(m_camera->m_cameraStrategy)->m_view = this;
+    }
 
     bool data[7];
     file.read(reinterpret_cast<char*>(data), sizeof(data));
@@ -411,17 +420,20 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
 
     case Qt::Key_R:
         if (m_shiftPressed) {
-
             ui->actionRendered->trigger();
         }
         break;
     case Qt::Key_L:
         //        on_actionLook_dev_triggered();
-        ui->actionLook_dev->trigger();
+        if (m_shiftPressed) {
+            ui->actionLook_dev->trigger();
+        }
         break;
 
     case Qt::Key_V:
-        ui->actionVertexGroup->trigger();
+        if (m_shiftPressed) {
+            ui->actionVertexGroup->trigger();
+        }
         break;
 
     case Qt::Key_I:
@@ -456,7 +468,7 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
     // -----------------------------------------------------------------------------
     if (m_iCamera < Scene::m_cameras.size()) {
         Camera* m_camera = Scene::m_cameras[m_iCamera];
-        m_camera->keyPressEvent(event);
+        m_camera->m_cameraStrategy->keyPressEvent(event);
 
         switch (event->key()) {
 
@@ -475,9 +487,9 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
         case Qt::Key_0:
             if (m_transformActive) {
                 RayTracer::setSelectToOriginTransform();
-            }
-            else {
-                m_camera->setDefault();
+            } else {
+                //                m_camera->setDefault();
+                m_camera->setTarget(glm::vec3(0.0f));
             }
 
             break;
@@ -635,49 +647,59 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
 
         case Qt::Key_F:
             if (m_shiftPressed) {
-                glm::vec3 pos = m_camera->position();
-                float fov = m_camera->fov();
-                if (m_camera->m_type == Camera::FPS) {
+                glm::vec3 position = m_camera->position();
+                glm::vec3 target = m_camera->target();
+                //                m_camera->switchStrategy();
+                switch (m_camera->m_cameraStrategy->m_type) {
+                case CameraStrategy::FPS:
+                    //        if (m_cameraStrategy->m_type == CameraStrategy::FPS) {
                     //                CameraFps* camera = static_cast<CameraFps*>(m_camera);
 
                     //                glm::vec3 front = glm::normalize(camera->front());
                     //            Q_ASSERT(glm::length(front) == 1.0f);
 
                     //                                glm::vec3 target = camera->position() + 200.0f * front;
-                    glm::vec3 target = m_camera->target();
                     //            glm::vec3 target = glm::vec3(0.0f, 0.0f, 0.0f);
 
-//                    Scene::m_scene->m_objects.remove(m_camera);
-//                    Scene::m_scene->removeCamera(m_iCamera);
-//                    delete m_camera;
+                    //                    Scene::m_scene->m_objects.remove(m_camera);
+                    //        Scene::m_scene->removeCamera(m_iCamera);
+                    //                    delete m_camera;
                     //                m_camera = new CameraWorld(fov, pos, camera->m_target);
-                    m_camera = new CameraWorld(fov, pos, target);
-//                    Scene::m_scene->m_objects.push_back(m_camera);
+                    delete m_camera->m_cameraStrategy;
+                    m_camera->m_cameraStrategy = new CameraWorld(position, target, m_camera->m_model.m_transform);
+                    //        Scene::m_scene->m_objects.push_back(m_camera);
                     //            m_camera = new CameraWorld(static_cast<CameraFps*>(m_camera));
-                } else {
-                    CameraWorld* camera = static_cast<CameraWorld*>(m_camera);
+                    break;
+                    //        } else {
+
+                case CameraStrategy::WORLD:
+                    //        CameraWorld* camera = static_cast<CameraWorld*>(m_camera);
                     //            glm::vec3 front = glm::normalize(camera->target() - pos);
-                    glm::vec3 front = glm::normalize(camera->target() - pos);
+                    //        glm::vec3 front = glm::normalize(camera->target() - pos);
+                    //                    glm::vec3 front_ = front();
+                    glm::vec3 front = m_camera->front();
 
                     //    m_yaw = glm::degrees(cosf(front.x /(sqrtf(front.x * front.x + front.z * front.z))));
                     //            float yaw = glm::degrees(atanf(front.y / front.x));
                     float yaw = glm::degrees(atan2f(front.y, front.x));
                     float pitch = glm::degrees(asinf(front.z));
 
-//                    Scene::m_scene->m_objects.remove(m_camera);
-//                    Scene::m_scene->removeCamera(m_camera);
-//                    delete m_camera;
-                    m_camera = new CameraFps(fov, pos, yaw, pitch, this);
-//                    Scene::m_scene->m_objects.push_back(m_camera);
+                    //                    Scene::m_scene->m_objects.remove(m_camera);
+                    //        Scene::m_scene->removeCamera(m_iCamera);
+                    //                    delete m_camera;
+                    delete m_camera->m_cameraStrategy;
+                    m_camera->m_cameraStrategy = new CameraFps(position, yaw, pitch, this, m_camera->m_model.m_transform, m_camera->m_fov);
+                    //        Scene::m_scene->m_objects.push_back(m_camera);
 
-                    static_cast<CameraFps*>(m_camera)->startFpsView();
+                    static_cast<CameraFps*>(m_camera->m_cameraStrategy)->startFpsView();
 
                     //            m_camera = new CameraFps(static_cast<CameraWorld*>(m_camera), this);
+                    break;
                 }
 
             } else {
-                if (m_camera->m_type == Camera::WORLD) {
-                    CameraWorld* camera = static_cast<CameraWorld*>(m_camera);
+                if (m_camera->m_cameraStrategy->m_type == CameraStrategy::WORLD) {
+                    CameraWorld* camera = static_cast<CameraWorld*>(m_camera->m_cameraStrategy);
                     RayTracer::setSelectFocus(*camera);
                 }
             }
@@ -691,7 +713,7 @@ void MainWindow3dView::keyReleaseEvent(QKeyEvent* event)
 {
     if (m_iCamera < Scene::m_cameras.size()) {
         Camera* m_camera = Scene::m_cameras[m_iCamera];
-        m_camera->keyReleaseEvent(event);
+        m_camera->m_cameraStrategy->keyReleaseEvent(event);
     }
 
     switch (event->key()) {
@@ -722,7 +744,7 @@ void MainWindow3dView::mousePressEvent(QMouseEvent* event)
 {
     if (m_iCamera < Scene::m_cameras.size()) {
         Camera* m_camera = Scene::m_cameras[m_iCamera];
-        m_camera->mousePressEvent(event);
+        m_camera->m_cameraStrategy->mousePressEvent(event);
 
         switch (event->button()) {
 
@@ -769,7 +791,7 @@ void MainWindow3dView::mouseReleaseEvent(QMouseEvent* event)
     //    setMouseTracking(true);
     if (m_iCamera < Scene::m_cameras.size()) {
         Camera* m_camera = Scene::m_cameras[m_iCamera];
-        m_camera->mouseReleaseEvent(event);
+        m_camera->m_cameraStrategy->mouseReleaseEvent(event);
     }
 }
 
@@ -779,7 +801,7 @@ void MainWindow3dView::mouseMoveEvent(QMouseEvent* event)
     //    centralWidget()->setMouseTracking(true);
     if (m_iCamera < Scene::m_cameras.size()) {
         Camera* m_camera = Scene::m_cameras[m_iCamera];
-        m_camera->mouseMoveEvent(event);
+        m_camera->m_cameraStrategy->mouseMoveEvent(event);
     }
 
     if (m_transformActive) {
@@ -848,7 +870,7 @@ void MainWindow3dView::wheelEvent(QWheelEvent* event)
     }
     if (m_iCamera < Scene::m_cameras.size()) {
         Camera* m_camera = Scene::m_cameras[m_iCamera];
-        m_camera->wheelEvent(event);
+        m_camera->m_cameraStrategy->wheelEvent(event);
     }
 
     if (m_ortho)
@@ -879,7 +901,7 @@ void MainWindow3dView::focusInEvent(QFocusEvent* event)
     //    centralWidget()->setFocus();
     if (m_iCamera < Scene::m_cameras.size()) {
         Camera* m_camera = Scene::m_cameras[m_iCamera];
-        m_camera->focusInEvent(event);
+        m_camera->m_cameraStrategy->focusInEvent(event);
 
         m_shiftPressed = false;
     }
@@ -899,9 +921,9 @@ void MainWindow3dView::resizeEvent(QResizeEvent* event)
 {
     if (m_iCamera < Scene::m_cameras.size()) {
         Camera* m_camera = Scene::m_cameras[m_iCamera];
-        m_camera->resizeEvent(event);
+        m_camera->m_cameraStrategy->resizeEvent(event);
 
-        m_projectionMatrix = glm::perspective(glm::radians(m_camera->fov()), (float)width() / height(), l_near, l_far);
+        m_projectionMatrix = glm::perspective(glm::radians(m_camera->m_fov), (float)width() / height(), l_near, l_far);
     }
 }
 
@@ -920,14 +942,14 @@ void MainWindow3dView::updateOrthoProjection()
     if (m_iCamera < Scene::m_cameras.size()) {
         Camera* m_camera = Scene::m_cameras[m_iCamera];
         float targetDist;
-        if (m_camera->m_type == Camera::WORLD) {
+        if (m_camera->m_cameraStrategy->m_type == CameraStrategy::WORLD) {
             //        glm::vec3 target = static_cast<CameraWorld*>(m_camera)->target();
             glm::vec3 target = m_camera->target();
             targetDist = glm::length(camera()->position() - target);
         } else {
             targetDist = 200.0f;
         }
-        float fov = glm::radians(m_camera->fov());
+        float fov = glm::radians(m_camera->m_fov);
         float right = targetDist * tanf(fov / 2);
         float ratio = (float)height() / width();
         float up = right * ratio;
@@ -941,7 +963,7 @@ void MainWindow3dView::updatePersepectiveProjection()
 {
     if (m_iCamera < Scene::m_cameras.size()) {
         Camera* m_camera = Scene::m_cameras[m_iCamera];
-        m_projectionMatrix = glm::perspective(glm::radians(m_camera->fov()), (float)width() / height(), l_near, l_far);
+        m_projectionMatrix = glm::perspective(glm::radians(m_camera->m_fov), (float)width() / height(), l_near, l_far);
         m_ortho = false;
     }
 }
@@ -957,14 +979,14 @@ Ray MainWindow3dView::clickRay(QMouseEvent* event)
     glm::vec3 front = m_camera->front();
     glm::vec3 right = m_camera->right();
     glm::vec3 up = m_camera->up();
-    float fov = m_camera->fov();
+    float fov = m_camera->m_fov;
     glm::vec3 source = m_camera->position();
 
     float x = (2.0f * event->x()) / (float)width() - 1.0f;
     float y = (2.0f * event->y()) / (float)height() - 1.0f;
 
     // ------------------------------------------------------------------------------------
-    float heightNearPlane = l_near * tanf(glm::radians(m_camera->fov()) * 0.5f);
+    float heightNearPlane = l_near * tanf(glm::radians(m_camera->m_fov) * 0.5f);
     //    float heightNearPlane = l_near * tanf(glm::radians(m_camera->fov()) * ratio);
     //    float heightNearPlane = widthNearPlane;
     //    float heightNearPlane = l_near * tanf(glm::radians(m_camera->fov()));
@@ -1287,6 +1309,11 @@ void MainWindow3dView::updateCameraId() const
     }
 }
 
+void MainWindow3dView::onUpdateCameraFps()
+{
+    static_cast<CameraFps*>(Scene::m_scene->m_cameras[m_iCamera]->m_cameraStrategy)->ProcessKeyboard();
+}
+
 bool MainWindow3dView::xRays() const
 {
     return ui->actionX_Rays->isChecked();
@@ -1458,7 +1485,7 @@ glm::mat4 MainWindow3dView::projectionMatrixZoom() const
 {
     Q_ASSERT((m_iCamera < Scene::m_cameras.size()));
     Camera* m_camera = Scene::m_cameras[m_iCamera];
-    return glm::perspective(glm::radians(m_camera->fov() - 1), (float)width() / height(), l_near, l_far);
+    return glm::perspective(glm::radians(m_camera->m_fov - 1), (float)width() / height(), l_near, l_far);
 }
 
 //void MainWindow3dView::on_actionWireFrame_triggered()
