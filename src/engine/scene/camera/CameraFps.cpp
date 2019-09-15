@@ -201,7 +201,7 @@ void CameraFps::save(std::ofstream& file)
 // Processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
 void CameraFps::ProcessKeyboard() const
 {
-    qDebug() << "procces keyboard";
+//    qDebug() << "procces keyboard";
 
     uint64_t currentTime = QDateTime::currentMSecsSinceEpoch();
     uint64_t deltaTime = currentTime - m_lastTime;

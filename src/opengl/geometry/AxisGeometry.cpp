@@ -33,7 +33,7 @@ void AxisGeometry::initializeGL()
 
     //    float radius = 0.1;
     //    float max = 0.3;
-    float size = 1.0f;
+    float size = 0.05f;
     glm::vec3 origin(0.0);
     glm::vec3 x(size, 0, 0);
     glm::vec3 y(0.0, size, 0.0);

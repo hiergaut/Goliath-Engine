@@ -14,7 +14,13 @@ DirLight::DirLight(const glm::vec3 position, const glm::vec3 ambient, const glm:
 
 //    m_sun->m_transform = glm::inverse(glm::lookAt(m_position, m_position + direction, ))
     glm::mat4 modelMatrix(1.0f);
+//    glm::mat4 rotate = glm::lookAt(glm::vec3(0.0f), glm::vec3(0.0f) + direction, glm::vec3(1.0f, 1.0f, 1.0f));
+
     modelMatrix = glm::translate(modelMatrix, position);
+    modelMatrix = glm::rotate(modelMatrix, glm::radians(180.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+
+
+//    glm::vec3 up = glm::vec3
     m_model.m_transform = modelMatrix;
 
 //    model = glm::rotate()
@@ -62,10 +68,10 @@ void DirLight::save(std::ofstream &file) const
 
 }
 
-glm::vec3 DirLight::direction() const
+glm::vec3 DirLight::direction(const glm::mat4 &localTransform) const
 {
 //    glm::vec3 dir = glm::normalize(m_model.m_transform[0] + m_model.m_transform[1] + m_model.m_transform[2]);
-    glm::vec3 sunUp = glm::vec3(m_model.m_transform * glm::vec4(0.0f, 0.0f, 1.0f, 0.0f));
+    glm::vec3 sunUp = glm::vec3(m_model.m_transform * localTransform * glm::vec4(0.0f, 0.0f, 1.0f, 0.0f));
     return sunUp;
 //    glm::vec3 up = glm::vec3(0.0f, 0.0f, 1.0f);
 

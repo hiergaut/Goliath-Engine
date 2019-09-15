@@ -239,7 +239,7 @@ void Scene::draw(const MainWindow3dView& view)
 
             //                        dirLight.draw(shader);
 
-            shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].direction", viewLocalTransform * glm::vec4(dirLight.direction(), 1.0f));
+            shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].direction", glm::vec4(dirLight.direction(viewLocalTransform), 1.0f));
             shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].ambient", dirLight.m_ambient);
             shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].diffuse", dirLight.m_diffuse);
             shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].specular", dirLight.m_specular);
@@ -412,8 +412,10 @@ void Scene::draw(const MainWindow3dView& view)
             //            model.Draw(modelMatrix, shader);
             //            model.Draw(modelMatrix, shader, view.m_shade, view.dotCloud());
 
+            float dist = glm::length(glm::vec3(object->m_model.m_transform[3]) - cameraPos);
             // TODO
-            AxisGeometry::draw(viewWorldTransform * object->m_model.m_transform * viewLocalTransform * glm::scale(glm::mat4(1.0f), glm::vec3(1.0f) * 0.5f * object->m_model.m_box.radius()), shader);
+//            AxisGeometry::draw(viewWorldTransform * object->m_model.m_transform * viewLocalTransform * glm::scale(glm::mat4(1.0f), glm::vec3(1.0f) * 0.5f * object->m_model.m_box.radius()), shader);
+            AxisGeometry::draw(viewWorldTransform * object->m_model.m_transform * glm::scale(viewLocalTransform, glm::vec3(1.0f) * dist), shader);
             DotGeometry::draw(viewWorldTransform * object->m_model.m_transform * viewLocalTransform, shader);
             //            object->drawOrigin(viewWorldTransform, viewTransform, shader);
         }
@@ -438,7 +440,7 @@ void Scene::draw(const MainWindow3dView& view)
             break;
         }
 
-        float lineSize = 1000.0f;
+        float lineSize = 10000.0f;
 
         //        shader.setMat4("model", onesMatrix);
         if (view.m_axisLocal) {
@@ -517,7 +519,7 @@ void Scene::draw(const MainWindow3dView& view)
 
 void Scene::selectRay(const Ray& ray, bool additional)
 {
-//    qDebug() << "--------------------------------------------------";
+    //    qDebug() << "--------------------------------------------------";
     updateBoundingBox();
 
     //    std::vector<const Model *> models;
@@ -575,16 +577,20 @@ void Scene::selectRay(const Ray& ray, bool additional)
     }
     Q_ASSERT(nearestModel.size() == distances.size());
 
+//    qDebug() << "nb Objects " << m_objects.size();
 //    for (uint iObject : nearestModel) {
 //        qDebug() << m_objects[iObject]->m_model.filename().c_str() << distances[iObject];
 //    }
 //    qDebug() << "------------------------";
 
-    //    for (uint iObject : nearestModel) {
-    iObject = 0;
-    for (const Object* object : m_objects) {
-        //        const Object& object = m_models[iObject];
+    for (uint iObject : nearestModel) {
+        //    iObject = 0;
+        //    for (const Object* object : m_objects) {
+        const Object * object = m_objects[iObject];
+
         float dist = distances[iObject];
+//        qDebug() << m_objects[iObject]->m_model.filename().c_str() << distances[iObject];
+//        qDebug() << object->m_model.filename().c_str() << distances[iObject];
 
         if (depthMin < dist) {
             break;
@@ -638,7 +644,7 @@ void Scene::selectRay(const Ray& ray, bool additional)
                                 //                                    iTriangleMin = iTriangle;
                                 //                                } else {
                                 if (depth < depthMin) {
-//                                    qDebug() << "intersect model " << object->m_model.filename().c_str() << depth;
+                                    //                                    qDebug() << "intersect model " << object->m_model.filename().c_str() << depth;
 
                                     iObjectMin = iObject;
                                     depthMin = depth;
@@ -706,7 +712,7 @@ void Scene::selectRay(const Ray& ray, bool additional)
                                             //                                                iTriangleMin = iTriangle;
                                             //                                            } else {
                                             if (depth < depthMin) {
-//                                                qDebug() << "intersect model " << object->m_model.filename().c_str() << depth;
+                                                //                                                qDebug() << "intersect model " << object->m_model.filename().c_str() << depth;
                                                 //                                    depthMin = std::min(depthMin, depth);
                                                 iObjectMin = iObject;
                                                 depthMin = depth;
@@ -726,7 +732,7 @@ void Scene::selectRay(const Ray& ray, bool additional)
             // end for iMesh
         } // if insersect
 
-        ++iObject;
+        //        ++iObject;
     } // end loop m_objects
 
     //    qDebug() << "-----------------------------------------------------------";
@@ -1042,8 +1048,8 @@ void Scene::deleteSelected()
 
     std::vector<DirLight> newDirLights;
     newDirLights.reserve(10);
-    for (DirLight & dirLight : m_dirLights) {
-        if (! dirLight.m_selected) {
+    for (DirLight& dirLight : m_dirLights) {
+        if (!dirLight.m_selected) {
             newDirLights.emplace_back(std::move(dirLight));
             m_objects.push_back(&newDirLights.back());
         }

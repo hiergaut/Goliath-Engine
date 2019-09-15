@@ -24,7 +24,7 @@ public:
 //    void load(std::ifstream& file);
     void save(std::ofstream& file) const;
 //    void draw(const Shader & shader) const;
-    glm::vec3 direction() const;
+    glm::vec3 direction(const glm::mat4 & localTransform = glm::mat4(1.0f)) const;
 
 private:
 //    UvSphereGeometry m_sphere;
