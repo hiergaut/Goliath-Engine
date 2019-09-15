@@ -647,7 +647,8 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
                     glm::vec3 target = m_camera->target();
                     //            glm::vec3 target = glm::vec3(0.0f, 0.0f, 0.0f);
 
-                    Scene::m_scene->m_objects.remove(m_camera);
+//                    Scene::m_scene->m_objects.remove(m_camera);
+//                    Scene::m_scene->removeCamera(m_iCamera);
                     delete m_camera;
                     //                m_camera = new CameraWorld(fov, pos, camera->m_target);
                     m_camera = new CameraWorld(fov, pos, target);
@@ -663,7 +664,8 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
                     float yaw = glm::degrees(atan2f(front.y, front.x));
                     float pitch = glm::degrees(asinf(front.z));
 
-                    Scene::m_scene->m_objects.remove(m_camera);
+//                    Scene::m_scene->m_objects.remove(m_camera);
+//                    Scene::m_scene->removeCamera(m_camera);
                     delete m_camera;
                     m_camera = new CameraFps(fov, pos, yaw, pitch, this);
                     Scene::m_scene->m_objects.push_back(m_camera);

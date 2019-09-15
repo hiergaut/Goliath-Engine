@@ -22,7 +22,7 @@ public:
 //    static Model * m_modelCamera;
 
 public:
-    Camera(float fov, const glm::vec3 & position);
+    Camera(float fov);
     Camera(std::ifstream & file);
 
 //    Camera(Camera * camera);
@@ -59,6 +59,7 @@ public:
     virtual void setDefault();
 
 protected:
+    void prepareHierarchy(ulong frameTime) const override;
     void draw(const Shader &shader, bool dotCloud, const glm::mat4 &localTransform = glm::mat4(1.0f), const glm::mat4 &worldTransform = glm::mat4(1.0f)) const override;
     void draw(const Shader &shader, const glm::mat4 &localTransform = glm::mat4(1.0f), const glm::mat4 &worldTransform = glm::mat4(1.0f)) const override;
 
@@ -66,7 +67,7 @@ protected:
     void drawBoundingBox(const Shader &shader) const override;
 
     float m_fov;
-    mutable glm::vec3 m_position;
+//    mutable glm::vec3 m_position;
 
     bool m_middleClicked = false;
     bool m_shiftPressed = false;
@@ -81,7 +82,7 @@ protected:
 
 public:
     float fov() const;
-    const glm::vec3 & position() const;
+    const glm::vec3 position() const;
 
 
 //private:

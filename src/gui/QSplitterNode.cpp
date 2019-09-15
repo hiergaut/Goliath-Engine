@@ -291,18 +291,18 @@ void QSplitterNode::onSplitterMoved(int pos, int index)
     if (orientation() == Qt::Horizontal) {
         if (widget(index - 1)->width() == 0) {
             delete widget(index - 1);
-            Scene::m_scene->removeHideCamera();
+            Scene::m_scene->removeNoViewCamera();
         } else if (widget(index)->width() == 0) {
             delete widget(index);
-            Scene::m_scene->removeHideCamera();
+            Scene::m_scene->removeNoViewCamera();
         }
     } else {
         if (widget(index - 1)->height() == 0) {
             delete widget(index - 1);
-            Scene::m_scene->removeHideCamera();
+            Scene::m_scene->removeNoViewCamera();
         } else if (widget(index)->height() == 0) {
             delete widget(index);
-            Scene::m_scene->removeHideCamera();
+            Scene::m_scene->removeNoViewCamera();
         }
     }
 

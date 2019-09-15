@@ -15,31 +15,30 @@ const float accuracyMove = 0.5f;
 //const float accuracySlide = 0.05f;
 const float accuracyZoom = 0.05f;
 
-
-CameraFps::CameraFps(std::ifstream &file)
+CameraFps::CameraFps(std::ifstream& file)
     : Camera(file)
 {
-//    Session::load(m_view, file);
+    //    Session::load(m_view, file);
 
     m_type = FPS;
-////    Camera::load(file);
+    ////    Camera::load(file);
 
-//    float data[2];
-//    file.read(reinterpret_cast<char*>(data), sizeof(data));
+    //    float data[2];
+    //    file.read(reinterpret_cast<char*>(data), sizeof(data));
     Session::load(m_yaw, file);
     Session::load(m_pitch, file);
 
-//    m_yaw = data[0];
-//    m_pitch = data[1];
+    //    m_yaw = data[0];
+    //    m_pitch = data[1];
 
     updateCameraVectors();
     m_lastTime = QDateTime::currentMSecsSinceEpoch();
 }
 
-CameraFps::CameraFps(MainWindow3dView * view)
-    : Camera(50.0f, glm::vec3(0.0f, 0.0f, 0.0f))
+CameraFps::CameraFps(MainWindow3dView* view)
+    : Camera(60.0f)
     , m_view(view)
-{   //    m_fov = ZOOM;
+{ //    m_fov = ZOOM;
     m_type = FPS;
 
     //    m_position = position;
@@ -51,18 +50,17 @@ CameraFps::CameraFps(MainWindow3dView * view)
     //    m_center = view->mapToGlobal(QPoint(view->width() / 2, view->height() / 2));
     m_lastTime = QDateTime::currentMSecsSinceEpoch();
 
-//    m_center = m_view->mapToGlobal(QPoint(m_view->width() / 2, m_view->height() / 2));
-//    QCursor::setPos(m_center);
-//    m_centerLocal = QPoint(m_view->width() / 2, m_view->height() / 2);
-//    m_view->setMouseTracking(true);
-//    m_view->centralWidget()->setMouseTracking(true);
-//    m_view->setCursor(Qt::BlankCursor);
-//    updateView();
-
+    //    m_center = m_view->mapToGlobal(QPoint(m_view->width() / 2, m_view->height() / 2));
+    //    QCursor::setPos(m_center);
+    //    m_centerLocal = QPoint(m_view->width() / 2, m_view->height() / 2);
+    //    m_view->setMouseTracking(true);
+    //    m_view->centralWidget()->setMouseTracking(true);
+    //    m_view->setCursor(Qt::BlankCursor);
+    //    updateView();
 }
 
-CameraFps::CameraFps(float fov, const glm::vec3 &position, float yaw, float pitch, MainWindow3dView* view)
-    : Camera(fov, position)
+CameraFps::CameraFps(float fov, const glm::vec3& position, float yaw, float pitch, MainWindow3dView* view)
+    : Camera(fov)
     , m_view(view)
     , m_yaw(yaw)
     , m_pitch(pitch)
@@ -85,13 +83,13 @@ CameraFps::CameraFps(float fov, const glm::vec3 &position, float yaw, float pitc
     //    m_center = view->mapToGlobal(QPoint(view->width() / 2, view->height() / 2));
     m_lastTime = QDateTime::currentMSecsSinceEpoch();
 
-//    updateView();
-//    m_center = m_view->mapToGlobal(QPoint(m_view->width() / 2, m_view->height() / 2));
-//    QCursor::setPos(m_center);
-//    m_centerLocal = QPoint(m_view->width() / 2, m_view->height() / 2);
-//    m_view->setMouseTracking(true);
-//    m_view->centralWidget()->setMouseTracking(true);
-//    m_view->setCursor(Qt::BlankCursor);
+    //    updateView();
+    //    m_center = m_view->mapToGlobal(QPoint(m_view->width() / 2, m_view->height() / 2));
+    //    QCursor::setPos(m_center);
+    //    m_centerLocal = QPoint(m_view->width() / 2, m_view->height() / 2);
+    //    m_view->setMouseTracking(true);
+    //    m_view->centralWidget()->setMouseTracking(true);
+    //    m_view->setCursor(Qt::BlankCursor);
     //    m_view->setMouseTracking(true);
     updateCameraVectors();
 }
@@ -117,10 +115,10 @@ CameraFps::CameraFps(float fov, const glm::vec3 &position, float yaw, float pitc
 
 CameraFps::~CameraFps()
 {
-//    m_view->setMouseTracking(false);
-//    m_view->centralWidget()->setMouseTracking(false);
+    //    m_view->setMouseTracking(false);
+    //    m_view->centralWidget()->setMouseTracking(false);
     //    m_view->setCursor(Qt::BlankCursor);
-//    m_view->setCursor(Qt::ArrowCursor);
+    //    m_view->setCursor(Qt::ArrowCursor);
 
     trackingOff();
 }
@@ -138,7 +136,7 @@ CameraFps::~CameraFps()
 //    updateCameraVectors();
 //}
 
-void CameraFps::save(std::ofstream &file)
+void CameraFps::save(std::ofstream& file)
 {
     Camera::save(file);
 
@@ -147,7 +145,6 @@ void CameraFps::save(std::ofstream &file)
     data[1] = m_pitch;
 
     file.write(reinterpret_cast<const char*>(data), sizeof(data));
-
 }
 //// Constructor with scalar values
 //CameraFps::CameraFps(float posX, float posY, float posZ, float yaw, float pitch)
@@ -172,12 +169,16 @@ void CameraFps::save(std::ofstream &file)
 glm::mat4 CameraFps::viewMatrix() const
 {
     ProcessKeyboard();
-    return glm::lookAt(m_position, m_position + m_front, m_up);
+
+    //    return glm::lookAt(m_position, m_position + m_front, m_up);
+    return glm::inverse(m_model.m_transform);
 }
 
 // Processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
 void CameraFps::ProcessKeyboard() const
 {
+    glm::vec3 position = glm::vec3(m_model.m_transform[3]);
+
     uint64_t currentTime = QDateTime::currentMSecsSinceEpoch();
     uint64_t deltaTime = currentTime - m_lastTime;
     if (deltaTime == 0)
@@ -187,7 +188,13 @@ void CameraFps::ProcessKeyboard() const
     m_lastTime = currentTime;
 
     float velocity = accuracyMove * deltaTime;
-    m_position += (m_front * frontDir + m_right * sideDir) * velocity;
+    glm::vec3 newPosition = position + (m_front * frontDir + m_right * sideDir) * velocity;
+
+    glm::vec4& translate = m_model.m_transform[3];
+    translate.x = newPosition.x;
+    translate.y = newPosition.y;
+    translate.z = newPosition.z;
+
     //    if (direction == FORWARD)
     //        m_position += m_front * velocity;
     //    if (direction == BACKWARD)
@@ -231,7 +238,7 @@ void CameraFps::ProcessMouseScroll(float yoffset)
         m_fov = ZOOM_MIN;
 
     m_view->updateProjectionMatrix();
-//    m_view->updatePersepectiveProjection();
+    //    m_view->updatePersepectiveProjection();
 }
 
 void CameraFps::updateCameraVectors()
@@ -251,7 +258,6 @@ void CameraFps::updateCenter()
 {
     m_center = m_view->mapToGlobal(QPoint(m_view->width() / 2, m_view->height() / 2));
     m_centerLocal = QPoint(m_view->width() / 2, m_view->height() / 2);
-
 }
 
 //void CameraFps::updateView()
@@ -356,26 +362,26 @@ void CameraFps::mousePressEvent(QMouseEvent* event)
 {
     Camera::mousePressEvent(event);
 
-//    updateCenter();
-//    QCursor::setPos(m_center);
-//    trackingOn();
+    //    updateCenter();
+    //    QCursor::setPos(m_center);
+    //    trackingOn();
     startFpsView();
 
     //    m_lastPos = event->pos();
-//    m_center = m_view->mapToGlobal(QPoint(m_view->width() / 2, m_view->height() / 2));
-//    m_centerLocal = QPoint(m_view->width() / 2, m_view->height() / 2);
+    //    m_center = m_view->mapToGlobal(QPoint(m_view->width() / 2, m_view->height() / 2));
+    //    m_centerLocal = QPoint(m_view->width() / 2, m_view->height() / 2);
 
     //    event->accept();
     //            setMouseTracking(true);
     //    m_view->centralWidget()->setMouseTracking(true);
     //    m_view->centralWidget()->setFocus();
     //    m_view->centralWidget()->setMouseTracking(true);
-//    m_view->setMouseTracking(true);
-//    m_view->centralWidget()->setMouseTracking(true);
-//    m_view->setCursor(Qt::BlankCursor);
     //    m_view->setMouseTracking(true);
-//    updateView();
-//    trackingOn();
+    //    m_view->centralWidget()->setMouseTracking(true);
+    //    m_view->setCursor(Qt::BlankCursor);
+    //    m_view->setMouseTracking(true);
+    //    updateView();
+    //    trackingOn();
 }
 
 void CameraFps::mouseReleaseEvent(QMouseEvent* event)
@@ -429,8 +435,8 @@ void CameraFps::wheelEvent(QWheelEvent* event)
 
 void CameraFps::resizeEvent(QResizeEvent* event)
 {
-//    m_center = m_view->mapToGlobal(QPoint(m_view->width() / 2, m_view->height() / 2));
-//    updateView();
+    //    m_center = m_view->mapToGlobal(QPoint(m_view->width() / 2, m_view->height() / 2));
+    //    updateView();
     updateCenter();
 }
 
@@ -449,15 +455,16 @@ glm::vec3 CameraFps::right() const
     return m_right;
 }
 
-void CameraFps::setFront(const glm::vec3 &front)
+void CameraFps::setFront(const glm::vec3& front)
 {
-            m_yaw = glm::degrees(atan2f(front.y, front.x));
-            m_pitch = glm::degrees(asinf(front.z));
+    m_yaw = glm::degrees(atan2f(front.y, front.x));
+    m_pitch = glm::degrees(asinf(front.z));
 
-            updateCameraVectors();
+    updateCameraVectors();
 }
 
 glm::vec3 CameraFps::target() const
 {
-        return m_position + 200.0f * m_front;
+    glm::vec3 m_position = glm::vec3(m_model.m_transform[3]);
+    return m_position + 200.0f * m_front;
 }

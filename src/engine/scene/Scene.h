@@ -34,7 +34,7 @@ public:
 //    static Model* m_cameraModel;
 //    static Model* m_lightDirModel;
 
-    std::list<const Object *> m_objects;
+    std::vector<const Object *> m_objects;
 
 //    std::vector<Model> m_models;
     std::vector<Object> m_models;
@@ -89,7 +89,8 @@ public:
     void updateTransformationMatrix(float dx, float dy);
 
 //    void removeCamera(uint iCamera);
-    void removeHideCamera();
+    void removeNoViewCamera();
+//    void removeCamera(Camera * camera);
 
 private:
 //    void clear();

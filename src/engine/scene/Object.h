@@ -26,6 +26,7 @@ public:
     //    Object() = delete;
     virtual ~Object() = default;
 
+    virtual void prepareHierarchy(ulong frameTime) const;
     virtual void draw(const Shader& shader, bool dotCloud, const glm::mat4& localTransform = glm::mat4(1.0f),
         const glm::mat4& worldTransform = glm::mat4(1.0f)) const;
 

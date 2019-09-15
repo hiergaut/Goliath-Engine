@@ -11,20 +11,24 @@
 
 //static const Model * cameraModel = Scene::m_scene->m_cameraModel;
 
-Camera::Camera(float fov, const glm::vec3& position)
+//Camera::Camera(float fov, const glm::vec3& position)
+Camera::Camera(float fov)
     //    : m_target(target)
     //    : Object(std::move(Model(g_resourcesPath + "models/camera/camera.obj")))
     : Object(g_resourcesPath + "models/camera/camera.obj")
     , m_fov(fov)
-    , m_position(position)
+//    , m_position(position)
 {
+//    m_model.m_transform = transform;
 }
 
 Camera::Camera(std::ifstream& file)
     : Object(g_resourcesPath + "models/camera/camera.obj")
 {
     Session::load(m_fov, file);
-    Session::load(m_position, file);
+//    Session::load(m_position, file);
+    Session::load(m_model.m_transform, file);
+//    Session::load(m_model.m_transform, file);
 }
 
 //void Camera::load(std::ifstream &file)
@@ -48,7 +52,8 @@ void Camera::save(std::ofstream& file)
 
     //    file.write(reinterpret_cast<const char*>(&data), sizeof (data));
     Session::save(m_fov, file);
-    Session::save(m_position, file);
+//    Session::save(m_position, file);
+    Session::save(m_model.m_transform, file);
 
     //    Session::save(m_target, file);
 }
@@ -128,7 +133,14 @@ void Camera::resizeEvent(QResizeEvent* event)
 void Camera::setDefault()
 {
     m_fov = 60.0f;
-    m_position = glm::vec3(200.0f, -200.0f, 200.0f);
+//    m_position = glm::vec3(200.0f, -200.0f, 200.0f);
+}
+
+void Camera::prepareHierarchy(ulong frameTime) const
+{
+//    m_model.m_transform = glm::inverse(viewMatrix());
+    m_model.prepareHierarchy(frameTime);
+
 }
 
 float Camera::fov() const
@@ -136,15 +148,16 @@ float Camera::fov() const
     return m_fov;
 }
 
-const glm::vec3& Camera::position() const
+const glm::vec3 Camera::position() const
 {
-    return m_position;
+    return glm::vec3(m_model.m_transform[3]);
+//    return m_position;
 }
 
 void Camera::draw(const Shader& shader, bool dotCloud, const glm::mat4& localTransform, const glm::mat4& worldTransform) const
 {
-    m_model.draw(shader, dotCloud, localTransform, glm::inverse(viewMatrix()) * worldTransform);
-//    m_model.draw(shader, dotCloud, localTransform,  worldTransform);
+//    m_model.draw(shader, dotCloud, localTransform, glm::inverse(viewMatrix()) * worldTransform);
+    m_model.draw(shader, dotCloud, localTransform,  worldTransform);
     //    Scene::m_camera.d
     //    Scene::m_scene->m_cameraModel->draw(shader, dotCloud, localTransform, worldTransform);
     //    qDebug() << "draw camera";

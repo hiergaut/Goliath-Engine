@@ -22,13 +22,15 @@ CameraWorld::CameraWorld(std::ifstream& file)
     m_type = WORLD;
 }
 
-CameraWorld::CameraWorld(float fov, glm::vec3 position, glm::vec3 target)
-    : Camera(fov, position)
+CameraWorld::CameraWorld(float fov, const glm::vec3& position, glm::vec3 target)
+    : Camera(fov)
     , m_target(target)
 //    : m_position { position }
 //    , m_target { target }
 {
     m_type = WORLD;
+
+    m_model.m_transform = glm::inverse(glm::lookAt(position, target, m_up));
 
     //        updateCameraVectors();
 }
@@ -36,7 +38,8 @@ CameraWorld::CameraWorld(float fov, glm::vec3 position, glm::vec3 target)
 void CameraWorld::processMouseMovement(float xoffset, float yoffset)
 {
     //    glm::vec3 v = m_position - m_target;
-    glm::vec3 front = m_position - m_target;
+    //    glm::vec3 front = m_position - m_target;
+    glm::vec3 front = glm::vec3(m_model.m_transform[3]) - m_target;
     float dist = glm::length(front);
     front = glm::normalize(front);
 
@@ -114,7 +117,11 @@ void CameraWorld::processMouseMovement(float xoffset, float yoffset)
     m = glm::rotate(m, yoffset * accuracyRotate, right);
 
     front = m * glm::vec4(front, 1.0);
-    m_position = front * dist + m_target;
+    glm::vec3 newPosition = front * dist + m_target;
+
+    m_model.m_transform = glm::inverse(glm::lookAt(newPosition, m_target, m_up));
+    //    m_model. = front * dist + m_target;
+
     //    }
 
     //    qDebug() << "[CameraWorld]" << this << "processMouseMovement" << m_position.x << m_position.y << m_position.z;
@@ -122,19 +129,37 @@ void CameraWorld::processMouseMovement(float xoffset, float yoffset)
 
 void CameraWorld::processMouseScroll(float yoffset)
 {
-    glm::vec3 front = m_target - m_position;
-    m_position += accuracyMove * front * yoffset;
+    //    glm::vec3 front = m_target - m_position;
+    glm::vec4& translate = m_model.m_transform[3];
+    glm::vec3 position = glm::vec3(translate);
+    glm::vec3 front = m_target - position;
+    //    m_position += accuracyMove * front * yoffset;
+    glm::vec3 newPosition = position += accuracyMove * front * yoffset;
+
+    // question : optim
+    translate.x = newPosition.x;
+    translate.y = newPosition.y;
+    translate.z = newPosition.z;
 }
 
 void CameraWorld::processSliding(float dx, float dy)
 {
-    glm::vec3 front = m_target - m_position;
+    glm::vec4& translate = m_model.m_transform[3];
+
+    glm::vec3 position = glm::vec3(translate);
+
+    //    glm::vec3 front = m_target - m_position;
+    glm::vec3 front = m_target - position;
     glm::vec3 right = glm::normalize(glm::cross(front, m_up));
     glm::vec3 up = glm::normalize(glm::cross(front, right));
 
     glm::vec3 slide = accuracySlide * (right * -dx + up * -dy);
-    m_position += slide;
+    position += slide;
     m_target += slide;
+
+    translate.x = position.x;
+    translate.y = position.y;
+    translate.z = position.z;
 }
 
 void CameraWorld::updateUpAfterReverse()
@@ -194,7 +219,14 @@ void CameraWorld::save(std::ofstream& file)
 glm::mat4 CameraWorld::viewMatrix() const
 {
     //    if (m_reverse) {
-    return glm::lookAt(m_position, m_target, m_up);
+    //    return glm::lookAt(m_position, m_target, m_up);
+    if (m_selected) {
+        return glm::inverse(Scene::m_scene->m_worldTransform * m_model.m_transform * Scene::m_scene->m_localTransform);
+
+    } else {
+        return glm::inverse(m_model.m_transform);
+    }
+
     //    } else {
     //        return glm::lookAt(m_position, m_target, glm::vec3(0.0f, 0.0f, 1.0f));
     //    }
@@ -260,6 +292,8 @@ glm::vec3 CameraWorld::target() const
 
 glm::vec3 CameraWorld::up() const
 {
+    glm::vec3 m_position = glm::vec3(m_model.m_transform[3]);
+
     glm::vec3 front = glm::normalize(m_target - m_position);
     glm::vec3 up;
     //    if (m_reverse) {
@@ -278,6 +312,8 @@ glm::vec3 CameraWorld::up() const
 
 glm::vec3 CameraWorld::right() const
 {
+    glm::vec3 m_position = glm::vec3(m_model.m_transform[3]);
+
     glm::vec3 front = glm::normalize(m_target - m_position);
     //    glm::vec3 up;
     //    if (m_reverse) {
@@ -294,12 +330,16 @@ glm::vec3 CameraWorld::right() const
 
 glm::vec3 CameraWorld::front() const
 {
+    glm::vec3 m_position = glm::vec3(m_model.m_transform[3]);
+
     glm::vec3 front = glm::normalize(m_target - m_position);
     return front;
 }
 
 void CameraWorld::setFront(const glm::vec3& front)
 {
+    glm::vec3 m_position = glm::vec3(m_model.m_transform[3]);
+
     float dist = glm::length(m_target - m_position);
 
     m_position = m_target - front * dist;
@@ -311,4 +351,6 @@ void CameraWorld::setFront(const glm::vec3& front)
         m_yUp = false;
         updateUpAfterReverse();
     }
+
+    m_model.m_transform = glm::inverse(glm::lookAt(m_position, m_target, m_up));
 }

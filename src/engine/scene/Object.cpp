@@ -37,6 +37,11 @@ Object::Object(const std::string &path)
 
 }
 
+void Object::prepareHierarchy(ulong frameTime) const
+{
+    m_model.prepareHierarchy(frameTime);
+}
+
 void Object::draw(const Shader& shader, bool dotCloud, const glm::mat4& localTransform, const glm::mat4& worldTransform) const
 {
     m_model.draw(shader, dotCloud, localTransform, worldTransform);
