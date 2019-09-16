@@ -1092,6 +1092,13 @@ void Scene::addLight(Light::Type lightType, const glm::vec3 position)
     }
 }
 
+void Scene::addCurve()
+{
+//    m_models.emplace_back(Curve());
+//    m_models.push_back(Object(Curve()));
+//    m_objects.push_back(&m_models.back());
+}
+
 //void Scene::removeCamera(uint iCamera)
 //{
 //    std::vector<Camera*> newCameras;

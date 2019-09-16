@@ -5,7 +5,7 @@
 
 #include <AnimTimeline/FormAnimTimeline.h>
 
-#include <engine/scene/model/animation/Animation.h>
+#include <engine/scene/model/meshModel/animation/Animation.h>
 
 #include "../TemplateMenuBar.h"
 #include <engine/scene/Scene.h>

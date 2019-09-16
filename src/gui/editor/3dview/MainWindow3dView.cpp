@@ -1722,3 +1722,9 @@ void MainWindow3dView::on_actionArea_Light_triggered()
     //    Scene::m_scene->addLight(Light::Type::AREA, m_camera->m_target);
     QOpenGLWidget_Editor::m_editor->addLight(Light::Type::AREA, m_camera->target());
 }
+
+void MainWindow3dView::on_actionB_Spline_triggered()
+{
+//    QOpenGLWidget_Editor::m_editor->addCurve(Curve::B_SPLINE);
+    QOpenGLWidget_Editor::m_editor->addCurve();
+}

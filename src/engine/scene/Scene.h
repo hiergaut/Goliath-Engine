@@ -20,6 +20,7 @@
 #include "light/DirLight.h"
 
 #include "Object.h"
+//#include "curve/Curve.h"
 
 class Scene {
 //    Q_OBJECT
@@ -40,6 +41,8 @@ public:
     std::vector<Object> m_models;
     static std::vector<Camera*> m_cameras; // legacy
     std::vector<DirLight> m_dirLights;
+
+//    std::vector<Curve> m_curves;
 
 
 public:
@@ -86,6 +89,7 @@ public:
 
     void addLight(Light::Type lightType, const glm::vec3 position);
 //    void addCamera(float fov, const glm::vec3 & position, const glm::vec3 &target);
+    void addCurve();
 
     void updateTransformationMatrix(float dx, float dy);
 

@@ -27,6 +27,7 @@
 #include <opengl/geometry/LineGeometry.h>
 #include <opengl/geometry/TriangleGeometry.h>
 #include <opengl/geometry/uvSphereGeometry.h>
+#include <opengl/geometry/boneGeometry.h>
 
 #include <gui/editor/timeline/FormTimeline.h>
 
@@ -267,6 +268,12 @@ void QOpenGLWidget_Editor::addDefaultCamera()
     for (const MainWindow3dView* view : *m_views) {
         view->updateCameraId();
     }
+}
+
+void QOpenGLWidget_Editor::addCurve()
+{
+    makeCurrent();
+    m_scene.addCurve();
 }
 
 //void QOpenGLWidget_Editor::addCameraWorld(float fov, glm::vec3&& position, glm::vec3&& target)

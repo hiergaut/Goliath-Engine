@@ -103,7 +103,14 @@
      <addaction name="actionSpot_Light"/>
      <addaction name="actionArea_Light"/>
     </widget>
+    <widget class="QMenu" name="menuCurve">
+     <property name="title">
+      <string>Curve</string>
+     </property>
+     <addaction name="actionB_Spline"/>
+    </widget>
     <addaction name="menuLight"/>
+    <addaction name="menuCurve"/>
    </widget>
    <widget class="QMenu" name="menuIntersectRay">
     <property name="title">
@@ -312,6 +319,11 @@
    </property>
    <property name="text">
     <string>IntersectRay</string>
+   </property>
+  </action>
+  <action name="actionB_Spline">
+   <property name="text">
+    <string>B-Spline</string>
    </property>
   </action>
  </widget>
