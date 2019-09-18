@@ -35,6 +35,8 @@ FormTimeline::FormTimeline(QWidget* parent)
     setLayout(layout);
 
     m_timelines.push_back(this);
+
+    updateTimeline();
 }
 
 FormTimeline::~FormTimeline()
@@ -176,6 +178,42 @@ void FormTimeline::setAnimationTime(double value)
 
         //        for ()
     }
+}
+
+void FormTimeline::updateTimeline()
+{
+        FormAnimTimeline* animTimeline = m_animTimeline;
+        animTimeline->onClearKeyPoses();
+
+        if (m_animation == nullptr)
+            return;
+//            continue;
+
+        double duration = m_animation->m_duration / m_animation->m_ticksPerSecond;
+        animTimeline->onChangeDuration(duration);
+        animTimeline->onChangeStart(0.0);
+        animTimeline->onChangeEnd(duration);
+        animTimeline->onChangeCursor(m_animationTime);
+
+
+        std::set<double> keyPose;
+        for (const NodeAnim & nodeAnim : m_animation->m_channels) {
+            for (const auto & pair : nodeAnim.m_positionKeys) {
+                keyPose.insert(pair.first);
+            }
+            for (const auto & pair : nodeAnim.m_rotationKeys) {
+                keyPose.insert(pair.first);
+            }
+            for (const auto & pair : nodeAnim.m_scalingKeys) {
+                keyPose.insert(pair.first);
+            }
+        }
+
+        for (double d : keyPose) {
+            animTimeline->onAddingKeyPose(d / m_animation->m_ticksPerSecond);
+        }
+
+
 }
 
 bool FormTimeline::play()

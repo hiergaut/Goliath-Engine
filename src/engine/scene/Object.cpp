@@ -17,17 +17,47 @@
 //}
 
 Object::Object(std::ifstream &file)
-    : m_model(file)
+//    : m_model(file)
 //    : m_model(file)
 //    : m_model(new Model(file))
 {
+    Model::Type type = static_cast<Model::Type>(Session::loadEnum(file));
+//    qDebug() << "type" << type;
+    switch (type) {
+    case Model::MESH:
+        m_model = new MeshModel(file);
+        break;
+
+    case Model::PARAM:
+        Q_ASSERT(false);
+        break;
+
+    default:
+        Q_ASSERT(false);
+        break;
+    }
 
 
 }
 
 Object::Object(const std::string &path)
-    : m_model(path)
+//    : m_model(path)
+//    : m_mod
+    : m_model(new MeshModel(path))
 {
+
+}
+
+void Object::save(std::ofstream &file) const
+{
+    Session::saveEnum(m_model->m_type, file);
+    m_model->save(file);
+}
+
+Object::~Object()
+{
+    Q_ASSERT(m_model != nullptr);
+    delete m_model;
 
 }
 
@@ -60,25 +90,25 @@ Object::Object(const std::string &path)
 
 void Object::prepareHierarchy(ulong frameTime) const
 {
-    m_model.prepareHierarchy(frameTime);
+    m_model->prepareHierarchy(frameTime);
 }
 
 void Object::draw(const Shader& shader, bool dotCloud, const glm::mat4& localTransform, const glm::mat4& worldTransform) const
 {
-    m_model.draw(shader, dotCloud, localTransform, worldTransform);
+    m_model->draw(shader, dotCloud, localTransform, worldTransform);
 }
 
 void Object::draw(const Shader& shader, const glm::mat4& localTransform, const glm::mat4& worldTransform) const
 {
-    m_model.draw(shader, localTransform, worldTransform);
+    m_model->draw(shader, localTransform, worldTransform);
 }
 
 void Object::updateBoundingBox() const
 {
-    m_model.updateBoundingBox();
+    m_model->updateBoundingBox();
 }
 
 void Object::drawBoundingBox(const Shader& shader) const
 {
-    m_model.drawBoundingBox(shader);
+    m_model->drawBoundingBox(shader);
 }

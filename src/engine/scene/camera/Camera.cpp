@@ -22,7 +22,7 @@ Camera::Camera(float fov)
 //    , m_position(position)
 {
     //    m_model.m_transform = transform;
-    m_cameraStrategy = new CameraWorld(glm::vec3(200.0f, -200.0f, 200.0f), glm::vec3(0.0f), m_model.m_transform);
+    m_cameraStrategy = new CameraWorld(glm::vec3(200.0f, -200.0f, 200.0f), glm::vec3(0.0f), m_model->m_transform);
 }
 
 Camera::Camera(std::ifstream& file)
@@ -33,7 +33,7 @@ Camera::Camera(std::ifstream& file)
 
     Session::load(m_fov, file);
     //    Session::load(m_position, file);
-    Session::load(m_model.m_transform, file);
+    Session::load(m_model->m_transform, file);
     //    Session::load(m_model.m_transform, file);
 
     CameraStrategy::Type type;
@@ -41,11 +41,11 @@ Camera::Camera(std::ifstream& file)
     type = static_cast<CameraStrategy::Type>(Session::loadEnum(file));
     switch (type) {
     case CameraStrategy::WORLD:
-        m_cameraStrategy = new CameraWorld(file, m_model.m_transform);
+        m_cameraStrategy = new CameraWorld(file, m_model->m_transform);
         break;
 
     case CameraStrategy::FPS:
-        m_cameraStrategy = new CameraFps(file, m_model.m_transform, m_fov);
+        m_cameraStrategy = new CameraFps(file, m_model->m_transform, m_fov);
         break;
     }
 }
@@ -62,7 +62,7 @@ void Camera::save(std::ofstream& file)
     //    file.write(reinterpret_cast<const char*>(&data), sizeof (data));
     Session::save(m_fov, file);
     //    Session::save(m_position, file);
-    Session::save(m_model.m_transform, file);
+    Session::save(m_model->m_transform, file);
 
     Session::saveEnum(m_cameraStrategy->m_type, file);
     //    Session::save(m_cameraStrategy, file);
@@ -91,7 +91,7 @@ void Camera::setDefault()
     //    m_cameraStrategy = new CameraWorld(glm::vec3(200.0f, -200.0f, 200.0f), glm::vec3(0.0f), m_model.m_transform);
     switch (m_cameraStrategy->m_type) {
     case CameraStrategy::WORLD:
-        m_cameraStrategy = new CameraWorld(glm::vec3(200.0f, -200.0f, 200.0f), glm::vec3(0.0f), m_model.m_transform);
+        m_cameraStrategy = new CameraWorld(glm::vec3(200.0f, -200.0f, 200.0f), glm::vec3(0.0f), m_model->m_transform);
         //        CameraWorld * cameraWorld = static_cast<CameraWorld*>(m_cameraStrategy);
         //        cameraWorld->m_target = glm::vec3(0.0f);
         break;
@@ -105,10 +105,10 @@ glm::mat4 Camera::viewMatrix()
 {
     // question : return mat4 &&
     if (m_selected) {
-        return glm::inverse(Scene::m_scene->m_worldTransform * m_model.m_transform * Scene::m_scene->m_localTransform);
+        return glm::inverse(Scene::m_scene->m_worldTransform * m_model->m_transform * Scene::m_scene->m_localTransform);
 
     } else {
-        return glm::inverse(m_model.m_transform);
+        return glm::inverse(m_model->m_transform);
     }
 }
 
@@ -124,13 +124,13 @@ glm::mat4 Camera::viewMatrix()
 void Camera::prepareHierarchy(ulong frameTime) const
 {
     //    m_model.m_transform = glm::inverse(viewMatrix());
-    m_model.prepareHierarchy(frameTime);
+    m_model->prepareHierarchy(frameTime);
 }
 
 void Camera::draw(const Shader& shader, bool dotCloud, const glm::mat4& localTransform, const glm::mat4& worldTransform) const
 {
     //    m_model.draw(shader, dotCloud, localTransform, glm::inverse(viewMatrix()) * worldTransform);
-    m_model.draw(shader, dotCloud, localTransform, worldTransform);
+    m_model->draw(shader, dotCloud, localTransform, worldTransform);
     //    Scene::m_camera.d
     //    Scene::m_scene->m_cameraModel->draw(shader, dotCloud, localTransform, worldTransform);
     //    qDebug() << "draw camera";
@@ -139,21 +139,21 @@ void Camera::draw(const Shader& shader, bool dotCloud, const glm::mat4& localTra
 
 void Camera::draw(const Shader& shader, const glm::mat4& localTransform, const glm::mat4& worldTransform) const
 {
-    m_model.draw(shader, localTransform, worldTransform);
+    m_model->draw(shader, localTransform, worldTransform);
     //    cameraModel->draw(shader, localTransform, worldTransform);
 }
 
 void Camera::updateBoundingBox() const
 {
     //    m_model.m_transform = glm::inverse(viewMatrix());
-    m_model.updateBoundingBox();
+    m_model->updateBoundingBox();
     //    Scene::m_scene
     //    cameraModel->updateBoundingBox(m_box);
 }
 
 void Camera::drawBoundingBox(const Shader& shader) const
 {
-    m_model.drawBoundingBox(shader);
+    m_model->drawBoundingBox(shader);
     //    Scene::m_cameraModel->draw(shader, localTransform, worldTransform);
     //    cameraModel->drawBoundingBox(shader);
 }
@@ -211,5 +211,5 @@ glm::vec3 Camera::target() const
 
 const glm::vec3 Camera::position() const
 {
-    return m_model.m_transform[3];
+    return m_model->m_transform[3];
 }

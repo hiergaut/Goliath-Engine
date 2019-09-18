@@ -15,7 +15,7 @@ public:
     //    mutable BoundingBox m_box;
 //    Model * m_model = nullptr;
 //    Model & m_model;
-    MeshModel m_model;
+    Model * m_model = nullptr;
 
 public:
 //    Object(Model && model) noexcept;
@@ -26,9 +26,10 @@ public:
 
 //    virtual ~Object();
 
+    void save(std::ofstream & file) const;
 
     //    Object() = delete;
-    virtual ~Object() = default;
+    virtual ~Object();
 
     virtual void prepareHierarchy(ulong frameTime) const;
     virtual void draw(const Shader& shader, bool dotCloud, const glm::mat4& localTransform = glm::mat4(1.0f),

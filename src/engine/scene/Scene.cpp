@@ -387,16 +387,16 @@ void Scene::draw(const MainWindow3dView& view)
 
             if (object.m_selected) {
                 //                object.m_model.DrawHierarchy(viewLocalTransform, viewMatrix, projectionMatrix, cameraPos, viewWorldTransform);
-//                static_cast<MeshModel&>(object.m_model).DrawHierarchy(viewLocalTransform, viewMatrix, projectionMatrix, cameraPos, viewWorldTransform);
-                object.m_model.DrawHierarchy(viewLocalTransform, viewMatrix, projectionMatrix, cameraPos, viewWorldTransform);
+                static_cast<MeshModel*>(object.m_model)->DrawHierarchy(viewLocalTransform, viewMatrix, projectionMatrix, cameraPos, viewWorldTransform);
+//                object.m_model->DrawHierarchy(viewLocalTransform, viewMatrix, projectionMatrix, cameraPos, viewWorldTransform);
 //                object.m_model.DrawHierarchy()
 
                 //                model.m_model.DrawHierarchy(viewLocalTransform, view, viewWorldTransform);
             } else {
                 //                model.DrawHierarchy(onesMatrix, view);
                 //                object.m_model.DrawHierarchy(onesMatrix, viewMatrix, projectionMatrix, cameraPos);
-//                static_cast<MeshModel&>(object.m_model).DrawHierarchy(onesMatrix, viewMatrix, projectionMatrix, cameraPos);
-                object.m_model.DrawHierarchy(onesMatrix, viewMatrix, projectionMatrix, cameraPos);
+                static_cast<MeshModel*>(object.m_model)->DrawHierarchy(onesMatrix, viewMatrix, projectionMatrix, cameraPos);
+//                object.m_model.DrawHierarchy(onesMatrix, viewMatrix, projectionMatrix, cameraPos);
             }
         }
     }
@@ -419,11 +419,11 @@ void Scene::draw(const MainWindow3dView& view)
             //            model.Draw(modelMatrix, shader);
             //            model.Draw(modelMatrix, shader, view.m_shade, view.dotCloud());
 
-            float dist = glm::length(glm::vec3(object->m_model.m_transform[3]) - cameraPos);
+            float dist = glm::length(glm::vec3(object->m_model->m_transform[3]) - cameraPos);
             // TODO
             //            AxisGeometry::draw(viewWorldTransform * object->m_model.m_transform * viewLocalTransform * glm::scale(glm::mat4(1.0f), glm::vec3(1.0f) * 0.5f * object->m_model.m_box.radius()), shader);
-            AxisGeometry::draw(viewWorldTransform * object->m_model.m_transform * glm::scale(viewLocalTransform, glm::vec3(1.0f) * dist), shader);
-            DotGeometry::draw(viewWorldTransform * object->m_model.m_transform * viewLocalTransform, shader);
+            AxisGeometry::draw(viewWorldTransform * object->m_model->m_transform * glm::scale(viewLocalTransform, glm::vec3(1.0f) * dist), shader);
+            DotGeometry::draw(viewWorldTransform * object->m_model->m_transform * viewLocalTransform, shader);
             //            object->drawOrigin(viewWorldTransform, viewTransform, shader);
         }
     }
@@ -454,7 +454,7 @@ void Scene::draw(const MainWindow3dView& view)
             //            for (const Model& model : m_models) {
             for (const Object* object : m_objects) {
                 if (object->m_selected) {
-                    shader.setMat4("model", object->m_model.m_transform);
+                    shader.setMat4("model", object->m_model->m_transform);
 
                     switch (view.m_axisFollow) {
                     case 0:
@@ -480,7 +480,7 @@ void Scene::draw(const MainWindow3dView& view)
 
                     //                } else {
                     // ---------------- GLOBAL AXIS
-                    glm::vec3 translate = object->m_model.m_transform[3];
+                    glm::vec3 translate = object->m_model->m_transform[3];
                     switch (view.m_transform) {
                     case MainWindow3dView::Transform::TRANSLATE:
                     case MainWindow3dView::Transform::SCALE:
@@ -559,7 +559,7 @@ void Scene::selectRay(const Ray& ray, bool additional)
             object->m_selected = false;
         }
 
-        distances[iObject] = std::abs(glm::length(object->m_model.m_box.center() - ray.m_source) - object->m_model.m_box.radius());
+        distances[iObject] = std::abs(glm::length(object->m_model->m_box.center() - ray.m_source) - object->m_model->m_box.radius());
         //        nearestModel[iModel] = iModel;
         //        uint iNear =0;
         //        while (iNear < nearestModel.size() && distances[iModel] < nearestModel[iNear]) {
@@ -615,13 +615,13 @@ void Scene::selectRay(const Ray& ray, bool additional)
         //        model.selectObject(ray, depthMin, find, iModelMin, iMeshMin, iBoneMin, iTriangleMin);
         float depth;
 
-        if (object->m_model.m_box.intersect(ray)) {
+        if (object->m_model->m_box.intersect(ray)) {
 
             //            switch (object->m_model.m_type) {
 
             //            case Model::MESH:
-            if (object->m_model.m_type == Model::MESH) {
-                const MeshModel& meshModel = static_cast<const MeshModel&>(object->m_model);
+            if (object->m_model->m_type == Model::MESH) {
+                const MeshModel& meshModel = static_cast<const MeshModel&>(*object->m_model);
 
                 //            for (uint iMesh = 0; iMesh < object->m_model.m_meshes.size(); ++iMesh) {
                 for (uint iMesh = 0; iMesh < meshModel.m_meshes.size(); ++iMesh) {
@@ -635,7 +635,7 @@ void Scene::selectRay(const Ray& ray, bool additional)
                             for (uint iTriangle = 0; iTriangle < mesh.m_indices.size() / 3; ++iTriangle) {
                                 uint i3 = iTriangle * 3;
 
-                                glm::mat4 transform = object->m_model.m_transform * mesh.m_transform;
+                                glm::mat4 transform = object->m_model->m_transform * mesh.m_transform;
                                 const glm::vec3& v0 = transform * glm::vec4(mesh.m_vertices[mesh.m_indices[i3]].Position, 1.0f);
                                 const glm::vec3& v1 = transform * glm::vec4(mesh.m_vertices[mesh.m_indices[i3 + 1]].Position, 1.0f);
                                 const glm::vec3& v2 = transform * glm::vec4(mesh.m_vertices[mesh.m_indices[i3 + 2]].Position, 1.0f);
@@ -691,7 +691,7 @@ void Scene::selectRay(const Ray& ray, bool additional)
                                             //                            const Vertex & v1 = mesh.m_vertices[i3 + 1];
                                             //                            const Vertex & v2 = mesh.m_vertices[i3 + 2];
                                             Q_ASSERT(mesh.m_vertices.size() > i3 + 2);
-                                            glm::mat4 transform = object->m_model.m_transform * bone.m_recurseModel * bone.m_offsetMatrix;
+                                            glm::mat4 transform = object->m_model->m_transform * bone.m_recurseModel * bone.m_offsetMatrix;
                                             const glm::vec3& v0 = transform * glm::vec4(mesh.m_vertices[i3].Position, 1.0f);
                                             const glm::vec3& v1 = transform * glm::vec4(mesh.m_vertices[i3 + 1].Position, 1.0f);
                                             const glm::vec3& v2 = transform * glm::vec4(mesh.m_vertices[i3 + 2].Position, 1.0f);
@@ -836,7 +836,7 @@ void Scene::addModel(std::string file, const glm::vec3& spawn)
     m_models.emplace_back(file);
 
     //    m_models[m_models.size() - 1].m_transform = glm::translate(glm::mat4(1.0f), origin);
-    m_models.back().m_model.m_transform = glm::translate(glm::mat4(1.0f), spawn);
+    m_models.back().m_model->m_transform = glm::translate(glm::mat4(1.0f), spawn);
 
     m_objects.push_back(&m_models.back());
 
@@ -863,10 +863,10 @@ void Scene::updateSceneItemModel()
     //    QStandardItemModel model;
     QStandardItem* parentItem = m_sceneModel.invisibleRootItem();
     for (const Object& object : m_models) {
-        QStandardItem* item = new QStandardItem(object.m_model.name().c_str());
+        QStandardItem* item = new QStandardItem(object.m_model->name().c_str());
         parentItem->appendRow(item);
 
-        object.m_model.buildItemModel(item);
+        object.m_model->buildItemModel(item);
     }
 
     emit m_sceneModel.dataChanged(m_sceneModel.index(0, 0), m_sceneModel.index(0, 0));
@@ -950,7 +950,8 @@ void Scene::save(std::ofstream& file)
     uint size = m_models.size();
     Session::save(size, file);
     for (const Object& object : m_models) {
-        object.m_model.save(file);
+//        object.m_model->save(file);
+        object.save(file);
     }
 
     size = m_cameras.size();
@@ -990,7 +991,7 @@ void Scene::setSelectRootTransform(const glm::mat4& transformMatrix, const glm::
     for (const Object* object : m_objects) {
         if (object->m_selected) {
             //            model.m_rootNode->m_transformation *= transformMatrix;
-            object->m_model.m_transform = worldTransform * object->m_model.m_transform * transformMatrix;
+            object->m_model->m_transform = worldTransform * object->m_model->m_transform * transformMatrix;
             //            model.m_rootNode->m_transformation = model.m_rootNode->m_transformation * transformMatrix;
         }
     }
@@ -1004,7 +1005,7 @@ void Scene::setSelectToOriginTransform()
         if (object->m_selected) {
             //            camera.m_target = model.m_rootNode->m_transformation[3];
             //            camera.m_target = model.m_transform[3];
-            object->m_model.m_transform = glm::mat4(1.0f);
+            object->m_model->m_transform = glm::mat4(1.0f);
         }
     }
 }
@@ -1016,7 +1017,7 @@ void Scene::setSelectFocus(CameraWorld& camera)
         if (object->m_selected) {
             //            camera.m_target = model.m_rootNode->m_transformation[3];
             //            camera.m_target = object->m_model.m_transform[3];
-            camera.setTarget(object->m_model.m_transform[3]);
+            camera.setTarget(object->m_model->m_transform[3]);
             break;
         }
     }
