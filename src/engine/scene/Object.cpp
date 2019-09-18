@@ -11,13 +11,22 @@
 //}
 
 //Object::Object(Model &&model) noexcept
-//    : m_model(std::move(model))
+//    : m_model(model)
 //{
 
 //}
 
 Object::Object(std::ifstream &file)
     : m_model(file)
+//    : m_model(file)
+//    : m_model(new Model(file))
+{
+
+
+}
+
+Object::Object(const std::string &path)
+    : m_model(path)
 {
 
 }
@@ -31,11 +40,23 @@ Object::Object(std::ifstream &file)
 
 //}
 
-Object::Object(const std::string &path)
-    : m_model(path)
-{
+//Object::Object(const std::string &path)
+////    : m_model(path)
+//{
 
-}
+//}
+
+//Object::Object(Model &&model)
+//    : m_model(model)
+//{
+
+//}
+
+//Object::Object(const std::string &path)
+////    : m_model(path)
+//{
+
+//}
 
 void Object::prepareHierarchy(ulong frameTime) const
 {

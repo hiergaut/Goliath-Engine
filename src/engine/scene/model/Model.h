@@ -1,11 +1,48 @@
 #ifndef MODEL_H
 #define MODEL_H
 
+#include <fstream>
+#include <opengl/BoundingBox.h>
+#include <opengl/shader.h>
+#include <QStandardItemModel>
 
-class Model
-{
+class Model {
 public:
-    Model();
+    mutable glm::mat4 m_transform = glm::mat4(1.0f);
+    mutable BoundingBox m_box;
+
+    enum Type {
+        MESH,
+        PARAM,
+    } m_type;
+
+public:
+    //    Model(std::ifstream & file);
+    //    Model(const std::string & path);
+//    Model() = default;
+    Model(const glm::mat4 & transform, Type type);
+    Model(std::ifstream & file);
+    virtual ~Model() = default;
+
+    virtual void save(std::ofstream & file);
+
+    virtual void prepareHierarchy(ulong frameTime) const = 0;
+    virtual void draw(const Shader& shader, bool dotCloud,
+        const glm::mat4& localTransform = glm::mat4(1.0f),
+        const glm::mat4& worldTransform = glm::mat4(1.0f))
+        const = 0;
+
+    virtual void draw(const Shader& shader,
+        const glm::mat4& localTransform = glm::mat4(1.0f),
+        const glm::mat4& worldTransform = glm::mat4(1.0f))
+        const = 0;
+
+    virtual void updateBoundingBox() const = 0;
+    virtual void drawBoundingBox(const Shader& shader) const = 0;
+
+
+    virtual std::string name() const = 0;
+    virtual void buildItemModel(QStandardItem* parent) const = 0;
 };
 
 #endif // MODEL_H

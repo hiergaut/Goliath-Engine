@@ -1,8 +1,8 @@
 #ifndef ITEMMODELPACKAGE_H
 #define ITEMMODELPACKAGE_H
 
-#include <engine/scene/model/animation/Animation.h>
-#include <engine/scene/model/Node.h>
+#include <engine/scene/model/meshModel/animation/Animation.h>
+#include <engine/scene/model/meshModel/Node.h>
 
 class ItemModelPackage
 {

@@ -6,18 +6,22 @@
 #include <opengl/shader.h>
 //#include <gui/editor/3dview/MainWindow3dView.h>
 #include <opengl/BoundingBox.h>
+#include <engine/scene/model/meshModel/MeshModel.h>
 
 class Object {
 public:
     mutable bool m_selected = false;
     //    mutable glm::mat4 m_transform = glm::mat4(1.0f);
     //    mutable BoundingBox m_box;
-    Model m_model;
+//    Model * m_model = nullptr;
+//    Model & m_model;
+    MeshModel m_model;
 
 public:
 //    Object(Model && model) noexcept;
     Object(std::ifstream & file);
     Object(const std::string & path);
+//    Object(Model &&model) noexcept;
     Object(Object && object) noexcept = default;
 
 //    virtual ~Object();

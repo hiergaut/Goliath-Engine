@@ -18,6 +18,7 @@
 #include <opengl/geometry/DotGeometry.h>
 
 MeshModel::MeshModel(const std::string& path)
+    : Model(glm::mat4(1.0f), Model::MESH)
 //        : gammaCorrection(gamma),
 //        : m_file(path)
 {
@@ -47,6 +48,7 @@ MeshModel::MeshModel(const std::string& path)
 }
 
 MeshModel::MeshModel(std::ifstream& file)
+    : Model(file)
 {
     m_meshes.reserve(50);
     m_materials.reserve(50);
@@ -119,8 +121,9 @@ MeshModel::MeshModel(std::ifstream& file)
 
 MeshModel::MeshModel(MeshModel&& model) noexcept
     //    : m_box(std::move(model.m_box))
+    : Model(std::move(model.m_transform), std::move(model.m_type))
 
-    : m_meshes(std::move(model.m_meshes))
+    , m_meshes(std::move(model.m_meshes))
     , m_materials(std::move(model.m_materials))
     , m_textures(std::move(model.m_textures))
     , m_animations(std::move(model.m_animations))
@@ -130,7 +133,7 @@ MeshModel::MeshModel(MeshModel&& model) noexcept
     , m_rootNode(std::move(model.m_rootNode))
 //    , m_transform(std::move(model.m_transform))
 {
-    m_transform = std::move(model.m_transform);
+//    m_transform = std::move(model.m_transform);
 //    std::cout << "move " << std::endl;
     for (Material& material : m_materials) {
         material.m_textures = &m_textures;
@@ -671,7 +674,7 @@ void MeshModel::save(std::ofstream& file) const
 //    parent->appendRow(item);
 //}
 
-std::string MeshModel::filename() const
+std::string MeshModel::name() const
 {
     return m_filename;
 }

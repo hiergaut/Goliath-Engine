@@ -38,7 +38,7 @@
 
 #include "animation/Animation.h"
 #include <memory>
-#include "mesh/mesh.h"
+//#include "mesh/mesh.h"
 
 //#include <opengl/geometry/boneGeometry.h>
 //#include <gui/editor/3dview/MainWindow3dView.h>
@@ -50,12 +50,14 @@
 
 //#include <engine/scene/Object.h>
 //#include "curve/Curve.h"
+#include <engine/scene/model/Model.h>
+//#include <engine/scene/model/meshModel/mesh/mesh.h>
 
-class MeshModel {
+class MeshModel : public Model {
 public:
 //    mutable bool m_selected = false;
-    mutable glm::mat4 m_transform = glm::mat4(1.0f);
-    mutable BoundingBox m_box;
+//    mutable glm::mat4 m_transform = glm::mat4(1.0f);
+//    mutable BoundingBox m_box;
 
     Meshes m_meshes;
 //    Curves m_curves;
@@ -86,14 +88,17 @@ public:
     //    MeshModel(MeshModel & model);
     ~MeshModel();
 
-    void prepareHierarchy(ulong frameTime) const;
+    void prepareHierarchy(ulong frameTime) const override;
 
-    void draw(const Shader &shader, bool dotCloud, const glm::mat4 &modelMatrix = glm::mat4(1.0f), const glm::mat4 & worldTransform = glm::mat4(1.0f)) const;
-    void draw(const Shader & shader, const glm::mat4 &modelMatrix = glm::mat4(1.0f), const glm::mat4 &worldTransform = glm::mat4(1.0f)) const;
+    void draw(const Shader &shader, bool dotCloud, const glm::mat4 &modelMatrix = glm::mat4(1.0f),
+              const glm::mat4 & worldTransform = glm::mat4(1.0f)) const override;
+    void draw(const Shader & shader, const glm::mat4 &modelMatrix = glm::mat4(1.0f),
+              const glm::mat4 &worldTransform = glm::mat4(1.0f)) const override;
 //    void draw(const glm::mat4 &modelMatrix, const Shader & shader, const MainWindow3dView & view, const glm::mat4 &worldTransform = glm::mat4(1.0f)) const override;
 
-    void updateBoundingBox() const;
-    void drawBoundingBox(const Shader & shader) const;
+    void updateBoundingBox() const override;
+    void drawBoundingBox(const Shader & shader) const override;
+
 //    void selectObject(const Ray & ray, float &depthMin, bool &find, uint &iModelMin, uint &iMeshMin, uint &iBoneMin, uint &iTriangleMin, bool unselect = false) const;
 //    void unselectRay(const Ray & ray) const;
 //    void objectFinderRay(const Ray & ray) const;
@@ -101,7 +106,7 @@ public:
 
 
     void DrawHierarchy(const glm::mat4 &modelMatrix, const glm::mat4 & viewMatrix, const glm::mat4 & projectionMatrix, const glm::vec3 & cameraPos, const glm::mat4 &worldTransform = glm::mat4(1.0f)) const;
-    void buildItemModel(QStandardItem* parent) const;
+    void buildItemModel(QStandardItem* parent) const override;
 
 //    void load(std::ifstream & file) const;
     void save(std::ofstream & file) const;
@@ -150,7 +155,7 @@ private:
 //    mutable std::vector<glm::vec3> m_triangles;
 
 public:
-    std::string filename() const;
+    std::string name() const override;
 };
 
 //    Assimp::Importer MeshModel::m_importer;

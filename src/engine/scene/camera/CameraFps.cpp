@@ -4,6 +4,7 @@
 #include <QDebug>
 #include <glm/glm.hpp>
 //#include <QThread>
+#include <session/Session.h>
 
 //CameraFps::CameraFps(glm::vec3 position, glm::vec3 target)
 //    : Camera(position)

@@ -27,6 +27,7 @@
 #include <gui/QOpenGLWidget_Editor.h>
 #include <opengl/rayTracer/RayTracer.h>
 //#include <engine/scene/camera/CameraStrategy.h>
+#include <session/Session.h>
 
 std::list<const MainWindow3dView*>* MainWindow3dView::m_views;
 //Shader MainWindow3dView::m_shaders;

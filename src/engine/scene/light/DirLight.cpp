@@ -1,10 +1,15 @@
 #include "DirLight.h"
 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <session/Session.h>
+#include <engine/scene/model/meshModel/MeshModel.h>
 
 
 DirLight::DirLight(const glm::vec3 position, const glm::vec3 ambient, const glm::vec3 diffuse,
                    const glm::vec3 specular, const glm::vec3 direction)
     : Light(ambient, diffuse, specular)
+//    , Object(g_resourcesPath + "models/sun/sun.obj")
     , Object(g_resourcesPath + "models/sun/sun.obj")
 //    , m_direction(direction)
 //    , m_sphere(5000.0f)
@@ -29,6 +34,7 @@ DirLight::DirLight(const glm::vec3 position, const glm::vec3 ambient, const glm:
 }
 
 DirLight::DirLight(std::ifstream &file)
+//    : Object(g_resourcesPath + "models/sun/sun.obj")
     : Object(g_resourcesPath + "models/sun/sun.obj")
 {
     Light::load(file);

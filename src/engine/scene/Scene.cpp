@@ -7,11 +7,13 @@
 //#include <opengl/shader.h>
 
 #include "camera/CameraWorld.h"
+#include "model/meshModel/MeshModel.h"
 #include <gui/editor/timeline/FormTimeline.h>
 #include <opengl/geometry/AxisGeometry.h>
 #include <opengl/geometry/DotGeometry.h>
 #include <opengl/geometry/LineGeometry.h>
 #include <opengl/geometry/TriangleGeometry.h>
+#include <session/Session.h>
 
 Scene* Scene::m_scene = nullptr;
 //QStandardItemModel Scene::m_sceneModel;
@@ -376,20 +378,25 @@ void Scene::draw(const MainWindow3dView& view)
     if (view.skeleton()) {
         //        modelMatrix = glm::mat4(1.0f);
         //        for (const Model& model : m_models) {
-        for (const Object& model : m_models) {
+        for (const Object& object : m_models) {
             //	    glm::mat4 model(1.0);
             //        glm::mat4 modelMatrix(1.0);
             //        modelMatrix = glm::scale(modelMatrix, glm::vec3(0.01));
             //        modelMatrix = glm::rotate(modelMatrix, 1.57f, glm::vec3(1, 0, 0));
             //        m_shader->setMat4("model", modelMatrix);
 
-            if (model.m_selected) {
-                model.m_model.DrawHierarchy(viewLocalTransform, viewMatrix, projectionMatrix, cameraPos, viewWorldTransform);
+            if (object.m_selected) {
+                //                object.m_model.DrawHierarchy(viewLocalTransform, viewMatrix, projectionMatrix, cameraPos, viewWorldTransform);
+//                static_cast<MeshModel&>(object.m_model).DrawHierarchy(viewLocalTransform, viewMatrix, projectionMatrix, cameraPos, viewWorldTransform);
+                object.m_model.DrawHierarchy(viewLocalTransform, viewMatrix, projectionMatrix, cameraPos, viewWorldTransform);
+//                object.m_model.DrawHierarchy()
 
                 //                model.m_model.DrawHierarchy(viewLocalTransform, view, viewWorldTransform);
             } else {
                 //                model.DrawHierarchy(onesMatrix, view);
-                model.m_model.DrawHierarchy(onesMatrix, viewMatrix, projectionMatrix, cameraPos);
+                //                object.m_model.DrawHierarchy(onesMatrix, viewMatrix, projectionMatrix, cameraPos);
+//                static_cast<MeshModel&>(object.m_model).DrawHierarchy(onesMatrix, viewMatrix, projectionMatrix, cameraPos);
+                object.m_model.DrawHierarchy(onesMatrix, viewMatrix, projectionMatrix, cameraPos);
             }
         }
     }
@@ -414,7 +421,7 @@ void Scene::draw(const MainWindow3dView& view)
 
             float dist = glm::length(glm::vec3(object->m_model.m_transform[3]) - cameraPos);
             // TODO
-//            AxisGeometry::draw(viewWorldTransform * object->m_model.m_transform * viewLocalTransform * glm::scale(glm::mat4(1.0f), glm::vec3(1.0f) * 0.5f * object->m_model.m_box.radius()), shader);
+            //            AxisGeometry::draw(viewWorldTransform * object->m_model.m_transform * viewLocalTransform * glm::scale(glm::mat4(1.0f), glm::vec3(1.0f) * 0.5f * object->m_model.m_box.radius()), shader);
             AxisGeometry::draw(viewWorldTransform * object->m_model.m_transform * glm::scale(viewLocalTransform, glm::vec3(1.0f) * dist), shader);
             DotGeometry::draw(viewWorldTransform * object->m_model.m_transform * viewLocalTransform, shader);
             //            object->drawOrigin(viewWorldTransform, viewTransform, shader);
@@ -577,20 +584,20 @@ void Scene::selectRay(const Ray& ray, bool additional)
     }
     Q_ASSERT(nearestModel.size() == distances.size());
 
-//    qDebug() << "nb Objects " << m_objects.size();
-//    for (uint iObject : nearestModel) {
-//        qDebug() << m_objects[iObject]->m_model.filename().c_str() << distances[iObject];
-//    }
-//    qDebug() << "------------------------";
+    //    qDebug() << "nb Objects " << m_objects.size();
+    //    for (uint iObject : nearestModel) {
+    //        qDebug() << m_objects[iObject]->m_model.filename().c_str() << distances[iObject];
+    //    }
+    //    qDebug() << "------------------------";
 
     for (uint iObject : nearestModel) {
         //    iObject = 0;
         //    for (const Object* object : m_objects) {
-        const Object * object = m_objects[iObject];
+        const Object* object = m_objects[iObject];
 
         float dist = distances[iObject];
-//        qDebug() << m_objects[iObject]->m_model.filename().c_str() << distances[iObject];
-//        qDebug() << object->m_model.filename().c_str() << distances[iObject];
+        //        qDebug() << m_objects[iObject]->m_model.filename().c_str() << distances[iObject];
+        //        qDebug() << object->m_model.filename().c_str() << distances[iObject];
 
         if (depthMin < dist) {
             break;
@@ -610,117 +617,125 @@ void Scene::selectRay(const Ray& ray, bool additional)
 
         if (object->m_model.m_box.intersect(ray)) {
 
-            for (uint iMesh = 0; iMesh < object->m_model.m_meshes.size(); ++iMesh) {
-                //        for (const Mesh& mesh : m_meshes) {
-                const Mesh& mesh = object->m_model.m_meshes[iMesh];
+            //            switch (object->m_model.m_type) {
 
-                if (mesh.m_box.intersect(ray)) {
-                    //                qDebug() << "select mesh " << mesh.m_name.c_str();
-                    // ----------------------------------------- FIXED MESH
-                    if (mesh.m_bones.size() == 0) {
-                        for (uint iTriangle = 0; iTriangle < mesh.m_indices.size() / 3; ++iTriangle) {
-                            uint i3 = iTriangle * 3;
+            //            case Model::MESH:
+            if (object->m_model.m_type == Model::MESH) {
+                const MeshModel& meshModel = static_cast<const MeshModel&>(object->m_model);
 
-                            glm::mat4 transform = object->m_model.m_transform * mesh.m_transform;
-                            const glm::vec3& v0 = transform * glm::vec4(mesh.m_vertices[mesh.m_indices[i3]].Position, 1.0f);
-                            const glm::vec3& v1 = transform * glm::vec4(mesh.m_vertices[mesh.m_indices[i3 + 1]].Position, 1.0f);
-                            const glm::vec3& v2 = transform * glm::vec4(mesh.m_vertices[mesh.m_indices[i3 + 2]].Position, 1.0f);
-                            //                            const glm::vec3& v1 = transform * glm::vec4(mesh.m_vertices[i3 + 1].Position, 1.0f);
-                            //                            const glm::vec3& v2 = transform * glm::vec4(mesh.m_vertices[i3 + 2].Position, 1.0f);
+                //            for (uint iMesh = 0; iMesh < object->m_model.m_meshes.size(); ++iMesh) {
+                for (uint iMesh = 0; iMesh < meshModel.m_meshes.size(); ++iMesh) {
+                    //        for (const Mesh& mesh : m_meshes) {
+                    const Mesh& mesh = meshModel.m_meshes[iMesh];
 
-                            //                            const glm::vec3& v0 = model.m_transform * mesh.m_transform * glm::vec4(mesh.m_vertices[i3].Position, 1.0f);
-                            //                            const glm::vec3& v1 = model.m_transform * mesh.m_transform * glm::vec4(mesh.m_vertices[i3 + 1].Position, 1.0f);
-                            //                            const glm::vec3& v2 = model.m_transform * mesh.m_transform * glm::vec4(mesh.m_vertices[i3 + 2].Position, 1.0f);
-                            if (ray.intersect(v0, v1, v2, depth)) {
-                                //                                qDebug() << "intersect model " << model.filename().c_str() << depth;
-                                triangles.emplace_back(v0);
-                                triangles.emplace_back(v1);
-                                triangles.emplace_back(v2);
-                                //                                if (!find) {
-                                //                                    find = true;
-                                //                                    iModelMin = iModel;
-                                //                                    depthMin = depth;
-                                //                                    iMeshMin = iMesh;
-                                //                                    iTriangleMin = iTriangle;
-                                //                                } else {
-                                if (depth < depthMin) {
-                                    //                                    qDebug() << "intersect model " << object->m_model.filename().c_str() << depth;
+                    if (mesh.m_box.intersect(ray)) {
+                        //                qDebug() << "select mesh " << mesh.m_name.c_str();
+                        // ----------------------------------------- FIXED MESH
+                        if (mesh.m_bones.size() == 0) {
+                            for (uint iTriangle = 0; iTriangle < mesh.m_indices.size() / 3; ++iTriangle) {
+                                uint i3 = iTriangle * 3;
 
-                                    iObjectMin = iObject;
-                                    depthMin = depth;
-                                    iMeshMin = iMesh;
-                                    iTriangleMin = iTriangle;
+                                glm::mat4 transform = object->m_model.m_transform * mesh.m_transform;
+                                const glm::vec3& v0 = transform * glm::vec4(mesh.m_vertices[mesh.m_indices[i3]].Position, 1.0f);
+                                const glm::vec3& v1 = transform * glm::vec4(mesh.m_vertices[mesh.m_indices[i3 + 1]].Position, 1.0f);
+                                const glm::vec3& v2 = transform * glm::vec4(mesh.m_vertices[mesh.m_indices[i3 + 2]].Position, 1.0f);
+                                //                            const glm::vec3& v1 = transform * glm::vec4(mesh.m_vertices[i3 + 1].Position, 1.0f);
+                                //                            const glm::vec3& v2 = transform * glm::vec4(mesh.m_vertices[i3 + 2].Position, 1.0f);
+
+                                //                            const glm::vec3& v0 = model.m_transform * mesh.m_transform * glm::vec4(mesh.m_vertices[i3].Position, 1.0f);
+                                //                            const glm::vec3& v1 = model.m_transform * mesh.m_transform * glm::vec4(mesh.m_vertices[i3 + 1].Position, 1.0f);
+                                //                            const glm::vec3& v2 = model.m_transform * mesh.m_transform * glm::vec4(mesh.m_vertices[i3 + 2].Position, 1.0f);
+                                if (ray.intersect(v0, v1, v2, depth)) {
+                                    //                                qDebug() << "intersect model " << model.filename().c_str() << depth;
+                                    triangles.emplace_back(v0);
+                                    triangles.emplace_back(v1);
+                                    triangles.emplace_back(v2);
+                                    //                                if (!find) {
+                                    //                                    find = true;
+                                    //                                    iModelMin = iModel;
+                                    //                                    depthMin = depth;
+                                    //                                    iMeshMin = iMesh;
+                                    //                                    iTriangleMin = iTriangle;
+                                    //                                } else {
+                                    if (depth < depthMin) {
+                                        //                                    qDebug() << "intersect model " << object->m_model.filename().c_str() << depth;
+
+                                        iObjectMin = iObject;
+                                        depthMin = depth;
+                                        iMeshMin = iMesh;
+                                        iTriangleMin = iTriangle;
+                                    }
+                                    //                                }
                                 }
-                                //                                }
                             }
-                        }
 
-                    } else {
+                        } else {
 
-                        // ------------------------------------------------ ANIMATE
-                        for (uint iBone = 0; iBone < mesh.m_bones.size(); ++iBone) {
-                            //                for (const Bone& bone : mesh.m_bones) {
-                            const Bone& bone = mesh.m_bones[iBone];
+                            // ------------------------------------------------ ANIMATE
+                            for (uint iBone = 0; iBone < mesh.m_bones.size(); ++iBone) {
+                                //                for (const Bone& bone : mesh.m_bones) {
+                                const Bone& bone = mesh.m_bones[iBone];
 
-                            if (bone.m_box.intersect(ray)) {
-                                //                        qDebug() << "intersect bone " << bone.m_name.c_str() << bone.m_iTriangles.size();
+                                if (bone.m_box.intersect(ray)) {
+                                    //                        qDebug() << "intersect bone " << bone.m_name.c_str() << bone.m_iTriangles.size();
 
-                                //                        for (uint iTriangle =0; iTriangle < bone.m_iTriangles.size(); ++iTriangle) {
-                                //                        for (const uint& iTriangle : bone.m_iTriangles) {
-                                for (const auto& pair : bone.m_weights) {
-                                    const uint& iVertex = pair.first;
+                                    //                        for (uint iTriangle =0; iTriangle < bone.m_iTriangles.size(); ++iTriangle) {
+                                    //                        for (const uint& iTriangle : bone.m_iTriangles) {
+                                    for (const auto& pair : bone.m_weights) {
+                                        const uint& iVertex = pair.first;
 
-                                    for (const uint& iTriangle : mesh.m_triangles[iVertex]) {
+                                        for (const uint& iTriangle : mesh.m_triangles[iVertex]) {
 
-                                        uint i3 = iTriangle * 3;
-                                        //                            const Vertex & v0 = mesh.m_vertices[i3];
-                                        //                            const Vertex & v1 = mesh.m_vertices[i3 + 1];
-                                        //                            const Vertex & v2 = mesh.m_vertices[i3 + 2];
-                                        Q_ASSERT(mesh.m_vertices.size() > i3 + 2);
-                                        glm::mat4 transform = object->m_model.m_transform * bone.m_recurseModel * bone.m_offsetMatrix;
-                                        const glm::vec3& v0 = transform * glm::vec4(mesh.m_vertices[i3].Position, 1.0f);
-                                        const glm::vec3& v1 = transform * glm::vec4(mesh.m_vertices[i3 + 1].Position, 1.0f);
-                                        const glm::vec3& v2 = transform * glm::vec4(mesh.m_vertices[i3 + 2].Position, 1.0f);
+                                            uint i3 = iTriangle * 3;
+                                            //                            const Vertex & v0 = mesh.m_vertices[i3];
+                                            //                            const Vertex & v1 = mesh.m_vertices[i3 + 1];
+                                            //                            const Vertex & v2 = mesh.m_vertices[i3 + 2];
+                                            Q_ASSERT(mesh.m_vertices.size() > i3 + 2);
+                                            glm::mat4 transform = object->m_model.m_transform * bone.m_recurseModel * bone.m_offsetMatrix;
+                                            const glm::vec3& v0 = transform * glm::vec4(mesh.m_vertices[i3].Position, 1.0f);
+                                            const glm::vec3& v1 = transform * glm::vec4(mesh.m_vertices[i3 + 1].Position, 1.0f);
+                                            const glm::vec3& v2 = transform * glm::vec4(mesh.m_vertices[i3 + 2].Position, 1.0f);
 
-                                        //                                        const glm::vec3& v0 = model.m_transform * bone.m_recurseModel * bone.m_offsetMatrix * glm::vec4(mesh.m_vertices[i3].Position, 1.0f);
-                                        //                                        const glm::vec3& v1 = model.m_transform * bone.m_recurseModel * bone.m_offsetMatrix * glm::vec4(mesh.m_vertices[i3 + 1].Position, 1.0f);
-                                        //                                        const glm::vec3& v2 = model.m_transform * bone.m_recurseModel * bone.m_offsetMatrix * glm::vec4(mesh.m_vertices[i3 + 2].Position, 1.0f);
-                                        //                                        //                            v0 = bone.m_recurseModel * bone.m_offsetMatrix * glm::vec4(v0, 1.0f);
+                                            //                                        const glm::vec3& v0 = model.m_transform * bone.m_recurseModel * bone.m_offsetMatrix * glm::vec4(mesh.m_vertices[i3].Position, 1.0f);
+                                            //                                        const glm::vec3& v1 = model.m_transform * bone.m_recurseModel * bone.m_offsetMatrix * glm::vec4(mesh.m_vertices[i3 + 1].Position, 1.0f);
+                                            //                                        const glm::vec3& v2 = model.m_transform * bone.m_recurseModel * bone.m_offsetMatrix * glm::vec4(mesh.m_vertices[i3 + 2].Position, 1.0f);
+                                            //                                        //                            v0 = bone.m_recurseModel * bone.m_offsetMatrix * glm::vec4(v0, 1.0f);
 
-                                        //                            std::cout << "v0 : " << v0.x << "  " << v0.y << "  " << v0.z << std::endl;
-                                        //                            TriangleGeometry::draw(v0, v1, v2);
+                                            //                            std::cout << "v0 : " << v0.x << "  " << v0.y << "  " << v0.z << std::endl;
+                                            //                            TriangleGeometry::draw(v0, v1, v2);
 
-                                        if (ray.intersect(v0, v1, v2, depth)) {
-                                            //                                            qDebug() << "intersect model " << model.filename().c_str() << depth;
-                                            triangles.emplace_back(v0);
-                                            triangles.emplace_back(v1);
-                                            triangles.emplace_back(v2);
-                                            //                                m_triangles.emplace_back(v0);
-                                            //                                m_triangles.emplace_back(v1);
-                                            //                                m_triangles.emplace_back(v2);
+                                            if (ray.intersect(v0, v1, v2, depth)) {
+                                                //                                            qDebug() << "intersect model " << model.filename().c_str() << depth;
+                                                triangles.emplace_back(v0);
+                                                triangles.emplace_back(v1);
+                                                triangles.emplace_back(v2);
+                                                //                                m_triangles.emplace_back(v0);
+                                                //                                m_triangles.emplace_back(v1);
+                                                //                                m_triangles.emplace_back(v2);
 
-                                            //                                                                            qDebug() << "intersect triangle " << iTriangle;
-                                            //                                            qDebug() << "intersect model " << model.filename().c_str();
+                                                //                                                                            qDebug() << "intersect triangle " << iTriangle;
+                                                //                                            qDebug() << "intersect model " << model.filename().c_str();
 
-                                            //                                            if (!find) {
-                                            //                                                find = true;
-                                            //                                                depthMin = depth;
+                                                //                                            if (!find) {
+                                                //                                                find = true;
+                                                //                                                depthMin = depth;
 
-                                            //                                                iModelMin = iModel;
-                                            //                                                iMeshMin = iMesh;
-                                            //                                                iBoneMin = iBone;
-                                            //                                                iTriangleMin = iTriangle;
-                                            //                                            } else {
-                                            if (depth < depthMin) {
-                                                //                                                qDebug() << "intersect model " << object->m_model.filename().c_str() << depth;
-                                                //                                    depthMin = std::min(depthMin, depth);
-                                                iObjectMin = iObject;
-                                                depthMin = depth;
-                                                iMeshMin = iMesh;
-                                                iBoneMin = iBone;
-                                                iTriangleMin = iTriangle;
+                                                //                                                iModelMin = iModel;
+                                                //                                                iMeshMin = iMesh;
+                                                //                                                iBoneMin = iBone;
+                                                //                                                iTriangleMin = iTriangle;
+                                                //                                            } else {
+                                                if (depth < depthMin) {
+                                                    //                                                qDebug() << "intersect model " << object->m_model.filename().c_str() << depth;
+                                                    //                                    depthMin = std::min(depthMin, depth);
+                                                    iObjectMin = iObject;
+                                                    depthMin = depth;
+                                                    iMeshMin = iMesh;
+                                                    iBoneMin = iBone;
+                                                    iTriangleMin = iTriangle;
+                                                }
+                                                //                                            }
                                             }
-                                            //                                            }
                                         }
                                     }
                                 }
@@ -728,8 +743,12 @@ void Scene::selectRay(const Ray& ray, bool additional)
                         }
                     }
                 }
+                // end for iMesh
+                //                break;
             }
-            // end for iMesh
+
+            //            case Model::PARAM:
+            //                break;
         } // if insersect
 
         //        ++iObject;
@@ -812,6 +831,8 @@ void Scene::addModel(std::string file, const glm::vec3& spawn)
     //    m_models.push_back(std::move(newModel));
     //    m_models.push_back(std::move(Model(file)));
     //    m_models.emplace_back(file);
+//    m_models.emplace_back(file);
+//    m_models.emplace_back(std::move(MeshModel(file)));
     m_models.emplace_back(file);
 
     //    m_models[m_models.size() - 1].m_transform = glm::translate(glm::mat4(1.0f), origin);
@@ -842,7 +863,7 @@ void Scene::updateSceneItemModel()
     //    QStandardItemModel model;
     QStandardItem* parentItem = m_sceneModel.invisibleRootItem();
     for (const Object& object : m_models) {
-        QStandardItem* item = new QStandardItem(object.m_model.filename().c_str());
+        QStandardItem* item = new QStandardItem(object.m_model.name().c_str());
         parentItem->appendRow(item);
 
         object.m_model.buildItemModel(item);
@@ -872,6 +893,7 @@ void Scene::load(std::ifstream& file)
     for (uint i = 0; i < size; ++i) {
         //        model.load(file);
         //        m_models.emplace_back(file);
+//        m_models.emplace_back(file);
         m_models.emplace_back(file);
 
         m_objects.push_back(&m_models.back());
@@ -1092,11 +1114,18 @@ void Scene::addLight(Light::Type lightType, const glm::vec3 position)
     }
 }
 
+void Scene::addDefaultCamera()
+{
+    m_cameras.emplace_back(new Camera(60.0f));
+    m_objects.push_back(m_cameras.back());
+
+}
+
 void Scene::addCurve()
 {
-//    m_models.emplace_back(Curve());
-//    m_models.push_back(Object(Curve()));
-//    m_objects.push_back(&m_models.back());
+    //    m_models.emplace_back(Curve());
+    //    m_models.push_back(Object(Curve()));
+    //    m_objects.push_back(&m_models.back());
 }
 
 //void Scene::removeCamera(uint iCamera)

@@ -12,7 +12,8 @@
 #include <opengl/version.h>
 #include "Color.h"
 //#include "Texture.h"
-#include <engine/scene/model/texture/Texture.h>
+//#include <engine/scene/model/texture/Texture.h>
+#include <engine/scene/model/meshModel/texture/Texture.h>
 #include <QStandardItem>
 
 class Material;

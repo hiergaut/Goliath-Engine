@@ -263,7 +263,8 @@ void QOpenGLWidget_Editor::addDefaultCamera()
     Q_ASSERT(m_initialized);
     makeCurrent();
 //    m_scene.m_cameras.push_back(new CameraWorld(60.0f, glm::vec3(200.0f, -200.0f, 200.0f), glm::vec3(0.0f, 0.0f, 0.0f)));
-    m_scene.m_cameras.push_back(new Camera(60.0f));
+//    m_scene.m_cameras.push_back(new Camera(60.0f));
+    m_scene.addDefaultCamera();
 
     for (const MainWindow3dView* view : *m_views) {
         view->updateCameraId();
