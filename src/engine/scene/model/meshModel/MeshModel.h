@@ -109,7 +109,7 @@ public:
     void buildItemModel(QStandardItem* parent) const override;
 
 //    void load(std::ifstream & file) const;
-    void save(std::ofstream & file) const;
+    void save(std::ofstream & file) const override;
 //    glm::mat4 scaleCenter(float scale) const;
 
 private:

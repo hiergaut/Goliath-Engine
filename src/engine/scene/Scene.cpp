@@ -935,10 +935,10 @@ void Scene::load(std::ifstream& file)
         m_objects.push_back(&m_dirLights.back());
     }
 
-    updateSceneItemModel();
 
     FormTimeline::load(file);
 
+    updateSceneItemModel();
     //    for (const MainWindow3dView * view : *m_views) {
     //        view->updateCameraId();
     //    }

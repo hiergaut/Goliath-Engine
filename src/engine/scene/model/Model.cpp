@@ -29,7 +29,7 @@ Model::Model(std::ifstream& file)
     m_type = static_cast<Type>(Session::loadEnum(file));
 }
 
-void Model::save(std::ofstream& file)
+void Model::save(std::ofstream& file) const
 {
     Session::save(m_transform, file);
     Session::save(m_type, file);

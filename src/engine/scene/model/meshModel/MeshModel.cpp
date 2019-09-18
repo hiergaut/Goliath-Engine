@@ -100,7 +100,7 @@ MeshModel::MeshModel(std::ifstream& file)
     Session::load(directory, file);
 
 
-    Session::load(m_transform, file);
+//    Session::load(m_transform, file);
 
     //        std::cout << "\033[32m";
     //        std::cout << "[MeshModel] " << m_filename << " created " << this << std::endl;
@@ -590,6 +590,8 @@ void MeshModel::buildItemModel(QStandardItem* parent) const
 
 void MeshModel::save(std::ofstream& file) const
 {
+    Model::save(file);
+
     uint size;
 
     //    std::cout << "m_materials" << std::endl;
@@ -636,7 +638,7 @@ void MeshModel::save(std::ofstream& file) const
     //    std::cout << "save directory" << std::endl;
     Session::save(directory, file);
 
-    Session::save(m_transform, file);
+//    Session::save(m_transform, file);
 }
 
 //glm::mat4 MeshModel::scaleCenter(float scale) const

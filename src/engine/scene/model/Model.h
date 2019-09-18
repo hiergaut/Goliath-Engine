@@ -24,7 +24,7 @@ public:
     Model(std::ifstream & file);
     virtual ~Model() = default;
 
-    virtual void save(std::ofstream & file);
+    virtual void save(std::ofstream & file) const;
 
     virtual void prepareHierarchy(ulong frameTime) const = 0;
     virtual void draw(const Shader& shader, bool dotCloud,
