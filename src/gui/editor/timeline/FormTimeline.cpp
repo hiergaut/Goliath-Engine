@@ -213,6 +213,7 @@ void FormTimeline::updateTimeline()
             animTimeline->onAddingKeyPose(d / m_animation->m_ticksPerSecond);
         }
 
+        animTimeline->onChangeCursor(m_animationTime / m_animation->m_ticksPerSecond);
 
 }
 
