@@ -18,7 +18,7 @@ int main(int argc, char* argv[])
 //    format.setVersion(4, 1);
 //    format.setProfile(QSurfaceFormat::CoreProfile);
 //    format.setDepthBufferSize(24);
-//    format.setSamples(4);
+//    format.setSamples(16);
 //    QSurfaceFormat::setDefaultFormat(format);
 
 

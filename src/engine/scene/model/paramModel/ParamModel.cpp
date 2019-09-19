@@ -16,28 +16,41 @@ ParamModel::ParamModel()
     setupGL();
 }
 
+
 ParamModel::ParamModel(std::ifstream &file)
     : Model(file)
 {
     Session::load(m_vertices, file);
     Session::load(m_indices, file);
 
-//    m_vertices.clear();
-//    m_vertices.emplace_back(-150.0f, 0.0f, 100.0f);
-//    m_vertices.emplace_back(-100.0f, 100.0f, 100.0f);
-//    m_vertices.emplace_back(100.0f, 100.0f, 100.0f);
-//    m_vertices.emplace_back(150.0f, 0.0f, 100.0f);
+    m_vertices.clear();
+    m_vertices.emplace_back(-150.0f, 0.0f, 100.0f);
+    m_vertices.emplace_back(-100.0f, 100.0f, 100.0f);
+    m_vertices.emplace_back(100.0f, 100.0f, 100.0f);
+    m_vertices.emplace_back(150.0f, 0.0f, 100.0f);
 
-//    m_indices.clear();
-//    m_indices.emplace_back(0, 1);
-//    m_indices.emplace_back(1, 2);
-//    m_indices.emplace_back(2, 3);
+    m_indices.clear();
+    m_indices.emplace_back(0, 1);
+    m_indices.emplace_back(1, 2);
+    m_indices.emplace_back(2, 3);
+
     Q_ASSERT(m_vertices.size() == 4);
     Q_ASSERT(m_indices.size() == 3);
 
+//    int k = 2;
+//    int p = m_vertices.size() -1;
+//    int m = k + p +1;
+//    float t[m];
+//    for (int i =0; i <m; ++i) {
+//        t[i] = i;
+//    }
+
+//    glm::vec3 d
 
     setupGL();
 }
+
+
 
 void ParamModel::setupGL()
 {
@@ -83,25 +96,36 @@ void ParamModel::draw(const Shader& shader, bool dotCloud, const glm::mat4& loca
 
     m_fun->glBindVertexArray(m_vao);
 //    m_fun->glDrawArrays(GL_LINES, 0, 4);
+//    m_fun->glEnable(GL_POINT_SMOOTH);
+    m_fun->glPointSize(10.0f);
     m_fun->glDrawElements(GL_LINES, m_indices.size() * 2, GL_UNSIGNED_INT, nullptr);
+    m_fun->glLineWidth(2.0f);
+    m_fun->glDrawArrays(GL_POINTS, 0, m_vertices.size());
+    m_fun->glLineWidth(1.0f);
     m_fun->glBindVertexArray(0);
+
+
 
     shader.setBool("userColor", false);
 }
 
 void ParamModel::draw(const Shader& shader, const glm::mat4& localTransform, const glm::mat4& worldTransform) const
 {
-    Q_ASSERT(m_fun != nullptr);
-    shader.setMat4("model", worldTransform * m_transform * localTransform);
-    shader.setBool("userColor", true);
-    shader.setVec4("color", glm::vec4(1.0f, 0.5f, 0.5f, 1.0f));
+//    Q_ASSERT(m_fun != nullptr);
+//    shader.setMat4("model", worldTransform * m_transform * localTransform);
+//    shader.setBool("userColor", true);
+//    shader.setVec4("color", glm::vec4(1.0f, 0.5f, 0.5f, 1.0f));
 
-    m_fun->glBindVertexArray(m_vao);
-//    m_fun->glDrawArrays(GL_LINES, 0, 4);
-    m_fun->glDrawElements(GL_LINES, m_indices.size() * 2, GL_UNSIGNED_INT, nullptr);
-    m_fun->glBindVertexArray(0);
+//    m_fun->glBindVertexArray(m_vao);
+////    m_fun->glDrawArrays(GL_LINES, 0, 4);
+//    m_fun->glPointSize(10.0f);
+//    m_fun->glDrawElements(GL_LINES, m_indices.size() * 2, GL_UNSIGNED_INT, nullptr);
+//    m_fun->glLineWidth(2.0f);
+//    m_fun->glDrawArrays(GL_POINTS, 0, m_vertices.size());
+//    m_fun->glLineWidth(1.0f);
+//    m_fun->glBindVertexArray(0);
 
-    shader.setBool("userColor", false);
+//    shader.setBool("userColor", false);
 }
 
 void ParamModel::updateBoundingBox() const
