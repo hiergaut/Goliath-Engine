@@ -29,7 +29,8 @@ Object::Object(std::ifstream &file)
         break;
 
     case Model::PARAM:
-        Q_ASSERT(false);
+        m_model = new ParamModel(file);
+//        Q_ASSERT(false);
         break;
 
     default:
@@ -44,6 +45,12 @@ Object::Object(const std::string &path)
 //    : m_model(path)
 //    : m_mod
     : m_model(new MeshModel(path))
+{
+
+}
+
+Object::Object(Model *model)
+    : m_model(model)
 {
 
 }

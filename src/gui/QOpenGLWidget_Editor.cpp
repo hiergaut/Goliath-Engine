@@ -79,6 +79,12 @@ void QOpenGLWidget_Editor::loadNewModel(std::string filename)
     m_scene.addModel(filename, spawn);
 }
 
+void QOpenGLWidget_Editor::clear()
+{
+    m_scene.clear();
+
+}
+
 void QOpenGLWidget_Editor::load(std::ifstream& file)
 {
     //    clear();

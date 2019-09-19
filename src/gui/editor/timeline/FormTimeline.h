@@ -25,6 +25,7 @@ public:
     static bool play();
 
     static void setAnimationTime(double value);
+    static void clearAnimation();
     void updateTimeline();
 
     static const Animation *animation();

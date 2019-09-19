@@ -8,6 +8,7 @@
 
 #include "camera/CameraWorld.h"
 #include "model/meshModel/MeshModel.h"
+#include "model/paramModel/ParamModel.h"
 #include <gui/editor/timeline/FormTimeline.h>
 #include <opengl/geometry/AxisGeometry.h>
 #include <opengl/geometry/DotGeometry.h>
@@ -388,15 +389,15 @@ void Scene::draw(const MainWindow3dView& view)
             if (object.m_selected) {
                 //                object.m_model.DrawHierarchy(viewLocalTransform, viewMatrix, projectionMatrix, cameraPos, viewWorldTransform);
                 static_cast<MeshModel*>(object.m_model)->DrawHierarchy(viewLocalTransform, viewMatrix, projectionMatrix, cameraPos, viewWorldTransform);
-//                object.m_model->DrawHierarchy(viewLocalTransform, viewMatrix, projectionMatrix, cameraPos, viewWorldTransform);
-//                object.m_model.DrawHierarchy()
+                //                object.m_model->DrawHierarchy(viewLocalTransform, viewMatrix, projectionMatrix, cameraPos, viewWorldTransform);
+                //                object.m_model.DrawHierarchy()
 
                 //                model.m_model.DrawHierarchy(viewLocalTransform, view, viewWorldTransform);
             } else {
                 //                model.DrawHierarchy(onesMatrix, view);
                 //                object.m_model.DrawHierarchy(onesMatrix, viewMatrix, projectionMatrix, cameraPos);
                 static_cast<MeshModel*>(object.m_model)->DrawHierarchy(onesMatrix, viewMatrix, projectionMatrix, cameraPos);
-//                object.m_model.DrawHierarchy(onesMatrix, viewMatrix, projectionMatrix, cameraPos);
+                //                object.m_model.DrawHierarchy(onesMatrix, viewMatrix, projectionMatrix, cameraPos);
             }
         }
     }
@@ -831,8 +832,8 @@ void Scene::addModel(std::string file, const glm::vec3& spawn)
     //    m_models.push_back(std::move(newModel));
     //    m_models.push_back(std::move(Model(file)));
     //    m_models.emplace_back(file);
-//    m_models.emplace_back(file);
-//    m_models.emplace_back(std::move(MeshModel(file)));
+    //    m_models.emplace_back(file);
+    //    m_models.emplace_back(std::move(MeshModel(file)));
     m_models.emplace_back(file);
 
     //    m_models[m_models.size() - 1].m_transform = glm::translate(glm::mat4(1.0f), origin);
@@ -878,8 +879,17 @@ void Scene::updateSceneItemModel()
     //    }
 }
 
+void Scene::clear()
+{
+    m_objects.clear();
+    m_models.clear();
+    m_cameras.clear();
+    m_dirLights.clear();
+}
+
 void Scene::load(std::ifstream& file)
 {
+    FormTimeline::clearAnimation();
     //    clear();
     uint size;
     //    file.read(reinterpret_cast<char *>(&size), sizeof(size));
@@ -893,7 +903,7 @@ void Scene::load(std::ifstream& file)
     for (uint i = 0; i < size; ++i) {
         //        model.load(file);
         //        m_models.emplace_back(file);
-//        m_models.emplace_back(file);
+        //        m_models.emplace_back(file);
         m_models.emplace_back(file);
 
         m_objects.push_back(&m_models.back());
@@ -935,7 +945,6 @@ void Scene::load(std::ifstream& file)
         m_objects.push_back(&m_dirLights.back());
     }
 
-
     FormTimeline::load(file);
 
     updateSceneItemModel();
@@ -950,7 +959,7 @@ void Scene::save(std::ofstream& file)
     uint size = m_models.size();
     Session::save(size, file);
     for (const Object& object : m_models) {
-//        object.m_model->save(file);
+        //        object.m_model->save(file);
         object.save(file);
     }
 
@@ -1119,14 +1128,16 @@ void Scene::addDefaultCamera()
 {
     m_cameras.emplace_back(new Camera(60.0f));
     m_objects.push_back(m_cameras.back());
-
 }
 
 void Scene::addCurve()
 {
+    //    m_models.push_back(new ParamModel());
+    m_models.emplace_back(new ParamModel());
+
     //    m_models.emplace_back(Curve());
     //    m_models.push_back(Object(Curve()));
-    //    m_objects.push_back(&m_models.back());
+    m_objects.push_back(&m_models.back());
 }
 
 //void Scene::removeCamera(uint iCamera)

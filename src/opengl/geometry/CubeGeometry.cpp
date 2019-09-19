@@ -96,7 +96,7 @@ void CubeGeometry::initializeGL()
     m_fun->glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
 
     m_fun->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ebo);
-    m_fun->glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indices.size() * sizeof(glm::uvec3), &m_indices[0], GL_STATIC_DRAW);
+    m_fun->glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indices.size() * sizeof(glm::uvec2), &m_indices[0], GL_STATIC_DRAW);
 
     //    m_fun->glGenVertexArrays(1, &m_vao2);
     //    m_fun->glBindVertexArray(m_vao2);

@@ -33,6 +33,7 @@ public:
 
 //    std::vector<const MainWindow3dView *> * views();
     void loadNewModel(std::string file);
+    void clear();
     void load(std::ifstream & file);
     void save(std::ofstream & file);
 

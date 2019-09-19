@@ -47,9 +47,9 @@ struct Vertex {
         Session::save(TexCoords, file);
     }
 
-    bool intersect(const Ray & ray, float & depth) const {
+//    bool intersect(const Ray & ray, float & depth) const {
 
-    }
+//    }
 };
 
 //using NUM_BONES_PER_VEREX = 4;

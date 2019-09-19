@@ -7,6 +7,7 @@
 //#include <gui/editor/3dview/MainWindow3dView.h>
 #include <opengl/BoundingBox.h>
 #include <engine/scene/model/meshModel/MeshModel.h>
+#include "model/paramModel/ParamModel.h"
 
 class Object {
 public:
@@ -24,6 +25,7 @@ public:
 //    Object(Model &&model) noexcept;
     Object(Object && object) noexcept = default;
 
+    Object(Model * model);
 //    virtual ~Object();
 
     void save(std::ofstream & file) const;

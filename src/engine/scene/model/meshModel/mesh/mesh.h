@@ -24,7 +24,8 @@
 #include <sstream>
 //#include "model.h"
 //#include "Bone.h"
-#include "Vertex.h"
+//#include "Vertex.h"
+#include <engine/scene/model/Vertex.h>
 #include "bone/Bone.h"
 #include <QStandardItem>
 #include <assimp/scene.h>

@@ -118,6 +118,13 @@ public:
         vec = glm::make_vec2(data);
     }
 
+    static void load(glm::uvec2 & vec, std::ifstream & file) {
+        float data[2];
+        file.read(reinterpret_cast<char*>(&data), sizeof(data));
+
+        vec = glm::make_vec2(data);
+    }
+
     static void load(glm::mat4& mat, std::ifstream& file)
     {
         float data[16];

@@ -253,6 +253,13 @@ void MainWindow::loadLastSession() // call by main
         loadEnv(m_previousEnv->index(0).data().toString().toStdString());
 
     } else {
+        loadStartupFile();
+    }
+}
+
+void MainWindow::loadStartupFile()
+{
+
         QFileInfo file(m_settings.fileName());
         QDir dir(file.path());
 //        m_startupPath = (file.path() + "/" + startupFilename).toStdString();
@@ -272,7 +279,6 @@ void MainWindow::loadLastSession() // call by main
             dir.mkpath(".");
             saveEnv(startupFile.fileName().toStdString());
         }
-    }
 }
 
 void MainWindow::previousEnvAdd(std::string file)
@@ -384,8 +390,13 @@ void MainWindow::on_actionSave_Startup_File_triggered()
 void MainWindow::on_actionNew_triggered()
 {
     //    loadEnv("/home/gauthier/.config/Goliath-Engine/startup.dat");
-    QFileInfo file(m_settings.fileName());
-    loadEnv((file.path() + "/" + startupFilename).toStdString());
+//    QFileInfo file(m_settings.fileName());
+//    loadEnv((file.path() + "/" + startupFilename).toStdString());
+
+
+//    editor->clear();
+
+    loadStartupFile();
 }
 
 void MainWindow::on_actionImport_triggered()

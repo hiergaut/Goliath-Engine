@@ -23,7 +23,7 @@ MeshModel::MeshModel(const std::string& path)
 //        : m_file(path)
 {
     //    m_fun = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
-    m_type = Model::MESH;
+//    m_type = Model::MESH;
 
     m_meshes.reserve(50);
     m_materials.reserve(50);
@@ -52,7 +52,7 @@ MeshModel::MeshModel(std::ifstream& file)
     : Model(file)
 //    , m_type(Model::MESH)
 {
-    m_type = Model::MESH;
+//    m_type = Model::MESH;
     m_meshes.reserve(50);
     m_materials.reserve(50);
     m_textures.reserve(100);

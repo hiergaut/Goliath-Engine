@@ -77,6 +77,7 @@ public:
     void updateSceneItemModel();
 //    void modelChanged();
 
+    void clear();
     void load(std::ifstream & file);
     void save(std::ofstream & file);
 

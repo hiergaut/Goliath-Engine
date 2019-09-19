@@ -135,6 +135,17 @@ public:
         //        vec = glm::make_vec3(data);
     }
 
+    static void save(const glm::uvec2& vec, std::ofstream& file)
+    {
+        float data[2];
+        std::memcpy(data, glm::value_ptr(vec), 2 * sizeof(float));
+
+        file.write(reinterpret_cast<const char*>(data), sizeof(data));
+
+        //        return glm::make_vec3(data);
+        //        vec = glm::make_vec3(data);
+    }
+
     static void save(const glm::mat4& mat, std::ofstream& file)
     {
         float data[16];

@@ -180,6 +180,11 @@ void FormTimeline::setAnimationTime(double value)
     }
 }
 
+void FormTimeline::clearAnimation()
+{
+    m_animation = nullptr;
+}
+
 void FormTimeline::updateTimeline()
 {
         FormAnimTimeline* animTimeline = m_animTimeline;
