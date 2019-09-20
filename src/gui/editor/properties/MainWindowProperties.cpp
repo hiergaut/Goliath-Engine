@@ -2,6 +2,8 @@
 #include "ui_MainWindowProperties.h"
 
 #include "context/material/FormContextMaterial.h"
+#include "context/curve/FormContextCurve.h"
+#include <session/Session.h>
 
 MainWindowProperties::MainWindowProperties(QWidget *parent) :
     QMainWindow(parent),
@@ -15,13 +17,46 @@ MainWindowProperties::~MainWindowProperties()
     delete ui;
 }
 
-void MainWindowProperties::setContext(Properties::e_context context)
+void MainWindowProperties::save(std::ofstream &file)
+{
+    Session::saveEnum(m_context, file);
+
+}
+
+void MainWindowProperties::load(std::ifstream &file)
+{
+    m_context = static_cast<Type>(Session::loadEnum(file));
+
+    setContext(m_context);
+//    switch (m_context) {
+//    case Type::MATERIAL:
+//        setCentralWidget(new FormContextMaterial);
+//        break;
+
+//    case Type::CURVE:
+//        setCentralWidget(new FormContextCurve);
+//        break;
+
+//    }
+
+//    centralWidget()->setFocusPolicy(Qt::ClickFocus);
+
+}
+
+void MainWindowProperties::setContext(Type context)
 {
     delete centralWidget();
+    m_context = context;
 
     switch (context) {
-    case Properties::e_context::MATERIAL:
+    case Type::MATERIAL:
         setCentralWidget(new FormContextMaterial);
+        ui->menuCurrentContext->setTitle("Material");
+        break;
+
+    case Type::CURVE:
+        setCentralWidget(new FormContextCurve);
+        ui->menuCurrentContext->setTitle("Curve");
         break;
 
     }
@@ -42,6 +77,11 @@ QWidget *MainWindowProperties::widget()
 
 void MainWindowProperties::on_actionMaterial_triggered()
 {
-    setContext(Properties::e_context::MATERIAL);
+    setContext(Type::MATERIAL);
 
+}
+
+void MainWindowProperties::on_actionCurve_triggered()
+{
+    setContext(Type::CURVE);
 }

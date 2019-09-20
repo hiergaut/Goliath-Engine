@@ -8,26 +8,33 @@ namespace Ui {
 class MainWindowProperties;
 }
 
-namespace Properties {
-    enum e_context {
-        MATERIAL,
-    };
-}
+//namespace Properties {
+//}
 
 class MainWindowProperties : public QMainWindow, public TemplateMenuBar {
     Q_OBJECT
 
 public:
+    enum Type {
+        MATERIAL,
+        CURVE
+    } m_context;
+
     explicit MainWindowProperties(QWidget* parent = nullptr);
     ~MainWindowProperties();
 
-    void setContext(Properties::e_context context);
+    void save(std::ofstream& file);
+    void load(std::ifstream& file);
+
+    void setContext(Type context);
 
     void setFocusPolicy(Qt::FocusPolicy policy) override;
     QWidget * widget() override;
 
 private slots:
     void on_actionMaterial_triggered();
+
+    void on_actionCurve_triggered();
 
 private:
     Ui::MainWindowProperties* ui;

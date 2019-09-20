@@ -98,6 +98,7 @@ public:
 //    void removeCamera(uint iCamera);
     void removeNoViewCamera();
 //    void removeCamera(Camera * camera);
+    ParamModel * getParamModel();
 
 private:
 //    void clear();

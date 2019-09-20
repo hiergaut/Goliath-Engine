@@ -1210,6 +1210,19 @@ void Scene::removeNoViewCamera()
     m_cameras = std::move(newCameras);
 }
 
+ParamModel * Scene::getParamModel()
+{
+    for (Object & object : m_models) {
+        if (object.m_model->m_type == Model::PARAM) {
+            return static_cast<ParamModel*>(object.m_model);
+//            return object.m_model;
+            break;
+        }
+    }
+
+    return nullptr;
+}
+
 //void Scene::removeCamera(Camera *camera)
 //{
 ////    m_objects.erase(m_objects.begin() + 0);

@@ -28,8 +28,15 @@
      <string>Context</string>
     </property>
     <addaction name="actionMaterial"/>
+    <addaction name="actionCurve"/>
+   </widget>
+   <widget class="QMenu" name="menuCurrentContext">
+    <property name="title">
+     <string>CurrentContext</string>
+    </property>
    </widget>
    <addaction name="menuContext"/>
+   <addaction name="menuCurrentContext"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <widget class="QToolBar" name="toolBar">
@@ -43,6 +50,7 @@
     <bool>false</bool>
    </attribute>
    <addaction name="actionMaterial"/>
+   <addaction name="actionCurve"/>
   </widget>
   <action name="actionMaterial">
    <property name="icon">
@@ -51,6 +59,15 @@
    </property>
    <property name="text">
     <string>Material</string>
+   </property>
+  </action>
+  <action name="actionCurve">
+   <property name="icon">
+    <iconset resource="../../../../resources/resources.qrc">
+     <normaloff>:/icons/curve.png</normaloff>:/icons/curve.png</iconset>
+   </property>
+   <property name="text">
+    <string>Curve</string>
    </property>
   </action>
  </widget>

@@ -7,10 +7,19 @@
 class ParamModel: public Model
 {
 public:
+    uint m_k;
+    std::vector<glm::vec3> m_controlPoints;
+
+public:
     ParamModel();
     ParamModel(std::ifstream & file);
 
     void setupGL();
+
+    std::string name() const override;
+
+    void setK(uint k);
+    void updateCurve();
 
 protected:
     void save(std::ofstream &file) const override;
@@ -23,17 +32,23 @@ protected:
     void updateBoundingBox() const override;
     void drawBoundingBox(const Shader &shader) const override;
 
-    std::string name() const override;
     void buildItemModel(QStandardItem *parent) const override;
+
 
 private:
     QOpenGLFunctionsCore * m_fun = nullptr;
-    std::vector<glm::vec3> m_vertices;
     std::vector<glm::uvec2> m_indices;
-
     uint m_vbo;
     uint m_ebo;
     uint m_vao;
+
+    std::vector<glm::vec3> m_curve;
+    std::vector<glm::uvec2> m_curveIndiceLines;
+    uint m_vao2;
+    uint m_vbo2;
+    uint m_ebo2;
+
+//    uint m_accuracy;
 
 
 };
