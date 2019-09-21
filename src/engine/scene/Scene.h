@@ -20,6 +20,7 @@
 #include "light/DirLight.h"
 
 #include "Object.h"
+#include <engine/scene/model/paramModel/curve/BSplineCurve.h>
 //#include "curve/Curve.h"
 
 class Scene {
@@ -32,10 +33,15 @@ public:
     glm::mat4 m_localTransform = glm::mat4(1.0);
     glm::mat4 m_worldTransform = glm::mat4(1.0);
 
+    glm::mat4 m_localVertexTransform = glm::mat4(1.0f);
+    glm::mat4 m_worldVertexTransform= glm::mat4(1.0f);
+
 //    static Model* m_cameraModel;
 //    static Model* m_lightDirModel;
 
-    std::vector<const Object *> m_objects;
+    Object * m_selectObject = nullptr;
+//    std::vector<uint> m_selectVertices;
+    std::vector<Object *> m_objects;
 
 //    std::vector<Model> m_models;
     std::vector<Object> m_models;
@@ -67,7 +73,8 @@ public:
     void prepareHierarchy(ulong frameTime);
     void draw(const MainWindow3dView &view);
 
-    void selectRay(const Ray & ray, bool additional = false);
+    void objectSelectRay(const Ray & ray, bool additional = false);
+    void vertexSelectRay(const Ray & ray, bool additional = false);
 
 //    void unselectRay(const Ray & ray);
 
@@ -83,7 +90,7 @@ public:
 
     void updateBoundingBox();
 
-    void setSelectRootTransform(const glm::mat4 & transformMatrix, const glm::mat4 &worldTransform);
+    void setSelectRootTransform(const glm::mat4 & transformMatrix, const glm::mat4 &worldTransform, MainWindow3dView::Mode mode);
     void setSelectToOriginTransform();
     void setSelectFocus(CameraWorld & camera);
     void deleteSelected();
@@ -99,6 +106,8 @@ public:
     void removeNoViewCamera();
 //    void removeCamera(Camera * camera);
     ParamModel * getParamModel();
+    BSplineCurve *getBsplineCurve();
+//    Bsp * getParamModel();
 
 private:
 //    void clear();

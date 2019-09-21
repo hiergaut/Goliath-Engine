@@ -418,13 +418,15 @@ void Mesh::draw(const Shader& shader, bool dotCloud) const
     // draw mesh
     m_fun->glBindVertexArray(m_vao);
 
-    //    glPointSize(5.0f);
-    if (dotCloud)
+    if (dotCloud) {
+//        glPointSize(6.0f);
         m_fun->glDrawArrays(GL_POINTS, 0, m_vertices.size());
+    }
     //        m_fun->glDrawElements(GL_POINTS, m_vertices.size(), GL_UNSIGNED_INT, 0);
 
-    else
+    else {
         m_fun->glDrawElements(GL_TRIANGLES, m_indices.size(), GL_UNSIGNED_INT, 0);
+    }
 
     m_fun->glBindVertexArray(0);
     // always good practice to set everything back to defaults once configured.

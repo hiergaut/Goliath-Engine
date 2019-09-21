@@ -54,8 +54,8 @@ MainWindow3dView::MainWindow3dView(QWidget* parent)
     //    : QWidget(parent),
     : QMainWindow(parent)
     , ui(new Ui::MainWindow3dView)
-    , m_localTransform(Scene::m_scene->m_localTransform)
-    , m_worldTransform(Scene::m_scene->m_worldTransform)
+    , m_localTransform(&Scene::m_scene->m_localTransform)
+    , m_worldTransform(&Scene::m_scene->m_worldTransform)
 //{
 //    ui->setupUi(this);
 //}
@@ -168,6 +168,8 @@ MainWindow3dView::MainWindow3dView(QWidget* parent)
 
     m_timer = new QTimer(this);
     connect(m_timer, &QTimer::timeout, this, &MainWindow3dView::onUpdateCameraFps);
+    m_timerAutoUpdateCurve = new QTimer(this);
+    connect(m_timerAutoUpdateCurve, &QTimer::timeout, this, &MainWindow3dView::onUpdateCurve);
 }
 
 MainWindow3dView::~MainWindow3dView()
@@ -285,11 +287,15 @@ void MainWindow3dView::setMode(MainWindow3dView::Mode mode)
     case OBJECT:
         ui->menuInteraction_Mode->setIcon(ui->actionObject_Mode->icon());
         ui->menuCurent_Mode->setTitle("Object Mode");
+        m_localTransform = &Scene::m_scene->m_localTransform;
+        m_worldTransform = &Scene::m_scene->m_worldTransform;
         break;
 
     case EDIT:
         ui->menuInteraction_Mode->setIcon(ui->actionEdit_Mode->icon());
         ui->menuCurent_Mode->setTitle("Edit Mode");
+        m_localTransform = &Scene::m_scene->m_localVertexTransform;
+        m_worldTransform = &Scene::m_scene->m_worldVertexTransform;
         break;
 
     case POSE:
@@ -518,9 +524,9 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
 
             if (m_transformActive) {
                 //            sendTransformToScene();
-                m_localTransform = glm::mat4(1.0f);
+                *m_localTransform = glm::mat4(1.0f);
                 //            Scene::m_scene->m_transformMatrix = glm::mat4(1.0f);
-                m_worldTransform = glm::mat4(1.0f);
+                *m_worldTransform = glm::mat4(1.0f);
                 //            Scene::m_scene->m_worldTransform = glm::mat4(1.0f);
 
                 m_axisTransform = true;
@@ -767,9 +773,23 @@ void MainWindow3dView::mousePressEvent(QMouseEvent* event)
                 //            m_transformMatrix = glm::mat4(1.0f);
                 //            m_transformActive = false;
                 //			setCursor(Qt::ArrowCursor);
+                if (m_mode == Mode::EDIT) {
+                    m_paramModelSelected->updateSelectedVertexPosition(*m_localTransform, *m_worldTransform);
+                }
                 setTransformInactive();
             } else {
-                RayTracer::selectRay(clickRay(event), m_shiftPressed);
+                switch (m_mode) {
+                case Mode::OBJECT:
+                    Scene::m_scene->objectSelectRay(clickRay(event), m_shiftPressed);
+                    break;
+
+                case Mode::EDIT:
+                    Scene::m_scene->vertexSelectRay(clickRay(event), m_shiftPressed);
+                    break;
+                }
+                //                Scene::m_scene->selectRay(clickRay(event), m_shiftPressed);
+                //                RayTracer::selectRay(clickRay(event), m_shiftPressed);
+                //                m_posClickPress = event->pos();
             }
 
             break;
@@ -797,6 +817,16 @@ void MainWindow3dView::mouseReleaseEvent(QMouseEvent* event)
     if (m_iCamera < Scene::m_cameras.size()) {
         Camera* m_camera = Scene::m_cameras[m_iCamera];
         m_camera->m_cameraStrategy->mouseReleaseEvent(event);
+
+        //        QPoint posClickRelease(event->pos());
+        //        uint minX = qMin(m_posClickPress.x(), posClickRelease.x());
+        //        uint maxX = qMax(m_posClickPress.x(), posClickRelease.x());
+        //        uint minY = qMin(m_posClickPress.y(), posClickRelease.y());
+        //        uint maxY = qMax(m_posClickPress.y(), posClickRelease.y());
+        //        QRect selectRect(QPoint(minX, minY), QPoint(maxX, maxY));
+
+        //        qDebug() << selectRect;
+        //        QRect selectRect()
     }
 }
 
@@ -1081,7 +1111,7 @@ void MainWindow3dView::updateTransformMatrix(float dx, float dy)
     //    glm::mat4 & m_transformMatrix = Scene::m_scene->m_transformMatrix;
     //    glm::mat4 & m_worldTransform = Scene::m_scene->m_worldTransform;
 
-    m_localTransform = glm::mat4(1.0f);
+    *m_localTransform = glm::mat4(1.0f);
 
     switch (m_transform) {
     case Transform::TRANSLATE:
@@ -1092,15 +1122,15 @@ void MainWindow3dView::updateTransformMatrix(float dx, float dy)
                 case 0:
                     //                        m_transformMatrix = glm::translate(m_transformMatrix, glm::vec3(1.0f, 0.0f, 0.0f) * -dx);
                     //                        m_translate += glm::vec3(1.0f, 0.0f, 0.0f);
-                    m_localTransform = glm::translate(glm::mat4(1.0f), glm::vec3(1.0f, 0.0f, 0.0f) * (-dx + m_WheelPos));
+                    *m_localTransform = glm::translate(glm::mat4(1.0f), glm::vec3(1.0f, 0.0f, 0.0f) * (-dx + m_WheelPos));
                     break;
                 case 1:
                     //                        m_transformMatrix = glm::translate(m_transformMatrix, glm::vec3(0.0f, 1.0f, 0.0f) * dx);
-                    m_localTransform = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 1.0f, 0.0f) * (-dx + m_WheelPos));
+                    *m_localTransform = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 1.0f, 0.0f) * (-dx + m_WheelPos));
                     break;
                 case 2:
                     //                        m_transformMatrix = glm::translate(m_transformMatrix, glm::vec3(0.0f, 0.0f, 1.0f) * dx);
-                    m_localTransform = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 1.0f) * (-dx + m_WheelPos));
+                    *m_localTransform = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 1.0f) * (-dx + m_WheelPos));
                     break;
                 }
             } else {
@@ -1108,25 +1138,25 @@ void MainWindow3dView::updateTransformMatrix(float dx, float dy)
                 case 0:
                     //                        m_transformMatrix = glm::translate(m_transformMatrix, glm::vec3(1.0f, 0.0f, 0.0f) * -dx);
                     //                        m_translate += glm::vec3(1.0f, 0.0f, 0.0f);
-                    m_worldTransform = glm::translate(glm::mat4(1.0f), glm::vec3(1.0f, 0.0f, 0.0f) * (-dx + m_WheelPos));
+                    *m_worldTransform = glm::translate(glm::mat4(1.0f), glm::vec3(1.0f, 0.0f, 0.0f) * (-dx + m_WheelPos));
                     //            m_worldTransform = glm::translate(m_worldTransform, m_memFront * m_WheelPos);
                     break;
                 case 1:
                     //                        m_transformMatrix = glm::translate(m_transformMatrix, glm::vec3(0.0f, 1.0f, 0.0f) * dx);
-                    m_worldTransform = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 1.0f, 0.0f) * (-dx + m_WheelPos));
+                    *m_worldTransform = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 1.0f, 0.0f) * (-dx + m_WheelPos));
                     break;
                 case 2:
                     //                        m_transformMatrix = glm::translate(m_transformMatrix, glm::vec3(0.0f, 0.0f, 1.0f) * dx);
-                    m_worldTransform = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 1.0f) * (-dx + m_WheelPos));
+                    *m_worldTransform = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 1.0f) * (-dx + m_WheelPos));
                     break;
                 }
             }
 
         } else {
 
-            m_worldTransform = glm::translate(glm::mat4(1.0f), m_memRight * dx);
-            m_worldTransform = glm::translate(m_worldTransform, m_memUp * dy);
-            m_worldTransform = glm::translate(m_worldTransform, m_memFront * m_WheelPos);
+            *m_worldTransform = glm::translate(glm::mat4(1.0f), m_memRight * dx);
+            *m_worldTransform = glm::translate(*m_worldTransform, m_memUp * dy);
+            *m_worldTransform = glm::translate(*m_worldTransform, m_memFront * m_WheelPos);
         }
         break;
 
@@ -1139,17 +1169,17 @@ void MainWindow3dView::updateTransformMatrix(float dx, float dy)
                     //                        m_transformMatrix = glm::translate(m_transformMatrix, glm::vec3(1.0f, 0.0f, 0.0f) * -dx);
                     //                        m_translate += glm::vec3(1.0f, 0.0f, 0.0f);
                     //                            m_transformMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(1.0f, 0.0f, 0.0f) * -dx);
-                    m_localTransform = glm::rotate(m_localTransform, -dx * 0.01f, glm::vec3(1.0f, 0.0f, 0.0f));
+                    *m_localTransform = glm::rotate(*m_localTransform, -dx * 0.01f, glm::vec3(1.0f, 0.0f, 0.0f));
                     break;
                 case 1:
                     //                        m_transformMatrix = glm::translate(m_transformMatrix, glm::vec3(0.0f, 1.0f, 0.0f) * dx);
                     //                            m_transformMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 1.0f, 0.0f) * -dx);
-                    m_localTransform = glm::rotate(m_localTransform, -dx * 0.01f, glm::vec3(0.0f, 1.0f, 0.0f));
+                    *m_localTransform = glm::rotate(*m_localTransform, -dx * 0.01f, glm::vec3(0.0f, 1.0f, 0.0f));
                     break;
                 case 2:
                     //                        m_transformMatrix = glm::translate(m_transformMatrix, glm::vec3(0.0f, 0.0f, 1.0f) * dx);
                     //                            m_transformMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 1.0f) * -dx);
-                    m_localTransform = glm::rotate(m_localTransform, -dx * 0.01f, glm::vec3(0.0f, 0.0f, 1.0f));
+                    *m_localTransform = glm::rotate(*m_localTransform, -dx * 0.01f, glm::vec3(0.0f, 0.0f, 1.0f));
                     break;
                 }
             } else {
@@ -1158,17 +1188,17 @@ void MainWindow3dView::updateTransformMatrix(float dx, float dy)
                     //                        m_transformMatrix = glm::translate(m_transformMatrix, glm::vec3(1.0f, 0.0f, 0.0f) * -dx);
                     //                        m_translate += glm::vec3(1.0f, 0.0f, 0.0f);
                     //                            m_worldTransform = glm::translate(glm::mat4(1.0f), glm::vec3(1.0f, 0.0f, 0.0f) * -dx);
-                    m_worldTransform = glm::rotate(glm::mat4(1.0f), -dx * 0.01f, glm::vec3(1.0f, 0.0f, 0.0f));
+                    *m_worldTransform = glm::rotate(glm::mat4(1.0f), -dx * 0.01f, glm::vec3(1.0f, 0.0f, 0.0f));
                     break;
                 case 1:
                     //                        m_transformMatrix = glm::translate(m_transformMatrix, glm::vec3(0.0f, 1.0f, 0.0f) * dx);
                     //                            m_worldTransform = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 1.0f, 0.0f) * -dx);
-                    m_worldTransform = glm::rotate(glm::mat4(1.0f), -dx * 0.01f, glm::vec3(0.0f, 1.0f, 0.0f));
+                    *m_worldTransform = glm::rotate(glm::mat4(1.0f), -dx * 0.01f, glm::vec3(0.0f, 1.0f, 0.0f));
                     break;
                 case 2:
                     //                        m_transformMatrix = glm::translate(m_transformMatrix, glm::vec3(0.0f, 0.0f, 1.0f) * dx);
                     //                            m_worldTransform = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 1.0f) * -dx);
-                    m_worldTransform = glm::rotate(glm::mat4(1.0f), -dx * 0.01f, glm::vec3(0.0f, 0.0f, 1.0f));
+                    *m_worldTransform = glm::rotate(glm::mat4(1.0f), -dx * 0.01f, glm::vec3(0.0f, 0.0f, 1.0f));
                     break;
                 }
             }
@@ -1177,7 +1207,7 @@ void MainWindow3dView::updateTransformMatrix(float dx, float dy)
 
             //                m_transformMatrix = glm::rotate(m_transformMatrix, 0.01f * dx, m_memUp);
             //                m_transformMatrix = glm::rotate(m_transformMatrix, dy* 0.01f, m_memRight);
-            m_localTransform = glm::rotate(m_localTransform, -dx * 0.01f, m_memFront);
+            *m_localTransform = glm::rotate(*m_localTransform, -dx * 0.01f, m_memFront);
         }
         break;
 
@@ -1190,17 +1220,17 @@ void MainWindow3dView::updateTransformMatrix(float dx, float dy)
                     //                        m_transformMatrix = glm::translate(m_transformMatrix, glm::vec3(1.0f, 0.0f, 0.0f) * -dx);
                     //                        m_translate += glm::vec3(1.0f, 0.0f, 0.0f);
                     //                            m_transformMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(1.0f, 0.0f, 0.0f) * -dx);
-                    m_localTransform = glm::scale(m_localTransform, 1.0f + dx * 0.01f * glm::vec3(1.0f, 0.0f, 0.0f));
+                    *m_localTransform = glm::scale(*m_localTransform, 1.0f + dx * 0.01f * glm::vec3(1.0f, 0.0f, 0.0f));
                     break;
                 case 1:
                     //                        m_localTransform = glm::translate(m_transformMatrix, glm::vec3(0.0f, 1.0f, 0.0f) * dx);
                     //                            m_transformMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 1.0f, 0.0f) * -dx);
-                    m_localTransform = glm::scale(m_localTransform, 1.0f + dx * 0.01f * glm::vec3(0.0f, 1.0f, 0.0f));
+                    *m_localTransform = glm::scale(*m_localTransform, 1.0f + dx * 0.01f * glm::vec3(0.0f, 1.0f, 0.0f));
                     break;
                 case 2:
                     //                        m_transformMatrix = glm::translate(m_transformMatrix, glm::vec3(0.0f, 0.0f, 1.0f) * dx);
                     //                            m_transformMatrix = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 1.0f) * -dx);
-                    m_localTransform = glm::scale(m_localTransform, 1.0f + dx * 0.01f * glm::vec3(0.0f, 0.0f, 1.0f));
+                    *m_localTransform = glm::scale(*m_localTransform, 1.0f + dx * 0.01f * glm::vec3(0.0f, 0.0f, 1.0f));
                     break;
                 }
             } else {
@@ -1209,17 +1239,17 @@ void MainWindow3dView::updateTransformMatrix(float dx, float dy)
                     //                        m_transformMatrix = glm::translate(m_transformMatrix, glm::vec3(1.0f, 0.0f, 0.0f) * -dx);
                     //                        m_translate += glm::vec3(1.0f, 0.0f, 0.0f);
                     //                            m_worldTransform = glm::translate(glm::mat4(1.0f), glm::vec3(1.0f, 0.0f, 0.0f) * -dx);
-                    m_worldTransform = glm::scale(glm::mat4(1.0f), 1.0f + dx * 0.01f * glm::vec3(1.0f, 0.0f, 0.0f));
+                    *m_worldTransform = glm::scale(glm::mat4(1.0f), 1.0f + dx * 0.01f * glm::vec3(1.0f, 0.0f, 0.0f));
                     break;
                 case 1:
                     //                        m_transformMatrix = glm::translate(m_transformMatrix, glm::vec3(0.0f, 1.0f, 0.0f) * dx);
                     //                            m_worldTransform = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 1.0f, 0.0f) * -dx);
-                    m_worldTransform = glm::scale(glm::mat4(1.0f), 1.0f + dx * 0.01f * glm::vec3(0.0f, 1.0f, 0.0f));
+                    *m_worldTransform = glm::scale(glm::mat4(1.0f), 1.0f + dx * 0.01f * glm::vec3(0.0f, 1.0f, 0.0f));
                     break;
                 case 2:
                     //                        m_transformMatrix = glm::translate(m_transformMatrix, glm::vec3(0.0f, 0.0f, 1.0f) * dx);
                     //                            m_worldTransform = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 1.0f) * -dx);
-                    m_worldTransform = glm::scale(glm::mat4(1.0f), 1.0f + dx * 0.01f * glm::vec3(0.0f, 0.0f, 1.0f));
+                    *m_worldTransform = glm::scale(glm::mat4(1.0f), 1.0f + dx * 0.01f * glm::vec3(0.0f, 0.0f, 1.0f));
                     break;
                 }
             }
@@ -1228,7 +1258,7 @@ void MainWindow3dView::updateTransformMatrix(float dx, float dy)
 
             //                    m_transformMatrix = glm::scale(m_transformMatrix, 1.0f + dx * 0.01f * m_memRight);
             //                    m_transformMatrix = glm::scale(m_transformMatrix, 1.0f + dy * 0.01f * m_memUp);
-            m_localTransform = glm::scale(m_localTransform, 1.0f + dx * 0.01f * glm::vec3(1.0f, 1.0f, 1.0f));
+            *m_localTransform = glm::scale(*m_localTransform, 1.0f + dx * 0.01f * glm::vec3(1.0f, 1.0f, 1.0f));
         }
         break;
     }
@@ -1267,19 +1297,29 @@ void MainWindow3dView::setTransformActive()
         setMouseTracking(true);
         centralWidget()->setMouseTracking(true);
         setCursor(Qt::SizeAllCursor);
+
+        if (m_mode == Mode::EDIT) {
+            if (Scene::m_scene->m_selectObject != nullptr) {
+                if (Scene::m_scene->m_selectObject->m_model->m_type == Model::PARAM) {
+                    m_paramModelSelected = static_cast<ParamModel*>(Scene::m_scene->m_selectObject->m_model);
+                    m_timerAutoUpdateCurve->start(50);
+                }
+            }
+        }
     }
 }
 
 void MainWindow3dView::setTransformInactive()
 {
     m_transformActive = false;
-    m_localTransform = glm::mat4(1.0f);
-    m_worldTransform = glm::mat4(1.0f);
+    *m_localTransform = glm::mat4(1.0f);
+    *m_worldTransform = glm::mat4(1.0f);
     setMouseTracking(false);
     centralWidget()->setMouseTracking(false);
     setCursor(Qt::ArrowCursor);
 
     m_axisTransform = false;
+    m_timerAutoUpdateCurve->stop();
     //    m_axisLocal = false;
     //    case Qt::Key_Enter:
     //        m_transform = glm::mat4(1.0f);
@@ -1295,10 +1335,11 @@ void MainWindow3dView::setTransformInactive()
 
 void MainWindow3dView::sendTransformToScene()
 {
-    RayTracer::setSelectRootTransform(m_localTransform, m_worldTransform);
+    //    RayTracer::setSelectRootTransform(*m_localTransform, *m_worldTransform);
+    Scene::m_scene->setSelectRootTransform(*m_localTransform, *m_worldTransform, m_mode);
     //    RayTracer::setSelectRootTransform(m_worldTransform * m_transformMatrix);
-    m_localTransform = glm::mat4(1.0f);
-    m_worldTransform = glm::mat4(1.0f);
+    *m_localTransform = glm::mat4(1.0f);
+    *m_worldTransform = glm::mat4(1.0f);
 }
 
 void MainWindow3dView::updateCameraId() const
@@ -1317,6 +1358,23 @@ void MainWindow3dView::updateCameraId() const
 void MainWindow3dView::onUpdateCameraFps()
 {
     static_cast<CameraFps*>(Scene::m_scene->m_cameras[m_iCamera]->m_cameraStrategy)->ProcessKeyboard();
+}
+
+void MainWindow3dView::onUpdateCurve()
+{
+
+    //    m_paramModelSelected->updateCurve();
+    //    m_paramModelSelected->updateSelectedVertexPosition(*m_localTransform, *m_worldTransform);
+    m_paramModelSelected->updateCurve(*m_localTransform, *m_worldTransform);
+    //    m_paramModelSelected->updk
+}
+
+void MainWindow3dView::paintEvent(QPaintEvent* event)
+{
+    QPainter painter(this);
+
+    painter.setPen(QPen(Qt::white, 12));
+    painter.drawLine(0, 0, 100, 100);
 }
 
 bool MainWindow3dView::xRays() const
@@ -1726,6 +1784,6 @@ void MainWindow3dView::on_actionArea_Light_triggered()
 
 void MainWindow3dView::on_actionB_Spline_triggered()
 {
-//    QOpenGLWidget_Editor::m_editor->addCurve(Curve::B_SPLINE);
+    //    QOpenGLWidget_Editor::m_editor->addCurve(Curve::B_SPLINE);
     QOpenGLWidget_Editor::m_editor->addCurve();
 }

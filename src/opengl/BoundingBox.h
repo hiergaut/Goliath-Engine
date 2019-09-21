@@ -28,7 +28,7 @@ public:
 
     void draw(const Shader &shader) const;
 
-    bool intersect(const Ray & ray) const;
+    bool intersect(const Ray & ray, float & t) const;
 
 //    std::vector<glm::vec3> corners(glm::mat4 basis) const;
 

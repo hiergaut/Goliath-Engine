@@ -505,6 +505,12 @@ void MeshModel::drawBoundingBox(const Shader &shader) const
     shader.setBool("userColor", false);
 }
 
+void MeshModel::updateSelectedVertexPosition(const glm::mat4 &localTransform, const glm::mat4 &worldTransform)
+{
+    //TODO
+
+}
+
 
 //void MeshModel::selectRay(const Ray& ray) const
 //void MeshModel::selectObject(const Ray& ray, float& depthMin, bool& find, uint& iModelMin, uint& iMeshMin, uint& iBoneMin, uint& iTriangleMin, bool unselect /* = false */) const

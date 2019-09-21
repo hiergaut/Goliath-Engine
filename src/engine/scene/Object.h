@@ -43,6 +43,8 @@ public:
     virtual void updateBoundingBox() const;
     virtual void drawBoundingBox(const Shader& shader) const;
 
+//    virtual void updateSelectedVertexPosition(const glm::mat4 & localTransform, const glm::mat4 & worldTransform);
+
     //    void drawOrigin(const glm::mat4 & worldTransform, const glm::mat4 & localTransform, const Shader & shader) const;
 };
 

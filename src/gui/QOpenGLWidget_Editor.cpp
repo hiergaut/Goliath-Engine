@@ -26,9 +26,10 @@
 #include <opengl/geometry/DotGeometry.h>
 #include <opengl/geometry/LineGeometry.h>
 #include <opengl/geometry/TriangleGeometry.h>
-#include <opengl/geometry/uvSphereGeometry.h>
 #include <opengl/geometry/boneGeometry.h>
+#include <opengl/geometry/uvSphereGeometry.h>
 
+#include <QPainter>
 #include <gui/editor/timeline/FormTimeline.h>
 
 QOpenGLWidget_Editor* QOpenGLWidget_Editor::m_editor = nullptr;
@@ -48,6 +49,9 @@ QOpenGLWidget_Editor::QOpenGLWidget_Editor(QWidget* parent, QMainWindow* mainWin
     //    m_stream << std::setprecision(2) << std::fixed;
     Q_ASSERT(m_editor == nullptr);
     m_editor = this;
+
+    //    m_renderTimer = new QTimer(this);
+    //    connect(m_renderTimer, &QTimer::timeout, this, &QOpenGLWidget_Editor::update);
 }
 
 void QOpenGLWidget_Editor::loadNewModel(std::string filename)
@@ -62,17 +66,17 @@ void QOpenGLWidget_Editor::loadNewModel(std::string filename)
         if (view->hasFocus()) {
             spawn = view->camera()->target();
             break;
-//            switch (view->camera()->m_type) {
-//            case Camera::Type::FPS:
-//                //            origin = static_cast<CameraFps*>(view->m_camera)->m_target;
-//                spawn = glm::vec3(0.0f, 0.0f, 0.0f);
-//                break;
+            //            switch (view->camera()->m_type) {
+            //            case Camera::Type::FPS:
+            //                //            origin = static_cast<CameraFps*>(view->m_camera)->m_target;
+            //                spawn = glm::vec3(0.0f, 0.0f, 0.0f);
+            //                break;
 
-//            case Camera::Type::WORLD:
-//                spawn = static_cast<const CameraWorld*>(view->camera())->m_target;
-//                break;
-//            }
-//            break;
+            //            case Camera::Type::WORLD:
+            //                spawn = static_cast<const CameraWorld*>(view->camera())->m_target;
+            //                break;
+            //            }
+            //            break;
         }
     }
 
@@ -82,7 +86,6 @@ void QOpenGLWidget_Editor::loadNewModel(std::string filename)
 void QOpenGLWidget_Editor::clear()
 {
     m_scene.clear();
-
 }
 
 void QOpenGLWidget_Editor::load(std::ifstream& file)
@@ -172,6 +175,7 @@ void QOpenGLWidget_Editor::initializeGL()
     //    m_scene.updateBoundingBox();
 
     m_initialized = true;
+    //    m_renderTimer->start(100);
 }
 
 void QOpenGLWidget_Editor::paintGL()
@@ -241,6 +245,11 @@ void QOpenGLWidget_Editor::paintGL()
             glm::mat4 viewMatrix = view->viewMatrix();
             m_axis->draw(viewMatrix);
         }
+        //        glClear(GL_DEPTH_BUFFER_BIT);
+        //        QPainter painter(this);
+
+        //        painter.setPen(QPen(Qt::white, 12));
+        //        painter.drawLine(0, 0, 100, 100);
 
         //        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     }
@@ -248,7 +257,7 @@ void QOpenGLWidget_Editor::paintGL()
     // ----------------------------------------------------------------
 
     ++m_cpt;
-    //        QThread::msleep(10);
+    QThread::msleep(10);
     update();
 }
 
@@ -268,8 +277,8 @@ void QOpenGLWidget_Editor::addDefaultCamera()
 {
     Q_ASSERT(m_initialized);
     makeCurrent();
-//    m_scene.m_cameras.push_back(new CameraWorld(60.0f, glm::vec3(200.0f, -200.0f, 200.0f), glm::vec3(0.0f, 0.0f, 0.0f)));
-//    m_scene.m_cameras.push_back(new Camera(60.0f));
+    //    m_scene.m_cameras.push_back(new CameraWorld(60.0f, glm::vec3(200.0f, -200.0f, 200.0f), glm::vec3(0.0f, 0.0f, 0.0f)));
+    //    m_scene.m_cameras.push_back(new Camera(60.0f));
     m_scene.addDefaultCamera();
 
     for (const MainWindow3dView* view : *m_views) {

@@ -95,6 +95,7 @@ private:
     float m_fps;
     int m_cpt = 1;
 //    QSplitterNode * m_splitterRoot;
+//    QTimer * m_renderTimer = nullptr;
 
 
 };

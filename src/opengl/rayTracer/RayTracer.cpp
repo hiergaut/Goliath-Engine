@@ -21,15 +21,15 @@ void RayTracer::selectRay(const Ray &ray, bool additional)
 {
     Q_ASSERT(m_scene != nullptr);
 
-    m_scene->selectRay(ray, additional);
+    m_scene->objectSelectRay(ray, additional);
 }
 
-void RayTracer::setSelectRootTransform(const glm::mat4 &transformMatrix, const glm::mat4 & worldTransform)
-{
-    Q_ASSERT(m_scene != nullptr);
-    m_scene->setSelectRootTransform(transformMatrix, worldTransform);
+//void RayTracer::setSelectRootTransform(const glm::mat4 &transformMatrix, const glm::mat4 & worldTransform)
+//{
+//    Q_ASSERT(m_scene != nullptr);
+//    m_scene->setSelectRootTransform(transformMatrix, worldTransform);
 
-}
+//}
 
 void RayTracer::setSelectToOriginTransform()
 {

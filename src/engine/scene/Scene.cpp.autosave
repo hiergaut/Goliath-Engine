@@ -1232,7 +1232,8 @@ void Scene::addCurve()
 {
     //    m_models.push_back(new ParamModel());
 //    m_models.emplace_back(new ParamModel());
-    m_models.emplace_back(new BSplineCurve);
+//    m_models.emplace_back(new BSplineCurve);
+    m_models.push_back(static_cast<Model*>(new BSplineCurve));
 
     //    m_models.emplace_back(Curve());
     //    m_models.push_back(Object(Curve()));

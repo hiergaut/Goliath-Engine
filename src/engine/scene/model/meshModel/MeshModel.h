@@ -99,6 +99,8 @@ public:
     void updateBoundingBox() const override;
     void drawBoundingBox(const Shader & shader) const override;
 
+    void updateSelectedVertexPosition(const glm::mat4 &localTransform, const glm::mat4 &worldTransform) override;
+
 //    void selectObject(const Ray & ray, float &depthMin, bool &find, uint &iModelMin, uint &iMeshMin, uint &iBoneMin, uint &iTriangleMin, bool unselect = false) const;
 //    void unselectRay(const Ray & ray) const;
 //    void objectFinderRay(const Ray & ray) const;

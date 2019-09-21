@@ -75,8 +75,8 @@ public:
 //    Mode m_mode;
 //    Shading m_shade;
 //    glm::mat4 m_transformMatrix = glm::mat4(1.0);
-    glm::mat4 & m_localTransform;
-    glm::mat4 & m_worldTransform;
+    glm::mat4 * m_localTransform = nullptr;
+    glm::mat4 * m_worldTransform = nullptr;
 //    glm::vec3 m_translate = glm::vec3(0.0f);
 //    glm::mat4 m_worldTransform = glm::mat4(1.0);
     bool m_axisTransform = false;
@@ -86,6 +86,9 @@ public:
 //    Camera* m_camera = nullptr;
     mutable uint m_iCamera = 0;
     QTimer * m_timer = nullptr;
+    QTimer * m_timerAutoUpdateCurve = nullptr;
+
+    ParamModel * m_paramModelSelected = nullptr;
 
 public:
     explicit MainWindow3dView(QWidget* parent = nullptr);
@@ -116,11 +119,13 @@ signals:
 
 public slots:
     void onUpdateCameraFps();
+    void onUpdateCurve();
 
 protected:
     //    void initializeGL() override;
     //    void resizeGL(int w, int h) override;
-    //    void paintGL() override;
+//        void paintGL() override;
+    void paintEvent(QPaintEvent * event) override;
 
     void keyPressEvent(QKeyEvent* event) override;
     void keyReleaseEvent(QKeyEvent* event) override;
@@ -186,6 +191,9 @@ private:
     glm::vec3 m_memFront;
 
     float m_memAxisPos = 0.0f; //wheel
+
+//    QPoint m_posClickPress;
+//    QPoint m_posClickPress;
 
     //    Axis m_axis;
 

@@ -124,7 +124,7 @@ void BoundingBox::draw(const Shader& shader) const
 //    return true;
 //}
 
-bool BoundingBox::intersect(const Ray &r) const
+bool BoundingBox::intersect(const Ray &r, float & t) const
 {
     float tmin, tmax, tymin, tymax, tzmin, tzmax;
 
@@ -150,6 +150,7 @@ bool BoundingBox::intersect(const Ray &r) const
     if (tzmax < tmax)
         tmax = tzmax;
 
+    t = tmin;
     return true;
 }
 

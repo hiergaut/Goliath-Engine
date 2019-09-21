@@ -10,6 +10,7 @@ Ray::Ray(const glm::vec3& source, const glm::vec3& direction, float length,
         std::vector<glm::vec3> && triangles)
 
     : m_source(source)
+//    , m_direction(glm::normalize(direction))
     , m_direction(direction)
     , m_invDir(1.0f / direction)
     , m_sign { (m_invDir.x < 0), (m_invDir.y < 0), (m_invDir.z < 0) }
@@ -124,4 +125,16 @@ bool Ray::intersect(
         return true;
     } else // This means that there is a line intersection but not a ray intersection.
         return false;
+}
+
+bool Ray::intersect(const glm::vec3 &v0) const
+{
+    glm::vec3 sourceV0 = v0 - m_source;
+
+    float cosTheta = glm::dot(glm::normalize(sourceV0), m_direction);
+
+    glm::vec3 V0proj = m_source + m_direction * glm::length(sourceV0) * cosTheta;
+//    qDebug() << glm::length(v0 - V0proj);
+
+    return glm::length(v0 - V0proj) < 10.0f;
 }

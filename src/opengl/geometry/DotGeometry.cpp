@@ -76,7 +76,7 @@ void DotGeometry::initializeGL()
     m_fun->glBindVertexArray(0);
 }
 
-void DotGeometry::draw(const glm::mat4& modelMatrix, const Shader& shader)
+void DotGeometry::draw(const glm::mat4& modelMatrix, const Shader& shader, const glm::vec4 & color, const float size)
 {
     Q_ASSERT(m_fun != nullptr);
     //    m_shader->use();
@@ -110,14 +110,17 @@ void DotGeometry::draw(const glm::mat4& modelMatrix, const Shader& shader)
     m_fun->glBindVertexArray(m_vao);
     //    m_fun->glDrawElements(GL_TRIANGLES, 8 * 3, GL_UNSIGNED_INT, nullptr);
     //    m_fun->glDrawElements(GL_LINES, 2, GL_UNSIGNED_INT, (void*)(8 * sizeof(glm::vec3)));
-    m_fun->glPointSize(6.0f);
-    shader.setVec4("color", glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+    m_fun->glPointSize(size -1);
+//    shader.setVec4("color", glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));
+    shader.setVec4("color", color);
     m_fun->glDrawArrays(GL_POINTS, 0, 1);
-//    glClear(GL_DEPTH_BUFFER_BIT);
 
-    m_fun->glPointSize(4.0f);
-    shader.setVec4("color", glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));
-    m_fun->glDrawArrays(GL_POINTS, 0, 1);
+//    m_fun->glPointSize(size);
+////    shader.setVec4("color", glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+//    shader.setVec4("color", glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+//    m_fun->glDrawArrays(GL_POINTS, 0, 1);
+
+//    glClear(GL_DEPTH_BUFFER_BIT);
 
     m_fun->glBindVertexArray(0);
 

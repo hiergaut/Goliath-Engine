@@ -40,6 +40,7 @@ public:
     virtual void updateBoundingBox() const = 0;
     virtual void drawBoundingBox(const Shader& shader) const = 0;
 
+    virtual void updateSelectedVertexPosition(const glm::mat4 & localTransform, const glm::mat4 & worldTransform) = 0;
 
     virtual std::string name() const = 0;
     virtual void buildItemModel(QStandardItem* parent) const = 0;

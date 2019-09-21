@@ -17,7 +17,7 @@ public:
 
     //    void setVP(const glm::mat4 & viewMatrix, const glm::mat4 &projectionMatrix) const;
 
-    static void draw(const glm::mat4 &modelMatrix, const Shader &shader);
+    static void draw(const glm::mat4 &modelMatrix, const Shader &shader, const glm::vec4 & color = glm::vec4(1.0f, 0.5f, 0.0f, 1.0f), const float size = 5.0f);
 private:
     static QOpenGLFunctionsCore* m_fun;
 
