@@ -107,10 +107,17 @@
      <property name="title">
       <string>Curve</string>
      </property>
-     <addaction name="actionB_Spline"/>
+     <addaction name="actionBSpline_curve"/>
+    </widget>
+    <widget class="QMenu" name="menuSurface">
+     <property name="title">
+      <string>Surface</string>
+     </property>
+     <addaction name="actionBSpline_surface"/>
     </widget>
     <addaction name="menuLight"/>
     <addaction name="menuCurve"/>
+    <addaction name="menuSurface"/>
    </widget>
    <widget class="QMenu" name="menuIntersectRay">
     <property name="title">
@@ -321,7 +328,20 @@
     <string>IntersectRay</string>
    </property>
   </action>
-  <action name="actionB_Spline">
+  <action name="actionBSpline_curve">
+   <property name="icon">
+    <iconset resource="../../../../resources/resources.qrc">
+     <normaloff>:/icons/curve.png</normaloff>:/icons/curve.png</iconset>
+   </property>
+   <property name="text">
+    <string>B-Spline</string>
+   </property>
+  </action>
+  <action name="actionBSpline_surface">
+   <property name="icon">
+    <iconset resource="../../../../resources/resources.qrc">
+     <normaloff>:/icons/surface.png</normaloff>:/icons/surface.png</iconset>
+   </property>
    <property name="text">
     <string>B-Spline</string>
    </property>

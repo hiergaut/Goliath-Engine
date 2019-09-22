@@ -1449,10 +1449,11 @@ const Shader& MainWindow3dView::shader() const
 
     case Shader::Type::SOLID:
         shader.setVec3("viewPos", m_camera->position());
-        shader.setVec3("material.ambient", 0.5f, 0.5f, 0.5f);
+        shader.apply(Scene::m_scene->m_solid);
+//        shader.setVec3("material.ambient", 0.5f, 0.5f, 0.5f);
         //    m_shader->setVec3("material.diffuse", 0.3f, 0.3f, 0.3f);
-        shader.setVec3("material.specular", 0.5f, 0.5f, 1.0f);
-        shader.setFloat("material.shininess", 1.0f);
+//        shader.setVec3("material.specular", 0.5f, 0.5f, 1.0f);
+//        shader.setFloat("material.shininess", 1.0f);
         break;
 
     case Shader::Type::LOOK_DEV:
@@ -1789,8 +1790,19 @@ void MainWindow3dView::on_actionArea_Light_triggered()
     QOpenGLWidget_Editor::m_editor->addLight(Light::Type::AREA, m_camera->target());
 }
 
-void MainWindow3dView::on_actionB_Spline_triggered()
+//void MainWindow3dView::on_actionB_Spline_triggered()
+//{
+//    //    QOpenGLWidget_Editor::m_editor->addCurve(Curve::B_SPLINE);
+//}
+
+void MainWindow3dView::on_actionBSpline_curve_triggered()
 {
-    //    QOpenGLWidget_Editor::m_editor->addCurve(Curve::B_SPLINE);
     QOpenGLWidget_Editor::m_editor->addCurve();
+
+}
+
+void MainWindow3dView::on_actionBSpline_surface_triggered()
+{
+    QOpenGLWidget_Editor::m_editor->addSurface();
+
 }

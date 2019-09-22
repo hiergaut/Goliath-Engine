@@ -9,6 +9,7 @@
 #include "camera/CameraWorld.h"
 #include "model/meshModel/MeshModel.h"
 #include "model/paramModel/ParamModel.h"
+#include "model/paramModel/surface/BSplineSurface.h"
 #include <gui/editor/timeline/FormTimeline.h>
 #include <opengl/geometry/AxisGeometry.h>
 #include <opengl/geometry/DotGeometry.h>
@@ -286,9 +287,8 @@ void Scene::draw(const MainWindow3dView& view)
         if (m_selectObject != nullptr) {
             shader.setBool("userColor", true);
             if (m_selectObject->m_model->m_type == Model::PARAM_CURVE) {
-//                const ParamModel& paramModel = static_cast<ParamModel&>(*m_selectObject->m_model);
+                //                const ParamModel& paramModel = static_cast<ParamModel&>(*m_selectObject->m_model);
                 const BSplineCurve& splineCurve = static_cast<BSplineCurve&>(*m_selectObject->m_model);
-
 
                 splineCurve.drawSelected(shader, m_localVertexTransform, m_worldVertexTransform);
             }
@@ -435,18 +435,20 @@ void Scene::draw(const MainWindow3dView& view)
             //        modelMatrix = glm::rotate(modelMatrix, 1.57f, glm::vec3(1, 0, 0));
             //        m_shader->setMat4("model", modelMatrix);
 
-            if (object.m_selected) {
-                //                object.m_model.DrawHierarchy(viewLocalTransform, viewMatrix, projectionMatrix, cameraPos, viewWorldTransform);
-                static_cast<MeshModel*>(object.m_model)->DrawHierarchy(viewLocalTransform, viewMatrix, projectionMatrix, cameraPos, viewWorldTransform);
-                //                object.m_model->DrawHierarchy(viewLocalTransform, viewMatrix, projectionMatrix, cameraPos, viewWorldTransform);
-                //                object.m_model.DrawHierarchy()
+            if (object.m_model->m_type == Model::MESH) {
+                if (object.m_selected) {
+                    //                object.m_model.DrawHierarchy(viewLocalTransform, viewMatrix, projectionMatrix, cameraPos, viewWorldTransform);
+                    static_cast<MeshModel*>(object.m_model)->DrawHierarchy(viewLocalTransform, viewMatrix, projectionMatrix, cameraPos, viewWorldTransform);
+                    //                object.m_model->DrawHierarchy(viewLocalTransform, viewMatrix, projectionMatrix, cameraPos, viewWorldTransform);
+                    //                object.m_model.DrawHierarchy()
 
-                //                model.m_model.DrawHierarchy(viewLocalTransform, view, viewWorldTransform);
-            } else {
-                //                model.DrawHierarchy(onesMatrix, view);
-                //                object.m_model.DrawHierarchy(onesMatrix, viewMatrix, projectionMatrix, cameraPos);
-                static_cast<MeshModel*>(object.m_model)->DrawHierarchy(onesMatrix, viewMatrix, projectionMatrix, cameraPos);
-                //                object.m_model.DrawHierarchy(onesMatrix, viewMatrix, projectionMatrix, cameraPos);
+                    //                model.m_model.DrawHierarchy(viewLocalTransform, view, viewWorldTransform);
+                } else {
+                    //                model.DrawHierarchy(onesMatrix, view);
+                    //                object.m_model.DrawHierarchy(onesMatrix, viewMatrix, projectionMatrix, cameraPos);
+                    static_cast<MeshModel*>(object.m_model)->DrawHierarchy(onesMatrix, viewMatrix, projectionMatrix, cameraPos);
+                    //                object.m_model.DrawHierarchy(onesMatrix, viewMatrix, projectionMatrix, cameraPos);
+                }
             }
         }
     }
@@ -679,7 +681,7 @@ void Scene::objectSelectRay(const Ray& ray, bool additional)
             //            switch (object->m_model.m_type) {
 
             //            case Model::MESH:
-            if (object->m_model->m_type == Model::PARAM_CURVE) {
+            if (object->m_model->m_type == Model::PARAM_CURVE || object->m_model->m_type == Model::PARAM_SURFACE) {
                 //                const ParamModel & paramModel = static_cast<const ParamModel&>(*object->m_model);
                 //                for (const glm::vec3 & ptsCtrl : paramModel.m_controlPoints) {
                 if (depth < depthMin) {
@@ -1098,9 +1100,9 @@ void Scene::setSelectRootTransform(const glm::mat4& transformMatrix, const glm::
     case MainWindow3dView::Mode::EDIT:
         if (m_selectObject != nullptr) {
             m_selectObject->m_model->updateSelectedVertexPosition(transformMatrix, worldTransform);
-//            switch (m_selectObject->m_model->m_type) {
+            //            switch (m_selectObject->m_model->m_type) {
 
-//            }
+            //            }
         }
         break;
     }
@@ -1233,13 +1235,27 @@ void Scene::addDefaultCamera()
 void Scene::addCurve()
 {
     //    m_models.push_back(new ParamModel());
-//    m_models.emplace_back(new ParamModel());
-//    m_models.emplace_back(new BSplineCurve);
-//    m_models.push_back(new BSplineCurve);
-    m_models.emplace_back(new BSplineCurve);
+    //    m_models.emplace_back(new ParamModel());
+    //    m_models.emplace_back(new BSplineCurve);
+    //    m_models.push_back(new BSplineCurve);
+    //    m_models.emplace_back(new BSplineCurve);
 
     //    m_models.emplace_back(Curve());
     //    m_models.push_back(Object(Curve()));
+    //    m_objects.push_back(&m_models.back());
+    addModel(new BSplineCurve);
+}
+
+void Scene::addSurface()
+{
+    //    m_models.emplace_back(new BSplineSurface);
+    //    m_objects.push_back(&m_models.back());
+    addModel(new BSplineSurface);
+}
+
+void Scene::addModel(Model* model)
+{
+    m_models.emplace_back(model);
     m_objects.push_back(&m_models.back());
 }
 
@@ -1326,23 +1342,22 @@ void Scene::removeNoViewCamera()
 //    return nullptr;
 //}
 
-BSplineCurve *Scene::getBsplineCurve()
+BSplineCurve* Scene::getBsplineCurve()
 {
     for (Object& object : m_models) {
         if (object.m_model->m_type == Model::PARAM_CURVE) {
-//            ParamModel * paramModel =  static_cast<ParamModel*>(object.m_model);
-            BSplineCurve * splineCurve =  static_cast<BSplineCurve*>(object.m_model);
+            //            ParamModel * paramModel =  static_cast<ParamModel*>(object.m_model);
+            BSplineCurve* splineCurve = static_cast<BSplineCurve*>(object.m_model);
             return splineCurve;
-//            if (paramModel->m_type == ParamModel::Type::BSPLINE_CURVE) {
-//                return dynamic_cast<BSplineCurve*>(paramModel);
-//            }
-//            //            return object.m_model;
+            //            if (paramModel->m_type == ParamModel::Type::BSPLINE_CURVE) {
+            //                return dynamic_cast<BSplineCurve*>(paramModel);
+            //            }
+            //            //            return object.m_model;
             break;
         }
     }
 
     return nullptr;
-
 }
 
 //void Scene::removeCamera(Camera *camera)

@@ -14,7 +14,7 @@
 #include <QPainter>
 #include <fstream>
 
-Material::Material(const aiMaterial* ai_material, Textures * textures, std::string directory)
+Material::Material(const aiMaterial* ai_material, Textures* textures, std::string directory)
     : m_textures(textures)
     , m_directory(directory)
 //      m_fun(QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>())
@@ -70,27 +70,38 @@ Material::Material(const aiMaterial* ai_material, Textures * textures, std::stri
     //    std::cout << "\033[0m";
 }
 
-Material::Material(std::ifstream& file, Textures * textures)
+Material::Material(std::ifstream& file, Textures* textures)
     : m_textures(textures)
 {
     //    uint size;
     for (uint i = 0; i < Texture::size; ++i) {
-//        std::cout << "m_iTextures[" << i << "]" << std::endl;
+        //        std::cout << "m_iTextures[" << i << "]" << std::endl;
         Session::load(m_iTextures[i], file);
     }
 
-//    std::cout << "m_name" << std::endl;
+    //    std::cout << "m_name" << std::endl;
     Session::load(m_name, file);
 
     for (uint i = 0; i < Color::size; ++i) {
-//        std::cout << "m_colors[" << i << "]" << std::endl;
+        //        std::cout << "m_colors[" << i << "]" << std::endl;
         m_colors[i].load(file);
     }
 
-//    std::cout << "m_shininess" << std::endl;
+    //    std::cout << "m_shininess" << std::endl;
     Session::load(m_shininess, file);
-//    std::cout << "m_directory" << std::endl;
+    //    std::cout << "m_directory" << std::endl;
     Session::load(m_directory, file);
+}
+
+Material::Material(std::string name, float shininess, const glm::vec3& ambient, const glm::vec3& diffuse, const glm::vec3& specular)
+    : m_shininess(shininess)
+    , m_name(name)
+//    , m_colors[Color::EType::AMBIENT] = ambient
+
+{
+    m_colors[Color::AMBIENT] = ambient;
+    m_colors[Color::DIFFUSE] = diffuse;
+    m_colors[Color::SPECULAR] = specular;
 }
 
 //Material::Material(Material &&material, Textures &textures)
@@ -133,24 +144,39 @@ Material::~Material()
     std::cout << "\033[0m";
 }
 
+glm::vec3& Material::ambient()
+{
+    return m_colors[Color::AMBIENT].color;
+}
+
+glm::vec3& Material::diffuse()
+{
+    return m_colors[Color::DIFFUSE].color;
+}
+
+glm::vec3& Material::specular()
+{
+    return m_colors[Color::SPECULAR].color;
+}
+
 void Material::save(std::ofstream& file) const
 {
     for (uint i = 0; i < Texture::size; ++i) {
-//        std::cout << "m_iTextures[" << i << "]" << std::endl;
+        //        std::cout << "m_iTextures[" << i << "]" << std::endl;
         Session::save(m_iTextures[i], file);
     }
 
-//    std::cout << "m_name" << std::endl;
+    //    std::cout << "m_name" << std::endl;
     Session::save(m_name, file);
 
     for (uint i = 0; i < Color::size; ++i) {
-//        std::cout << "m_colors[" << i << "]" << std::endl;
+        //        std::cout << "m_colors[" << i << "]" << std::endl;
         m_colors[i].save(file);
     }
 
-//    std::cout << "m_shininess" << std::endl;
+    //    std::cout << "m_shininess" << std::endl;
     Session::save(m_shininess, file);
-//    std::cout << "m_directory" << std::endl;
+    //    std::cout << "m_directory" << std::endl;
     Session::save(m_directory, file);
 }
 

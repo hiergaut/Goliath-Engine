@@ -293,6 +293,12 @@ void QOpenGLWidget_Editor::addCurve()
     m_scene.addCurve();
 }
 
+void QOpenGLWidget_Editor::addSurface()
+{
+    makeCurrent();
+    m_scene.addSurface();
+}
+
 //void QOpenGLWidget_Editor::addCameraWorld(float fov, glm::vec3&& position, glm::vec3&& target)
 //{
 //    Q_ASSERT(m_initialized);

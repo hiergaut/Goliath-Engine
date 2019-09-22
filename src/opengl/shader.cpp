@@ -11,7 +11,6 @@ void Shader::glInitialize()
     m_shaders[Shader::Type::NORMAL] = new Shader("shading/normal.vsh", "shading/normal.fsh", "", Shader::Type::NORMAL);
     m_shaders[Shader::Type::DEPTH] = new Shader("shading/depth.vsh", "shading/depth.fsh", "", Shader::Type::DEPTH);
     m_shaders[Shader::Type::VERTEX_GROUP] = new Shader("shading/vertexGroup.vsh", "shading/vertexGroup.fsh", "", Shader::Type::VERTEX_GROUP);
-
 }
 
 //Shader::Shader(const std::string vertexPath, const std::string fragmentPath, Shader::Type shade, const std::string geometryPath)
@@ -133,6 +132,15 @@ Shader::~Shader()
 void Shader::use() const
 {
     m_fun->glUseProgram(ID);
+}
+
+void Shader::apply(const Material& material) const
+{
+    //        setVec3("viewPos", m_camera->position());
+    setVec3("material.ambient", material.m_colors[Color::AMBIENT]);
+    setVec3("material.diffuse", material.m_colors[Color::DIFFUSE]);
+    setVec3("material.specular", material.m_colors[Color::SPECULAR]);
+    setFloat("material.shininess", material.m_shininess);
 }
 // utility uniform functions
 // ------------------------------------------------------------------------

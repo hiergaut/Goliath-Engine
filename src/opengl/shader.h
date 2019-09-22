@@ -10,6 +10,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <engine/scene/model/meshModel/material/Material.h>
 
 class Shader {
 public:
@@ -40,6 +41,7 @@ public:
     // activate the shader
     // ------------------------------------------------------------------------
     void use() const;
+    void apply(const Material & material) const;
     // utility uniform functions
     // ------------------------------------------------------------------------
     void setBool(const std::string& name, bool value) const;

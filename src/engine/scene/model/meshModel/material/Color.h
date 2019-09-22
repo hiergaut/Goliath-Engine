@@ -75,6 +75,10 @@ struct Color {
     {
         color = vec3;
     }
+
+    void operator=(const glm::vec3 & vec3) {
+        color = vec3;
+    }
     //    operator glm::vec3() {
     //        return color;
     //    }

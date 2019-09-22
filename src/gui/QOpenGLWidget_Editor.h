@@ -51,6 +51,7 @@ public:
 //    void addCameraWorld(float fov, glm::vec3 && position, glm::vec3 && target);
 //    void deleteCamera(uint iCamera);
     void addCurve();
+    void addSurface();
 
 protected:
     void initializeGL() override;

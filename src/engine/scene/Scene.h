@@ -48,6 +48,7 @@ public:
     static std::vector<Camera*> m_cameras; // legacy
     std::vector<DirLight> m_dirLights;
 
+    Material m_solid = Material("solid", 2.0f, glm::vec3(0.5f), glm::vec3(0.0f), glm::vec3(0.5f, 0.5f, 1.0f));
 //    std::vector<Curve> m_curves;
 
 
@@ -99,6 +100,8 @@ public:
 //    void addCamera(float fov, const glm::vec3 & position, const glm::vec3 &target);
     void addDefaultCamera();
     void addCurve();
+    void addSurface();
+    void addModel(Model * model);
 
     void updateTransformationMatrix(float dx, float dy);
 

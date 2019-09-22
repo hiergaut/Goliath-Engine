@@ -16,6 +16,7 @@
 
 //}
 #include <engine/scene/model/paramModel/curve/BSplineCurve.h>
+#include <engine/scene/model/paramModel/surface/BSplineSurface.h>
 
 Object::Object(std::ifstream &file)
 //    : m_model(file)
@@ -33,6 +34,10 @@ Object::Object(std::ifstream &file)
 //        m_model = new ParamModel(file);
         m_model = new BSplineCurve(file);
 //        Q_ASSERT(false);
+        break;
+
+    case Model::PARAM_SURFACE:
+        m_model = new BSplineSurface(file);
         break;
 
     default:

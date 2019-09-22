@@ -299,7 +299,7 @@ void BSplineCurve::vertexSelectRay(const Ray& ray, bool additional)
 
 std::string BSplineCurve::name() const
 {
-    return "BSpline";
+    return "BSplineCurve";
 }
 
 void BSplineCurve::setK(uint k)

@@ -45,11 +45,16 @@ public:
 public:
     Material(const aiMaterial * ai_material, Textures *textures, std::string directory);
     Material(std::ifstream & file, Textures * textures);
+    Material(std::string name, float shininess, const glm::vec3 & ambient, const glm::vec3 & diffuse, const glm::vec3 & specular);
 //    Material(Material && material, Textures & textures);
     ~Material();
 
     Material(const Material &) = delete;
     Material(Material &&) noexcept = default;
+
+    glm::vec3 & ambient();
+    glm::vec3 &diffuse();
+    glm::vec3 & specular();
 
     void save(std::ofstream & file) const;
 
