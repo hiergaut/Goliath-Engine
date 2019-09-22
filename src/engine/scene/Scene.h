@@ -21,6 +21,7 @@
 
 #include "Object.h"
 #include <engine/scene/model/paramModel/curve/BSplineCurve.h>
+#include "model/paramModel/surface/BSplineSurface.h"
 //#include "curve/Curve.h"
 
 class Scene {
@@ -110,6 +111,7 @@ public:
 //    void removeCamera(Camera * camera);
 //    ParamModel * getParamModel();
     BSplineCurve *getBsplineCurve();
+    BSplineSurface *getBsplineSurface();
 //    Bsp * getParamModel();
 
 private:

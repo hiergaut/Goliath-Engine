@@ -17,7 +17,8 @@ class MainWindowProperties : public QMainWindow, public TemplateMenuBar {
 public:
     enum Type {
         MATERIAL,
-        CURVE
+        CURVE,
+        SURFACE,
     } m_context;
 
     explicit MainWindowProperties(QWidget* parent = nullptr);
@@ -35,6 +36,8 @@ private slots:
     void on_actionMaterial_triggered();
 
     void on_actionCurve_triggered();
+
+    void on_actionSurface_triggered();
 
 private:
     Ui::MainWindowProperties* ui;

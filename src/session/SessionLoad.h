@@ -181,6 +181,13 @@ public:
 
         return id;
     }
+
+    static void load(glm::vec3 *  tab, uint len, std::ifstream & file) {
+//        glm::vec3 t[len];
+        file.read(reinterpret_cast<char*>(tab), len * sizeof(glm::vec3));
+
+//        tab = t;
+    }
 };
 
 #endif // SESSIONLOAD_H

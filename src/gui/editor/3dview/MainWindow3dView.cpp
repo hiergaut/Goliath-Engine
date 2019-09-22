@@ -173,6 +173,8 @@ MainWindow3dView::MainWindow3dView(QWidget* parent)
     connect(m_timer, &QTimer::timeout, this, &MainWindow3dView::onUpdateCameraFps);
     m_timerAutoUpdateCurve = new QTimer(this);
     connect(m_timerAutoUpdateCurve, &QTimer::timeout, this, &MainWindow3dView::onUpdateCurve);
+    m_timerAutoUpdateSurface = new QTimer(this);
+    connect(m_timerAutoUpdateSurface, &QTimer::timeout, this, &MainWindow3dView::onUpdateSurface);
 }
 
 MainWindow3dView::~MainWindow3dView()
@@ -777,8 +779,21 @@ void MainWindow3dView::mousePressEvent(QMouseEvent* event)
                 //            m_transformActive = false;
                 //			setCursor(Qt::ArrowCursor);
                 if (m_mode == Mode::EDIT) {
-//                    m_paramModelSelected->updateSelectedVertexPosition(*m_localTransform, *m_worldTransform);
-                    m_splineCurve->updateSelectedVertexPosition(*m_localTransform, *m_worldTransform);
+                    //                    m_paramModelSelected->updateSelectedVertexPosition(*m_localTransform, *m_worldTransform);
+                    if (Scene::m_scene->m_selectObject != nullptr) {
+                        if (Scene::m_scene->m_selectObject->m_model->m_type == Model::PARAM_CURVE) {
+                            //                    m_paramModelSelected = static_cast<ParamModel*>(Scene::m_scene->m_selectObject->m_model);
+                            //                    m_splineCurve = static_cast<BSplineCurve*>(Scene::m_scene->m_selectObject->m_model);
+                            m_splineCurve->updateSelectedVertexPosition(*m_localTransform, *m_worldTransform);
+                            //                    m_splineCurve = Scene::m_scene->m_selectObject->m_model;
+                            m_timerAutoUpdateCurve->stop();
+                            //                    m_timerAutoUpdateCurve->start(50);
+                        }
+                        else if (Scene::m_scene->m_selectObject->m_model->m_type == Model::PARAM_SURFACE) {
+                            m_splineSurface->updateSelectedVertexPosition(*m_localTransform, *m_worldTransform);
+                            m_timerAutoUpdateSurface->stop();
+                        }
+                    }
                 }
                 setTransformInactive();
             } else {
@@ -1305,10 +1320,15 @@ void MainWindow3dView::setTransformActive()
         if (m_mode == Mode::EDIT) {
             if (Scene::m_scene->m_selectObject != nullptr) {
                 if (Scene::m_scene->m_selectObject->m_model->m_type == Model::PARAM_CURVE) {
-//                    m_paramModelSelected = static_cast<ParamModel*>(Scene::m_scene->m_selectObject->m_model);
+                    //                    m_paramModelSelected = static_cast<ParamModel*>(Scene::m_scene->m_selectObject->m_model);
                     m_splineCurve = static_cast<BSplineCurve*>(Scene::m_scene->m_selectObject->m_model);
-//                    m_splineCurve = Scene::m_scene->m_selectObject->m_model;
+                    //                    m_splineCurve = Scene::m_scene->m_selectObject->m_model;
                     m_timerAutoUpdateCurve->start(50);
+                }
+                else if (Scene::m_scene->m_selectObject->m_model->m_type == Model::PARAM_SURFACE) {
+
+                    m_splineSurface = static_cast<BSplineSurface*>(Scene::m_scene->m_selectObject->m_model);
+                    m_timerAutoUpdateSurface->start(50);
                 }
             }
         }
@@ -1325,7 +1345,6 @@ void MainWindow3dView::setTransformInactive()
     setCursor(Qt::ArrowCursor);
 
     m_axisTransform = false;
-    m_timerAutoUpdateCurve->stop();
     //    m_axisLocal = false;
     //    case Qt::Key_Enter:
     //        m_transform = glm::mat4(1.0f);
@@ -1371,9 +1390,14 @@ void MainWindow3dView::onUpdateCurve()
 
     //    m_paramModelSelected->updateCurve();
     //    m_paramModelSelected->updateSelectedVertexPosition(*m_localTransform, *m_worldTransform);
-//    m_paramModelSelected->updateCurve(*m_localTransform, *m_worldTransform);
+    //    m_paramModelSelected->updateCurve(*m_localTransform, *m_worldTransform);
     m_splineCurve->updateCurve(*m_localTransform, *m_worldTransform);
     //    m_paramModelSelected->updk
+}
+
+void MainWindow3dView::onUpdateSurface()
+{
+    m_splineSurface->updateSurface(*m_localTransform, *m_worldTransform);
 }
 
 void MainWindow3dView::paintEvent(QPaintEvent* event)
@@ -1450,10 +1474,10 @@ const Shader& MainWindow3dView::shader() const
     case Shader::Type::SOLID:
         shader.setVec3("viewPos", m_camera->position());
         shader.apply(Scene::m_scene->m_solid);
-//        shader.setVec3("material.ambient", 0.5f, 0.5f, 0.5f);
+        //        shader.setVec3("material.ambient", 0.5f, 0.5f, 0.5f);
         //    m_shader->setVec3("material.diffuse", 0.3f, 0.3f, 0.3f);
-//        shader.setVec3("material.specular", 0.5f, 0.5f, 1.0f);
-//        shader.setFloat("material.shininess", 1.0f);
+        //        shader.setVec3("material.specular", 0.5f, 0.5f, 1.0f);
+        //        shader.setFloat("material.shininess", 1.0f);
         break;
 
     case Shader::Type::LOOK_DEV:
@@ -1798,11 +1822,9 @@ void MainWindow3dView::on_actionArea_Light_triggered()
 void MainWindow3dView::on_actionBSpline_curve_triggered()
 {
     QOpenGLWidget_Editor::m_editor->addCurve();
-
 }
 
 void MainWindow3dView::on_actionBSpline_surface_triggered()
 {
     QOpenGLWidget_Editor::m_editor->addSurface();
-
 }

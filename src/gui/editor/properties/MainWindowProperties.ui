@@ -29,6 +29,7 @@
     </property>
     <addaction name="actionMaterial"/>
     <addaction name="actionCurve"/>
+    <addaction name="actionSurface"/>
    </widget>
    <widget class="QMenu" name="menuCurrentContext">
     <property name="title">
@@ -51,6 +52,7 @@
    </attribute>
    <addaction name="actionMaterial"/>
    <addaction name="actionCurve"/>
+   <addaction name="actionSurface"/>
   </widget>
   <action name="actionMaterial">
    <property name="icon">
@@ -68,6 +70,15 @@
    </property>
    <property name="text">
     <string>Curve</string>
+   </property>
+  </action>
+  <action name="actionSurface">
+   <property name="icon">
+    <iconset resource="../../../../resources/resources.qrc">
+     <normaloff>:/icons/surface.png</normaloff>:/icons/surface.png</iconset>
+   </property>
+   <property name="text">
+    <string>Surface</string>
    </property>
   </action>
  </widget>

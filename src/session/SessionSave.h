@@ -205,6 +205,15 @@ public:
 
         //        return id;
     }
+
+    static void save(const glm::vec3 * tab, uint len, std::ofstream & file) {
+//        glm::vec3 t[len];
+//        for (uint i =0; i <len; ++i) {
+//            t[i] = tab[i];
+//        }
+
+        file.write(reinterpret_cast<const char*>(tab), len * sizeof(glm::vec3));
+    }
 };
 
 #endif // SESSIONSAVE_H

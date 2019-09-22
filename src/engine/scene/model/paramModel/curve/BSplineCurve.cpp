@@ -177,10 +177,10 @@ void BSplineCurve::draw(const Shader& shader, bool dotCloud, const glm::mat4& lo
 
         shader.setMat4("model", worldTransform * m_transform * localTransform);
         m_fun->glBindVertexArray(m_vao);
-        shader.setVec4("color", glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));
+        shader.setVec4("color", glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
         m_fun->glDrawArrays(GL_POINTS, 0, m_controlPoints.size());
 
-        shader.setVec4("color", glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+        shader.setVec4("color", glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));
         m_fun->glBindVertexArray(m_vao2);
         m_fun->glDrawArrays(GL_POINTS, 0, m_curve.size());
 
@@ -238,7 +238,7 @@ void BSplineCurve::drawSelected(const Shader& shader, const glm::mat4& localTran
     for (uint i = 0; i < m_selected.size(); ++i) {
         if (m_selected[i]) {
             //                qDebug() << "draw " << i;
-            DotGeometry::draw(glm::translate(glm::mat4(1.0f), m_controlPoints[i]) * worldTransform * m_transform, shader, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), 6);
+            DotGeometry::draw(glm::translate(glm::mat4(1.0f), m_controlPoints[i]) * worldTransform * m_transform, shader, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), 10);
         }
     }
 }

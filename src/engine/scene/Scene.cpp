@@ -286,12 +286,6 @@ void Scene::draw(const MainWindow3dView& view)
     case MainWindow3dView::Mode::EDIT:
         if (m_selectObject != nullptr) {
             shader.setBool("userColor", true);
-            if (m_selectObject->m_model->m_type == Model::PARAM_CURVE) {
-                //                const ParamModel& paramModel = static_cast<ParamModel&>(*m_selectObject->m_model);
-                const BSplineCurve& splineCurve = static_cast<BSplineCurve&>(*m_selectObject->m_model);
-
-                splineCurve.drawSelected(shader, m_localVertexTransform, m_worldVertexTransform);
-            }
 
             glPolygonMode(GL_FRONT, GL_LINE);
             shader.setVec4("color", glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));
@@ -316,6 +310,17 @@ void Scene::draw(const MainWindow3dView& view)
             //            m_selectObject->draw(shader, true, viewLocalTransform, viewWorldTransform);
             //            shader.setVec4("color", glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
             //            shader.setVec4("color", glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+            if (m_selectObject->m_model->m_type == Model::PARAM_CURVE) {
+                //                const ParamModel& paramModel = static_cast<ParamModel&>(*m_selectObject->m_model);
+                const BSplineCurve& splineCurve = static_cast<BSplineCurve&>(*m_selectObject->m_model);
+
+                splineCurve.drawSelected(shader, m_localVertexTransform, m_worldVertexTransform);
+            }
+            else if (m_selectObject->m_model->m_type == Model::PARAM_SURFACE) {
+                const BSplineSurface & splineSurface = static_cast<BSplineSurface&>(*m_selectObject->m_model);
+                splineSurface.drawSelected(shader, m_localVertexTransform, m_worldVertexTransform);
+            }
+
 
             shader.setBool("userColor", false);
         }
@@ -873,6 +878,10 @@ void Scene::vertexSelectRay(const Ray& ray, bool additional)
             //            for (const glm::vec3 & vertex : paramModel.m_controlPoints) {
             splineCurve.vertexSelectRay(ray, additional);
         }
+        else if (m_selectObject->m_model->m_type == Model::PARAM_SURFACE) {
+            BSplineSurface & splineSurface = static_cast<BSplineSurface&>(*m_selectObject->m_model);
+            splineSurface.vertexSelectRay(ray, additional);
+        }
     }
 }
 
@@ -1164,6 +1173,8 @@ void Scene::deleteSelected()
     //    std::vector<const Object *> newObjects;
     //    for ()
     m_objects.clear();
+//    qDebug() << "object clear";
+//    std::cout << "object clear" << std::endl;
 
     std::vector<Object> newModels;
     newModels.reserve(10);
@@ -1172,13 +1183,16 @@ void Scene::deleteSelected()
         //            m_objects.remove(&model);
         //        }
         if (!object.m_selected) {
+//            std::cout << object.m_model->name() << "not selected" << std::endl;
             //        else {
             newModels.emplace_back(std::move(object));
             m_objects.push_back(&newModels.back());
             //            newModels[++cpt] = std::move(model);
         }
     }
+//    std::cout << "models moving" << std::endl;
     m_models = std::move(newModels);
+//    std::cout << "models moved" << std::endl;
 
     std::vector<DirLight> newDirLights;
     newDirLights.reserve(10);
@@ -1189,6 +1203,8 @@ void Scene::deleteSelected()
         }
     }
     m_dirLights = std::move(newDirLights);
+
+//    std::cout << "dirLights moved" << std::endl;
 
     //    for (DirLight & dirLight : m_dirLights) {
     //        if (! dirLight.m_s)
@@ -1358,6 +1374,25 @@ BSplineCurve* Scene::getBsplineCurve()
     }
 
     return nullptr;
+}
+
+BSplineSurface *Scene::getBsplineSurface()
+{
+    for (Object& object : m_models) {
+        if (object.m_model->m_type == Model::PARAM_SURFACE) {
+            //            ParamModel * paramModel =  static_cast<ParamModel*>(object.m_model);
+            BSplineSurface* splineSurface = static_cast<BSplineSurface*>(object.m_model);
+            return splineSurface;
+            //            if (paramModel->m_type == ParamModel::Type::BSPLINE_CURVE) {
+            //                return dynamic_cast<BSplineCurve*>(paramModel);
+            //            }
+            //            //            return object.m_model;
+            break;
+        }
+    }
+
+    return nullptr;
+
 }
 
 //void Scene::removeCamera(Camera *camera)

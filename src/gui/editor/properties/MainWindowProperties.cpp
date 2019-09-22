@@ -3,6 +3,7 @@
 
 #include "context/material/FormContextMaterial.h"
 #include "context/curve/FormContextCurve.h"
+#include "context/surface/FormContextSurface.h"
 #include <session/Session.h>
 
 MainWindowProperties::MainWindowProperties(QWidget *parent) :
@@ -59,6 +60,11 @@ void MainWindowProperties::setContext(Type context)
         ui->menuCurrentContext->setTitle("Curve");
         break;
 
+    case Type::SURFACE:
+        setCentralWidget(new FormContextSurface);
+        ui->menuCurrentContext->setTitle("Surface");
+        break;
+
     }
 
     centralWidget()->setFocusPolicy(Qt::ClickFocus);
@@ -84,4 +90,9 @@ void MainWindowProperties::on_actionMaterial_triggered()
 void MainWindowProperties::on_actionCurve_triggered()
 {
     setContext(Type::CURVE);
+}
+
+void MainWindowProperties::on_actionSurface_triggered()
+{
+    setContext(Type::SURFACE);
 }

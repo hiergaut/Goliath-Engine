@@ -42,6 +42,7 @@ class MainWindow3dView;
 #include <opengl/rayTracer/Ray.h>
 #include <opengl/shader.h>
 #include <engine/scene/model/paramModel/curve/BSplineCurve.h>
+#include <engine/scene/model/paramModel/surface/BSplineSurface.h>
 
 class MainWindow3dView : public QMainWindow, public TemplateMenuBar {
     Q_OBJECT
@@ -88,9 +89,11 @@ public:
     mutable uint m_iCamera = 0;
     QTimer * m_timer = nullptr;
     QTimer * m_timerAutoUpdateCurve = nullptr;
+    QTimer * m_timerAutoUpdateSurface = nullptr;
 
 //    ParamModel * m_paramModelSelected = nullptr;
     BSplineCurve * m_splineCurve = nullptr;
+    BSplineSurface * m_splineSurface = nullptr;
 
 public:
     explicit MainWindow3dView(QWidget* parent = nullptr);
@@ -122,6 +125,7 @@ signals:
 public slots:
     void onUpdateCameraFps();
     void onUpdateCurve();
+    void onUpdateSurface();
 
 protected:
     //    void initializeGL() override;

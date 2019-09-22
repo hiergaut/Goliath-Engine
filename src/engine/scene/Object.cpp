@@ -18,22 +18,22 @@
 #include <engine/scene/model/paramModel/curve/BSplineCurve.h>
 #include <engine/scene/model/paramModel/surface/BSplineSurface.h>
 
-Object::Object(std::ifstream &file)
+Object::Object(std::ifstream& file)
 //    : m_model(file)
 //    : m_model(file)
 //    : m_model(new Model(file))
 {
     Model::Type type = static_cast<Model::Type>(Session::loadEnum(file));
-//    qDebug() << "type" << type;
+    //    qDebug() << "type" << type;
     switch (type) {
     case Model::MESH:
         m_model = new MeshModel(file);
         break;
 
     case Model::PARAM_CURVE:
-//        m_model = new ParamModel(file);
+        //        m_model = new ParamModel(file);
         m_model = new BSplineCurve(file);
-//        Q_ASSERT(false);
+        //        Q_ASSERT(false);
         break;
 
     case Model::PARAM_SURFACE:
@@ -44,38 +44,50 @@ Object::Object(std::ifstream &file)
         Q_ASSERT(false);
         break;
     }
-
-
 }
 
-Object::Object(const std::string &path)
-//    : m_model(path)
-//    : m_mod
+Object::Object(const std::string& path)
+    //    : m_model(path)
+    //    : m_mod
     : m_model(new MeshModel(path))
 {
-
 }
 
-Object::Object(Model *model)
+Object::Object(Object&& object) noexcept
+    : m_selected(std::move(object.m_selected))
+    //    , *m_model(std::move(*object.m_model))
+    , m_model(object.m_model)
+{
+    object.m_model = nullptr;
+
+//    std::cout << "\033[33m";
+//    std::cout << "[Object] " << &object << "  '" << m_model->name() << "' moved to " << this << std::endl;
+//    std::cout << "\033[0m";
+}
+
+Object::Object(Model* model)
     : m_model(model)
 {
-
 }
 
-void Object::save(std::ofstream &file) const
+void Object::save(std::ofstream& file) const
 {
-//    Session::saveEnum(m_model->m_type, file);
+    //    Session::saveEnum(m_model->m_type, file);
     m_model->save(file);
 }
 
 Object::~Object()
 {
-    Q_ASSERT(m_model != nullptr);
-    delete m_model;
 //    std::cout << "\033[35m";
-//    std::cout << "[Object] '" << m_model << "' deleted " << this << std::endl;
+//    std::cout << "[Object] '" << this << "' deleted " << std::endl;
 //    std::cout << "\033[0m";
-
+    //    Q_ASSERT(m_model != nullptr);
+    if (m_model != nullptr) {
+        delete m_model;
+    }
+    //    std::cout << "\033[35m";
+    //    std::cout << "[Object] '" << m_model << "' deleted " << this << std::endl;
+    //    std::cout << "\033[0m";
 }
 
 //Object::~Object()
@@ -83,7 +95,6 @@ Object::~Object()
 //    std::cout << "\033[35m";
 //    std::cout << "[Object] '" << "' deleted " << this << std::endl;
 //    std::cout << "\033[0m";
-
 
 //}
 

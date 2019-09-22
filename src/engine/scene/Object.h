@@ -24,7 +24,8 @@ public:
     Object(std::ifstream & file);
     Object(const std::string & path);
 //    Object(Model &&model) noexcept;
-    Object(Object && object) noexcept = default;
+//    Object(Object && object) noexcept = default;
+    Object(Object && object) noexcept;
 
     Object(Model * model);
 //    virtual ~Object();

@@ -157,9 +157,9 @@ MeshModel::MeshModel(MeshModel&& model) noexcept
 
     m_rootNode->updateReferences(&m_meshes, &m_animations);
 
-//    std::cout << "\033[35m";
-//    std::cout << "[MeshModel] " << &model  << "  '" << m_filename << "' moved to " << this << std::endl;
-//    std::cout << "\033[0m";
+    std::cout << "\033[34m";
+    std::cout << "[MeshModel] " << &model  << "  '" << m_filename << "' moved to " << this << std::endl;
+    std::cout << "\033[0m";
 }
 
 //MeshModel::MeshModel(const MeshModel &model)

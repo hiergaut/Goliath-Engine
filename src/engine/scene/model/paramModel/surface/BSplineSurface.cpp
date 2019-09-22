@@ -9,8 +9,8 @@
 #include <QDebug>
 #include <opengl/geometry/DotGeometry.h>
 
-const uint g_buffMaxVertices = 1000 * sizeof(glm::vec3);
-const uint g_maxLenKnots = 13;
+const uint g_buffMaxVertices = 10000 * sizeof(glm::vec3);
+//const uint BSplineSurface::g_maxLenKnots = 13:
 
 BSplineSurface::BSplineSurface()
     : Model(glm::mat4(1.0f), Model::PARAM_SURFACE)
@@ -23,12 +23,25 @@ BSplineSurface::BSplineSurface()
     //    m_controlPoints.emplace_back(100.0f, 100.0f, 0.0f);
     //    m_controlPoints.emplace_back(150.0f, 0.0f, 0.0f);
     //    m_controlPoints.emplace_back(200.0f, 0.0f, 0.0f);
+//    for (uint i = 0; i < m_nbLine; ++i) {
+//        for (uint j = 0; j < m_nbCol; ++j) {
+//            m_controlPoints[i][j] = glm::vec3(i * 100.0f, j * 100.0f, 0.0f);
+//            m_selected[i][j] = false;
+//        }
+//    }
+    uint middleI = m_nbLine / 2;
+    uint middleJ = m_nbCol / 2;
     for (uint i = 0; i < m_nbLine; ++i) {
         for (uint j = 0; j < m_nbCol; ++j) {
-            m_controlPoints[i][j] = glm::vec3(i * 100.0f, j * 100.0f, 0.0f);
+            if (i == middleI || j == middleJ) {
+                m_controlPoints[i][j] = glm::vec3(i * 100.0f, j * 100.0f, 100.0f);
+            } else {
+                m_controlPoints[i][j] = glm::vec3(i * 100.0f, j * 100.0f, 0.0f);
+            }
             m_selected[i][j] = false;
         }
     }
+
 
     //    m_selected.resize(m_controlPoints.size());
     //    for (uint i = 0; i < m_selected.size(); ++i) {
@@ -42,9 +55,9 @@ BSplineSurface::BSplineSurface()
     setupGL();
 
     for (uint i = 0; i < 2; ++i) {
-        m_k[i] = 3;
+        m_k[i] = 2;
         m_dotPerEdge[i] = 5;
-        m_knots[i].resize(g_maxLenKnots);
+        //        m_knots[i].resize(g_maxLenKnots);
         for (uint j = 0; j < g_maxLenKnots; ++j) {
             //        knots[i] = i;
             m_knots[i][j] = j;
@@ -62,7 +75,7 @@ BSplineSurface::BSplineSurface(std::ifstream& file)
 {
     m_type = Model::PARAM_SURFACE;
 
-    //    Session::load(m_controlPoints, file);
+    Session::load(&m_controlPoints[0][0], m_nbLine * m_nbCol, file);
 
     //    Session::load(m_indices, file);
     //    qDebug() << "BSplineSurface";
@@ -80,13 +93,6 @@ BSplineSurface::BSplineSurface(std::ifstream& file)
     //    for (uint i = 0; i < m_selected.size(); ++i) {
     //        m_selected[i] = false;
     //    }
-    for (uint i = 0; i < m_nbLine; ++i) {
-        for (uint j = 0; j < m_nbCol; ++j) {
-            m_controlPoints[i][j] = glm::vec3(i * 100.0f, j * 100.0f, 0.0f);
-            m_selected[i][j] = false;
-        }
-    }
-
     //    for (uint i = 0; i < m_controlPoints.size() - 1; ++i) {
     //        m_indices.emplace_back(i, i + 1);
     //    }
@@ -110,9 +116,9 @@ BSplineSurface::BSplineSurface(std::ifstream& file)
     //        m_knots[i] = i;
     //    }
     for (uint i = 0; i < 2; ++i) {
-        m_k[i] = 3;
-        m_dotPerEdge[i] = 1;
-        m_knots[i].resize(g_maxLenKnots);
+        m_k[i] = 2;
+        m_dotPerEdge[i] = 5;
+        //        m_knots[i].resize(g_maxLenKnots);
         for (uint j = 0; j < g_maxLenKnots; ++j) {
             //        knots[i] = i;
             m_knots[i][j] = j;
@@ -183,6 +189,8 @@ void BSplineSurface::save(std::ofstream& file) const
 {
     Model::save(file);
 
+    Session::save(&m_controlPoints[0][0], m_nbLine * m_nbCol, file);
+
     //    Session::save(m_controlPoints, file);
 
     //    Session::save(m_indices, file);
@@ -204,15 +212,16 @@ void BSplineSurface::draw(const Shader& shader, bool dotCloud, const glm::mat4& 
         //                DotGeometry::draw(glm::translate(glm::mat4(1.0f), m_controlPoints[i]) * worldTransform * m_transform, shader, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), 8);
         //            }
         //        }
-        m_fun->glPointSize(5.0f);
+        m_fun->glPointSize(6.0f);
         shader.setBool("userColor", true);
 
         shader.setMat4("model", worldTransform * m_transform * localTransform);
         m_fun->glBindVertexArray(m_vao);
-        shader.setVec4("color", glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));
-        m_fun->glDrawArrays(GL_POINTS, 0, m_nbLine * m_nbCol * sizeof(glm::vec3));
-
         shader.setVec4("color", glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+        m_fun->glDrawArrays(GL_POINTS, 0, m_nbLine * m_nbCol);
+
+        m_fun->glPointSize(4.0f);
+        shader.setVec4("color", glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));
         m_fun->glBindVertexArray(m_vao2);
         m_fun->glDrawArrays(GL_POINTS, 0, m_vertices.size());
 
@@ -226,10 +235,11 @@ void BSplineSurface::draw(const Shader& shader, bool dotCloud, const glm::mat4& 
         //    m_fun->glDrawElements(GL_LINES, m_indices.size() * 2, GL_UNSIGNED_INT, nullptr);
         //    m_fun->glLineWidth(1.0f);
         //    m_fun->glBindVertexArray(0);
+        //    m_fun->glLineWidth(2.0f);
 
         shader.setMat4("model", worldTransform * m_transform * localTransform);
-//        shader.setBool("userColor", true);
-//        shader.setVec4("color", glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+        //        shader.setBool("userColor", true);
+        //        shader.setVec4("color", glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
         m_fun->glBindVertexArray(m_vao2);
         //    m_fun->glDrawArrays(GL_LINES, 0, 4);
         //    m_fun->glEnable(GL_POINT_SMOOTH);
@@ -249,16 +259,16 @@ void BSplineSurface::draw(const Shader& shader, bool dotCloud, const glm::mat4& 
 
 void BSplineSurface::draw(const Shader& shader, const glm::mat4& localTransform, const glm::mat4& worldTransform) const
 {
-        shader.setMat4("model", worldTransform * m_transform * localTransform);
-//        shader.setBool("userColor", true);
-//        shader.setVec4("color", glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
-        m_fun->glBindVertexArray(m_vao2);
-        //    m_fun->glDrawArrays(GL_LINES, 0, 4);
-        //    m_fun->glEnable(GL_POINT_SMOOTH);
-        //    m_fun->glPointSize(5.0f);
-        //        m_fun->glDrawElements(GL_LINES, m_indiceTriangles.size() * 2, GL_UNSIGNED_INT, nullptr);
-        m_fun->glDrawElements(GL_TRIANGLES, m_indiceTriangles.size() * 3, GL_UNSIGNED_INT, nullptr);
-        //    m_fun->glLineWidth(2.0f);
+    shader.setMat4("model", worldTransform * m_transform * localTransform);
+    //        shader.setBool("userColor", true);
+    //        shader.setVec4("color", glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+    m_fun->glBindVertexArray(m_vao2);
+    //    m_fun->glDrawArrays(GL_LINES, 0, 4);
+    //    m_fun->glEnable(GL_POINT_SMOOTH);
+    //    m_fun->glPointSize(5.0f);
+    //        m_fun->glDrawElements(GL_LINES, m_indiceTriangles.size() * 2, GL_UNSIGNED_INT, nullptr);
+    m_fun->glDrawElements(GL_TRIANGLES, m_indiceTriangles.size() * 3, GL_UNSIGNED_INT, nullptr);
+    //    m_fun->glLineWidth(2.0f);
     //    Q_ASSERT(m_fun != nullptr);
     //    shader.setMat4("model", worldTransform * m_transform * localTransform);
     //    shader.setBool("userColor", true);
@@ -283,7 +293,8 @@ void BSplineSurface::drawSelected(const Shader& shader, const glm::mat4& localTr
         for (uint j = 0; j < m_nbCol; ++j) {
             if (m_selected[i][j]) {
                 //                qDebug() << "draw " << i;
-                DotGeometry::draw(glm::translate(glm::mat4(1.0f), m_controlPoints[i][j]) * worldTransform * m_transform, shader, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), 6);
+                DotGeometry::draw(glm::translate(glm::mat4(1.0f), m_controlPoints[i][j]) * worldTransform * m_transform, shader, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), 10);
+                //                DotGeometry::draw(glm::translate(glm::mat4(1.0f), m_controlPoints[i][j]) * worldTransform * m_transform, shader, glm::vec4(1.0f, 0.5f, 0.0f, 1.0f), 10);
             }
         }
     }
@@ -344,7 +355,7 @@ void BSplineSurface::vertexSelectRay(const Ray& ray, bool additional)
                 //                    qDebug() << "intersect " << i;
                 //                    m_selectVertices.emplace_back(i);
                 if (additional) {
-                    m_selected[i][j] = !m_selected[i];
+                    m_selected[i][j] = !m_selected[i][j];
                 } else {
                     m_selected[i][j] = true;
                 }
@@ -361,6 +372,7 @@ std::string BSplineSurface::name() const
 void BSplineSurface::setUk(uint k)
 {
     m_k[0] = k;
+    //    m_k[1] = k;
 
     updateSurface();
 }
@@ -374,6 +386,7 @@ void BSplineSurface::setVk(uint k)
 void BSplineSurface::setUDotPerEdge(uint dotPerEdge)
 {
     m_dotPerEdge[0] = dotPerEdge;
+    //    m_dotPerEdge[1] = dotPerEdge;
 
     updateSurface();
 }
@@ -384,7 +397,7 @@ void BSplineSurface::setVDotPerEdge(uint dotPerEdge)
     updateSurface();
 }
 
-glm::vec3 deBoor(float u, uint m, const uint k, const std::vector<float>& knots, const std::vector<glm::vec3>& controlPoints)
+glm::vec3 deBoor(float u, uint m, const uint k, const float knots[], const std::vector<glm::vec3>& controlPoints)
 {
     int dec = 0;
     int i = k;
@@ -428,7 +441,7 @@ glm::vec3 deBoor(float u, uint m, const uint k, const std::vector<float>& knots,
     return pts[0];
 }
 
-std::vector<glm::vec3> calcCurve(const std::vector<glm::vec3>& ptsCtrl, const uint k, const uint dotPerEdge, const std::vector<float>& knots)
+std::vector<glm::vec3> calcCurve(const std::vector<glm::vec3>& ptsCtrl, const uint k, const uint dotPerEdge, const float knots[])
 {
 
     std::vector<glm::vec3> curve;
@@ -437,7 +450,8 @@ std::vector<glm::vec3> calcCurve(const std::vector<glm::vec3>& ptsCtrl, const ui
     uint n = ptsCtrl.size() - 1;
     //    std::cout << "n: " << n << std::endl;
     uint m = k + n + 1;
-    uint nbPtCtl = (n * dotPerEdge);
+    uint nbPtCtl = ((n + 1) * dotPerEdge);
+    //    std::vector<glm::vec3> curve(nbPtCtl);
     const float start = knots[k - 1];
     const float end = knots[n + 1];
     const float period = end - start;
@@ -457,9 +471,13 @@ std::vector<glm::vec3> calcCurve(const std::vector<glm::vec3>& ptsCtrl, const ui
         //        m_vertices.push_back(pts[0]);
         //        m_vertices.push_back(deBoor(u, m, m_k[0], m_knots[0], ))
         curve.emplace_back(deBoor(u, m, k, knots, ptsCtrl));
+        //        curve[iPtCtl] =
     }
+    Q_ASSERT(nbPtCtl == curve.size());
+    Q_ASSERT(nbPtCtl > 0);
 
     return curve;
+    //    return std::move(curve);
 }
 
 void BSplineSurface::updateSurface(const glm::mat4& localTransform, const glm::mat4& worldTransform)
@@ -489,19 +507,37 @@ void BSplineSurface::updateSurface(const glm::mat4& localTransform, const glm::m
     //    float u = 2.5f;
 
     //    std::vector<std::vector<glm::vec3>> curves;
-    uint nbLine = (m_nbLine - 1) * m_dotPerEdge[1];
-    uint nbCol = (m_nbCol - 1) * m_dotPerEdge[0];
+    uint nbLine = (m_nbLine)*m_dotPerEdge[0];
+    uint nbCol = (m_nbCol)*m_dotPerEdge[1];
     glm::vec3 surfaces[nbLine][nbCol];
+    //    for (uint i = 0; i < nbLine; ++i) {
+    //        for (uint j = 0; j < nbCol; ++j) {
+    //            surfaces[i][j] = glm::vec3(0.0f);
+    //        }
+    //    }
 
     for (uint i = 0; i < m_nbLine; ++i) {
         std::vector<glm::vec3> linePtCtrl;
         for (uint j = 0; j < m_nbCol; ++j) {
             linePtCtrl.emplace_back(controlPoints[i][j]);
         }
-        std::vector<glm::vec3> curve = calcCurve(linePtCtrl, m_k[0], m_dotPerEdge[0], m_knots[0]);
+        std::vector<glm::vec3> curve(calcCurve(linePtCtrl, m_k[1], m_dotPerEdge[1], m_knots[1]));
         Q_ASSERT(curve.size() == nbCol);
         for (uint k = 0; k < nbCol; ++k) {
             surfaces[i][k] = curve[k];
+        }
+    }
+
+    for (uint j = 0; j < nbCol; ++j) {
+        std::vector<glm::vec3> colPtCtrl;
+        for (uint i = 0; i < m_nbLine; ++i) {
+            colPtCtrl.emplace_back(surfaces[i][j]);
+        }
+        std::vector<glm::vec3> curve2(calcCurve(colPtCtrl, m_k[0], m_dotPerEdge[0], m_knots[0]));
+
+        Q_ASSERT(curve2.size() == nbLine);
+        for (uint k = 0; k < nbLine; ++k) {
+            surfaces[k][j] = curve2[k];
         }
     }
 
@@ -530,51 +566,46 @@ void BSplineSurface::updateSurface(const glm::mat4& localTransform, const glm::m
 
                 glm::vec3 normal = glm::normalize(glm::cross(topLeftBottomRight, topLeftTopRight));
                 m_normals.emplace_back(std::move(normal));
-            }
-            else if (i == nbLine -1 && j != nbCol - 1) {
-//                uint topLeft = (i - 1) * nbCol + j;
-//                uint bottomRight = i * nbCol + j +1;
-//                uint bottomLeft = i * nbCol + j;
+            } else if (i == nbLine - 1 && j != nbCol - 1) {
+                //                uint topLeft = (i - 1) * nbCol + j;
+                //                uint bottomRight = i * nbCol + j +1;
+                //                uint bottomLeft = i * nbCol + j;
 
                 glm::vec3 bottomLeftTopLeft = surfaces[i - 1][j] - surfaces[i][j];
                 glm::vec3 bottomLeftBottomRight = surfaces[i][j + 1] - surfaces[i][j];
 
                 glm::vec3 normal = glm::normalize(glm::cross(bottomLeftBottomRight, bottomLeftTopLeft));
                 m_normals.emplace_back(std::move(normal));
-            }
-            else if (j == nbCol - 1 && i != nbLine - 1) {
+            } else if (j == nbCol - 1 && i != nbLine - 1) {
                 glm::vec3 topRighttopLeft = surfaces[i][j - 1] - surfaces[i][j];
                 glm::vec3 topRightBottomRight = surfaces[i + 1][j] - surfaces[i][j];
 
-                glm::vec3 normal = glm::normalize(glm::cross( topRighttopLeft, topRightBottomRight));
+                glm::vec3 normal = glm::normalize(glm::cross(topRighttopLeft, topRightBottomRight));
                 m_normals.emplace_back(std::move(normal));
 
-            }
-            else {
+            } else {
                 Q_ASSERT(j == nbCol - 1 && i == nbLine - 1);
                 glm::vec3 bottomRightTopRight = surfaces[i - 1][j] - surfaces[i][j];
                 glm::vec3 bottomRightBottomLeft = surfaces[i][j - 1] - surfaces[i][j];
 
-                glm::vec3 normal = glm::normalize(glm::cross( bottomRightTopRight, bottomRightBottomLeft));
+                glm::vec3 normal = glm::normalize(glm::cross(bottomRightTopRight, bottomRightBottomLeft));
                 m_normals.emplace_back(std::move(normal));
-
             }
-
         }
     }
 
-//    for (uint i = 0; i < nbLine; ++i) {
-//        //        uint nbCol = curves[i].size();
-//        for (uint j = 0; j < nbCol; ++j) {
-//            if (i < nbLine - 1 && j < nbCol - 1) {
-//                uint topLeft = i * nbCol + j;
-//                uint topRight = i * nbCol + j + 1;
-//                uint bottomLeft = (i + 1) * nbCol + j;
-//                uint bottomRight = (i + 1) * nbCol + j + 1;
+    //    for (uint i = 0; i < nbLine; ++i) {
+    //        //        uint nbCol = curves[i].size();
+    //        for (uint j = 0; j < nbCol; ++j) {
+    //            if (i < nbLine - 1 && j < nbCol - 1) {
+    //                uint topLeft = i * nbCol + j;
+    //                uint topRight = i * nbCol + j + 1;
+    //                uint bottomLeft = (i + 1) * nbCol + j;
+    //                uint bottomRight = (i + 1) * nbCol + j + 1;
 
-//            }
-//        }
-//    }
+    //            }
+    //        }
+    //    }
 
     //    for (uint i = 0; i < m_vertices.size() - 1; ++i) {
     //        m_indiceTriangles.emplace_back(i, i + 1);
