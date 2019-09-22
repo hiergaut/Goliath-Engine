@@ -52,7 +52,8 @@ MeshModel::MeshModel(std::ifstream& file)
     : Model(file)
 //    , m_type(Model::MESH)
 {
-//    m_type = Model::MESH;
+    m_type = Model::MESH;
+
     m_meshes.reserve(50);
     m_materials.reserve(50);
     m_textures.reserve(100);

@@ -41,6 +41,7 @@ class MainWindow3dView;
 //#include <gui/QOpenGLWidget_Editor.h>
 #include <opengl/rayTracer/Ray.h>
 #include <opengl/shader.h>
+#include <engine/scene/model/paramModel/curve/BSplineCurve.h>
 
 class MainWindow3dView : public QMainWindow, public TemplateMenuBar {
     Q_OBJECT
@@ -88,7 +89,8 @@ public:
     QTimer * m_timer = nullptr;
     QTimer * m_timerAutoUpdateCurve = nullptr;
 
-    ParamModel * m_paramModelSelected = nullptr;
+//    ParamModel * m_paramModelSelected = nullptr;
+    BSplineCurve * m_splineCurve = nullptr;
 
 public:
     explicit MainWindow3dView(QWidget* parent = nullptr);

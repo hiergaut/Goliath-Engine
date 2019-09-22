@@ -8,13 +8,15 @@
 
 class Model {
 public:
-    mutable glm::mat4 m_transform = glm::mat4(1.0f);
-    mutable BoundingBox m_box;
 
     enum Type {
         MESH,
-        PARAM,
+        PARAM_CURVE,
+        PARAM_SURFACE,
     } m_type;
+
+    mutable glm::mat4 m_transform = glm::mat4(1.0f);
+    mutable BoundingBox m_box;
 
 public:
     //    Model(std::ifstream & file);

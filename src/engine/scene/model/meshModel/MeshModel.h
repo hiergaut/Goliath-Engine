@@ -86,7 +86,7 @@ public:
     //    MeshModel(MeshModel&& model) noexcept;
     //    MeshModel(MeshModel&& model) = default;
     //    MeshModel(MeshModel & model);
-    ~MeshModel();
+    ~MeshModel() override;
 
     void prepareHierarchy(ulong frameTime) const override;
 

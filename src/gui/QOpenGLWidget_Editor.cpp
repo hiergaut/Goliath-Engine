@@ -220,6 +220,7 @@ void QOpenGLWidget_Editor::paintGL()
     }
     m_scene.m_autoUpdateBoundingBox = autoUpdate;
     m_scene.prepareHierarchy(currentFrameTime);
+//    m_scene.prepareHierarchy(0);
 
     for (const MainWindow3dView* view : *m_views) {
         if (view->m_iCamera < Scene::m_cameras.size()) {

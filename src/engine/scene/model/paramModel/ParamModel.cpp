@@ -1,17 +1,17 @@
 #include "ParamModel.h"
-#include <session/Session.h>
+//#include <session/Session.h>
 
-ParamModel::ParamModel(ParamModel::Type type)
-    : Model(glm::mat4(1.0f), Model::Type::PARAM)
-    , m_type(type)
-{
-}
+//ParamModel::ParamModel(ParamModel::Type type)
+//    : Model(glm::mat4(1.0f), Model::Type::PARAM)
+//    , m_type(type)
+//{
+//}
 
-ParamModel::ParamModel(std::ifstream& file)
-    : Model(file)
-{
-    m_type = static_cast<Type>(Session::loadEnum(file));
-}
+//ParamModel::ParamModel(std::ifstream& file)
+//    : Model(file)
+//{
+//    m_type = static_cast<Type>(Session::loadEnum(file));
+//}
 //#include "curve/BSplineCurve.h"
 //#include "surface/BSplineSurface.h"
 

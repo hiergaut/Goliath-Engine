@@ -2,10 +2,11 @@
 #define BSPLINECURVE_H
 
 //#include <engine/scene/model/Model.h>
-#include "../ParamModel.h"
+//#include "../ParamModel.h"
 //#include <engine/scene/model/Vertex.h>
+#include "../../Model.h"
 
-class BSplineCurve : ParamModel {
+class BSplineCurve : public Model {
     //public:
     //    BSplineCurve();
 public:
@@ -19,6 +20,9 @@ public:
 public:
     BSplineCurve();
     BSplineCurve(std::ifstream& file);
+//    BSplineCurve(BSplineCurve && splineCurve) noexcept = default;
+
+    ~BSplineCurve() override;
 
     void setupGL();
 
@@ -28,9 +32,9 @@ public:
     void setDotPerEdge(uint dotPerEdge);
     //    void updateCurve();
     void updateCurve(const glm::mat4& localTransform = glm::mat4(1.0f), const glm::mat4& worldTransform = glm::mat4(1.0f));
-    void drawSelected(const Shader& shader, const glm::mat4& localTransform = glm::mat4(1.0f), const glm::mat4& worldTransform = glm::mat4(1.0f)) const override;
+    void drawSelected(const Shader& shader, const glm::mat4& localTransform = glm::mat4(1.0f), const glm::mat4& worldTransform = glm::mat4(1.0f)) const;
     void updateSelectedVertexPosition(const glm::mat4& localTransform, const glm::mat4& worldTransform) override;
-    void vertexSelectRay(const Ray &ray, bool additional) override;
+    void vertexSelectRay(const Ray &ray, bool additional);
 
 protected:
     void save(std::ofstream& file) const override;

@@ -121,15 +121,18 @@ MainWindow3dView::MainWindow3dView(QWidget* parent)
 
     m_menus.push_back(ui->menuInteraction_Mode);
     //    ui->menuInteraction_Mode->setIcon(ui->actionObject_Mode->icon());
+    ui->menuInteraction_Mode->setStyleSheet("background-color: none");
     m_menus.push_back(ui->menuCurent_Mode);
 
     m_mode = EDIT;
     setMode(OBJECT);
 
     // ----------------------------------------------
+    ui->menuShading->setStyleSheet("background-color: none");
     m_menus.push_back(ui->menuShading);
     m_menus.push_back(ui->menuShading_2);
 
+    ui->menuAdd->setStyleSheet("background-color: none");
     m_menus.push_back(ui->menuAdd);
 
     // -----------------------------------------------
@@ -774,7 +777,8 @@ void MainWindow3dView::mousePressEvent(QMouseEvent* event)
                 //            m_transformActive = false;
                 //			setCursor(Qt::ArrowCursor);
                 if (m_mode == Mode::EDIT) {
-                    m_paramModelSelected->updateSelectedVertexPosition(*m_localTransform, *m_worldTransform);
+//                    m_paramModelSelected->updateSelectedVertexPosition(*m_localTransform, *m_worldTransform);
+                    m_splineCurve->updateSelectedVertexPosition(*m_localTransform, *m_worldTransform);
                 }
                 setTransformInactive();
             } else {
@@ -1300,8 +1304,10 @@ void MainWindow3dView::setTransformActive()
 
         if (m_mode == Mode::EDIT) {
             if (Scene::m_scene->m_selectObject != nullptr) {
-                if (Scene::m_scene->m_selectObject->m_model->m_type == Model::PARAM) {
-                    m_paramModelSelected = static_cast<ParamModel*>(Scene::m_scene->m_selectObject->m_model);
+                if (Scene::m_scene->m_selectObject->m_model->m_type == Model::PARAM_CURVE) {
+//                    m_paramModelSelected = static_cast<ParamModel*>(Scene::m_scene->m_selectObject->m_model);
+                    m_splineCurve = static_cast<BSplineCurve*>(Scene::m_scene->m_selectObject->m_model);
+//                    m_splineCurve = Scene::m_scene->m_selectObject->m_model;
                     m_timerAutoUpdateCurve->start(50);
                 }
             }
@@ -1365,7 +1371,8 @@ void MainWindow3dView::onUpdateCurve()
 
     //    m_paramModelSelected->updateCurve();
     //    m_paramModelSelected->updateSelectedVertexPosition(*m_localTransform, *m_worldTransform);
-    m_paramModelSelected->updateCurve(*m_localTransform, *m_worldTransform);
+//    m_paramModelSelected->updateCurve(*m_localTransform, *m_worldTransform);
+    m_splineCurve->updateCurve(*m_localTransform, *m_worldTransform);
     //    m_paramModelSelected->updk
 }
 

@@ -7,7 +7,8 @@
 //#include <gui/editor/3dview/MainWindow3dView.h>
 #include <opengl/BoundingBox.h>
 #include <engine/scene/model/meshModel/MeshModel.h>
-#include "model/paramModel/ParamModel.h"
+//#include "model/paramModel/ParamModel.h"
+//#include <engine/scene/model/paramModel/curve/BSplineCurve.h>
 
 class Object {
 public:

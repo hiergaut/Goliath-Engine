@@ -15,6 +15,7 @@
 //{
 
 //}
+#include <engine/scene/model/paramModel/curve/BSplineCurve.h>
 
 Object::Object(std::ifstream &file)
 //    : m_model(file)
@@ -28,8 +29,9 @@ Object::Object(std::ifstream &file)
         m_model = new MeshModel(file);
         break;
 
-    case Model::PARAM:
-        m_model = new ParamModel(file);
+    case Model::PARAM_CURVE:
+//        m_model = new ParamModel(file);
+        m_model = new BSplineCurve(file);
 //        Q_ASSERT(false);
         break;
 
@@ -57,7 +59,7 @@ Object::Object(Model *model)
 
 void Object::save(std::ofstream &file) const
 {
-    Session::saveEnum(m_model->m_type, file);
+//    Session::saveEnum(m_model->m_type, file);
     m_model->save(file);
 }
 
@@ -65,6 +67,9 @@ Object::~Object()
 {
     Q_ASSERT(m_model != nullptr);
     delete m_model;
+//    std::cout << "\033[35m";
+//    std::cout << "[Object] '" << m_model << "' deleted " << this << std::endl;
+//    std::cout << "\033[0m";
 
 }
 

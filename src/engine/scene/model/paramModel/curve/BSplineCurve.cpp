@@ -13,8 +13,8 @@ const uint g_buffMaxVertices = 100 * sizeof(glm::vec3);
 const uint g_maxLenKnots = 13;
 
 BSplineCurve::BSplineCurve()
-//    : Model(glm::mat4(1.0f), Model::PARAM)
-    : ParamModel(ParamModel::Type::BSPLINE_CURVE)
+    : Model(glm::mat4(1.0f), Model::PARAM_CURVE)
+//    : ParamModel(Model::Type::BSPLINE_CURVE)
 {
 
     m_controlPoints.emplace_back(-200.0f, 0.0f, 0.0f);
@@ -47,12 +47,17 @@ BSplineCurve::BSplineCurve()
 }
 
 BSplineCurve::BSplineCurve(std::ifstream& file)
-//    : Model(file)
-    : ParamModel(file)
+    : Model(file)
+//    : ParamModel(file)
+//    , m_type(Model::BSplineCurve)
+//    , m_type = Model::PARAM_CURVE
 {
+    m_type = Model::PARAM_CURVE;
+
     Session::load(m_controlPoints, file);
     //    Session::load(m_indices, file);
     //    qDebug() << "BSplineCurve";
+    //    m_transform = glm::mat4(1.0f);
 
     //    m_controlPoints.clear();
     //    m_controlPoints.emplace_back(-200.0f, 0.0f, 0.0f);
@@ -91,6 +96,13 @@ BSplineCurve::BSplineCurve(std::ifstream& file)
     }
 
     updateCurve();
+}
+
+BSplineCurve::~BSplineCurve()
+{
+    std::cout << "\033[35m";
+    std::cout << "[BSplinCurve] '" << name() << "' deleted " << this << std::endl;
+    std::cout << "\033[0m";
 }
 
 void BSplineCurve::setupGL()
@@ -266,7 +278,9 @@ void BSplineCurve::vertexSelectRay(const Ray& ray, bool additional)
 {
 
     for (uint i = 0; i < m_controlPoints.size(); ++i) {
-        m_selected[i] = false;
+        if (!additional) {
+            m_selected[i] = false;
+        }
 
         const glm::vec3& vertex = m_transform * glm::vec4(m_controlPoints[i], 1.0f);
         //                    qDebug() << "vertex " << i;
@@ -274,7 +288,11 @@ void BSplineCurve::vertexSelectRay(const Ray& ray, bool additional)
         if (ray.intersect(vertex)) {
             //                    qDebug() << "intersect " << i;
             //                    m_selectVertices.emplace_back(i);
-            m_selected[i] = true;
+            if (additional) {
+                m_selected[i] = !m_selected[i];
+            } else {
+                m_selected[i] = true;
+            }
         }
     }
 }
@@ -418,8 +436,8 @@ void BSplineCurve::buildItemModel(QStandardItem* parent) const
     //    item2->appendRow(m_itemTransformation);
     //    item->appendRow(item2);
 
-    //    for (const glm::vec3& vertex : m_controlPoints) {
-    //        QStandardItem* item = new QStandardItem(QString::number(vertex.x) + "  " + QString::number(vertex.y) + "  " + QString::number(vertex.z));
-    //        parent->appendRow(item);
-    //    }
+    for (const glm::vec3& vertex : m_controlPoints) {
+        QStandardItem* item = new QStandardItem(QString::number(vertex.x) + "  " + QString::number(vertex.y) + "  " + QString::number(vertex.z));
+        parent->appendRow(item);
+    }
 }

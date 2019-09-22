@@ -285,10 +285,12 @@ void Scene::draw(const MainWindow3dView& view)
     case MainWindow3dView::Mode::EDIT:
         if (m_selectObject != nullptr) {
             shader.setBool("userColor", true);
-            if (m_selectObject->m_model->m_type == Model::PARAM) {
-                const ParamModel& paramModel = static_cast<ParamModel&>(*m_selectObject->m_model);
+            if (m_selectObject->m_model->m_type == Model::PARAM_CURVE) {
+//                const ParamModel& paramModel = static_cast<ParamModel&>(*m_selectObject->m_model);
+                const BSplineCurve& splineCurve = static_cast<BSplineCurve&>(*m_selectObject->m_model);
 
-                paramModel.drawSelected(shader, m_localVertexTransform, m_worldVertexTransform);
+
+                splineCurve.drawSelected(shader, m_localVertexTransform, m_worldVertexTransform);
             }
 
             glPolygonMode(GL_FRONT, GL_LINE);
@@ -459,7 +461,7 @@ void Scene::draw(const MainWindow3dView& view)
     //    shader.setMat4("projection", projectionMatrix);
     //    shader.setMat4("model", onesMatrix);
     glDepthFunc(GL_ALWAYS);
-    glLineWidth(2);
+    glLineWidth(1);
     //    glPolygonMode(GL_FRONT, GL_LINE);
     //    for (const Model& model : m_models) {
     if (view.m_mode == MainWindow3dView::Mode::EDIT) {
@@ -677,7 +679,7 @@ void Scene::objectSelectRay(const Ray& ray, bool additional)
             //            switch (object->m_model.m_type) {
 
             //            case Model::MESH:
-            if (object->m_model->m_type == Model::PARAM) {
+            if (object->m_model->m_type == Model::PARAM_CURVE) {
                 //                const ParamModel & paramModel = static_cast<const ParamModel&>(*object->m_model);
                 //                for (const glm::vec3 & ptsCtrl : paramModel.m_controlPoints) {
                 if (depth < depthMin) {
@@ -863,11 +865,11 @@ void Scene::vertexSelectRay(const Ray& ray, bool additional)
     if (m_selectObject != nullptr) {
         //        m_selectVertices.clear();
 
-        if (m_selectObject->m_model->m_type == Model::PARAM) {
-            ParamModel& paramModel = static_cast<ParamModel&>(*m_selectObject->m_model);
+        if (m_selectObject->m_model->m_type == Model::PARAM_CURVE) {
+            BSplineCurve& splineCurve = static_cast<BSplineCurve&>(*m_selectObject->m_model);
 
             //            for (const glm::vec3 & vertex : paramModel.m_controlPoints) {
-            paramModel.vertexSelectRay(ray, additional);
+            splineCurve.vertexSelectRay(ray, additional);
         }
     }
 }
@@ -1232,6 +1234,8 @@ void Scene::addCurve()
 {
     //    m_models.push_back(new ParamModel());
 //    m_models.emplace_back(new ParamModel());
+//    m_models.emplace_back(new BSplineCurve);
+//    m_models.push_back(new BSplineCurve);
     m_models.emplace_back(new BSplineCurve);
 
     //    m_models.emplace_back(Curve());
@@ -1309,28 +1313,30 @@ void Scene::removeNoViewCamera()
     m_cameras = std::move(newCameras);
 }
 
-ParamModel* Scene::getParamModel()
-{
-    for (Object& object : m_models) {
-        if (object.m_model->m_type == Model::PARAM) {
-            return static_cast<ParamModel*>(object.m_model);
-            //            return object.m_model;
-            break;
-        }
-    }
+//ParamModel* Scene::getParamModel()
+//{
+//    for (Object& object : m_models) {
+//        if (object.m_model->m_type == Model::PARAM) {
+//            return static_cast<ParamModel*>(object.m_model);
+//            //            return object.m_model;
+//            break;
+//        }
+//    }
 
-    return nullptr;
-}
+//    return nullptr;
+//}
 
 BSplineCurve *Scene::getBsplineCurve()
 {
     for (Object& object : m_models) {
-        if (object.m_model->m_type == Model::PARAM) {
-            ParamModel * paramModel =  static_cast<ParamModel*>(object.m_model);
-            if (paramModel->m_type == ParamModel::Type::BSPLINE_CURVE) {
-                return dynamic_cast<BSplineCurve*>(paramModel);
-            }
-            //            return object.m_model;
+        if (object.m_model->m_type == Model::PARAM_CURVE) {
+//            ParamModel * paramModel =  static_cast<ParamModel*>(object.m_model);
+            BSplineCurve * splineCurve =  static_cast<BSplineCurve*>(object.m_model);
+            return splineCurve;
+//            if (paramModel->m_type == ParamModel::Type::BSPLINE_CURVE) {
+//                return dynamic_cast<BSplineCurve*>(paramModel);
+//            }
+//            //            return object.m_model;
             break;
         }
     }
