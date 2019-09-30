@@ -8,8 +8,8 @@ project (MainApplication)
 
 #find_package(Qt5 REQUIRED)
 
-find_package(Qt5 COMPONENTS Core Widgets OpenGL REQUIRED)
-find_package(OpenGL REQUIRED)
+#find_package(Qt5 COMPONENTS Core Widgets OpenGL REQUIRED)
+#find_package(OpenGL REQUIRED)
 
 #add_definitions(-DGL_SILENCE_DEPRECATION)
 
@@ -20,8 +20,8 @@ find_package(OpenGL REQUIRED)
 #SET(SimpleProject_FORMS src/MainWindow.ui)
 #SET(SimpleProject_HEADERS src/MainWindow.h)
 file(GLOB_RECURSE sources *.cpp)
-file(GLOB_RECURSE forms *.ui)
-file(GLOB_RECURSE headers *.h)
+#file(GLOB_RECURSE forms *.ui)
+#file(GLOB_RECURSE headers *.h)
 
 #file(GLOB_RECURSE so ${M_INCLUDE_DIR}/Gui/TillingWindow/*.cpp)
 
@@ -49,9 +49,9 @@ include_directories(
 #source_group("forms files" FILES ${forms})
 #source_group("header files" FILES ${headers})
 
-set(CMAKE_AUTOMOC ON)
+#set(CMAKE_AUTOMOC ON)
 #set(CMAKE_AUTORCC ON)
-set(CMAKE_AUTOUIC ON)
+#set(CMAKE_AUTOUIC ON)
 
 #set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -60,8 +60,8 @@ set(CMAKE_AUTOUIC ON)
 
 add_executable(${PROJECT_NAME}
     ${sources}
-    ${forms}
-    ${headers}
+#    ${forms}
+#    ${headers}
 #    ${resources}
 #        ${M_RESOURCES}
 #    ${so}
@@ -74,7 +74,8 @@ add_executable(${PROJECT_NAME}
 
 
 #set(EXT_LIBS Qt5::OpenGL ${OPENGL_LIBRARIES})
-target_link_libraries(${PROJECT_NAME} ${M_Qt5_LIBRARIES} Qt5::OpenGL src)
+target_link_libraries(${PROJECT_NAME} src)
+#target_link_libraries(${PROJECT_NAME} ${M_Qt5_LIBRARIES} Qt5::OpenGL src)
 
 #add_dependencies(${PROJECT_NAME} src)
 

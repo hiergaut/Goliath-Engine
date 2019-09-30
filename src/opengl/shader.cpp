@@ -45,7 +45,7 @@ Shader::Shader(const std::string vertexPath, const std::string fragmentPath, con
         vertexCode = vShaderStream.str();
         // if geometry shader path is present, also load a geometry shader
     } catch (std::ifstream::failure e) {
-        std::cout << "ERROR::SHADER::VERTEX::FILE_NOT_SUCCESFULLY_READ " << vertexPath << std::endl;
+        std::cout << "ERROR::SHADER::VERTEX::FILE_NOT_SUCCESFULLY_READ " << g_shaderPath + vertexPath << std::endl;
         exit(0);
     }
     try {

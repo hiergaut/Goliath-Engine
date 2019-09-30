@@ -8,7 +8,8 @@
 //QOpenGLVersionProfile g_versionProfile(Q)
 using QOpenGLFunctionsCore = QOpenGLFunctions_4_1_Core;
 
-static std::string g_resourcesPath = "../../../Goliath-Engine/resources/";
+//static std::string g_resourcesPath = "../../../Goliath-Engine/resources/";
+static std::string g_resourcesPath = "../../resources/";
 static std::string g_shaderPath = g_resourcesPath + "shader/";
 
 //#include <ope

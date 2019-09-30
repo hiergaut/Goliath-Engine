@@ -56,5 +56,6 @@ add_subdirectory(src)
 
 add_subdirectory(modules/AnimTimeline)
 
+file( COPY ${CMAKE_CURRENT_SOURCE_DIR}/resources DESTINATION ${CMAKE_CURRENT_BINARY_DIR} )
 
 #configure_file(${resources} ${CMAKE_CURRENT_BINARY_DIR}/${resources} COPYONLY)

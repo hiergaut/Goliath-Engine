@@ -1,4 +1,5 @@
-#include "MainWindow.h"
+//#include "MainWindow.h"
+#include <gui/MainWindow.h>
 //#include "QOpenGLWindow_Application.h"
 #include <QApplication>
 
