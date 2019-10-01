@@ -77,6 +77,7 @@ public:
 
     void objectSelectRay(const Ray & ray, bool additional = false);
     void vertexSelectRay(const Ray & ray, bool additional = false);
+    void vertexSelectFrustum(const glm::mat4 & projectionMatrix, const glm::mat4 & viewMatrix, bool additional = false);
 
 //    void unselectRay(const Ray & ray);
 

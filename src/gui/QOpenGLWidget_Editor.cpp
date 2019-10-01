@@ -279,7 +279,7 @@ void QOpenGLWidget_Editor::paintGL()
     // ----------------------------------------------------------------
 
     ++m_cpt;
-    QThread::msleep(10);
+    QThread::msleep(1);
     update();
 }
 

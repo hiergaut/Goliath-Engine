@@ -35,6 +35,7 @@ public:
     void drawSelected(const Shader& shader, const glm::mat4& localTransform = glm::mat4(1.0f), const glm::mat4& worldTransform = glm::mat4(1.0f)) const;
     void updateSelectedVertexPosition(const glm::mat4& localTransform, const glm::mat4& worldTransform) override;
     void vertexSelectRay(const Ray &ray, bool additional);
+    void vertexSelectFrustum(const glm::mat4 & projectionMatrix, const glm::mat4 & viewMatrix, bool additional = false);
 
 protected:
     void save(std::ofstream& file) const override;

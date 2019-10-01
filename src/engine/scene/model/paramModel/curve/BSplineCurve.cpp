@@ -297,6 +297,32 @@ void BSplineCurve::vertexSelectRay(const Ray& ray, bool additional)
     }
 }
 
+void BSplineCurve::vertexSelectFrustum(const glm::mat4 &projectionMatrix, const glm::mat4 &viewMatrix, bool additional)
+{
+    for (uint i = 0; i < m_controlPoints.size(); ++i) {
+        if (!additional) {
+            m_selected[i] = false;
+        }
+
+        const glm::vec3& vertex = projectionMatrix * viewMatrix * m_transform * glm::vec4(m_controlPoints[i], 1.0f);
+        //                    qDebug() << "vertex " << i;
+
+        qDebug() << vertex.x << vertex.y << vertex.z;
+
+        if (std::abs(vertex.x) < 1.0f && std::abs(vertex.y) < 1.0f) {
+//        if (ray.intersect(vertex)) {
+            //                    qDebug() << "intersect " << i;
+            //                    m_selectVertices.emplace_back(i);
+            if (additional) {
+                m_selected[i] = !m_selected[i];
+            } else {
+                m_selected[i] = true;
+            }
+        }
+    }
+
+}
+
 std::string BSplineCurve::name() const
 {
     return "BSplineCurve";

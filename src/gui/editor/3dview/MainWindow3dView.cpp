@@ -853,6 +853,8 @@ void MainWindow3dView::mouseReleaseEvent(QMouseEvent* event)
         //        QRect selectRect()
         switch (event->button()) {
         case Qt::RightButton:
+            glm::mat4 projectionMatrix = glm::perspective(glm::radians(m_camera->m_fov), (float)width() / height(), l_near, l_far);
+            Scene::m_scene->vertexSelectFrustum(projectionMatrix, viewMatrix(), m_shiftPressed);
             m_rightClicked = false;
             break;
         }

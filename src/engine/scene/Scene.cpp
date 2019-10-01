@@ -471,7 +471,7 @@ void Scene::draw(const MainWindow3dView& view)
     //    shader.setMat4("projection", projectionMatrix);
     //    shader.setMat4("model", onesMatrix);
     glDepthFunc(GL_ALWAYS);
-    glLineWidth(1);
+    glLineWidth(2);
     //    glPolygonMode(GL_FRONT, GL_LINE);
     //    for (const Model& model : m_models) {
     if (view.m_mode == MainWindow3dView::Mode::EDIT) {
@@ -914,6 +914,17 @@ void Scene::vertexSelectRay(const Ray& ray, bool additional)
             splineSurface.vertexSelectRay(ray, additional);
         }
     }
+}
+
+void Scene::vertexSelectFrustum(const glm::mat4 &projectionMatrix, const glm::mat4 &viewMatrix, bool additional)
+{
+    if (m_selectObject != nullptr) {
+        if (m_selectObject->m_model->m_type == Model::PARAM_CURVE) {
+            BSplineCurve& splineCurve = static_cast<BSplineCurve&>(*m_selectObject->m_model);
+            splineCurve.vertexSelectFrustum(projectionMatrix, viewMatrix, additional);
+        }
+    }
+
 }
 
 //void Scene::unselectRay(const Ray &ray)
