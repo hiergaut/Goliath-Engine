@@ -158,6 +158,9 @@ void Scene::draw(const MainWindow3dView& view)
         //        m_grid->draw(glm::scale(onesMatrix, glm::vec3(1.0f) * glm::length(glm::vec3(viewMatrix[3]))), viewMatrix, projectionMatrix);
     }
 
+    //    glLoadIdentity();
+    //    return;
+
     const Shader& shader = view.shader();
 
     //    const glm::mat4& viewTransform = view.m_transformMatrix;
@@ -168,6 +171,8 @@ void Scene::draw(const MainWindow3dView& view)
 
     GLint polygonMode;
     glGetIntegerv(GL_POLYGON_MODE, &polygonMode);
+
+    //    return;
 
     //     -------------------------------- DRAW RAYS
     //    glPolygonMode(GL_FRONT, GL_FILL);
@@ -315,12 +320,10 @@ void Scene::draw(const MainWindow3dView& view)
                 const BSplineCurve& splineCurve = static_cast<BSplineCurve&>(*m_selectObject->m_model);
 
                 splineCurve.drawSelected(shader, m_localVertexTransform, m_worldVertexTransform);
-            }
-            else if (m_selectObject->m_model->m_type == Model::PARAM_SURFACE) {
-                const BSplineSurface & splineSurface = static_cast<BSplineSurface&>(*m_selectObject->m_model);
+            } else if (m_selectObject->m_model->m_type == Model::PARAM_SURFACE) {
+                const BSplineSurface& splineSurface = static_cast<BSplineSurface&>(*m_selectObject->m_model);
                 splineSurface.drawSelected(shader, m_localVertexTransform, m_worldVertexTransform);
             }
-
 
             shader.setBool("userColor", false);
         }
@@ -585,7 +588,36 @@ void Scene::draw(const MainWindow3dView& view)
             }
         }
         shader.setBool("userColor", false);
+    } // -------------------------------- END DRAW AXIS TRANSFORM
+
+    // ----------------------------------- DRAW RECTANGLE SELECTION
+    //    view.drawRect();
+
+    if (view.m_rightClicked) {
+        const QPoint& p = view.m_posFirstRightClick;
+        const QPoint& p2 = view.m_posMouse;
+
+        int width = view.width();
+        int height = view.height();
+        float x = p.x() * 2.0f / width - 1.0f;
+        float y = -p.y() * 2.0f / height + 1.0f;
+        float x2 = p2.x() * 2.0f / width - 1.0f;
+        float y2 = -p2.y() * 2.0f / height + 1.0f;
+
+        shader.setMat4("model", onesMatrix);
+        shader.setMat4("view", onesMatrix);
+        shader.setMat4("projection", onesMatrix);
+        shader.setBool("userColor", true);
+        shader.setVec4("color", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+//        LineGeometry::draw(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, -0.5f, 0.0f));
+        LineGeometry::draw(glm::vec3(x, y, 0.0f), glm::vec3(x2, y, 0.0f));
+        LineGeometry::draw(glm::vec3(x2, y, 0.0f), glm::vec3(x2, y2, 0.0f));
+        LineGeometry::draw(glm::vec3(x2, y2, 0.0f), glm::vec3(x, y2, 0.0f));
+        LineGeometry::draw(glm::vec3(x, y2, 0.0f), glm::vec3(x, y, 0.0f));
+        shader.setBool("userColor", false);
+
     }
+
     //    glPolygonMode(GL_FRONT, polygonMode);
     //    shader.setMat4("projection", projectionMatrix);
 }
@@ -877,9 +909,8 @@ void Scene::vertexSelectRay(const Ray& ray, bool additional)
 
             //            for (const glm::vec3 & vertex : paramModel.m_controlPoints) {
             splineCurve.vertexSelectRay(ray, additional);
-        }
-        else if (m_selectObject->m_model->m_type == Model::PARAM_SURFACE) {
-            BSplineSurface & splineSurface = static_cast<BSplineSurface&>(*m_selectObject->m_model);
+        } else if (m_selectObject->m_model->m_type == Model::PARAM_SURFACE) {
+            BSplineSurface& splineSurface = static_cast<BSplineSurface&>(*m_selectObject->m_model);
             splineSurface.vertexSelectRay(ray, additional);
         }
     }
@@ -1173,8 +1204,8 @@ void Scene::deleteSelected()
     //    std::vector<const Object *> newObjects;
     //    for ()
     m_objects.clear();
-//    qDebug() << "object clear";
-//    std::cout << "object clear" << std::endl;
+    //    qDebug() << "object clear";
+    //    std::cout << "object clear" << std::endl;
 
     std::vector<Object> newModels;
     newModels.reserve(10);
@@ -1183,16 +1214,16 @@ void Scene::deleteSelected()
         //            m_objects.remove(&model);
         //        }
         if (!object.m_selected) {
-//            std::cout << object.m_model->name() << "not selected" << std::endl;
+            //            std::cout << object.m_model->name() << "not selected" << std::endl;
             //        else {
             newModels.emplace_back(std::move(object));
             m_objects.push_back(&newModels.back());
             //            newModels[++cpt] = std::move(model);
         }
     }
-//    std::cout << "models moving" << std::endl;
+    //    std::cout << "models moving" << std::endl;
     m_models = std::move(newModels);
-//    std::cout << "models moved" << std::endl;
+    //    std::cout << "models moved" << std::endl;
 
     std::vector<DirLight> newDirLights;
     newDirLights.reserve(10);
@@ -1204,7 +1235,7 @@ void Scene::deleteSelected()
     }
     m_dirLights = std::move(newDirLights);
 
-//    std::cout << "dirLights moved" << std::endl;
+    //    std::cout << "dirLights moved" << std::endl;
 
     //    for (DirLight & dirLight : m_dirLights) {
     //        if (! dirLight.m_s)
@@ -1376,7 +1407,7 @@ BSplineCurve* Scene::getBsplineCurve()
     return nullptr;
 }
 
-BSplineSurface *Scene::getBsplineSurface()
+BSplineSurface* Scene::getBsplineSurface()
 {
     for (Object& object : m_models) {
         if (object.m_model->m_type == Model::PARAM_SURFACE) {
@@ -1392,7 +1423,6 @@ BSplineSurface *Scene::getBsplineSurface()
     }
 
     return nullptr;
-
 }
 
 //void Scene::removeCamera(Camera *camera)

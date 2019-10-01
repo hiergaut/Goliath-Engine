@@ -6,6 +6,7 @@
 //#include <opengl/axis.h>
 //#include <engine/scene/Scene.h>
 #include <QTimer>
+//#include <QPoint>
 
 namespace Ui {
 class MainWindow3dView;
@@ -94,6 +95,10 @@ public:
 //    ParamModel * m_paramModelSelected = nullptr;
     BSplineCurve * m_splineCurve = nullptr;
     BSplineSurface * m_splineSurface = nullptr;
+
+    bool m_rightClicked = false;
+    QPoint m_posFirstRightClick;
+    QPoint m_posMouse;
 
 public:
     explicit MainWindow3dView(QWidget* parent = nullptr);
