@@ -23,6 +23,7 @@
 #include <engine/scene/model/paramModel/curve/BSplineCurve.h>
 #include "model/paramModel/surface/BSplineSurface.h"
 //#include "curve/Curve.h"
+#include <opengl/Frustum.h>
 
 class Scene {
 //    Q_OBJECT
@@ -77,7 +78,8 @@ public:
 
     void objectSelectRay(const Ray & ray, bool additional = false);
     void vertexSelectRay(const Ray & ray, bool additional = false);
-    void vertexSelectFrustum(const glm::mat4 & projectionMatrix, const glm::mat4 & viewMatrix, bool additional = false);
+//    void vertexSelectFrustum(const glm::mat4 & projectionMatrix, const glm::mat4 & viewMatrix, bool additional = false);
+    void vertexSelectFrustum(const Frustum & frustum, bool additional = false);
 
 //    void unselectRay(const Ray & ray);
 
@@ -104,6 +106,8 @@ public:
     void addCurve();
     void addSurface();
     void addModel(Model * model);
+    void addRay(Ray && ray);
+    void addDot(const glm::vec3 & dot);
 
     void updateTransformationMatrix(float dx, float dy);
 
@@ -140,6 +144,8 @@ private:
 
 
     std::vector<Ray> m_rays;
+    std::vector<Frustum> m_frustums;
+    std::vector<glm::vec3> m_dots;
 //    BoneGeometry * m_bone;
 
 

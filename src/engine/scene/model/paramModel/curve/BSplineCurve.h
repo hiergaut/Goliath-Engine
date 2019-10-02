@@ -5,6 +5,7 @@
 //#include "../ParamModel.h"
 //#include <engine/scene/model/Vertex.h>
 #include "../../Model.h"
+#include <opengl/Frustum.h>
 
 class BSplineCurve : public Model {
     //public:
@@ -35,7 +36,8 @@ public:
     void drawSelected(const Shader& shader, const glm::mat4& localTransform = glm::mat4(1.0f), const glm::mat4& worldTransform = glm::mat4(1.0f)) const;
     void updateSelectedVertexPosition(const glm::mat4& localTransform, const glm::mat4& worldTransform) override;
     void vertexSelectRay(const Ray &ray, bool additional);
-    void vertexSelectFrustum(const glm::mat4 & projectionMatrix, const glm::mat4 & viewMatrix, bool additional = false);
+//    void vertexSelectFrustum(const glm::mat4 & projectionMatrix, const glm::mat4 & viewMatrix, bool additional = false);
+    void vertexSelectFrustum(const Frustum & frustum, bool additional = false);
 
 protected:
     void save(std::ofstream& file) const override;

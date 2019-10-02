@@ -853,9 +853,62 @@ void MainWindow3dView::mouseReleaseEvent(QMouseEvent* event)
         //        QRect selectRect()
         switch (event->button()) {
         case Qt::RightButton:
-            glm::mat4 projectionMatrix = glm::perspective(glm::radians(m_camera->m_fov), (float)width() / height(), l_near, l_far);
-            Scene::m_scene->vertexSelectFrustum(projectionMatrix, viewMatrix(), m_shiftPressed);
+            //            glm::mat4 projectionMatrix = glm::perspective(glm::radians(m_camera->m_fov), (float)width() / height(), l_near, l_far);
+            //            Scene::m_scene->vertexSelectFrustum(projectionMatrix, viewMatrix(), m_shiftPressed);
+            //            Scene::m_scene->vertexSelectFrustum({viewMatrix() * m_projectionMatrix}, m_shiftPressed);
+            //            Scene::m_scene->vertexSelectFrustum({viewMatrix() * m_projectionMatrix}, m_shiftPressed);
+            //            Scene::m_scene->vertexSelectFrustum(Frustum(viewMatrix() * m_projectionMatrix), m_shiftPressed);
+            //            Scene::m_scene->vertexSelectFrustum(Frustum(m_projectionMatrix * viewMatrix()), m_shiftPressed);
+            Scene::m_scene->vertexSelectFrustum(Frustum(m_camera->position(), m_camera->front(),
+                                                    m_camera->right(), m_camera->up(), l_near, l_far, m_camera->m_fov,
+                                                    static_cast<float>(width()) / height()),
+                m_shiftPressed);
             m_rightClicked = false;
+
+            ////            Q_ASSERT(m_iCamera < Scene::m_cameras.size());
+            ////            Camera* m_camera = Scene::m_cameras[m_iCamera];
+            //            //    QOpenGLFunctionsCore * m_fun = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
+            //            //    qDebug() << "ratio " << width() / height();
+            //            //    float ratio = static_cast<float>(height()) / width();
+            //            float ratio = static_cast<float>(width()) / height();
+            //            glm::vec3 front = m_camera->front();
+            //            glm::vec3 right = m_camera->right();
+            //            glm::vec3 up = m_camera->up();
+            //            float fov = m_camera->m_fov;
+            //            glm::vec3 source = m_camera->position();
+
+            ////            float x = (2.0f * event->x()) / (float)width() - 1.0f;
+            ////            float y = (2.0f * event->y()) / (float)height() - 1.0f;
+
+            //            // ------------------------------------------------------------------------------------
+            //            float halfHeightNearPlane = l_near * tanf(glm::radians(fov) * 0.5f);
+            //            //    float heightNearPlane = l_near * tanf(glm::radians(m_camera->fov()) * ratio);
+            //            //    float heightNearPlane = widthNearPlane;
+            //            //    float heightNearPlane = l_near * tanf(glm::radians(m_camera->fov()));
+            //            float halfWidthNearPlane = halfHeightNearPlane * ratio;
+
+            ////            float dx = x * halfWidthNearPlane;
+            ////            float dy = y * halfHeightNearPlane;
+            //            float xTopLeft = -halfWidthNearPlane;
+            //            float yTopLeft = -halfHeightNearPlane;
+            //            float xBottomRight = halfWidthNearPlane;
+            //            float yBottomRight = halfHeightNearPlane;
+
+            ////            glm::vec3 hitNearPlane = source + m_camera->front() * l_near + m_camera->up() * -dy + m_camera->right() * -dx;
+            //            glm::vec3 dirTopLeft = glm::normalize((source + front * l_near + up * yTopLeft + right * xTopLeft) - source);
+            //            glm::vec3 dirBottomRight = glm::normalize((source + front * l_near + up * yBottomRight + right * xBottomRight) - source);
+            //            glm::vec3 dirTopRight = glm::normalize((source + front * l_near + up * yTopLeft + right * xBottomRight) - source);
+            //            glm::vec3 dirBottomLeft = glm::normalize((source + front * l_near + up * yBottomRight + right * xTopLeft) - source);
+
+            //            Scene::m_scene->addRay({source, dirTopLeft});
+            //            Scene::m_scene->addRay({source, dirBottomRight});
+            //            Scene::m_scene->addRay({source, dirTopRight});
+            //            Scene::m_scene->addRay({source, dirBottomLeft});
+
+            //            return { source, glm::normalize(hitNearPlane - source) };
+            // ------------------------------------------------------------------------
+
+            //    float dx = x * fov * 0.5f;
             break;
         }
     }

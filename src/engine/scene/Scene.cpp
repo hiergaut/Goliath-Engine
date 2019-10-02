@@ -173,6 +173,16 @@ void Scene::draw(const MainWindow3dView& view)
     glGetIntegerv(GL_POLYGON_MODE, &polygonMode);
 
     //    return;
+    shader.setBool("userColor", true);
+    shader.setVec4("color", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+    shader.setMat4("model", onesMatrix);
+//    for (const glm::vec3 & dot : m_dots) {
+//        DotGeometry::draw(glm::translate(onesMatrix, dot), shader, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), 20.0f);
+//    }
+    for (const Frustum & frustum : m_frustums) {
+        frustum.draw(shader);
+    }
+    shader.setBool("userColor", false);
 
     //     -------------------------------- DRAW RAYS
     //    glPolygonMode(GL_FRONT, GL_FILL);
@@ -916,12 +926,17 @@ void Scene::vertexSelectRay(const Ray& ray, bool additional)
     }
 }
 
-void Scene::vertexSelectFrustum(const glm::mat4 &projectionMatrix, const glm::mat4 &viewMatrix, bool additional)
-{
+void Scene::vertexSelectFrustum(const Frustum &frustum, bool additional) {
+//void Scene::vertexSelectFrustum(const glm::mat4 &projectionMatrix, const glm::mat4 &viewMatrix, bool additional)
+//{
     if (m_selectObject != nullptr) {
         if (m_selectObject->m_model->m_type == Model::PARAM_CURVE) {
             BSplineCurve& splineCurve = static_cast<BSplineCurve&>(*m_selectObject->m_model);
-            splineCurve.vertexSelectFrustum(projectionMatrix, viewMatrix, additional);
+//            splineCurve.vertexSelectFrustum(projectionMatrix, viewMatrix, additional);
+            splineCurve.vertexSelectFrustum(frustum, additional);
+
+            m_frustums.clear();
+            m_frustums.emplace_back(std::move(frustum));
         }
     }
 
@@ -1315,6 +1330,16 @@ void Scene::addModel(Model* model)
 {
     m_models.emplace_back(model);
     m_objects.push_back(&m_models.back());
+}
+
+void Scene::addRay(Ray &&ray)
+{
+    m_rays.emplace_back(ray);
+}
+
+void Scene::addDot(const glm::vec3 &dot)
+{
+
 }
 
 //void Scene::removeCamera(uint iCamera)

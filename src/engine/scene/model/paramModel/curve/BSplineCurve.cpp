@@ -7,6 +7,7 @@
 #include <session/Session.h>
 
 #include <QDebug>
+#include <engine/scene/Scene.h>
 #include <opengl/geometry/DotGeometry.h>
 
 const uint g_buffMaxVertices = 100 * sizeof(glm::vec3);
@@ -238,7 +239,7 @@ void BSplineCurve::drawSelected(const Shader& shader, const glm::mat4& localTran
     for (uint i = 0; i < m_selected.size(); ++i) {
         if (m_selected[i]) {
             //                qDebug() << "draw " << i;
-            DotGeometry::draw(glm::translate(glm::mat4(1.0f), m_controlPoints[i]) * worldTransform * m_transform, shader, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), 10);
+            DotGeometry::draw(worldTransform * m_transform * glm::translate(glm::mat4(1.0f), m_controlPoints[i]) * localTransform, shader, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), 10);
         }
     }
 }
@@ -297,20 +298,30 @@ void BSplineCurve::vertexSelectRay(const Ray& ray, bool additional)
     }
 }
 
-void BSplineCurve::vertexSelectFrustum(const glm::mat4 &projectionMatrix, const glm::mat4 &viewMatrix, bool additional)
+void BSplineCurve::vertexSelectFrustum(const Frustum& frustum, bool additional)
 {
+    //    glm::vec3 origin(0.0f);
+    //    if (frustum.encompass(origin)) {
+    //        qDebug() << "good";
+    //    }
+    //        qDebug() << "--------------------------------";
+    //    return;
+
     for (uint i = 0; i < m_controlPoints.size(); ++i) {
         if (!additional) {
             m_selected[i] = false;
         }
 
-        const glm::vec3& vertex = projectionMatrix * viewMatrix * m_transform * glm::vec4(m_controlPoints[i], 1.0f);
-        //                    qDebug() << "vertex " << i;
+        const glm::vec3& vertex = m_transform * glm::vec4(m_controlPoints[i], 1.0f);
+        //        const glm::vec3& vertex = glm::vec4(m_controlPoints[i], 1.0f) * m_transform;
+//        qDebug() << "vertex " << i;
+        Scene::m_scene->addDot(vertex + glm::vec3(10.0f, 10.0f, 10.0f));
 
-        qDebug() << vertex.x << vertex.y << vertex.z;
+                qDebug() << vertex.x << vertex.y << vertex.z;
 
-        if (std::abs(vertex.x) < 1.0f && std::abs(vertex.y) < 1.0f) {
-//        if (ray.intersect(vertex)) {
+        //        if (std::abs(vertex.x) < 1.0f && std::abs(vertex.y) < 1.0f) {
+        if (frustum.encompass(vertex)) {
+            //        if (ray.intersect(vertex)) {
             //                    qDebug() << "intersect " << i;
             //                    m_selectVertices.emplace_back(i);
             if (additional) {
@@ -320,7 +331,7 @@ void BSplineCurve::vertexSelectFrustum(const glm::mat4 &projectionMatrix, const 
             }
         }
     }
-
+    qDebug() << "--------------------------------";
 }
 
 std::string BSplineCurve::name() const
