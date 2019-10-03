@@ -34,6 +34,7 @@ BSplineSurface::BSplineSurface()
     for (uint i = 0; i < m_nbLine; ++i) {
         for (uint j = 0; j < m_nbCol; ++j) {
             if (i == middleI || j == middleJ) {
+//            if (i == j) {
                 m_controlPoints[i][j] = glm::vec3(i * 100.0f, j * 100.0f, 100.0f);
             } else {
                 m_controlPoints[i][j] = glm::vec3(i * 100.0f, j * 100.0f, 0.0f);

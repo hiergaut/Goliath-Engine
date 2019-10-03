@@ -179,9 +179,9 @@ void Scene::draw(const MainWindow3dView& view)
 //    for (const glm::vec3 & dot : m_dots) {
 //        DotGeometry::draw(glm::translate(onesMatrix, dot), shader, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), 20.0f);
 //    }
-    for (const Frustum & frustum : m_frustums) {
-        frustum.draw(shader);
-    }
+//    for (const Frustum & frustum : m_frustums) {
+//        frustum.draw(shader);
+//    }
     shader.setBool("userColor", false);
 
     //     -------------------------------- DRAW RAYS
