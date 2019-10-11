@@ -152,7 +152,8 @@ void FormSystemBrowser::setMode(Mode mode)
         ui->pushButton_actionFile->setText("Import");
         filters << "*.fbx"
                 << "*.obj"
-                << "*.smd";
+                << "*.smd"
+                << "*.dae";
         break;
     }
 

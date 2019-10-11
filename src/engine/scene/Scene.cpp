@@ -1305,7 +1305,7 @@ void Scene::addDefaultCamera()
     m_objects.push_back(m_cameras.back());
 }
 
-void Scene::addCurve()
+void Scene::addCurve(BSplineCurve::Type type)
 {
     //    m_models.push_back(new ParamModel());
     //    m_models.emplace_back(new ParamModel());
@@ -1316,7 +1316,7 @@ void Scene::addCurve()
     //    m_models.emplace_back(Curve());
     //    m_models.push_back(Object(Curve()));
     //    m_objects.push_back(&m_models.back());
-    addModel(new BSplineCurve);
+    addModel(new BSplineCurve(type));
 }
 
 void Scene::addSurface()

@@ -308,10 +308,10 @@ void QOpenGLWidget_Editor::addDefaultCamera()
     }
 }
 
-void QOpenGLWidget_Editor::addCurve()
+void QOpenGLWidget_Editor::addCurve(BSplineCurve::Type type)
 {
     makeCurrent();
-    m_scene.addCurve();
+    m_scene.addCurve(type);
 }
 
 void QOpenGLWidget_Editor::addSurface()

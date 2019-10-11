@@ -29,10 +29,13 @@ Texture::Texture(std::string  path, std::string  filename, Texture::Type type)
     bool success;
     QImage image = loadTga(m_directory +"/" + m_filename, success);
     Q_ASSERT(success);
+
     //            Q_ASSERT(! image.isNull());
     //            QPixmap pixmap(image);
     //            QPixmap pixmap(QPixmap::fromImage(image));
+
     m_pixmap = QPixmap::fromImage(image);
+
     //            textures.push_back(texture);
     //            textures.push_back(m_textures.size());
     //            m_textures.push_back(std::move(texture)); // store it as texture loaded for entire model, to ensure we won't unnecesery load duplicate textures.
@@ -51,12 +54,12 @@ Texture::Texture(std::ifstream &file)
     m_type = Texture::Type(Session::loadEnum(file));
 
     bool success;
-    QImage image = loadTga(m_directory +"/" + m_filename, success);
-    Q_ASSERT(success);
+//    QImage image = loadTga(m_directory +"/" + m_filename, success);
+//    Q_ASSERT(success);
     //            Q_ASSERT(! image.isNull());
     //            QPixmap pixmap(image);
     //            QPixmap pixmap(QPixmap::fromImage(image));
-    m_pixmap = QPixmap::fromImage(image);
+//    m_pixmap = QPixmap::fromImage(image);
     //            textures.push_back(texture);
 }
 

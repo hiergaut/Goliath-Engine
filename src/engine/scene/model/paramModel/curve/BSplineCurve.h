@@ -18,8 +18,13 @@ public:
     std::vector<bool> m_selected;
     //    std::vector<glm::vec3> m_memControlPoints;
 
+    enum Type {
+        SPLINE,
+        CIRCLE,
+    };
+
 public:
-    BSplineCurve();
+    BSplineCurve(Type type);
     BSplineCurve(std::ifstream& file);
 //    BSplineCurve(BSplineCurve && splineCurve) noexcept = default;
 
@@ -53,9 +58,9 @@ protected:
 
 private:
     QOpenGLFunctionsCore* m_fun = nullptr;
-    //    std::vector<glm::uvec2> m_indices;
+        std::vector<glm::uvec2> m_indices;
     uint m_vbo;
-    //    uint m_ebo;
+        uint m_ebo;
     uint m_vao;
 
     std::vector<glm::vec3> m_curve;

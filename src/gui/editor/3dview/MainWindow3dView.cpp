@@ -28,6 +28,7 @@
 #include <opengl/rayTracer/RayTracer.h>
 //#include <engine/scene/camera/CameraStrategy.h>
 #include <session/Session.h>
+#include <engine/scene/model/paramModel/curve/BSplineCurve.h>
 
 std::list<const MainWindow3dView*>* MainWindow3dView::m_views;
 //Shader MainWindow3dView::m_shaders;
@@ -1887,12 +1888,24 @@ void MainWindow3dView::on_actionArea_Light_triggered()
 //    //    QOpenGLWidget_Editor::m_editor->addCurve(Curve::B_SPLINE);
 //}
 
-void MainWindow3dView::on_actionBSpline_curve_triggered()
-{
-    QOpenGLWidget_Editor::m_editor->addCurve();
-}
+//void MainWindow3dView::on_actionBSpline_curve_triggered()
+//{
+//    QOpenGLWidget_Editor::m_editor->addCurve();
+//}
 
 void MainWindow3dView::on_actionBSpline_surface_triggered()
 {
     QOpenGLWidget_Editor::m_editor->addSurface();
+}
+
+void MainWindow3dView::on_actionSpline_triggered()
+{
+
+    QOpenGLWidget_Editor::m_editor->addCurve(BSplineCurve::Type::SPLINE);
+}
+
+void MainWindow3dView::on_actionCircle_triggered()
+{
+    QOpenGLWidget_Editor::m_editor->addCurve(BSplineCurve::Type::CIRCLE);
+
 }

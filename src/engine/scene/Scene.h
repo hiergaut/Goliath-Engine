@@ -103,7 +103,7 @@ public:
     void addLight(Light::Type lightType, const glm::vec3 position);
 //    void addCamera(float fov, const glm::vec3 & position, const glm::vec3 &target);
     void addDefaultCamera();
-    void addCurve();
+    void addCurve(BSplineCurve::Type type);
     void addSurface();
     void addModel(Model * model);
     void addRay(Ray && ray);

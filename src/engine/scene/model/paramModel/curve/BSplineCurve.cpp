@@ -13,21 +13,44 @@
 const uint g_buffMaxVertices = 100 * sizeof(glm::vec3);
 const uint g_maxLenKnots = 13;
 
-BSplineCurve::BSplineCurve()
+BSplineCurve::BSplineCurve(Type type)
     : Model(glm::mat4(1.0f), Model::PARAM_CURVE)
 //    : ParamModel(Model::Type::BSPLINE_CURVE)
 {
+    switch (type) {
+    case Type::SPLINE:
+        m_controlPoints.emplace_back(-400.0f, -400.0f, 0.0f);
+        m_controlPoints.emplace_back(-200.0f, 400.0f, 0.0f);
+        m_controlPoints.emplace_back(200.0f, -400.0f, 0.0f);
+        m_controlPoints.emplace_back(400.0f, 400.0f, 0.0f);
+        break;
 
-    m_controlPoints.emplace_back(-200.0f, 0.0f, 0.0f);
-    m_controlPoints.emplace_back(-150.0f, 0.0f, 0.0f);
-    m_controlPoints.emplace_back(-100.0f, 100.0f, 0.0f);
-    m_controlPoints.emplace_back(100.0f, 100.0f, 0.0f);
-    m_controlPoints.emplace_back(150.0f, 0.0f, 0.0f);
-    m_controlPoints.emplace_back(200.0f, 0.0f, 0.0f);
+    case Type::CIRCLE:
+        m_controlPoints.emplace_back(-400.0f, -400.0f, 0.0f);
+        m_controlPoints.emplace_back(-400.0f, 400.0f, 0.0f);
+        m_controlPoints.emplace_back(400.0f, 400.0f, 0.0f);
+        m_controlPoints.emplace_back(400.0f, -400.0f, 0.0f);
+        break;
+
+    default:
+        Q_ASSERT(false);
+        break;
+    }
+
+    //    m_controlPoints.emplace_back(-200.0f, 0.0f, 0.0f);
+    //    m_controlPoints.emplace_back(-150.0f, 0.0f, 0.0f);
+    //    m_controlPoints.emplace_back(-100.0f, 100.0f, 0.0f);
+    //    m_controlPoints.emplace_back(100.0f, 100.0f, 0.0f);
+    //    m_controlPoints.emplace_back(150.0f, 0.0f, 0.0f);
+    //    m_controlPoints.emplace_back(200.0f, 0.0f, 0.0f);
 
     m_selected.resize(m_controlPoints.size());
     for (uint i = 0; i < m_selected.size(); ++i) {
         m_selected[i] = false;
+    }
+
+    for (uint i = 0; i < m_controlPoints.size() - 1; ++i) {
+        m_indices.emplace_back(i, i + 1);
     }
 
     //    m_indices.emplace_back(0, 1);
@@ -37,7 +60,7 @@ BSplineCurve::BSplineCurve()
     setupGL();
 
     m_k = 3;
-    m_dotPerEdge = 5;
+    m_dotPerEdge = 10;
     m_knots.resize(g_maxLenKnots);
     for (uint i = 0; i < g_maxLenKnots; ++i) {
         //        knots[i] = i;
@@ -73,9 +96,9 @@ BSplineCurve::BSplineCurve(std::ifstream& file)
         m_selected[i] = false;
     }
 
-    //    for (uint i = 0; i < m_controlPoints.size() - 1; ++i) {
-    //        m_indices.emplace_back(i, i + 1);
-    //    }
+    for (uint i = 0; i < m_controlPoints.size() - 1; ++i) {
+        m_indices.emplace_back(i, i + 1);
+    }
 
     //    m_indices.clear();
     //    m_indices.emplace_back(0, 1);
@@ -89,7 +112,7 @@ BSplineCurve::BSplineCurve(std::ifstream& file)
     setupGL();
 
     m_k = 3;
-    m_dotPerEdge = 5;
+    m_dotPerEdge = 10;
     m_knots.resize(g_maxLenKnots);
     for (uint i = 0; i < g_maxLenKnots; ++i) {
         //        knots[i] = i;
@@ -114,7 +137,7 @@ void BSplineCurve::setupGL()
 
     m_fun->glGenVertexArrays(1, &m_vao);
     m_fun->glGenBuffers(1, &m_vbo);
-    //    m_fun->glGenBuffers(1, &m_ebo);
+    m_fun->glGenBuffers(1, &m_ebo);
     //    m_fun->glGenBuffers(1, &m_vbo2);
 
     m_fun->glBindVertexArray(m_vao);
@@ -124,9 +147,9 @@ void BSplineCurve::setupGL()
     m_fun->glEnableVertexAttribArray(0);
     m_fun->glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
 
-    //    m_fun->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ebo);
+    m_fun->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ebo);
     //    m_fun->glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indices.size() * sizeof(glm::uvec2), &m_indices[0], GL_STATIC_DRAW);
-    //    m_fun->glBufferData(GL_ELEMENT_ARRAY_BUFFER, g_buffMaxVertices, &m_indices[0], GL_DYNAMIC_DRAW);
+    m_fun->glBufferData(GL_ELEMENT_ARRAY_BUFFER, g_buffMaxVertices, &m_indices[0], GL_DYNAMIC_DRAW);
 
     m_fun->glBindVertexArray(0);
 
@@ -164,7 +187,10 @@ void BSplineCurve::prepareHierarchy(ulong frameTime) const
 void BSplineCurve::draw(const Shader& shader, bool dotCloud, const glm::mat4& localTransform, const glm::mat4& worldTransform) const
 {
     Q_ASSERT(m_fun != nullptr);
-    m_fun->glLineWidth(1.0f);
+    m_fun->glLineWidth(2.0f);
+
+    //    shader.setBool("userColor", true);
+    //    shader.setVec4("color", glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
 
     if (dotCloud) {
         //        for (uint i = 0; i < m_selected.size(); ++i) {
@@ -187,17 +213,21 @@ void BSplineCurve::draw(const Shader& shader, bool dotCloud, const glm::mat4& lo
 
         //        shader.setVec4("color", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
         //        shader.setMat4("model", worldTransform * m_transform * localTransform);
+        m_fun->glLineWidth(0.5f);
+        shader.setVec4("color", glm::vec4(1.0f, 1.0f, 1.0f, 0.5f));
+        m_fun->glBindVertexArray(m_vao);
+        m_fun->glDrawElements(GL_LINES, m_indices.size() * 2, GL_UNSIGNED_INT, nullptr);
 
     } else {
 
         //    m_fun->glDrawArrays(GL_LINES, 0, 4);
         //    m_fun->glEnable(GL_POINT_SMOOTH);
-        //    m_fun->glDrawElements(GL_LINES, m_indices.size() * 2, GL_UNSIGNED_INT, nullptr);
         //    m_fun->glLineWidth(1.0f);
         //    m_fun->glBindVertexArray(0);
 
         shader.setMat4("model", worldTransform * m_transform * localTransform);
         shader.setBool("userColor", true);
+
         shader.setVec4("color", glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
         m_fun->glBindVertexArray(m_vao2);
         //    m_fun->glDrawArrays(GL_LINES, 0, 4);
@@ -205,6 +235,10 @@ void BSplineCurve::draw(const Shader& shader, bool dotCloud, const glm::mat4& lo
         //    m_fun->glPointSize(5.0f);
         m_fun->glDrawElements(GL_LINES, m_curveIndiceLines.size() * 2, GL_UNSIGNED_INT, nullptr);
         //    m_fun->glLineWidth(2.0f);
+        m_fun->glLineWidth(0.5f);
+        shader.setVec4("color", glm::vec4(1.0f, 1.0f, 1.0f, 0.5f));
+        m_fun->glBindVertexArray(m_vao);
+        m_fun->glDrawElements(GL_LINES, m_indices.size() * 2, GL_UNSIGNED_INT, nullptr);
         //        m_fun->glDrawArrays(GL_POINTS, 0, m_curve.size());
         //    m_fun->glLineWidth(1.0f);
     }
@@ -314,10 +348,10 @@ void BSplineCurve::vertexSelectFrustum(const Frustum& frustum, bool additional)
 
         const glm::vec3& vertex = m_transform * glm::vec4(m_controlPoints[i], 1.0f);
         //        const glm::vec3& vertex = glm::vec4(m_controlPoints[i], 1.0f) * m_transform;
-//        qDebug() << "vertex " << i;
+        //        qDebug() << "vertex " << i;
         Scene::m_scene->addDot(vertex + glm::vec3(10.0f, 10.0f, 10.0f));
 
-                qDebug() << vertex.x << vertex.y << vertex.z;
+        qDebug() << vertex.x << vertex.y << vertex.z;
 
         //        if (std::abs(vertex.x) < 1.0f && std::abs(vertex.y) < 1.0f) {
         if (frustum.encompass(vertex)) {
@@ -369,62 +403,77 @@ void BSplineCurve::updateCurve(const glm::mat4& localTransform, const glm::mat4&
     //    float knots[m];
     //    float u = 2.5f;
     m_curve.clear();
-    uint nbPtCtl = (n * m_dotPerEdge);
-    const float start = m_knots[m_k - 1];
-    const float end = m_knots[n + 1];
-    const float period = end - start;
-    for (uint iPtCtl = 0; iPtCtl < nbPtCtl; ++iPtCtl) {
-        //        float u = (float)iPtCtl / (nbPtCtl - 1) * (n - m_k + 2) + (m_k - 1);
-        float u = (float)iPtCtl / (nbPtCtl - 1) * period + start;
-        //        qDebug() << "u: " << u;
-        //        std::cout << u << std::endl;
-        if (iPtCtl == 0) {
-            Q_ASSERT(qAbs(m_knots[m_k - 1] - u) < 1e-5);
-        } else if (iPtCtl == nbPtCtl - 1) {
-            Q_ASSERT(qAbs(m_knots[n + 1] - u) < 1e-5);
-        }
-        Q_ASSERT(m_knots[m_k - 1] <= u && u <= m_knots[n + 1]);
+    //        uint nbPtCtl = ((n + 1) * m_dotPerEdge);
+    uint nbPtCtl = n + 2 - m_k;
+    //    const float start = m_knots[m_k - 1];
+    //    const float end = m_knots[n + 1];
+    //    const float period = end - start;
+    //    for (uint iPtCtl = 0; iPtCtl < nbPtCtl; ++iPtCtl) {
+    for (uint iPtCtl = 0; iPtCtl < nbPtCtl + 1; ++iPtCtl) {
+        for (uint iDot = 0; iDot < m_dotPerEdge; ++iDot) {
+            //        float u = (float)iPtCtl / (nbPtCtl - 1) * (n - m_k + 2) + (m_k - 1);
+            const float start = m_knots[m_k - 1 + iPtCtl];
+            const float end = m_knots[m_k + iPtCtl];
+            const float period = end - start;
+            float u = (iDot * period) / m_dotPerEdge + start;
 
-        int dec = 0;
-        int i = m_k;
-        //        qDebug() << "loop";
-        while (m_knots[i] < u) {
-            ++i;
-            ++dec;
-            Q_ASSERT(i < m);
-        }
-        //        qDebug() << "end loop";
-        //        dec -= k - 1;
-        //        dec =
-
-        glm::vec3 pts[m_k];
-        for (uint i = 0; i < m_k; ++i) {
-            Q_ASSERT(i + dec < m_controlPoints.size());
-            //            pts[i] = m_controlPoints[i + dec];
-            pts[i] = controlPoints[i + dec];
-        }
-
-        //        for (uint i = k - 1; i > 0; --i) {
-        //            for (uint j = 0; j < i; ++j) {
-        //                float a = (knots[dec + k + j + 1] - u) /
-        //                        (knots[dec + k +j + 1] - knots[dec + dec + k - i]);
-
-        //                pts[j] = a * pts[j] + (1 - a) * pts[j + 1];
-        //            }
-        ////            ++dec;
-        //        }
-        uint l = m_k;
-        uint k2 = m_k;
-        for (uint j = 0; j < l - 1; ++j) {
-            for (uint i = 0; i < k2 - 1; ++i) {
-                float a = (m_knots[dec + k2 + i] - u) / (m_knots[dec + k2 + i] - m_knots[dec + 1 + i]);
-                pts[i] = a * pts[i] + (1 - a) * pts[i + 1];
+            if (iPtCtl == nbPtCtl) {
+                u = m_knots[n + 1];
             }
-            --k2;
-            ++dec;
+            //        qDebug() << "u: " << u;
+            //        std::cout << u << std::endl;
+            //            if (iPtCtl == 0) {
+            //                Q_ASSERT(qAbs(m_knots[m_k - 1] - u) < 1e-5);
+            //            } else if (iPtCtl == nbPtCtl - 1) {
+            //                Q_ASSERT(qAbs(m_knots[n + 1] - u) < 1e-5);
+            //            }
+            Q_ASSERT(m_knots[m_k - 1] <= u && u <= m_knots[n + 1]);
+
+            int dec = 0;
+            int i = m_k;
+            //        qDebug() << "loop";
+            while (m_knots[i] < u) {
+                ++i;
+                ++dec;
+                Q_ASSERT(i < m);
+            }
+            //        qDebug() << "end loop";
+            //        dec -= k - 1;
+            //        dec =
+
+            glm::vec3 pts[m_k];
+            for (uint i = 0; i < m_k; ++i) {
+                Q_ASSERT(i + dec < m_controlPoints.size());
+                //            pts[i] = m_controlPoints[i + dec];
+                pts[i] = controlPoints[i + dec];
+            }
+
+            //        for (uint i = k - 1; i > 0; --i) {
+            //            for (uint j = 0; j < i; ++j) {
+            //                float a = (knots[dec + k + j + 1] - u) /
+            //                        (knots[dec + k +j + 1] - knots[dec + dec + k - i]);
+
+            //                pts[j] = a * pts[j] + (1 - a) * pts[j + 1];
+            //            }
+            ////            ++dec;
+            //        }
+            uint l = m_k;
+            uint k2 = m_k;
+            for (uint j = 0; j < l - 1; ++j) {
+                for (uint i = 0; i < k2 - 1; ++i) {
+                    float a = (m_knots[dec + k2 + i] - u) / (m_knots[dec + k2 + i] - m_knots[dec + 1 + i]);
+                    pts[i] = a * pts[i] + (1 - a) * pts[i + 1];
+                }
+                --k2;
+                ++dec;
+            }
+            //        m_curve.push_back(worldTransform * glm::vec4(pts[0], 1.0f) * localTransform);
+            m_curve.push_back(pts[0]);
+
+            if (iPtCtl == nbPtCtl) {
+                break;
+            }
         }
-        //        m_curve.push_back(worldTransform * glm::vec4(pts[0], 1.0f) * localTransform);
-        m_curve.push_back(pts[0]);
     }
 
     m_curveIndiceLines.clear();
