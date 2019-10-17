@@ -197,11 +197,12 @@ void QOpenGLWidget_Editor::paintGL()
 
     uint64_t currentFrameTime = QDateTime::currentMSecsSinceEpoch();
 
-    if (m_cpt % 24 == 0) {
+    int period = 100;
+    if (m_cpt % period == 0) {
         m_deltaTime = currentFrameTime - m_lastFrame;
         m_lastFrame = currentFrameTime;
 
-        m_fps = 24000.0f / m_deltaTime;
+        m_fps = (period * 1000.0f) / m_deltaTime;
 
         ////            qDebug() << "fps : " << m_fps / period;
         //            m_fps = 0.0;
@@ -247,7 +248,8 @@ void QOpenGLWidget_Editor::paintGL()
 
             int x = point.x();
             int y = m_mainWindow->height() - point.y() - view->height() + 5;
-            glViewport(x, y, view->width(), view->height());
+//            glViewport(x, y, view->width(), view->height());
+            glViewport(x, y - 3, view->width(), view->height());
 
             //        glm::mat4 projectionMatrix = view->projectionMatrix();
             m_scene.draw(*view);
@@ -279,7 +281,7 @@ void QOpenGLWidget_Editor::paintGL()
     // ----------------------------------------------------------------
 
     ++m_cpt;
-    QThread::msleep(5);
+    QThread::msleep(10);
     update();
 }
 

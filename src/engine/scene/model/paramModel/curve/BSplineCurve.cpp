@@ -18,7 +18,6 @@ BSplineCurve::BSplineCurve(Type type)
     : Model(glm::mat4(1.0f), Model::PARAM_CURVE)
 //    : ParamModel(Model::Type::BSPLINE_CURVE)
 {
-    setupGL();
 //    m_k = 3;
 //    m_dotPerEdge = 10;
 //    m_knots.resize(g_maxLenKnots);
@@ -89,6 +88,7 @@ BSplineCurve::BSplineCurve(Type type)
     for (uint i = 0; i < m_controlPoints.size() - 1; ++i) {
         m_indices.emplace_back(i, i + 1);
     }
+    setupGL();
 
     //    m_indices.emplace_back(0, 1);
     //    m_indices.emplace_back(1, 2);
@@ -274,6 +274,12 @@ void BSplineCurve::draw(const Shader& shader, bool dotCloud, const glm::mat4& lo
         //    m_fun->glPointSize(5.0f);
         m_fun->glDrawElements(GL_LINES, m_curveIndiceLines.size() * 2, GL_UNSIGNED_INT, nullptr);
         //    m_fun->glLineWidth(2.0f);
+
+//        m_fun->glBindVertexArray(m_vao);
+//        m_fun->glLineWidth(0.5f);
+//        shader.setBool("userColor", true);
+//        shader.setVec4("color", glm::vec4(1.0f, 1.0f, 1.0f, 0.5f));
+//        m_fun->glDrawElements(GL_LINES, m_indices.size() * 2, GL_UNSIGNED_INT, nullptr);
 
 //        m_fun->glLineWidth(0.5f);
 //        shader.setVec4("color", glm::vec4(1.0f, 1.0f, 1.0f, 0.5f));
