@@ -14,7 +14,8 @@ const uint g_buffMaxVertices = 100000 * sizeof(glm::vec3);
 
 BSplineSurface::BSplineSurface(BSplineSurface::Type type)
     : Model(glm::mat4(1.0f), Model::PARAM_SURFACE)
-//    : ParamModel(Model::Type::BSPLINE_CURVE)
+    //    : ParamModel(Model::Type::BSPLINE_CURVE)
+    , m_texture(g_resourcesPath + "textures/", "checkerboard.png", Texture::Type::DIFFUSE)
 {
 
     //    m_controlPoints.emplace_back(-200.0f, 0.0f, 0.0f);
@@ -168,8 +169,8 @@ BSplineSurface::BSplineSurface(BSplineSurface::Type type)
         m_nbCtrlPoints[0] = 7;
         m_nbCtrlPoints[1] = 6;
         radius = 50;
-//        int h[7] = { 500, 450, 350, 350, 200, 50, 0 };
-//        int r[7] = { 100, 50, 50, 300, 300, 50, 200 };
+        //        int h[7] = { 500, 450, 350, 350, 200, 50, 0 };
+        //        int r[7] = { 100, 50, 50, 300, 300, 50, 200 };
         int h[7] = { 0, 50, 200, 400, 400, 450, 500 };
         int r[7] = { 150, 50, 200, 200, 50, 50, 100 };
 
@@ -225,6 +226,9 @@ BSplineSurface::BSplineSurface(BSplineSurface::Type type)
 
 BSplineSurface::BSplineSurface(std::ifstream& file)
     : Model(file)
+//    , m_texture(g_resourcesPath + "textures/", "checkerboard.png", Texture::Type::DIFFUSE)
+//    , m_texture(g_resourcesPath + "textures/", "checker3.jpg", Texture::Type::DIFFUSE)
+    , m_texture(g_resourcesPath + "textures/", "de_aztec_material_1.tga", Texture::Type::DIFFUSE)
 //    : ParamModel(file)
 //    , m_type(Model::BSplineSurface)
 //    , m_type = Model::PARAM_CURVE
@@ -337,6 +341,7 @@ void BSplineSurface::setupGL()
     m_fun->glGenBuffers(1, &m_vbo2);
     m_fun->glGenBuffers(1, &m_nbo2);
     m_fun->glGenBuffers(1, &m_ebo2);
+    m_fun->glGenBuffers(1, &m_tbo2);
     //    m_fun->glGenBuffers(1, &m_vbo2);
 
     m_fun->glBindVertexArray(m_vao2);
@@ -351,6 +356,11 @@ void BSplineSurface::setupGL()
     m_fun->glBufferData(GL_ARRAY_BUFFER, g_buffMaxVertices, &m_normals[0], GL_DYNAMIC_DRAW);
     m_fun->glEnableVertexAttribArray(1);
     m_fun->glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
+
+    m_fun->glBindBuffer(GL_ARRAY_BUFFER, m_tbo2);
+    m_fun->glBufferData(GL_ARRAY_BUFFER, g_buffMaxVertices, &m_textures[0], GL_DYNAMIC_DRAW);
+    m_fun->glEnableVertexAttribArray(2);
+    m_fun->glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(glm::vec2), (void*)0);
 
     m_fun->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ebo2);
     //    m_fun->glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indiceTriangles.size() * sizeof(glm::uvec2), &m_indiceTriangles[0], GL_STATIC_DRAW);
@@ -453,8 +463,18 @@ void BSplineSurface::draw(const Shader& shader, bool dotCloud, const glm::mat4& 
         //    m_fun->glEnable(GL_POINT_SMOOTH);
         //    m_fun->glPointSize(5.0f);
         //        m_fun->glDrawElements(GL_LINES, m_indiceTriangles.size() * 2, GL_UNSIGNED_INT, nullptr);
+//        m_fun->glActiveTexture(GL_TEXTURE0);
+//        std::string number = std::to_string(0);
+//        std::string name = std::string(m_texture);
+//        m_fun->glUniform1i(m_fun->glGetUniformLocation(shader.ID, (name + number).c_str()), 0);
+//        m_fun->glBindTexture(GL_TEXTURE_2D, m_texture.m_id);
+//        shader.setBool("hasTexture", true);
+//        shader.setVec3("material.specular", glm::vec3(1.0f, 1.0f, 1.0f));
+//        //        shader.setVec3("material.specular", material.m_colors[Color::DIFFUSE]);
+//        shader.setFloat("material.shininess", 0.5f);
 
         m_fun->glDrawElements(GL_TRIANGLES, m_indiceTriangles.size() * 3, GL_UNSIGNED_INT, nullptr);
+//        shader.setBool("hasTexture", false);
 
         //    m_fun->glLineWidth(2.0f);
         //        m_fun->glDrawArrays(GL_POINTS, 0, m_vertices.size());
@@ -470,6 +490,7 @@ void BSplineSurface::draw(const Shader& shader, bool dotCloud, const glm::mat4& 
     }
 
     m_fun->glBindVertexArray(0);
+//    m_fun->glActiveTexture(GL_TEXTURE0);
     shader.setBool("userColor", false);
     m_fun->glPointSize(1.0f);
     m_fun->glLineWidth(1.0f);
@@ -883,7 +904,9 @@ void BSplineSurface::updateSurface(const glm::mat4& localTransform, const glm::m
 
     m_vertices.clear();
     m_normals.clear();
+    m_textures.clear();
     m_indiceTriangles.clear();
+    float textureSize = 5.0f;
     //    uint nbLine = curves.size();
     for (uint i = 0; i < nbLine; ++i) {
         //        uint nbCol = curves[i].size();
@@ -906,6 +929,10 @@ void BSplineSurface::updateSurface(const glm::mat4& localTransform, const glm::m
 
                 glm::vec3 normal = glm::normalize(glm::cross(topLeftBottomRight, topLeftTopRight));
                 m_normals.emplace_back(std::move(normal));
+
+                m_textures.emplace_back(textureSize * i / (float)nbLine, textureSize * j / (float)nbCol);
+//                m_textures.emplace_back(i, j);
+
             } else if (i == nbLine - 1 && j != nbCol - 1) {
                 //                uint topLeft = (i - 1) * nbCol + j;
                 //                uint bottomRight = i * nbCol + j +1;
@@ -922,6 +949,8 @@ void BSplineSurface::updateSurface(const glm::mat4& localTransform, const glm::m
 
                 glm::vec3 normal = glm::normalize(glm::cross(topRighttopLeft, topRightBottomRight));
                 m_normals.emplace_back(std::move(normal));
+                m_textures.emplace_back(textureSize * i / (float)nbLine, textureSize * j / (float)nbCol);
+//                m_textures.emplace_back(i, j);
 
             } else {
                 Q_ASSERT(j == nbCol - 1 && i == nbLine - 1);
@@ -930,6 +959,8 @@ void BSplineSurface::updateSurface(const glm::mat4& localTransform, const glm::m
 
                 glm::vec3 normal = glm::normalize(glm::cross(bottomRightTopRight, bottomRightBottomLeft));
                 m_normals.emplace_back(std::move(normal));
+                m_textures.emplace_back(textureSize * i / (float)nbLine, textureSize * j / (float)nbCol);
+//                m_textures.emplace_back(i, j);
             }
         }
     }
@@ -972,6 +1003,8 @@ void BSplineSurface::updateSurface(const glm::mat4& localTransform, const glm::m
     m_fun->glBindBuffer(GL_ARRAY_BUFFER, m_nbo2);
     m_fun->glBufferSubData(GL_ARRAY_BUFFER, 0, m_normals.size() * sizeof(glm::vec3), &m_normals[0]);
 
+    m_fun->glBindBuffer(GL_ARRAY_BUFFER, m_tbo2);
+    m_fun->glBufferSubData(GL_ARRAY_BUFFER, 0, m_textures.size() * sizeof(glm::vec2), &m_textures[0]);
     //    m_fun->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ebo2);
     //    m_fun->glBufferData(GL_ELEMENT_ARRAY_BUFFER, m_indiceTriangles.size() * sizeof(glm::uvec2), &m_indiceTriangles[0], GL_STATIC_DRAW);
     m_fun->glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ebo2);

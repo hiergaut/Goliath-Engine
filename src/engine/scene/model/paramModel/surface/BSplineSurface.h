@@ -35,6 +35,7 @@ public:
         THOR,
         POT,
     };
+    Texture m_texture;
 
 public:
     BSplineSurface(Type type);
@@ -90,10 +91,12 @@ private:
     std::vector<glm::vec3> m_vertices;
     std::vector<glm::vec3> m_normals;
     std::vector<glm::uvec3> m_indiceTriangles;
+    std::vector<glm::vec2> m_textures;
     uint m_vao2;
     uint m_vbo2;
     uint m_nbo2;
     uint m_ebo2;
+    uint m_tbo2;
 
     //    uint m_accuracy;
 };

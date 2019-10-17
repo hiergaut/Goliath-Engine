@@ -28,7 +28,7 @@ Texture::Texture(std::string  path, std::string  filename, Texture::Type type)
     //            texture.m_filename = str.C_Str();
     bool success;
     QImage image = loadTga(m_directory +"/" + m_filename, success);
-    Q_ASSERT(success);
+//    Q_ASSERT(success);
 
     //            Q_ASSERT(! image.isNull());
     //            QPixmap pixmap(image);
