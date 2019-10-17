@@ -34,9 +34,7 @@ public:
 
 private slots:
     void on_actionMaterial_triggered();
-
     void on_actionCurve_triggered();
-
     void on_actionSurface_triggered();
 
 private:

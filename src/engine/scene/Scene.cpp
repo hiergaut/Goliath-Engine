@@ -10,6 +10,8 @@
 #include "model/meshModel/MeshModel.h"
 #include "model/paramModel/ParamModel.h"
 #include "model/paramModel/surface/BSplineSurface.h"
+#include <gui/editor/properties/context/curve/FormContextCurve.h>
+#include <gui/editor/properties/context/surface/FormContextSurface.h>
 #include <gui/editor/timeline/FormTimeline.h>
 #include <opengl/geometry/AxisGeometry.h>
 #include <opengl/geometry/DotGeometry.h>
@@ -176,12 +178,12 @@ void Scene::draw(const MainWindow3dView& view)
     shader.setBool("userColor", true);
     shader.setVec4("color", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
     shader.setMat4("model", onesMatrix);
-//    for (const glm::vec3 & dot : m_dots) {
-//        DotGeometry::draw(glm::translate(onesMatrix, dot), shader, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), 20.0f);
-//    }
-//    for (const Frustum & frustum : m_frustums) {
-//        frustum.draw(shader);
-//    }
+    //    for (const glm::vec3 & dot : m_dots) {
+    //        DotGeometry::draw(glm::translate(onesMatrix, dot), shader, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), 20.0f);
+    //    }
+    //    for (const Frustum & frustum : m_frustums) {
+    //        frustum.draw(shader);
+    //    }
     shader.setBool("userColor", false);
 
     //     -------------------------------- DRAW RAYS
@@ -619,13 +621,12 @@ void Scene::draw(const MainWindow3dView& view)
         shader.setMat4("projection", onesMatrix);
         shader.setBool("userColor", true);
         shader.setVec4("color", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-//        LineGeometry::draw(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, -0.5f, 0.0f));
+        //        LineGeometry::draw(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, -0.5f, 0.0f));
         LineGeometry::draw(glm::vec3(x, y, 0.0f), glm::vec3(x2, y, 0.0f));
         LineGeometry::draw(glm::vec3(x2, y, 0.0f), glm::vec3(x2, y2, 0.0f));
         LineGeometry::draw(glm::vec3(x2, y2, 0.0f), glm::vec3(x, y2, 0.0f));
         LineGeometry::draw(glm::vec3(x, y2, 0.0f), glm::vec3(x, y, 0.0f));
         shader.setBool("userColor", false);
-
     }
 
     //    glPolygonMode(GL_FRONT, polygonMode);
@@ -892,6 +893,31 @@ void Scene::objectSelectRay(const Ray& ray, bool additional)
 
         m_selectObject = m_objects[iObjectMin];
 
+        switch (m_selectObject->m_model->m_type) {
+        case Model::PARAM_CURVE:
+            //            Q_ASSERT(FormContextSurface::m_formContextSurface != nullptr);
+            //            Q_ASSERT(FormContextCurve::m_formContextCurve != nullptr);
+            FormContextSurface::clearContext();
+            //                FormContextSurface::m_formContextSurface->clear();
+            FormContextCurve::initContext(static_cast<BSplineCurve*>(m_selectObject->m_model));
+            //            if (FormContextCurve::m_formContextCurve != nullptr) {
+            //                FormContextCurve::m_formContextCurve->initNewSpline(static_cast<BSplineCurve*>(m_selectObject->m_model));
+            //            }
+            break;
+
+        case Model::PARAM_SURFACE:
+            FormContextCurve::clearContext();
+            FormContextSurface::initContext(static_cast<BSplineSurface*>(m_selectObject->m_model));
+            //            if (FormContextSurface::m_formContextSurface != nullptr) {
+            //                FormContextSurface::m_formContextSurface->initNewSurface(static_cast<BSplineSurface*>(m_selectObject->m_model));
+            //            }
+
+            //            Q_ASSERT(FormContextSurface::m_formContextSurface != nullptr);
+            //            Q_ASSERT(FormContextCurve::m_formContextCurve != nullptr);
+            //            FormContextCurve::m_formContextCurve->clear();
+            break;
+        }
+
         //        ray.m_length = depthMin;
         //        ray.m_hit = true;
         //        Ray hitRay (ray.m_source, ray.m_direction, depthMin);
@@ -926,20 +952,20 @@ void Scene::vertexSelectRay(const Ray& ray, bool additional)
     }
 }
 
-void Scene::vertexSelectFrustum(const Frustum &frustum, bool additional) {
-//void Scene::vertexSelectFrustum(const glm::mat4 &projectionMatrix, const glm::mat4 &viewMatrix, bool additional)
-//{
+void Scene::vertexSelectFrustum(const Frustum& frustum, bool additional)
+{
+    //void Scene::vertexSelectFrustum(const glm::mat4 &projectionMatrix, const glm::mat4 &viewMatrix, bool additional)
+    //{
     if (m_selectObject != nullptr) {
         if (m_selectObject->m_model->m_type == Model::PARAM_CURVE) {
             BSplineCurve& splineCurve = static_cast<BSplineCurve&>(*m_selectObject->m_model);
-//            splineCurve.vertexSelectFrustum(projectionMatrix, viewMatrix, additional);
+            //            splineCurve.vertexSelectFrustum(projectionMatrix, viewMatrix, additional);
             splineCurve.vertexSelectFrustum(frustum, additional);
 
             m_frustums.clear();
             m_frustums.emplace_back(std::move(frustum));
         }
     }
-
 }
 
 //void Scene::unselectRay(const Ray &ray)
@@ -1215,6 +1241,16 @@ void Scene::deleteSelected()
     //            ++it;
     //        }
     //    }
+    switch (m_selectObject->m_model->m_type) {
+    case Model::PARAM_CURVE:
+        FormContextCurve::clearContext();
+        break;
+
+    case Model::PARAM_SURFACE:
+        FormContextSurface::clearContext();
+        break;
+
+    }
 
     //    int cpt = -1;
     //    std::list<const Object *> allObjects;
@@ -1267,6 +1303,7 @@ void Scene::deleteSelected()
     //        if (! dirLight.m_s)
     //    }
     //    for (Camera & camera : m_cameras) {
+    //    FormContextCurve::m_formContextCurve->m_model = nullptr;
 
     //    }
 
@@ -1319,11 +1356,11 @@ void Scene::addCurve(BSplineCurve::Type type)
     addModel(new BSplineCurve(type));
 }
 
-void Scene::addSurface()
+void Scene::addSurface(BSplineSurface::Type type)
 {
     //    m_models.emplace_back(new BSplineSurface);
     //    m_objects.push_back(&m_models.back());
-    addModel(new BSplineSurface);
+    addModel(new BSplineSurface(type));
 }
 
 void Scene::addModel(Model* model)
@@ -1332,14 +1369,13 @@ void Scene::addModel(Model* model)
     m_objects.push_back(&m_models.back());
 }
 
-void Scene::addRay(Ray &&ray)
+void Scene::addRay(Ray&& ray)
 {
     m_rays.emplace_back(ray);
 }
 
-void Scene::addDot(const glm::vec3 &dot)
+void Scene::addDot(const glm::vec3& dot)
 {
-
 }
 
 //void Scene::removeCamera(uint iCamera)
@@ -1428,15 +1464,17 @@ void Scene::removeNoViewCamera()
 BSplineCurve* Scene::getBsplineCurve()
 {
     for (Object& object : m_models) {
-        if (object.m_model->m_type == Model::PARAM_CURVE) {
-            //            ParamModel * paramModel =  static_cast<ParamModel*>(object.m_model);
-            BSplineCurve* splineCurve = static_cast<BSplineCurve*>(object.m_model);
-            return splineCurve;
-            //            if (paramModel->m_type == ParamModel::Type::BSPLINE_CURVE) {
-            //                return dynamic_cast<BSplineCurve*>(paramModel);
-            //            }
-            //            //            return object.m_model;
-            break;
+        if (object.m_selected) {
+            if (object.m_model->m_type == Model::PARAM_CURVE) {
+                //            ParamModel * paramModel =  static_cast<ParamModel*>(object.m_model);
+                BSplineCurve* splineCurve = static_cast<BSplineCurve*>(object.m_model);
+                return splineCurve;
+                //            if (paramModel->m_type == ParamModel::Type::BSPLINE_CURVE) {
+                //                return dynamic_cast<BSplineCurve*>(paramModel);
+                //            }
+                //            //            return object.m_model;
+                break;
+            }
         }
     }
 
@@ -1446,15 +1484,17 @@ BSplineCurve* Scene::getBsplineCurve()
 BSplineSurface* Scene::getBsplineSurface()
 {
     for (Object& object : m_models) {
-        if (object.m_model->m_type == Model::PARAM_SURFACE) {
-            //            ParamModel * paramModel =  static_cast<ParamModel*>(object.m_model);
-            BSplineSurface* splineSurface = static_cast<BSplineSurface*>(object.m_model);
-            return splineSurface;
-            //            if (paramModel->m_type == ParamModel::Type::BSPLINE_CURVE) {
-            //                return dynamic_cast<BSplineCurve*>(paramModel);
-            //            }
-            //            //            return object.m_model;
-            break;
+        if (object.m_selected) {
+            if (object.m_model->m_type == Model::PARAM_SURFACE) {
+                //            ParamModel * paramModel =  static_cast<ParamModel*>(object.m_model);
+                BSplineSurface* splineSurface = static_cast<BSplineSurface*>(object.m_model);
+                return splineSurface;
+                //            if (paramModel->m_type == ParamModel::Type::BSPLINE_CURVE) {
+                //                return dynamic_cast<BSplineCurve*>(paramModel);
+                //            }
+                //            //            return object.m_model;
+                break;
+            }
         }
     }
 

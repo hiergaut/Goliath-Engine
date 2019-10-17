@@ -214,6 +214,31 @@ public:
 
         file.write(reinterpret_cast<const char*>(tab), len * sizeof(glm::vec3));
     }
+
+    static void save(const uint * tab, uint len, std::ofstream & file) {
+//        glm::vec3 t[len];
+//        for (uint i =0; i <len; ++i) {
+//            t[i] = tab[i];
+//        }
+
+        file.write(reinterpret_cast<const char*>(tab), len * sizeof(uint));
+    }
+    static void save(const float * tab, uint len, std::ofstream & file) {
+//        glm::vec3 t[len];
+//        for (uint i =0; i <len; ++i) {
+//            t[i] = tab[i];
+//        }
+
+        file.write(reinterpret_cast<const char*>(tab), len * sizeof(float));
+    }
+    static void save(const bool * tab, uint len, std::ofstream & file) {
+//        glm::vec3 t[len];
+//        for (uint i =0; i <len; ++i) {
+//            t[i] = tab[i];
+//        }
+
+        file.write(reinterpret_cast<const char*>(tab), len * sizeof(bool));
+    }
 };
 
 #endif // SESSIONSAVE_H

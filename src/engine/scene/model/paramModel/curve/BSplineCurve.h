@@ -11,16 +11,21 @@ class BSplineCurve : public Model {
     //public:
     //    BSplineCurve();
 public:
-    uint m_k;
-    uint m_dotPerEdge;
-    std::vector<float> m_knots;
+    static const uint g_maxLenKnots = 20;
+
+    uint m_k = 3;
+    uint m_dotPerEdge = 10;
+//    std::vector<float> m_knots;
+    float m_knots[g_maxLenKnots];
     std::vector<glm::vec3> m_controlPoints;
     std::vector<bool> m_selected;
+    bool m_periodic = false;
     //    std::vector<glm::vec3> m_memControlPoints;
 
     enum Type {
         SPLINE,
         CIRCLE,
+        CIRCLE8,
     };
 
 public:
@@ -44,6 +49,10 @@ public:
 //    void vertexSelectFrustum(const glm::mat4 & projectionMatrix, const glm::mat4 & viewMatrix, bool additional = false);
     void vertexSelectFrustum(const Frustum & frustum, bool additional = false);
 
+    void clampStart();
+    void clampEnd();
+    void setUniform();
+
 protected:
     void save(std::ofstream& file) const override;
 
@@ -55,6 +64,7 @@ protected:
     void drawBoundingBox(const Shader& shader) const override;
 
     void buildItemModel(QStandardItem* parent) const override;
+
 
 private:
     QOpenGLFunctionsCore* m_fun = nullptr;

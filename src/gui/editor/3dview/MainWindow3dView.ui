@@ -113,6 +113,7 @@
       </property>
       <addaction name="actionSpline"/>
       <addaction name="actionCircle"/>
+      <addaction name="actionCircle8"/>
      </widget>
      <addaction name="menuB_Spline"/>
     </widget>
@@ -120,7 +121,18 @@
      <property name="title">
       <string>Surface</string>
      </property>
-     <addaction name="actionBSpline_surface"/>
+     <widget class="QMenu" name="menuB_Spline_2">
+      <property name="title">
+       <string>B-Spline</string>
+      </property>
+      <addaction name="separator"/>
+      <addaction name="actionSphere"/>
+      <addaction name="actionTomb"/>
+      <addaction name="actionPlane"/>
+      <addaction name="actionThor"/>
+      <addaction name="actionPot"/>
+     </widget>
+     <addaction name="menuB_Spline_2"/>
     </widget>
     <addaction name="menuLight"/>
     <addaction name="menuCurve"/>
@@ -335,15 +347,6 @@
     <string>IntersectRay</string>
    </property>
   </action>
-  <action name="actionBSpline_surface">
-   <property name="icon">
-    <iconset resource="../../../../resources/resources.qrc">
-     <normaloff>:/icons/surface.png</normaloff>:/icons/surface.png</iconset>
-   </property>
-   <property name="text">
-    <string>B-Spline</string>
-   </property>
-  </action>
   <action name="actionSpline">
    <property name="text">
     <string>Spline</string>
@@ -352,6 +355,36 @@
   <action name="actionCircle">
    <property name="text">
     <string>Circle</string>
+   </property>
+  </action>
+  <action name="actionSphere">
+   <property name="text">
+    <string>Sphere</string>
+   </property>
+  </action>
+  <action name="actionTomb">
+   <property name="text">
+    <string>Tomb</string>
+   </property>
+  </action>
+  <action name="actionCircle8">
+   <property name="text">
+    <string>Circle8</string>
+   </property>
+  </action>
+  <action name="actionPlane">
+   <property name="text">
+    <string>Plane</string>
+   </property>
+  </action>
+  <action name="actionThor">
+   <property name="text">
+    <string>Thor</string>
+   </property>
+  </action>
+  <action name="actionPot">
+   <property name="text">
+    <string>Pot</string>
    </property>
   </action>
  </widget>

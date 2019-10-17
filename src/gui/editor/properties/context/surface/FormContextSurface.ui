@@ -13,7 +13,7 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QHBoxLayout" name="horizontalLayout_7">
+  <layout class="QVBoxLayout" name="verticalLayout_12">
    <item>
     <layout class="QVBoxLayout" name="verticalLayout_11">
      <item>
@@ -94,6 +94,38 @@
               </widget>
              </item>
             </layout>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_7">
+           <item>
+            <widget class="QToolButton" name="toolButton_uClampLeft">
+             <property name="text">
+              <string>cll</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QToolButton" name="toolButton_uClampRight">
+             <property name="text">
+              <string>clr</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QToolButton" name="toolButton_uUniform">
+             <property name="text">
+              <string>unf</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="checkBox_uPeriodic">
+             <property name="text">
+              <string>prc</string>
+             </property>
+            </widget>
            </item>
           </layout>
          </item>
@@ -231,6 +263,36 @@
                </property>
               </widget>
              </item>
+             <item>
+              <widget class="QLabel" name="label_34">
+               <property name="text">
+                <string>u13 : </string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="label_37">
+               <property name="text">
+                <string>u14 : </string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="label_38">
+               <property name="text">
+                <string>u15 : </string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+              </widget>
+             </item>
             </layout>
            </item>
            <item>
@@ -326,6 +388,15 @@
                </property>
               </widget>
              </item>
+             <item>
+              <widget class="QDoubleSpinBox" name="doubleSpinBox_u13"/>
+             </item>
+             <item>
+              <widget class="QDoubleSpinBox" name="doubleSpinBox_u14"/>
+             </item>
+             <item>
+              <widget class="QDoubleSpinBox" name="doubleSpinBox_u15"/>
+             </item>
             </layout>
            </item>
           </layout>
@@ -400,6 +471,38 @@
               </widget>
              </item>
             </layout>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_8">
+           <item>
+            <widget class="QToolButton" name="toolButton_vClampLeft">
+             <property name="text">
+              <string>cll</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QToolButton" name="toolButton_vClampRight">
+             <property name="text">
+              <string>clr</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QToolButton" name="toolButton_vUniform">
+             <property name="text">
+              <string>unf</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="checkBox_vPeriodic">
+             <property name="text">
+              <string>prc</string>
+             </property>
+            </widget>
            </item>
           </layout>
          </item>
@@ -537,6 +640,36 @@
                </property>
               </widget>
              </item>
+             <item>
+              <widget class="QLabel" name="label_35">
+               <property name="text">
+                <string>v13 : </string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="label_36">
+               <property name="text">
+                <string>v14 : </string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="label_39">
+               <property name="text">
+                <string>v15 : </string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+              </widget>
+             </item>
             </layout>
            </item>
            <item>
@@ -631,6 +764,15 @@
                 <double>0.100000000000000</double>
                </property>
               </widget>
+             </item>
+             <item>
+              <widget class="QDoubleSpinBox" name="doubleSpinBox_v13"/>
+             </item>
+             <item>
+              <widget class="QDoubleSpinBox" name="doubleSpinBox_v14"/>
+             </item>
+             <item>
+              <widget class="QDoubleSpinBox" name="doubleSpinBox_v15"/>
              </item>
             </layout>
            </item>

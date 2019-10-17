@@ -314,10 +314,10 @@ void QOpenGLWidget_Editor::addCurve(BSplineCurve::Type type)
     m_scene.addCurve(type);
 }
 
-void QOpenGLWidget_Editor::addSurface()
+void QOpenGLWidget_Editor::addSurface(BSplineSurface::Type type)
 {
     makeCurrent();
-    m_scene.addSurface();
+    m_scene.addSurface(type);
 }
 
 //void QOpenGLWidget_Editor::addCameraWorld(float fov, glm::vec3&& position, glm::vec3&& target)

@@ -188,6 +188,26 @@ public:
 
 //        tab = t;
     }
+
+    static void load(uint *  tab, uint len, std::ifstream & file) {
+//        glm::vec3 t[len];
+        file.read(reinterpret_cast<char*>(tab), len * sizeof(uint));
+
+//        tab = t;
+    }
+
+    static void load(float *  tab, uint len, std::ifstream & file) {
+//        glm::vec3 t[len];
+        file.read(reinterpret_cast<char*>(tab), len * sizeof(float));
+
+//        tab = t;
+    }
+    static void load(bool *  tab, uint len, std::ifstream & file) {
+//        glm::vec3 t[len];
+        file.read(reinterpret_cast<char*>(tab), len * sizeof(bool));
+
+//        tab = t;
+    }
 };
 
 #endif // SESSIONLOAD_H

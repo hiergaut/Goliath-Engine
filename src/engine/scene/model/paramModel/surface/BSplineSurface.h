@@ -10,29 +10,43 @@ class BSplineSurface : public Model {
     //public:
     //    BSplineSurface();
 public:
-    static const uint m_nbLine = 5;
-    static const uint m_nbCol = 6;
-    static const uint g_maxLenKnots = 13;
-//    = 13;
+//    uint m_nbLine;
+//    uint m_nbCol;
+    uint m_nbCtrlPoints[2];
+    static const uint g_maxLenKnots = 16;
+    static const uint g_maxSize = 20;
+    //    = 13;
 
-    uint m_k[2];
-    uint m_dotPerEdge[2];
+    uint m_k[2] = { 3, 3 };
+    uint m_dotPerEdge[2] = { 10, 10 };
     //    std::vector<float> m_knots[2];
     float m_knots[2][g_maxLenKnots];
     //    std::vector<glm::vec3> m_controlPoints;
-    glm::vec3 m_controlPoints[m_nbLine][m_nbCol];
+    glm::vec3 m_controlPoints[g_maxSize][g_maxSize];
     //    std::vector<bool> m_selected;
-    bool m_selected[m_nbLine][m_nbCol];
+    bool m_selected[g_maxSize][g_maxSize];
     //    std::vector<glm::vec3> m_memControlPoints;
+    bool m_periodic[2] = {false, false};
+
+    enum Type {
+        SPHERE,
+        TOMB,
+        PLANE,
+        THOR,
+        POT,
+    };
 
 public:
-    BSplineSurface();
+    BSplineSurface(Type type);
     BSplineSurface(std::ifstream& file);
     //    BSplineSurface(BSplineSurface && splineCurve) noexcept = default;
 
     ~BSplineSurface() override;
 
     void setupGL();
+    void setUniform(uint uv);
+    static glm::vec3 deBoor(float u, uint m, const uint k, const float knots[], const std::vector<glm::vec3>& controlPoints);
+    static std::vector<glm::vec3> calcCurve(const std::vector<glm::vec3>& ptsCtrl, const uint k, const uint dotPerEdge, const float knots[]);
 
     std::string name() const override;
 
@@ -45,6 +59,14 @@ public:
     void drawSelected(const Shader& shader, const glm::mat4& localTransform = glm::mat4(1.0f), const glm::mat4& worldTransform = glm::mat4(1.0f)) const;
     void updateSelectedVertexPosition(const glm::mat4& localTransform, const glm::mat4& worldTransform) override;
     void vertexSelectRay(const Ray& ray, bool additional);
+
+    void clamp(uint i, bool start = true);
+    void uSetUniform();
+    void vSetUniform();
+    void uClampStart();
+    void uClampEnd();
+    void vClampStart();
+    void vClampEnd();
 
 protected:
     void save(std::ofstream& file) const override;
@@ -60,9 +82,9 @@ protected:
 
 private:
     QOpenGLFunctionsCore* m_fun = nullptr;
-    //    std::vector<glm::uvec2> m_indices;
+        std::vector<glm::uvec2> m_indices;
     uint m_vbo;
-    //    uint m_ebo;
+        uint m_ebo;
     uint m_vao;
 
     std::vector<glm::vec3> m_vertices;

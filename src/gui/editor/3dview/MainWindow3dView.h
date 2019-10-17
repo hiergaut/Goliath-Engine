@@ -258,9 +258,15 @@ private slots:
     void on_actionIntersectRay_triggered();
 //    void on_actionB_Spline_triggered();
 //    void on_actionBSpline_curve_triggered();
-    void on_actionBSpline_surface_triggered();
+//    void on_actionBSpline_surface_triggered();
     void on_actionSpline_triggered();
     void on_actionCircle_triggered();
+    void on_actionTomb_triggered();
+    void on_actionSphere_triggered();
+    void on_actionCircle8_triggered();
+    void on_actionPlane_triggered();
+    void on_actionThor_triggered();
+    void on_actionPot_triggered();
 };
 
 #endif // MAINWINDOW3DVIEW_H

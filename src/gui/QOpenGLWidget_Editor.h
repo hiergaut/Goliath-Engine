@@ -51,7 +51,7 @@ public:
 //    void addCameraWorld(float fov, glm::vec3 && position, glm::vec3 && target);
 //    void deleteCamera(uint iCamera);
     void addCurve(BSplineCurve::Type type);
-    void addSurface();
+    void addSurface(BSplineSurface::Type type);
 
 protected:
     void initializeGL() override;

@@ -27,8 +27,8 @@
 #include <gui/QOpenGLWidget_Editor.h>
 #include <opengl/rayTracer/RayTracer.h>
 //#include <engine/scene/camera/CameraStrategy.h>
-#include <session/Session.h>
 #include <engine/scene/model/paramModel/curve/BSplineCurve.h>
+#include <session/Session.h>
 
 std::list<const MainWindow3dView*>* MainWindow3dView::m_views;
 //Shader MainWindow3dView::m_shaders;
@@ -1243,8 +1243,8 @@ void MainWindow3dView::updateTransformMatrix(float dx, float dy)
 
         } else {
 
-            *m_worldTransform = glm::translate(glm::mat4(1.0f), m_memRight * dx);
-            *m_worldTransform = glm::translate(*m_worldTransform, m_memUp * dy);
+            *m_worldTransform = glm::translate(glm::mat4(1.0f), m_memRight * 2.0f * dx);
+            *m_worldTransform = glm::translate(*m_worldTransform, m_memUp * 2.0f * dy);
             *m_worldTransform = glm::translate(*m_worldTransform, m_memFront * m_WheelPos);
         }
         break;
@@ -1893,10 +1893,10 @@ void MainWindow3dView::on_actionArea_Light_triggered()
 //    QOpenGLWidget_Editor::m_editor->addCurve();
 //}
 
-void MainWindow3dView::on_actionBSpline_surface_triggered()
-{
-    QOpenGLWidget_Editor::m_editor->addSurface();
-}
+//void MainWindow3dView::on_actionBSpline_surface_triggered()
+//{
+//    QOpenGLWidget_Editor::m_editor->addSurface();
+//}
 
 void MainWindow3dView::on_actionSpline_triggered()
 {
@@ -1907,5 +1907,35 @@ void MainWindow3dView::on_actionSpline_triggered()
 void MainWindow3dView::on_actionCircle_triggered()
 {
     QOpenGLWidget_Editor::m_editor->addCurve(BSplineCurve::Type::CIRCLE);
+}
 
+void MainWindow3dView::on_actionCircle8_triggered()
+{
+    QOpenGLWidget_Editor::m_editor->addCurve(BSplineCurve::Type::CIRCLE8);
+}
+
+void MainWindow3dView::on_actionTomb_triggered()
+{
+    QOpenGLWidget_Editor::m_editor->addSurface(BSplineSurface::TOMB);
+}
+
+void MainWindow3dView::on_actionSphere_triggered()
+{
+    QOpenGLWidget_Editor::m_editor->addSurface(BSplineSurface::SPHERE);
+}
+
+void MainWindow3dView::on_actionPlane_triggered()
+{
+    QOpenGLWidget_Editor::m_editor->addSurface(BSplineSurface::PLANE);
+}
+
+void MainWindow3dView::on_actionThor_triggered()
+{
+
+    QOpenGLWidget_Editor::m_editor->addSurface(BSplineSurface::THOR);
+}
+
+void MainWindow3dView::on_actionPot_triggered()
+{
+    QOpenGLWidget_Editor::m_editor->addSurface(BSplineSurface::POT);
 }

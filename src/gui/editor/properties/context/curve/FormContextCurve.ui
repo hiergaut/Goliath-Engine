@@ -13,13 +13,13 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <widget class="QWidget" name="">
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
      <x>10</x>
      <y>10</y>
-     <width>176</width>
-     <height>476</height>
+     <width>254</width>
+     <height>532</height>
     </rect>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -95,6 +95,42 @@
        <widget class="QSpinBox" name="spinBox_dotPerEdge">
         <property name="minimum">
          <number>1</number>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout_18">
+      <item>
+       <widget class="QPushButton" name="pushButton_clampStart">
+        <property name="text">
+         <string>Clamp start</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="pushButton_clampEnd">
+        <property name="text">
+         <string>Clamp end</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="horizontalLayout_19">
+      <item>
+       <widget class="QPushButton" name="pushButton_uniform">
+        <property name="text">
+         <string>Uniform</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="checkBox_periodic">
+        <property name="text">
+         <string>Periodic</string>
         </property>
        </widget>
       </item>
