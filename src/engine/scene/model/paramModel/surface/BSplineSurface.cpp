@@ -691,18 +691,17 @@ void BSplineSurface::setVDotPerEdge(uint dotPerEdge)
 
 glm::vec3 BSplineSurface::deBoor(float u, uint m, const uint k, const float knots[], const std::vector<glm::vec3>& controlPoints)
 {
+    // search shift
     int dec = 0;
     int i = k;
-    //        qDebug() << "loop";
+
     while (knots[i] < u) {
         ++i;
         ++dec;
         Q_ASSERT(i < m);
     }
-    //        qDebug() << "end loop";
-    //        dec -= k - 1;
-    //        dec =
 
+    // shift ctrls pts
     glm::vec3 pts[k];
     for (uint i = 0; i < k; ++i) {
         Q_ASSERT(i + dec < controlPoints.size());
@@ -710,15 +709,6 @@ glm::vec3 BSplineSurface::deBoor(float u, uint m, const uint k, const float knot
         pts[i] = controlPoints[i + dec];
     }
 
-    //        for (uint i = k - 1; i > 0; --i) {
-    //            for (uint j = 0; j < i; ++j) {
-    //                float a = (knots[dec + k + j + 1] - u) /
-    //                        (knots[dec + k +j + 1] - knots[dec + dec + k - i]);
-
-    //                pts[j] = a * pts[j] + (1 - a) * pts[j + 1];
-    //            }
-    ////            ++dec;
-    //        }
     uint l = k;
     uint k2 = k;
     for (uint j = 0; j < l - 1; ++j) {
@@ -738,65 +728,37 @@ std::vector<glm::vec3> BSplineSurface::calcCurve(const std::vector<glm::vec3>& p
 
     std::vector<glm::vec3> curve;
 
-    //    uint n = m_nbCtrlPoints[0] -1;
     uint n = ptsCtrl.size() - 1;
-    //    std::cout << "n: " << n << std::endl;
     uint m = k + n + 1;
 
-    //    uint nbPtCtl = ((n + 1) * dotPerEdge);
-    //    uint nbPtCtl = n + 1;
     uint nbPtCtl = n + 1 - (k - 1);
-    //    std::vector<glm::vec3> curve(nbPtCtl);
-    //    const float start = knots[k - 1];
-    //    const float end = knots[n + 1];
-    //    const float period = end - start;
 
     for (uint iPtCtl = 0; iPtCtl < nbPtCtl + 1; ++iPtCtl) {
         for (uint iDot = 0; iDot < dotPerEdge; ++iDot) {
-            //        float u = (float)iPtCtl / (nbPtCtl - 1) * (n - m_k + 2) + (m_k - 1);
             const float start = knots[k - 1 + iPtCtl];
             const float end = knots[k + iPtCtl];
             const float period = end - start;
 
-            //            float u = (float)iPtCtl / (nbPtCtl - 1) * period + start;
             float u = (iDot * period) / dotPerEdge + start;
 
-            //        qDebug() << "u: " << u;
-            //        std::cout << u << std::endl;
             if (iPtCtl == nbPtCtl) {
                 u = knots[n + 1];
             }
-            //            if (iPtCtl == 0 && iDot == 0) {
-            //                Q_ASSERT(qAbs(knots[k - 1] - u) < 1e-5);
-            //            } else if (iPtCtl == nbPtCtl && iDot == 0) {
-            //                Q_ASSERT(qAbs(knots[n + 1] - u) < 1e-5);
-            //            }
-            Q_ASSERT(knots[k - 1] <= u && u <= knots[n + 1]);
-
-            //        m_vertices.push_back(worldTransform * glm::vec4(pts[0], 1.0f) * localTransform);
-            //        m_vertices.push_back(pts[0]);
-            //        m_vertices.push_back(deBoor(u, m, m_k[0], m_knots[0], ))
-            //            curve.emplace_back(deBoor(u, m, k, knots, ptsCtrl));
             curve.emplace_back(BSplineSurface::deBoor(u, m, k, knots, ptsCtrl));
 
             if (iPtCtl == nbPtCtl) {
                 break;
             }
         }
-        //        curve[iPtCtl] =
     }
-    //    Q_ASSERT(nbPtCtl == curve.size());
     Q_ASSERT(nbPtCtl * dotPerEdge + 1 == curve.size());
     Q_ASSERT(nbPtCtl > 0);
 
     return curve;
-    //    return std::move(curve);
 }
 
 void BSplineSurface::updateSurface(const glm::mat4& localTransform, const glm::mat4& worldTransform)
 {
-    //    std::vector<
-    //    std::vector<glm::vec3> controlPoints(m_controlPoints);
     uint periodicLen[2] = { 0, 0 };
     for (uint i = 0; i < 2; ++i) {
         if (m_periodic[i]) {
@@ -805,7 +767,6 @@ void BSplineSurface::updateSurface(const glm::mat4& localTransform, const glm::m
     }
 
     glm::vec3 controlPoints[m_nbCtrlPoints[0] + periodicLen[0]][m_nbCtrlPoints[1] + periodicLen[1]];
-    //    glm::vec3 controlPoints[m_nbCtrlPoints[0]][m_nbCtrlPoints[1]];
     for (uint i = 0; i < m_nbCtrlPoints[0]; ++i) {
         for (uint j = 0; j < m_nbCtrlPoints[1]; ++j) {
             if (m_selected[i][j]) {
@@ -820,7 +781,6 @@ void BSplineSurface::updateSurface(const glm::mat4& localTransform, const glm::m
             controlPoints[i + m_nbCtrlPoints[0]][j] = controlPoints[i][j];
         }
     }
-    //        for (uint i = 0; i < m_nbCtrlPoints[0] + periodicLen[0]; ++i) {
     for (uint i = 0; i < m_nbCtrlPoints[0] + periodicLen[0]; ++i) {
         for (uint j = 0; j < periodicLen[1]; ++j) {
             //                controlPoints[i][j + periodicLen[1]] = controlPoints[i][j];
@@ -830,22 +790,10 @@ void BSplineSurface::updateSurface(const glm::mat4& localTransform, const glm::m
 
     uint nbCtrlPoints[2] = { m_nbCtrlPoints[0] + periodicLen[0], m_nbCtrlPoints[1] + periodicLen[1] };
 
-    //    for (uint uv =0; uv <2; ++uv) {
-    //        if (m_periodic[uv]) {
-    //            for (uint i =0; i <periodicLen[uv]; ++i) {
-    //            }
-
-    //        }
-    //    }
-    //    for (uint i =0; i <m_nbCtrlPoints[0] * m_nbCtrlPoints[1]; ++i) {
-    //        m_indices.emplace_back(i, i + 1);
-    //    }
     m_indices.clear();
     int diff = m_nbCtrlPoints[1] - m_nbCtrlPoints[0];
-    //    int diff = nbCtrlPoints[1] - nbCtrlPoints[0];
     for (uint i = 0; i < nbCtrlPoints[0]; ++i) {
         for (uint j = 0; j < nbCtrlPoints[1] - 1; ++j) {
-            //            m_indices.emplace_back(i * g_maxSize + j, i * g_maxSize + j + 1);
             m_indices.emplace_back(i * nbCtrlPoints[0] + j + i * diff, i * nbCtrlPoints[0] + j + 1 + i * diff);
         }
     }
@@ -862,20 +810,10 @@ void BSplineSurface::updateSurface(const glm::mat4& localTransform, const glm::m
     m_fun->glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, nbCtrlPoints[0] * (nbCtrlPoints[1] - 1) * sizeof(glm::uvec2), &m_indices[0]);
     m_fun->glEnableVertexAttribArray(0);
 
-    //    return;
-    //    uint n = m_controlPoints.size() - 1;
-    //    float knots[m];
-    //    float u = 2.5f;
 
-    //    std::vector<std::vector<glm::vec3>> curves;
     uint nbLine = (nbCtrlPoints[0] - (m_k[0] - 1)) * m_dotPerEdge[0] + 1;
     uint nbCol = (nbCtrlPoints[1] - (m_k[1] - 1)) * m_dotPerEdge[1] + 1;
     glm::vec3 surfaces[nbLine][nbCol];
-    //    for (uint i = 0; i < nbLine; ++i) {
-    //        for (uint j = 0; j < nbCol; ++j) {
-    //            surfaces[i][j] = glm::vec3(0.0f);
-    //        }
-    //    }
 
     for (uint i = 0; i < nbCtrlPoints[0]; ++i) {
         std::vector<glm::vec3> linePtCtrl;
@@ -906,7 +844,7 @@ void BSplineSurface::updateSurface(const glm::mat4& localTransform, const glm::m
     m_normals.clear();
     m_textures.clear();
     m_indiceTriangles.clear();
-    float textureSize = 5.0f;
+    float textureSize = 3.0f;
     //    uint nbLine = curves.size();
     for (uint i = 0; i < nbLine; ++i) {
         //        uint nbCol = curves[i].size();
