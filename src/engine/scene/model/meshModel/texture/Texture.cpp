@@ -54,12 +54,13 @@ Texture::Texture(std::ifstream &file)
     m_type = Texture::Type(Session::loadEnum(file));
 
     bool success;
-//    QImage image = loadTga(m_directory +"/" + m_filename, success);
+    QImage image = loadTga(m_directory +"/" + m_filename, success);
 //    Q_ASSERT(success);
     //            Q_ASSERT(! image.isNull());
     //            QPixmap pixmap(image);
     //            QPixmap pixmap(QPixmap::fromImage(image));
-//    m_pixmap = QPixmap::fromImage(image);
+    if (success)
+        m_pixmap = QPixmap::fromImage(image);
     //            textures.push_back(texture);
 }
 

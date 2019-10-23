@@ -261,7 +261,12 @@ void Scene::draw(const MainWindow3dView& view)
 
             //                        dirLight.draw(shader);
 
-            shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].direction", glm::vec4(dirLight.direction(viewLocalTransform), 1.0f));
+            if (dirLight.m_selected) {
+                shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].direction", glm::vec4(dirLight.direction(viewLocalTransform), 1.0f));
+            }
+            else {
+                shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].direction", glm::vec4(dirLight.direction(onesMatrix), 1.0f));
+            }
             shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].ambient", dirLight.m_ambient);
             shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].diffuse", dirLight.m_diffuse);
             shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].specular", dirLight.m_specular);
@@ -286,6 +291,7 @@ void Scene::draw(const MainWindow3dView& view)
     // -------------------------------- DRAW MODELS
     //    for (const Model& model : m_models) {
     //            qDebug() << m_objects;
+//    glEnable(GL_MULTISAMPLE);
     for (const Object* object : m_objects) {
         if (object != viewCameraObject) {
             if (object->m_selected) {
@@ -297,6 +303,7 @@ void Scene::draw(const MainWindow3dView& view)
             }
         }
     }
+//    glDisable(GL_MULTISAMPLE);
     switch (view.m_mode) {
     case MainWindow3dView::Mode::OBJECT:
         break;
