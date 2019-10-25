@@ -97,7 +97,7 @@ public:
     void load(std::ifstream & file);
     void save(std::ofstream & file);
 
-    void updateBoundingBox();
+//    void updateBoundingBox();
     void updateSceneBox();
 
     void setSelectRootTransform(const glm::mat4 & transformMatrix, const glm::mat4 &worldTransform, MainWindow3dView::Mode mode);

@@ -12,12 +12,10 @@
 
 class Object {
 public:
-    mutable bool m_selected = false;
     //    mutable glm::mat4 m_transform = glm::mat4(1.0f);
     //    mutable BoundingBox m_box;
 //    Model * m_model = nullptr;
 //    Model & m_model;
-    Model * m_model = nullptr;
 
 public:
 //    Object(Model && model) noexcept;
@@ -42,11 +40,33 @@ public:
     virtual void draw(const Shader& shader, const glm::mat4& localTransform = glm::mat4(1.0f),
         const glm::mat4& worldTransform = glm::mat4(1.0f)) const;
 
-    virtual void updateBoundingBox() const;
+//    virtual void updateBoundingBox();
     virtual void drawBoundingBox(const Shader& shader) const;
 
 //    virtual void updateSelectedVertexPosition(const glm::mat4 & localTransform, const glm::mat4 & worldTransform);
+    void buildItemModel(QStandardItem* parent) const;
+    void updateSelectedVertexPosition(const glm::mat4 & localTransform, const glm::mat4 & worldTransform);
 
+    bool selected() const;
+
+    void setSelected(bool selected);
+    const BoundingBox & box() const;
+    const std::string & name() const;
+    Model::Type type() const;
+    const glm::mat4 & transform() const;
+    void setTransform(const glm::mat4 & transform);
+
+
+
+
+
+    const Model *model() const;
+    Model * getModel();
+
+//private:
+protected:
+    mutable bool m_selected = false;
+    Model * m_model = nullptr;
     //    void drawOrigin(const glm::mat4 & worldTransform, const glm::mat4 & localTransform, const Shader & shader) const;
 };
 

@@ -14,7 +14,7 @@ const float FAR_PLANE = 10000.0f;
 
 glm::vec3 DirLight::pos(const glm::mat4& localTransform, const glm::mat4& worldTransform)
 {
-    return (worldTransform * m_model->m_transform * localTransform)[3];
+    return (worldTransform * m_model->transform() * localTransform)[3];
 }
 
 void DirLight::draw(const Shader& shader, bool dotCloud, const glm::mat4& localTransform, const glm::mat4& worldTransform) const
@@ -25,7 +25,7 @@ void DirLight::draw(const Shader& shader, bool dotCloud, const glm::mat4& localT
 //    local = glm::translate(local, glm::vec3(0.0f, 0.0f, 1.0f) * 100.0f);
     local = glm::scale(local, glm::vec3(1.0f) * 1000.0f);
 //    shader.use();
-    shader.setMat4("model", worldTransform * m_model->m_transform * local);
+    shader.setMat4("model", worldTransform * m_model->transform() * local);
 
     glActiveTexture(GL_TEXTURE0);
 //    shader.setBool("userColor", false);
@@ -61,7 +61,10 @@ DirLight::DirLight(const glm::vec3 position, const glm::vec3 ambient, const glm:
     modelMatrix = glm::rotate(modelMatrix, glm::radians(180.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 
     //    glm::vec3 up = glm::vec3
-    m_model->m_transform = modelMatrix;
+//    m_model->m_transform = modelMatrix;
+    setTransform(modelMatrix);
+//    m_model->setTransform(modelMatrix);
+//    updateBoundingBox();
 
 
     //    model = glm::rotate()
@@ -73,7 +76,7 @@ DirLight::DirLight(std::ifstream& file)
     : Object(g_resourcesPath + "models/sun/sun.obj")
 {
     Light::load(file);
-    Session::load(m_model->m_transform, file);
+    Session::load(transform(), file);
 
     //    Session::load(m_direction, file);
 
@@ -169,7 +172,7 @@ Shader &DirLight::depthShader(const glm::mat4 &localTransform, const glm::mat4 &
 void DirLight::save(std::ofstream& file) const
 {
     Light::save(file);
-    Session::save(m_model->m_transform, file);
+    Session::save(transform(), file);
 
     //    Session::save(m_direction, file);
 }
@@ -177,7 +180,7 @@ void DirLight::save(std::ofstream& file) const
 glm::vec3 DirLight::direction(const glm::mat4& localTransform) const
 {
     //    glm::vec3 dir = glm::normalize(m_model.m_transform[0] + m_model.m_transform[1] + m_model.m_transform[2]);
-    glm::vec3 sunUp = glm::vec3(m_model->m_transform * localTransform * -glm::vec4(0.0f, 0.0f, 1.0f, 0.0f));
+    glm::vec3 sunUp = glm::vec3(transform() * localTransform * -glm::vec4(0.0f, 0.0f, 1.0f, 0.0f));
     return sunUp;
     //    glm::vec3 up = glm::vec3(0.0f, 0.0f, 1.0f);
 
@@ -199,9 +202,9 @@ glm::mat4 DirLight::viewMatrix()
 {
     // question : return mat4 &&
     if (m_selected) {
-        return glm::inverse(Scene::m_scene->m_worldTransform * m_model->m_transform * Scene::m_scene->m_localTransform);
+        return glm::inverse(Scene::m_scene->m_worldTransform * transform() * Scene::m_scene->m_localTransform);
 
     } else {
-        return glm::inverse(m_model->m_transform);
+        return glm::inverse(transform());
     }
 }

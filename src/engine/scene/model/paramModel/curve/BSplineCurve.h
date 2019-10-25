@@ -37,7 +37,7 @@ public:
 
     void setupGL();
 
-    std::string name() const override;
+    const std::string & name() const override;
 
     void setK(uint k);
     void setDotPerEdge(uint dotPerEdge);
@@ -60,7 +60,7 @@ protected:
     void draw(const Shader& shader, bool dotCloud, const glm::mat4& localTransform = glm::mat4(1.0f), const glm::mat4& worldTransform = glm::mat4(1.0f)) const override;
     void draw(const Shader& shader, const glm::mat4& localTransform = glm::mat4(1.0f), const glm::mat4& worldTransform = glm::mat4(1.0f)) const override;
 
-    void updateBoundingBox() const override;
+    void updateBoundingBox() override;
     void drawBoundingBox(const Shader& shader) const override;
 
     void buildItemModel(QStandardItem* parent) const override;

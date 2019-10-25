@@ -44,6 +44,8 @@ Object::Object(std::ifstream& file)
         Q_ASSERT(false);
         break;
     }
+
+//    updateBoundingBox();
 }
 
 Object::Object(const std::string& path)
@@ -51,6 +53,7 @@ Object::Object(const std::string& path)
     //    : m_mod
     : m_model(new MeshModel(path))
 {
+//    updateBoundingBox();
 }
 
 Object::Object(Object&& object) noexcept
@@ -131,12 +134,67 @@ void Object::draw(const Shader& shader, const glm::mat4& localTransform, const g
     m_model->draw(shader, localTransform, worldTransform);
 }
 
-void Object::updateBoundingBox() const
-{
-    m_model->updateBoundingBox();
-}
+//void Object::updateBoundingBox()
+//{
+//    m_model->updateBoundingBox();
+//}
 
 void Object::drawBoundingBox(const Shader& shader) const
 {
     m_model->drawBoundingBox(shader);
+}
+
+void Object::buildItemModel(QStandardItem *parent) const
+{
+    m_model->buildItemModel(parent);
+}
+
+void Object::updateSelectedVertexPosition(const glm::mat4 &localTransform, const glm::mat4 &worldTransform)
+{
+    m_model->updateSelectedVertexPosition(localTransform, worldTransform);
+}
+
+bool Object::selected() const
+{
+    return m_selected;
+}
+
+void Object::setSelected(bool selected)
+{
+    m_selected = selected;
+}
+
+const std::string &Object::name() const
+{
+    return m_model->name();
+}
+
+Model::Type Object::type() const
+{
+    return m_model->m_type;
+}
+
+const glm::mat4 &Object::transform() const
+{
+    return m_model->transform();
+}
+
+void Object::setTransform(const glm::mat4 & transform)
+{
+    m_model->setTransform(transform);
+}
+
+const Model *Object::model() const
+{
+    return m_model;
+}
+
+Model *Object::getModel()
+{
+    return m_model;
+}
+
+const BoundingBox &Object::box() const
+{
+    return m_model->box();
 }

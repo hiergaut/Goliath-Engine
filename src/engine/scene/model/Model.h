@@ -15,8 +15,6 @@ public:
         PARAM_SURFACE,
     } m_type;
 
-    mutable glm::mat4 m_transform = glm::mat4(1.0f);
-    mutable BoundingBox m_box;
 
 public:
     //    Model(std::ifstream & file);
@@ -25,6 +23,9 @@ public:
     Model(const glm::mat4 & transform, Type type);
     Model(std::ifstream & file);
     virtual ~Model() = default;
+
+    void setTransform(glm::mat4 && transform);
+    void setTransform(const glm::mat4 & transform);
 
     virtual void save(std::ofstream & file) const;
 
@@ -39,13 +40,27 @@ public:
         const glm::mat4& worldTransform = glm::mat4(1.0f))
         const = 0;
 
-    virtual void updateBoundingBox() const = 0;
+//    virtual void updateBoundingBox() const = 0;
+
     virtual void drawBoundingBox(const Shader& shader) const = 0;
 
     virtual void updateSelectedVertexPosition(const glm::mat4 & localTransform, const glm::mat4 & worldTransform) = 0;
 
-    virtual std::string name() const = 0;
+    virtual const std::string & name() const = 0;
     virtual void buildItemModel(QStandardItem* parent) const = 0;
+
+//    glm::mat4 && transform();
+    const glm::mat4 & transform() const;
+
+    const BoundingBox &box() const;
+
+private:
+    virtual void updateBoundingBox() { Q_ASSERT(false); }
+
+//private:
+protected:
+    BoundingBox m_box;
+    glm::mat4 m_transform = glm::mat4(1.0f);
 };
 
 #endif // MODEL_H

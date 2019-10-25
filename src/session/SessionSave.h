@@ -146,7 +146,18 @@ public:
         //        vec = glm::make_vec3(data);
     }
 
-    static void save(const glm::mat4& mat, std::ofstream& file)
+//    static void save(const glm::mat4& mat, std::ofstream& file)
+//    {
+//        float data[16];
+//        std::memcpy(data, (const float*)glm::value_ptr(mat), 16 * sizeof(float));
+
+//        file.write(reinterpret_cast<const char*>(data), sizeof(data));
+
+//        //        return glm::make_vec3(data);
+//        //        vec = glm::make_vec3(data);
+//    }
+
+    static void save(glm::mat4 mat, std::ofstream& file)
     {
         float data[16];
         std::memcpy(data, (const float*)glm::value_ptr(mat), 16 * sizeof(float));
@@ -156,6 +167,7 @@ public:
         //        return glm::make_vec3(data);
         //        vec = glm::make_vec3(data);
     }
+
 
     static void save(const glm::quat& quaternion, std::ofstream& file)
     {

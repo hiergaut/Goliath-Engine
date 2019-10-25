@@ -15,7 +15,7 @@ const float accuracySlide = 1.0f;
 //    m_type = WORLD;
 //}
 
-CameraWorld::CameraWorld(std::ifstream& file, glm::mat4 & modelTransform)
+CameraWorld::CameraWorld(std::ifstream& file, glm::mat4 modelTransform)
     : CameraStrategy(modelTransform)
 //    : CameraStrategy(file)
 {
@@ -23,7 +23,7 @@ CameraWorld::CameraWorld(std::ifstream& file, glm::mat4 & modelTransform)
     m_type = WORLD;
 }
 
-CameraWorld::CameraWorld(const glm::vec3& position, glm::vec3 target, glm::mat4 &modelTransform)
+CameraWorld::CameraWorld(const glm::vec3& position, glm::vec3 target, glm::mat4 modelTransform)
     : CameraStrategy(modelTransform)
     , m_target(target)
 //    : m_position { position }

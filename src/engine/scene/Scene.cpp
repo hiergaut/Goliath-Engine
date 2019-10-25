@@ -119,7 +119,7 @@ void Scene::renderScene(Shader& shader)
 {
     for (const Object* object : m_objects) {
         //        if (object != viewCameraObject) {
-        if (object->m_selected) {
+        if (object->selected()) {
             object->draw(shader, false, m_localTransform, m_worldTransform);
         } else {
             object->draw(shader, false);
@@ -144,19 +144,19 @@ void Scene::prepareHierarchy(ulong frameTime)
         //        model.prepareHierarchy(frameTime);
     }
 
-    if (m_autoUpdateBoundingBox) {
-        if (FormTimeline::play()) {
-            updateBoundingBox();
-        } else {
+//    if (m_autoUpdateBoundingBox) {
+//        if (FormTimeline::play()) {
+//            updateBoundingBox();
+//        } else {
 
-            if (FormTimeline::m_animationTimeChanged) {
-                FormTimeline::m_animationTimeChanged = false;
+//            if (FormTimeline::m_animationTimeChanged) {
+//                FormTimeline::m_animationTimeChanged = false;
 
-                updateBoundingBox();
-            }
-        }
-    }
-    updateSceneBox();
+//                updateBoundingBox();
+//            }
+//        }
+//    }
+//    updateSceneBox();
 }
 
 void Scene::updateLightsShadowMap()
@@ -166,7 +166,7 @@ void Scene::updateLightsShadowMap()
         //        dirLight.useShader();
 
         //                object->draw(shader, false, m_localTransform, m_worldTransform);
-        Shader& shader = (dirLight.m_selected) ? (dirLight.depthShader(m_localTransform, m_worldTransform)) : (dirLight.depthShader());
+        Shader& shader = (dirLight.selected()) ? (dirLight.depthShader(m_localTransform, m_worldTransform)) : (dirLight.depthShader());
         //        Shader & shader = dirLight.depthShader();
         //        m_fun->glBindFramebuffer(GL_FRAMEBUFFER, 1);
         renderScene(shader);
@@ -308,7 +308,7 @@ void Scene::draw(const MainWindow3dView& view)
 
             //                        dirLight.draw(shader);
 
-            if (dirLight.m_selected) {
+            if (dirLight.selected()) {
                 shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].direction", glm::vec4(dirLight.direction(m_localTransform), 1.0f));
             } else {
                 shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].direction", glm::vec4(dirLight.direction(onesMatrix), 1.0f));
@@ -340,7 +340,7 @@ void Scene::draw(const MainWindow3dView& view)
     //    glEnable(GL_MULTISAMPLE);
     for (const Object* object : m_objects) {
         if (object != viewCameraObject) {
-            if (object->m_selected) {
+            if (object->selected()) {
                 object->draw(shader, view.dotCloud(), m_localTransform, m_worldTransform);
 
             } else {
@@ -380,13 +380,13 @@ void Scene::draw(const MainWindow3dView& view)
             //            m_selectObject->draw(shader, true, viewLocalTransform, m_worldTransform);
             //            shader.setVec4("color", glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
             //            shader.setVec4("color", glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
-            if (m_selectObject->m_model->m_type == Model::PARAM_CURVE) {
+            if (m_selectObject->type() == Model::PARAM_CURVE) {
                 //                const ParamModel& paramModel = static_cast<ParamModel&>(*m_selectObject->m_model);
-                const BSplineCurve& splineCurve = static_cast<BSplineCurve&>(*m_selectObject->m_model);
+                const BSplineCurve& splineCurve = static_cast<BSplineCurve&>(*m_selectObject->getModel());
 
                 splineCurve.drawSelected(shader, m_localVertexTransform, m_worldVertexTransform);
-            } else if (m_selectObject->m_model->m_type == Model::PARAM_SURFACE) {
-                const BSplineSurface& splineSurface = static_cast<BSplineSurface&>(*m_selectObject->m_model);
+            } else if (m_selectObject->type() == Model::PARAM_SURFACE) {
+                const BSplineSurface& splineSurface = static_cast<BSplineSurface&>(*m_selectObject->getModel());
                 splineSurface.drawSelected(shader, m_localVertexTransform, m_worldVertexTransform);
             }
 
@@ -409,7 +409,7 @@ void Scene::draw(const MainWindow3dView& view)
     glStencilMask(0xFF);
     //    for (const Model& model : m_models) {
     for (const Object* object : m_objects) {
-        if (object->m_selected) {
+        if (object->selected()) {
             //            model.Draw(modelMatrix, shader);
             //            if (object != m_selectObject) {
             object->draw(shader, m_localTransform, m_worldTransform);
@@ -434,7 +434,7 @@ void Scene::draw(const MainWindow3dView& view)
     shader.setVec4("color", glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));
     //    for (const Model& model : m_models) {
     for (const Object* object : m_objects) {
-        if (object->m_selected) {
+        if (object->selected()) {
             //            model.Draw(modelMatrix, shader);
             //            if (object != m_selectObject) {
             object->draw(shader, m_localTransform, m_worldTransform);
@@ -488,7 +488,7 @@ void Scene::draw(const MainWindow3dView& view)
             //        m_shader->setMat4("model", modelMatrix);
 
             normalShader->m_shade = view.m_shade;
-            if (object->m_selected) {
+            if (object->selected()) {
 
                 object->draw(*normalShader, view.dotCloud(), m_localTransform, m_worldTransform);
             } else {
@@ -501,17 +501,17 @@ void Scene::draw(const MainWindow3dView& view)
     if (view.skeleton()) {
         //        modelMatrix = glm::mat4(1.0f);
         //        for (const Model& model : m_models) {
-        for (const Object& object : m_models) {
+        for (Object& object : m_models) {
             //	    glm::mat4 model(1.0);
             //        glm::mat4 modelMatrix(1.0);
             //        modelMatrix = glm::scale(modelMatrix, glm::vec3(0.01));
             //        modelMatrix = glm::rotate(modelMatrix, 1.57f, glm::vec3(1, 0, 0));
             //        m_shader->setMat4("model", modelMatrix);
 
-            if (object.m_model->m_type == Model::MESH) {
-                if (object.m_selected) {
+            if (object.type() == Model::MESH) {
+                if (object.selected()) {
                     //                object.m_model.DrawHierarchy(viewLocalTransform, viewMatrix, projectionMatrix, cameraPos, m_worldTransform);
-                    static_cast<MeshModel*>(object.m_model)->DrawHierarchy(m_localTransform, viewMatrix, projectionMatrix, cameraPos, m_worldTransform);
+                    static_cast<MeshModel*>(object.getModel())->DrawHierarchy(m_localTransform, viewMatrix, projectionMatrix, cameraPos, m_worldTransform);
                     //                object.m_model->DrawHierarchy(m_localTransform, viewMatrix, projectionMatrix, cameraPos, m_worldTransform);
                     //                object.m_model.DrawHierarchy()
 
@@ -519,7 +519,7 @@ void Scene::draw(const MainWindow3dView& view)
                 } else {
                     //                model.DrawHierarchy(onesMatrix, view);
                     //                object.m_model.DrawHierarchy(onesMatrix, viewMatrix, projectionMatrix, cameraPos);
-                    static_cast<MeshModel*>(object.m_model)->DrawHierarchy(onesMatrix, viewMatrix, projectionMatrix, cameraPos);
+                    static_cast<MeshModel*>(object.getModel())->DrawHierarchy(onesMatrix, viewMatrix, projectionMatrix, cameraPos);
                     //                object.m_model.DrawHierarchy(onesMatrix, viewMatrix, projectionMatrix, cameraPos);
                 }
             }
@@ -543,20 +543,20 @@ void Scene::draw(const MainWindow3dView& view)
 
     } else {
         for (const Object* object : m_objects) {
-            if (object->m_selected) {
+            if (object->selected()) {
                 //            model.Draw(modelMatrix, shader);
                 //            model.Draw(modelMatrix, shader, view.m_shade, view.dotCloud());
 
-                float dist = glm::length(glm::vec3(object->m_model->m_transform[3]) - cameraPos);
+                float dist = glm::length(glm::vec3(object->transform()[3]) - cameraPos);
                 // TODO
                 //            AxisGeometry::draw(m_worldTransform * object->m_model.m_transform * m_localTransform * glm::scale(glm::mat4(1.0f), glm::vec3(1.0f) * 0.5f * object->m_model.m_box.radius()), shader);
-                AxisGeometry::draw(m_worldTransform * object->m_model->m_transform * glm::scale(m_localTransform, glm::vec3(1.0f) * dist), shader);
-                DotGeometry::draw(m_worldTransform * object->m_model->m_transform * m_localTransform, shader);
+                AxisGeometry::draw(m_worldTransform * object->transform() * glm::scale(m_localTransform, glm::vec3(1.0f) * dist), shader);
+                DotGeometry::draw(m_worldTransform * object->transform() * m_localTransform, shader);
                 //            object->drawOrigin(m_worldTransform, viewTransform, shader);
             }
 
             if (object == m_selectObject) {
-                DotGeometry::draw(m_worldTransform * object->m_model->m_transform * m_localTransform, shader, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+                DotGeometry::draw(m_worldTransform * object->transform() * m_localTransform, shader, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
                 //            DotGeometry::draw(m_worldTransform * object->m_model->m_transform * m_localTransform, shader, glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));
             }
         }
@@ -587,8 +587,8 @@ void Scene::draw(const MainWindow3dView& view)
         if (view.m_axisLocal) {
             //            for (const Model& model : m_models) {
             for (const Object* object : m_objects) {
-                if (object->m_selected) {
-                    shader.setMat4("model", object->m_model->m_transform);
+                if (object->selected()) {
+                    shader.setMat4("model", object->transform());
 
                     switch (view.m_axisFollow) {
                     case 0:
@@ -610,11 +610,11 @@ void Scene::draw(const MainWindow3dView& view)
             shader.setMat4("model", onesMatrix);
             //            for (const Model& model : m_models) {
             for (const Object* object : m_objects) {
-                if (object->m_selected) {
+                if (object->selected()) {
 
                     //                } else {
                     // ---------------- GLOBAL AXIS
-                    glm::vec3 translate = object->m_model->m_transform[3];
+                    glm::vec3 translate = object->transform()[3];
                     switch (view.m_transform) {
                     case MainWindow3dView::Transform::TRANSLATE:
                     case MainWindow3dView::Transform::SCALE:
@@ -711,17 +711,17 @@ void Scene::objectSelectRay(const Ray& ray, bool additional)
     std::list<uint> nearestModel;
     uint iObject = 0;
     //    for (uint iObject = 0; iObject < m_objects.size(); ++iObject) {
-    for (const Object* object : m_objects) {
+    for (Object* object : m_objects) {
         //    for (uint iModel = 0; iModel < m_models.size(); ++iModel) {
         //        distances[iModel] = glm::length(m_models ray.m_source)
         //        const Model& model = m_models[iModel];
         //        const Object& object = m_objects
         if (!additional) {
 
-            object->m_selected = false;
+            object->setSelected(false);
         }
 
-        distances[iObject] = std::abs(glm::length(object->m_model->m_box.center() - ray.m_source) - object->m_model->m_box.radius());
+        distances[iObject] = std::abs(glm::length(object->box().center() - ray.m_source) - object->box().radius());
         //        nearestModel[iModel] = iModel;
         //        uint iNear =0;
         //        while (iNear < nearestModel.size() && distances[iModel] < nearestModel[iNear]) {
@@ -746,11 +746,11 @@ void Scene::objectSelectRay(const Ray& ray, bool additional)
     }
     Q_ASSERT(nearestModel.size() == distances.size());
 
-    //        qDebug() << "nb Objects " << m_objects.size();
-    //        for (uint iObject : nearestModel) {
-    //            qDebug() << m_objects[iObject]->m_model->name().c_str() << distances[iObject];
-    //        }
-    //        qDebug() << "------------------------";
+            qDebug() << "nb Objects " << m_objects.size();
+            for (uint iObject : nearestModel) {
+                qDebug() << m_objects[iObject]->name().c_str() << distances[iObject];
+            }
+            qDebug() << "------------------------";
 
     for (uint iObject : nearestModel) {
         //    iObject = 0;
@@ -777,12 +777,12 @@ void Scene::objectSelectRay(const Ray& ray, bool additional)
         //        model.selectObject(ray, depthMin, find, iModelMin, iMeshMin, iBoneMin, iTriangleMin);
         float depth;
 
-        if (object->m_model->m_box.intersect(ray, depth)) {
+        if (object->box().intersect(ray, depth)) {
 
             //            switch (object->m_model.m_type) {
 
             //            case Model::MESH:
-            if (object->m_model->m_type == Model::PARAM_CURVE || object->m_model->m_type == Model::PARAM_SURFACE) {
+            if (object->type() == Model::PARAM_CURVE || object->type() == Model::PARAM_SURFACE) {
                 //                const ParamModel & paramModel = static_cast<const ParamModel&>(*object->m_model);
                 //                for (const glm::vec3 & ptsCtrl : paramModel.m_controlPoints) {
                 if (depth < depthMin) {
@@ -791,8 +791,8 @@ void Scene::objectSelectRay(const Ray& ray, bool additional)
                 }
                 //                                            }
 
-            } else if (object->m_model->m_type == Model::MESH) {
-                const MeshModel& meshModel = static_cast<const MeshModel&>(*object->m_model);
+            } else if (object->type() == Model::MESH) {
+                const MeshModel& meshModel = static_cast<const MeshModel&>(*object->model());
 
                 //            for (uint iMesh = 0; iMesh < object->m_model.m_meshes.size(); ++iMesh) {
                 for (uint iMesh = 0; iMesh < meshModel.m_meshes.size(); ++iMesh) {
@@ -806,7 +806,7 @@ void Scene::objectSelectRay(const Ray& ray, bool additional)
                             for (uint iTriangle = 0; iTriangle < mesh.m_indices.size() / 3; ++iTriangle) {
                                 uint i3 = iTriangle * 3;
 
-                                glm::mat4 transform = object->m_model->m_transform * mesh.m_transform;
+                                glm::mat4 transform = object->transform() * mesh.m_transform;
                                 const glm::vec3& v0 = transform * glm::vec4(mesh.m_vertices[mesh.m_indices[i3]].Position, 1.0f);
                                 const glm::vec3& v1 = transform * glm::vec4(mesh.m_vertices[mesh.m_indices[i3 + 1]].Position, 1.0f);
                                 const glm::vec3& v2 = transform * glm::vec4(mesh.m_vertices[mesh.m_indices[i3 + 2]].Position, 1.0f);
@@ -862,7 +862,7 @@ void Scene::objectSelectRay(const Ray& ray, bool additional)
                                             //                            const Vertex & v1 = mesh.m_vertices[i3 + 1];
                                             //                            const Vertex & v2 = mesh.m_vertices[i3 + 2];
                                             Q_ASSERT(mesh.m_vertices.size() > i3 + 2);
-                                            glm::mat4 transform = object->m_model->m_transform * bone.m_recurseModel * bone.m_offsetMatrix;
+                                            glm::mat4 transform = object->transform() * bone.m_recurseModel * bone.m_offsetMatrix;
                                             const glm::vec3& v0 = transform * glm::vec4(mesh.m_vertices[i3].Position, 1.0f);
                                             const glm::vec3& v1 = transform * glm::vec4(mesh.m_vertices[i3 + 1].Position, 1.0f);
                                             const glm::vec3& v2 = transform * glm::vec4(mesh.m_vertices[i3 + 2].Position, 1.0f);
@@ -938,21 +938,22 @@ void Scene::objectSelectRay(const Ray& ray, bool additional)
         //        qDebug() << "intersect model " << object->m_model.filename().c_str() << depth;
 
         if (additional) {
-            m_objects[iObjectMin]->m_selected = !m_objects[iObjectMin]->m_selected;
+            m_objects[iObjectMin]->setSelected(!m_objects[iObjectMin]->selected());
         } else {
 
-            m_objects[iObjectMin]->m_selected = true;
+            m_objects[iObjectMin]->setSelected(true);
         }
 
         m_selectObject = m_objects[iObjectMin];
 
-        switch (m_selectObject->m_model->m_type) {
+        switch (m_selectObject->type()) {
         case Model::PARAM_CURVE:
             //            Q_ASSERT(FormContextSurface::m_formContextSurface != nullptr);
             //            Q_ASSERT(FormContextCurve::m_formContextCurve != nullptr);
             FormContextSurface::clearContext();
             //                FormContextSurface::m_formContextSurface->clear();
-            FormContextCurve::initContext(static_cast<BSplineCurve*>(m_selectObject->m_model));
+//            FormContextCurve::initContext(static_cast<BSplineCurve*>(m_selectObject->model()));
+            FormContextCurve::initContext(static_cast<BSplineCurve*>(m_selectObject->getModel()));
             //            if (FormContextCurve::m_formContextCurve != nullptr) {
             //                FormContextCurve::m_formContextCurve->initNewSpline(static_cast<BSplineCurve*>(m_selectObject->m_model));
             //            }
@@ -960,7 +961,7 @@ void Scene::objectSelectRay(const Ray& ray, bool additional)
 
         case Model::PARAM_SURFACE:
             FormContextCurve::clearContext();
-            FormContextSurface::initContext(static_cast<BSplineSurface*>(m_selectObject->m_model));
+            FormContextSurface::initContext(static_cast<BSplineSurface*>(m_selectObject->getModel()));
             //            if (FormContextSurface::m_formContextSurface != nullptr) {
             //                FormContextSurface::m_formContextSurface->initNewSurface(static_cast<BSplineSurface*>(m_selectObject->m_model));
             //            }
@@ -993,13 +994,13 @@ void Scene::vertexSelectRay(const Ray& ray, bool additional)
     if (m_selectObject != nullptr) {
         //        m_selectVertices.clear();
 
-        if (m_selectObject->m_model->m_type == Model::PARAM_CURVE) {
-            BSplineCurve& splineCurve = static_cast<BSplineCurve&>(*m_selectObject->m_model);
+        if (m_selectObject->type() == Model::PARAM_CURVE) {
+            BSplineCurve& splineCurve = static_cast<BSplineCurve&>(*m_selectObject->getModel());
 
             //            for (const glm::vec3 & vertex : paramModel.m_controlPoints) {
             splineCurve.vertexSelectRay(ray, additional);
-        } else if (m_selectObject->m_model->m_type == Model::PARAM_SURFACE) {
-            BSplineSurface& splineSurface = static_cast<BSplineSurface&>(*m_selectObject->m_model);
+        } else if (m_selectObject->type() == Model::PARAM_SURFACE) {
+            BSplineSurface& splineSurface = static_cast<BSplineSurface&>(*m_selectObject->getModel());
             splineSurface.vertexSelectRay(ray, additional);
         }
     }
@@ -1010,8 +1011,8 @@ void Scene::vertexSelectFrustum(const Frustum& frustum, bool additional)
     //void Scene::vertexSelectFrustum(const glm::mat4 &projectionMatrix, const glm::mat4 &viewMatrix, bool additional)
     //{
     if (m_selectObject != nullptr) {
-        if (m_selectObject->m_model->m_type == Model::PARAM_CURVE) {
-            BSplineCurve& splineCurve = static_cast<BSplineCurve&>(*m_selectObject->m_model);
+        if (m_selectObject->type() == Model::PARAM_CURVE) {
+            BSplineCurve& splineCurve = static_cast<BSplineCurve&>(*m_selectObject->getModel());
             //            splineCurve.vertexSelectFrustum(projectionMatrix, viewMatrix, additional);
             splineCurve.vertexSelectFrustum(frustum, additional);
 
@@ -1070,8 +1071,8 @@ void Scene::addModel(std::string file, const glm::vec3& spawn)
     m_models.emplace_back(file);
 
     //    m_models[m_models.size() - 1].m_transform = glm::translate(glm::mat4(1.0f), origin);
-    m_models.back().m_model->m_transform = glm::translate(glm::mat4(1.0f), spawn);
-    m_models.back().m_model->updateBoundingBox();
+    m_models.back().setTransform(glm::translate(glm::mat4(1.0f), spawn));
+//    m_models.back().m_model->updateBoundingBox();
 
     m_objects.push_back(&m_models.back());
 
@@ -1101,10 +1102,10 @@ void Scene::updateSceneItemModel()
     //    QStandardItemModel model;
     QStandardItem* parentItem = m_sceneModel.invisibleRootItem();
     for (const Object& object : m_models) {
-        QStandardItem* item = new QStandardItem(object.m_model->name().c_str());
+        QStandardItem* item = new QStandardItem(object.name().c_str());
         parentItem->appendRow(item);
 
-        object.m_model->buildItemModel(item);
+        object.buildItemModel(item);
     }
 
     emit m_sceneModel.dataChanged(m_sceneModel.index(0, 0), m_sceneModel.index(0, 0));
@@ -1144,7 +1145,7 @@ void Scene::load(std::ifstream& file)
         //        m_models.emplace_back(file);
         //        m_models.emplace_back(file);
         m_models.emplace_back(file);
-        m_models.back().updateBoundingBox();
+//        m_models.back().updateBoundingBox();
 
         m_objects.push_back(&m_models.back());
     }
@@ -1162,6 +1163,7 @@ void Scene::load(std::ifstream& file)
 
         //        Camera * camera = new Camera();
         Camera* camera = new Camera(file);
+//        camera->m_model->updateBoundingBox();
 
         //        switch (type) {
         //        case Camera::WORLD:
@@ -1221,8 +1223,8 @@ void Scene::save(std::ofstream& file)
     //    qDebug() << "[SCENE] " << m_itemModel.rowCount();
 }
 
-void Scene::updateBoundingBox()
-{
+//void Scene::updateBoundingBox()
+//{
     //    qDebug() << "dirLights";
     //    m_dirLights.emplace_back(glm::vec3(0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f),
     //        glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, -1.0f));
@@ -1230,10 +1232,10 @@ void Scene::updateBoundingBox()
     //    for (Model& model : m_models) {
     //        model.updateBoundingBox();
     //    }
-    for (const Object* object : m_objects) {
-        object->updateBoundingBox();
-    }
-}
+//    for (const Object* object : m_objects) {
+//        object->m_model->updateBoundingBox();
+//    }
+//}
 
 void Scene::updateSceneBox()
 {
@@ -1241,7 +1243,7 @@ void Scene::updateSceneBox()
 
     m_box.clear();
     for (const Object& object : m_models) {
-        m_box << object.m_model->m_box;
+        m_box << object.box();
     }
 }
 
@@ -1251,19 +1253,19 @@ void Scene::setSelectRootTransform(const glm::mat4& transformMatrix, const glm::
     switch (mode) {
     case MainWindow3dView::Mode::OBJECT:
 
-        for (const Object* object : m_objects) {
-            if (object->m_selected) {
+        for (Object* object : m_objects) {
+            if (object->selected()) {
                 //            model.m_rootNode->m_transformation *= transformMatrix;
-                object->m_model->m_transform = worldTransform * object->m_model->m_transform * transformMatrix;
+                object->setTransform(worldTransform * object->transform() * transformMatrix);
+//                object->m_model->updateBoundingBox();
                 //            model.m_rootNode->m_transformation = model.m_rootNode->m_transformation * transformMatrix;
-                object->updateBoundingBox();
             }
         }
         break;
 
     case MainWindow3dView::Mode::EDIT:
         if (m_selectObject != nullptr) {
-            m_selectObject->m_model->updateSelectedVertexPosition(transformMatrix, worldTransform);
+            m_selectObject->updateSelectedVertexPosition(transformMatrix, worldTransform);
             //            switch (m_selectObject->m_model->m_type) {
 
             //            }
@@ -1276,11 +1278,12 @@ void Scene::setSelectRootTransform(const glm::mat4& transformMatrix, const glm::
 void Scene::setSelectToOriginTransform()
 {
     //    for (Object& object : m_models) {
-    for (const Object* object : m_objects) {
-        if (object->m_selected) {
+    for (Object* object : m_objects) {
+        if (object->selected()) {
             //            camera.m_target = model.m_rootNode->m_transformation[3];
             //            camera.m_target = model.m_transform[3];
-            object->m_model->m_transform = glm::mat4(1.0f);
+            object->setTransform(glm::mat4(1.0f));
+//            object->m_model->updateBoundingBox();
         }
     }
 }
@@ -1289,10 +1292,10 @@ void Scene::setSelectFocus(CameraWorld& camera)
 {
     //    for (const Object& object : m_models) {
     for (const Object* object : m_objects) {
-        if (object->m_selected) {
+        if (object->selected()) {
             //            camera.m_target = model.m_rootNode->m_transformation[3];
             //            camera.m_target = object->m_model.m_transform[3];
-            camera.setTarget(object->m_model->m_transform[3]);
+            camera.setTarget(object->transform()[3]);
             break;
         }
     }
@@ -1313,7 +1316,7 @@ void Scene::deleteSelected()
     //            ++it;
     //        }
     //    }
-    switch (m_selectObject->m_model->m_type) {
+    switch (m_selectObject->type()) {
     case Model::PARAM_CURVE:
         FormContextCurve::clearContext();
         break;
@@ -1346,7 +1349,7 @@ void Scene::deleteSelected()
         //        if (model.m_selected) {
         //            m_objects.remove(&model);
         //        }
-        if (!object.m_selected) {
+        if (!object.selected()) {
             //            std::cout << object.m_model->name() << "not selected" << std::endl;
             //        else {
             newModels.emplace_back(std::move(object));
@@ -1361,7 +1364,7 @@ void Scene::deleteSelected()
     std::vector<DirLight> newDirLights;
     newDirLights.reserve(10);
     for (DirLight& dirLight : m_dirLights) {
-        if (!dirLight.m_selected) {
+        if (!dirLight.selected()) {
             newDirLights.emplace_back(std::move(dirLight));
             m_objects.push_back(&newDirLights.back());
         }
@@ -1391,6 +1394,7 @@ void Scene::addLight(Light::Type lightType, const glm::vec3 position)
         m_dirLights.emplace_back(glm::vec3(0.0f, 0.0f, 1000.0f), 0.5f * glm::vec3(1.0f), glm::vec3(1.0f),
             glm::vec3(1.0f), glm::vec3(0.0f, 0.0f, -1.0f));
 
+//        m_dirLights.back().updateBoundingBox();
         m_objects.push_back(&m_dirLights.back());
         //        //        m_dirLights.push_back(Light(position));
 
@@ -1437,7 +1441,7 @@ void Scene::addSurface(BSplineSurface::Type type)
 void Scene::addModel(Model* model)
 {
     m_models.emplace_back(model);
-    model->updateBoundingBox();
+//    model->updateBoundingBox();
     m_objects.push_back(&m_models.back());
 //    updateSceneBox();
 }
@@ -1537,10 +1541,10 @@ void Scene::removeNoViewCamera()
 BSplineCurve* Scene::getBsplineCurve()
 {
     for (Object& object : m_models) {
-        if (object.m_selected) {
-            if (object.m_model->m_type == Model::PARAM_CURVE) {
+        if (object.selected()) {
+            if (object.type() == Model::PARAM_CURVE) {
                 //            ParamModel * paramModel =  static_cast<ParamModel*>(object.m_model);
-                BSplineCurve* splineCurve = static_cast<BSplineCurve*>(object.m_model);
+                BSplineCurve* splineCurve = static_cast<BSplineCurve*>(object.getModel());
                 return splineCurve;
                 //            if (paramModel->m_type == ParamModel::Type::BSPLINE_CURVE) {
                 //                return dynamic_cast<BSplineCurve*>(paramModel);
@@ -1557,10 +1561,10 @@ BSplineCurve* Scene::getBsplineCurve()
 BSplineSurface* Scene::getBsplineSurface()
 {
     for (Object& object : m_models) {
-        if (object.m_selected) {
-            if (object.m_model->m_type == Model::PARAM_SURFACE) {
+        if (object.selected()) {
+            if (object.type() == Model::PARAM_SURFACE) {
                 //            ParamModel * paramModel =  static_cast<ParamModel*>(object.m_model);
-                BSplineSurface* splineSurface = static_cast<BSplineSurface*>(object.m_model);
+                BSplineSurface* splineSurface = static_cast<BSplineSurface*>(object.getModel());
                 return splineSurface;
                 //            if (paramModel->m_type == ParamModel::Type::BSPLINE_CURVE) {
                 //                return dynamic_cast<BSplineCurve*>(paramModel);

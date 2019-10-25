@@ -46,6 +46,7 @@ MeshModel::MeshModel(const std::string& path)
     //        std::cout << "[MeshModel] " << m_filename << " created " << this << std::endl;
     //        std::cout << "\033[0m";
     //    updateBoundingBoxing();
+    updateBoundingBox();
 }
 
 MeshModel::MeshModel(std::ifstream& file)
@@ -110,6 +111,7 @@ MeshModel::MeshModel(std::ifstream& file)
     //        std::cout << "[MeshModel] " << m_filename << " created " << this << std::endl;
     //        std::cout << "\033[0m";
     //    updateBoundingBoxing();
+    updateBoundingBox();
 }
 
 //MeshModel::MeshModel(Curve &&curve)
@@ -125,7 +127,8 @@ MeshModel::MeshModel(std::ifstream& file)
 
 MeshModel::MeshModel(MeshModel&& model) noexcept
     //    : m_box(std::move(model.m_box))
-    : Model(std::move(model.m_transform), std::move(model.m_type))
+//    : Model(std::move(model.m_transform), std::move(model.m_type))
+    : Model(model.transform(), std::move(model.m_type))
 
     , m_meshes(std::move(model.m_meshes))
     , m_materials(std::move(model.m_materials))
@@ -160,6 +163,7 @@ MeshModel::MeshModel(MeshModel&& model) noexcept
     std::cout << "\033[34m";
     std::cout << "[MeshModel] " << &model  << "  '" << m_filename << "' moved to " << this << std::endl;
     std::cout << "\033[0m";
+//    updateBoundingBox();
 }
 
 //MeshModel::MeshModel(const MeshModel &model)
@@ -448,7 +452,7 @@ void MeshModel::draw(const Shader &shader, const glm::mat4 &modelMatrix, const g
 }
 
 
-void MeshModel::updateBoundingBox() const
+void MeshModel::updateBoundingBox()
 {
     m_box.clear();
     for (const Mesh& mesh : m_meshes) {
@@ -686,7 +690,7 @@ void MeshModel::save(std::ofstream& file) const
 //    parent->appendRow(item);
 //}
 
-std::string MeshModel::name() const
+const std::string & MeshModel::name() const
 {
     return m_filename;
 }

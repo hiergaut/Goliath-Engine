@@ -325,7 +325,7 @@ void BSplineCurve::drawSelected(const Shader& shader, const glm::mat4& localTran
     }
 }
 
-void BSplineCurve::updateBoundingBox() const
+void BSplineCurve::updateBoundingBox()
 {
     m_box.clear();
     for (const glm::vec3 vertex : m_controlPoints) {
@@ -415,7 +415,7 @@ void BSplineCurve::vertexSelectFrustum(const Frustum& frustum, bool additional)
     qDebug() << "--------------------------------";
 }
 
-std::string BSplineCurve::name() const
+const std::string & BSplineCurve::name() const
 {
     return "BSplineCurve";
 }

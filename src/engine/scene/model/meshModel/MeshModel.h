@@ -96,7 +96,7 @@ public:
               const glm::mat4 &worldTransform = glm::mat4(1.0f)) const override;
 //    void draw(const glm::mat4 &modelMatrix, const Shader & shader, const MainWindow3dView & view, const glm::mat4 &worldTransform = glm::mat4(1.0f)) const override;
 
-    void updateBoundingBox() const override;
+    void updateBoundingBox() override;
     void drawBoundingBox(const Shader & shader) const override;
 
     void updateSelectedVertexPosition(const glm::mat4 &localTransform, const glm::mat4 &worldTransform) override;
@@ -157,7 +157,7 @@ private:
 //    mutable std::vector<glm::vec3> m_triangles;
 
 public:
-    std::string name() const override;
+    const std::string & name() const override;
 };
 
 //    Assimp::Importer MeshModel::m_importer;

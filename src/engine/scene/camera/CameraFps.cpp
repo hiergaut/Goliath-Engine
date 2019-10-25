@@ -35,7 +35,7 @@ const float accuracyZoom = 0.05f;
 //    }
 //}
 
-CameraFps::CameraFps(std::ifstream& file, glm::mat4& modelTransform, float& fov)
+CameraFps::CameraFps(std::ifstream& file, glm::mat4 modelTransform, float& fov)
     : CameraStrategy(modelTransform)
     , m_fov(fov)
 {
@@ -83,7 +83,7 @@ CameraFps::CameraFps(std::ifstream& file, glm::mat4& modelTransform, float& fov)
 //    //    updateView();
 //}
 
-CameraFps::CameraFps(const glm::vec3& position, float yaw, float pitch, MainWindow3dView* view, glm::mat4& modelTransform, float& fov)
+CameraFps::CameraFps(const glm::vec3& position, float yaw, float pitch, MainWindow3dView* view, glm::mat4 modelTransform, float& fov)
     : CameraStrategy(modelTransform)
     , m_view(view)
     , m_fov(fov)

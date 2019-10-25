@@ -539,7 +539,7 @@ void BSplineSurface::drawSelected(const Shader& shader, const glm::mat4& localTr
     }
 }
 
-void BSplineSurface::updateBoundingBox() const
+void BSplineSurface::updateBoundingBox()
 {
     m_box.clear();
     //    for (const glm::vec3 vertex : m_controlPoints) {
@@ -656,7 +656,7 @@ void BSplineSurface::vClampEnd()
     clamp(1, false);
 }
 
-std::string BSplineSurface::name() const
+const std::string &BSplineSurface::name() const
 {
     return "BSplineSurface";
 }
