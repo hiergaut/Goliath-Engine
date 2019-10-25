@@ -75,7 +75,14 @@ void Scene::initializeGL()
 
     //    m_shaderCamera = new Shader("camera.vsh", "camera.fsh");
     //    m_shader = new Shader("model_loading.vsh", "model_loading.fsh");
+    m_fun = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
 
+    //    m_fun->glGetIntegerv(GL_FRAMEBUFFER, &m_fbo);
+    //    m_fun->glGetIntegerv(GL_FRAMEBUFFER, &m_fbo);
+    //    qDebug() << "fbo : " << m_fbo;
+    //    m_fun->glGetFramebufferAttachmentParameteriv(
+    //    m_fbo = glGet
+    //    glGetIntegerv(GL_POLYGON_MODE, &polygonMode);
     //    m_cameras.push_back(new CameraWorld(50.0f, glm::vec3(200, -200, 200), glm::vec3(0, 0, 0)));
 
     m_grid = new Grid;
@@ -104,6 +111,21 @@ void Scene::initializeGL()
     //            shader.setVec3("dirLight[" + QString::number(0).toStdString() + "].specular", 0.5f, 0.5f, 0.5f);
 
     //    m_axis = new Axis();
+//    updateSceneBox();
+//    updateBoundingBox();
+}
+
+void Scene::renderScene(Shader& shader)
+{
+    for (const Object* object : m_objects) {
+        //        if (object != viewCameraObject) {
+        if (object->m_selected) {
+            object->draw(shader, false, m_localTransform, m_worldTransform);
+        } else {
+            object->draw(shader, false);
+        }
+        //        }
+    }
 }
 
 void Scene::prepareHierarchy(ulong frameTime)
@@ -118,6 +140,7 @@ void Scene::prepareHierarchy(ulong frameTime)
 
         //        model.Draw(modelMatrix, shader, frameTime);
         object->prepareHierarchy(frameTime);
+//        object->updateBoundingBox();
         //        model.prepareHierarchy(frameTime);
     }
 
@@ -133,6 +156,26 @@ void Scene::prepareHierarchy(ulong frameTime)
             }
         }
     }
+    updateSceneBox();
+}
+
+void Scene::updateLightsShadowMap()
+{
+    //    m_fun->glGetIntegerv(GL_FRAMEBUFFER, &m_fbo);
+    for (DirLight& dirLight : m_dirLights) {
+        //        dirLight.useShader();
+
+        //                object->draw(shader, false, m_localTransform, m_worldTransform);
+        Shader& shader = (dirLight.m_selected) ? (dirLight.depthShader(m_localTransform, m_worldTransform)) : (dirLight.depthShader());
+        //        Shader & shader = dirLight.depthShader();
+        //        m_fun->glBindFramebuffer(GL_FRAMEBUFFER, 1);
+        renderScene(shader);
+
+        //        m_fun->glBindFramebuffer(GL_FRAMEBUFFER, 1);
+        //        dirLight.showDepth();
+    }
+    //    m_fun->glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
+    m_fun->glBindFramebuffer(GL_FRAMEBUFFER, 1);
 }
 
 void Scene::draw(const MainWindow3dView& view)
@@ -166,25 +209,25 @@ void Scene::draw(const MainWindow3dView& view)
     const Shader& shader = view.shader();
 
     //    const glm::mat4& viewTransform = view.m_transformMatrix;
-    //    const glm::mat4& viewWorldTransform = view.m_worldTransform;
+    //    const glm::mat4& m_worldTransform = view.m_worldTransform;
+    //    const glm::mat4& m_localTransform = m_localTransform;
     //    const glm::mat4& viewLocalTransform = m_localTransform;
-    const glm::mat4& viewLocalTransform = m_localTransform;
-    const glm::mat4& viewWorldTransform = m_worldTransform;
+    //    const glm::mat4& m_worldTransform = m_worldTransform;
 
     GLint polygonMode;
     glGetIntegerv(GL_POLYGON_MODE, &polygonMode);
 
     //    return;
-    shader.setBool("userColor", true);
-    shader.setVec4("color", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-    shader.setMat4("model", onesMatrix);
+    //    shader.setBool("userColor", true);
+    //    shader.setVec4("color", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+    //    shader.setMat4("model", onesMatrix);
     //    for (const glm::vec3 & dot : m_dots) {
     //        DotGeometry::draw(glm::translate(onesMatrix, dot), shader, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), 20.0f);
     //    }
     //    for (const Frustum & frustum : m_frustums) {
     //        frustum.draw(shader);
     //    }
-    shader.setBool("userColor", false);
+    //    shader.setBool("userColor", false);
 
     //     -------------------------------- DRAW RAYS
     //    glPolygonMode(GL_FRONT, GL_FILL);
@@ -230,6 +273,10 @@ void Scene::draw(const MainWindow3dView& view)
     //    glEnable(GL_DEPTH_TEST);
     // -------------------------------- DRAW BOUNDING BOXES
     //    shader.setMat4("model", onesMatrix);
+    shader.setBool("userColor", true);
+    //    m_rootNode->drawBoundingBox(modelMatrix, shader);
+    shader.setVec4("color", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+    m_box.draw(shader);
     if (view.boundingBox()) {
         //        for (const Model& model : m_models) {
         for (const Object* object : m_objects) {
@@ -237,14 +284,14 @@ void Scene::draw(const MainWindow3dView& view)
             object->drawBoundingBox(shader);
             //            if (object->m_selected) {
 
-            ////                object->drawBoundingBox(viewWorldTransform, shader);
+            ////                object->drawBoundingBox(m_worldTransform, shader);
             //            } else {
             //                object->drawBoundingBox(onesMatrix, shader);
             //            }
         }
     }
+    shader.setBool("userColor", false);
 
-    //    shader.setBool("userColor", false);
     //    for (uint i = 0; i < m_dirLights.size(); ++i) {
     //        const DirLight& dirLight = m_dirLights[i];
 
@@ -262,9 +309,8 @@ void Scene::draw(const MainWindow3dView& view)
             //                        dirLight.draw(shader);
 
             if (dirLight.m_selected) {
-                shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].direction", glm::vec4(dirLight.direction(viewLocalTransform), 1.0f));
-            }
-            else {
+                shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].direction", glm::vec4(dirLight.direction(m_localTransform), 1.0f));
+            } else {
                 shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].direction", glm::vec4(dirLight.direction(onesMatrix), 1.0f));
             }
             shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].ambient", dirLight.m_ambient);
@@ -291,11 +337,11 @@ void Scene::draw(const MainWindow3dView& view)
     // -------------------------------- DRAW MODELS
     //    for (const Model& model : m_models) {
     //            qDebug() << m_objects;
-//    glEnable(GL_MULTISAMPLE);
+    //    glEnable(GL_MULTISAMPLE);
     for (const Object* object : m_objects) {
         if (object != viewCameraObject) {
             if (object->m_selected) {
-                object->draw(shader, view.dotCloud(), viewLocalTransform, viewWorldTransform);
+                object->draw(shader, view.dotCloud(), m_localTransform, m_worldTransform);
 
             } else {
 
@@ -303,7 +349,7 @@ void Scene::draw(const MainWindow3dView& view)
             }
         }
     }
-//    glDisable(GL_MULTISAMPLE);
+    //    glDisable(GL_MULTISAMPLE);
     switch (view.m_mode) {
     case MainWindow3dView::Mode::OBJECT:
         break;
@@ -316,11 +362,11 @@ void Scene::draw(const MainWindow3dView& view)
             //        glLineWidth(4);
             //        glPolygonMode(GL_FRONT, GL_LINE);
             glLineWidth(2);
-            m_selectObject->draw(shader, false, viewLocalTransform, viewWorldTransform);
+            m_selectObject->draw(shader, false, m_localTransform, m_worldTransform);
 
             shader.setVec4("color", glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));
             glPointSize(6.0f);
-            m_selectObject->draw(shader, true, viewLocalTransform, viewWorldTransform);
+            m_selectObject->draw(shader, true, m_localTransform, m_worldTransform);
 
             //        for (uint i = 0; i < m_selected.size(); ++i) {
             //            if (m_selected[i]) {
@@ -331,7 +377,7 @@ void Scene::draw(const MainWindow3dView& view)
             //        m_fun->glPointSize(5.0f);
             //            shader.setVec4("color", glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
             //            glPointSize(6.0f);
-            //            m_selectObject->draw(shader, true, viewLocalTransform, viewWorldTransform);
+            //            m_selectObject->draw(shader, true, viewLocalTransform, m_worldTransform);
             //            shader.setVec4("color", glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
             //            shader.setVec4("color", glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
             if (m_selectObject->m_model->m_type == Model::PARAM_CURVE) {
@@ -366,10 +412,10 @@ void Scene::draw(const MainWindow3dView& view)
         if (object->m_selected) {
             //            model.Draw(modelMatrix, shader);
             //            if (object != m_selectObject) {
-            object->draw(shader, viewLocalTransform, viewWorldTransform);
+            object->draw(shader, m_localTransform, m_worldTransform);
             //            }
             //            else {
-            //                object->draw(shader, viewLocalTransform, viewWorldTransform);
+            //                object->draw(shader, viewLocalTransform, m_worldTransform);
 
             //            }
         }
@@ -391,10 +437,10 @@ void Scene::draw(const MainWindow3dView& view)
         if (object->m_selected) {
             //            model.Draw(modelMatrix, shader);
             //            if (object != m_selectObject) {
-            object->draw(shader, viewLocalTransform, viewWorldTransform);
+            object->draw(shader, m_localTransform, m_worldTransform);
             //            }
             //            else {
-            //                object->draw(shader, viewLocalTransform, viewWorldTransform);
+            //                object->draw(shader, viewLocalTransform, m_worldTransform);
 
             //            }
 
@@ -444,7 +490,7 @@ void Scene::draw(const MainWindow3dView& view)
             normalShader->m_shade = view.m_shade;
             if (object->m_selected) {
 
-                object->draw(*normalShader, view.dotCloud(), viewLocalTransform, viewWorldTransform);
+                object->draw(*normalShader, view.dotCloud(), m_localTransform, m_worldTransform);
             } else {
                 object->draw(*normalShader, view.dotCloud(), onesMatrix, onesMatrix);
             }
@@ -464,12 +510,12 @@ void Scene::draw(const MainWindow3dView& view)
 
             if (object.m_model->m_type == Model::MESH) {
                 if (object.m_selected) {
-                    //                object.m_model.DrawHierarchy(viewLocalTransform, viewMatrix, projectionMatrix, cameraPos, viewWorldTransform);
-                    static_cast<MeshModel*>(object.m_model)->DrawHierarchy(viewLocalTransform, viewMatrix, projectionMatrix, cameraPos, viewWorldTransform);
-                    //                object.m_model->DrawHierarchy(viewLocalTransform, viewMatrix, projectionMatrix, cameraPos, viewWorldTransform);
+                    //                object.m_model.DrawHierarchy(viewLocalTransform, viewMatrix, projectionMatrix, cameraPos, m_worldTransform);
+                    static_cast<MeshModel*>(object.m_model)->DrawHierarchy(m_localTransform, viewMatrix, projectionMatrix, cameraPos, m_worldTransform);
+                    //                object.m_model->DrawHierarchy(m_localTransform, viewMatrix, projectionMatrix, cameraPos, m_worldTransform);
                     //                object.m_model.DrawHierarchy()
 
-                    //                model.m_model.DrawHierarchy(viewLocalTransform, view, viewWorldTransform);
+                    //                model.m_model.DrawHierarchy(m_localTransform, view, m_worldTransform);
                 } else {
                     //                model.DrawHierarchy(onesMatrix, view);
                     //                object.m_model.DrawHierarchy(onesMatrix, viewMatrix, projectionMatrix, cameraPos);
@@ -503,15 +549,15 @@ void Scene::draw(const MainWindow3dView& view)
 
                 float dist = glm::length(glm::vec3(object->m_model->m_transform[3]) - cameraPos);
                 // TODO
-                //            AxisGeometry::draw(viewWorldTransform * object->m_model.m_transform * viewLocalTransform * glm::scale(glm::mat4(1.0f), glm::vec3(1.0f) * 0.5f * object->m_model.m_box.radius()), shader);
-                AxisGeometry::draw(viewWorldTransform * object->m_model->m_transform * glm::scale(viewLocalTransform, glm::vec3(1.0f) * dist), shader);
-                DotGeometry::draw(viewWorldTransform * object->m_model->m_transform * viewLocalTransform, shader);
-                //            object->drawOrigin(viewWorldTransform, viewTransform, shader);
+                //            AxisGeometry::draw(m_worldTransform * object->m_model.m_transform * m_localTransform * glm::scale(glm::mat4(1.0f), glm::vec3(1.0f) * 0.5f * object->m_model.m_box.radius()), shader);
+                AxisGeometry::draw(m_worldTransform * object->m_model->m_transform * glm::scale(m_localTransform, glm::vec3(1.0f) * dist), shader);
+                DotGeometry::draw(m_worldTransform * object->m_model->m_transform * m_localTransform, shader);
+                //            object->drawOrigin(m_worldTransform, viewTransform, shader);
             }
 
             if (object == m_selectObject) {
-                DotGeometry::draw(viewWorldTransform * object->m_model->m_transform * viewLocalTransform, shader, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
-                //            DotGeometry::draw(viewWorldTransform * object->m_model->m_transform * viewLocalTransform, shader, glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));
+                DotGeometry::draw(m_worldTransform * object->m_model->m_transform * m_localTransform, shader, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+                //            DotGeometry::draw(m_worldTransform * object->m_model->m_transform * m_localTransform, shader, glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));
             }
         }
     }
@@ -577,11 +623,11 @@ void Scene::draw(const MainWindow3dView& view)
                             LineGeometry::draw(glm::vec3(-lineSize, 0.0f, 0.0f) + translate, glm::vec3(lineSize, 0.0f, 0.0f) + translate);
                             break;
                         case 1:
-                            //                        LineGeometry::draw(viewWorldTransform, shader, glm::vec3(0.0f, -lineSize, 0.0f), glm::vec3(0.0f, lineSize, 0.0f));
+                            //                        LineGeometry::draw(m_worldTransform, shader, glm::vec3(0.0f, -lineSize, 0.0f), glm::vec3(0.0f, lineSize, 0.0f));
                             LineGeometry::draw(glm::vec3(0.0f, -lineSize, 0.0f) + translate, glm::vec3(0.0f, lineSize, 0.0f) + translate);
                             break;
                         case 2:
-                            //                        LineGeometry::draw(viewWorldTransform, shader, glm::vec3(0.0f, 0.0f, -lineSize), glm::vec3(0.0f, 0.0f, lineSize));
+                            //                        LineGeometry::draw(m_worldTransform, shader, glm::vec3(0.0f, 0.0f, -lineSize), glm::vec3(0.0f, 0.0f, lineSize));
                             LineGeometry::draw(glm::vec3(0.0f, 0.0f, -lineSize) + translate, glm::vec3(0.0f, 0.0f, lineSize) + translate);
                             break;
                         }
@@ -593,11 +639,11 @@ void Scene::draw(const MainWindow3dView& view)
                             LineGeometry::draw(glm::vec3(-lineSize, 0.0f, 0.0f), glm::vec3(lineSize, 0.0f, 0.0f));
                             break;
                         case 1:
-                            //                        LineGeometry::draw(viewWorldTransform, shader, glm::vec3(0.0f, -lineSize, 0.0f), glm::vec3(0.0f, lineSize, 0.0f));
+                            //                        LineGeometry::draw(m_worldTransform, shader, glm::vec3(0.0f, -lineSize, 0.0f), glm::vec3(0.0f, lineSize, 0.0f));
                             LineGeometry::draw(glm::vec3(0.0f, -lineSize, 0.0f), glm::vec3(0.0f, lineSize, 0.0f));
                             break;
                         case 2:
-                            //                        LineGeometry::draw(viewWorldTransform, shader, glm::vec3(0.0f, 0.0f, -lineSize), glm::vec3(0.0f, 0.0f, lineSize));
+                            //                        LineGeometry::draw(m_worldTransform, shader, glm::vec3(0.0f, 0.0f, -lineSize), glm::vec3(0.0f, 0.0f, lineSize));
                             LineGeometry::draw(glm::vec3(0.0f, 0.0f, -lineSize), glm::vec3(0.0f, 0.0f, lineSize));
                             break;
                         }
@@ -643,7 +689,7 @@ void Scene::draw(const MainWindow3dView& view)
 void Scene::objectSelectRay(const Ray& ray, bool additional)
 {
     //    qDebug() << "--------------------------------------------------";
-    updateBoundingBox();
+//    updateBoundingBox();
 
     //    std::vector<const Model *> models;
     //    models.insert(models.end(), m_models.begin(), m_models.end());
@@ -1025,11 +1071,14 @@ void Scene::addModel(std::string file, const glm::vec3& spawn)
 
     //    m_models[m_models.size() - 1].m_transform = glm::translate(glm::mat4(1.0f), origin);
     m_models.back().m_model->m_transform = glm::translate(glm::mat4(1.0f), spawn);
+    m_models.back().m_model->updateBoundingBox();
 
     m_objects.push_back(&m_models.back());
 
     //    std::cout << &m_models[0] << std::endl;
     updateSceneItemModel();
+//    updateSceneBox();
+//    updateSceneBox();
 }
 
 void Scene::delModel(std::string file)
@@ -1042,6 +1091,7 @@ void Scene::delModel(std::string file)
 
     //    m_models.remove(file);
     //    std::pair<std::string, Model> & pair =
+//    updateSceneBox();
 }
 
 void Scene::updateSceneItemModel()
@@ -1064,6 +1114,8 @@ void Scene::updateSceneItemModel()
     //        parentItem->appendRow(item);
     //        parentItem = item;
     //    }
+//    updateBoundingBox();
+//    updateSceneBox();
 }
 
 void Scene::clear()
@@ -1092,6 +1144,7 @@ void Scene::load(std::ifstream& file)
         //        m_models.emplace_back(file);
         //        m_models.emplace_back(file);
         m_models.emplace_back(file);
+        m_models.back().updateBoundingBox();
 
         m_objects.push_back(&m_models.back());
     }
@@ -1138,6 +1191,7 @@ void Scene::load(std::ifstream& file)
     //    for (const MainWindow3dView * view : *m_views) {
     //        view->updateCameraId();
     //    }
+//    updateSceneBox();
 }
 
 void Scene::save(std::ofstream& file)
@@ -1181,6 +1235,16 @@ void Scene::updateBoundingBox()
     }
 }
 
+void Scene::updateSceneBox()
+{
+//    updateBoundingBox();
+
+    m_box.clear();
+    for (const Object& object : m_models) {
+        m_box << object.m_model->m_box;
+    }
+}
+
 void Scene::setSelectRootTransform(const glm::mat4& transformMatrix, const glm::mat4& worldTransform, MainWindow3dView::Mode mode)
 {
     //    for (Object& object : m_models) {
@@ -1192,6 +1256,7 @@ void Scene::setSelectRootTransform(const glm::mat4& transformMatrix, const glm::
                 //            model.m_rootNode->m_transformation *= transformMatrix;
                 object->m_model->m_transform = worldTransform * object->m_model->m_transform * transformMatrix;
                 //            model.m_rootNode->m_transformation = model.m_rootNode->m_transformation * transformMatrix;
+                object->updateBoundingBox();
             }
         }
         break;
@@ -1205,7 +1270,7 @@ void Scene::setSelectRootTransform(const glm::mat4& transformMatrix, const glm::
         }
         break;
     }
-    updateBoundingBox();
+//    updateBoundingBox();
 }
 
 void Scene::setSelectToOriginTransform()
@@ -1256,7 +1321,6 @@ void Scene::deleteSelected()
     case Model::PARAM_SURFACE:
         FormContextSurface::clearContext();
         break;
-
     }
 
     //    int cpt = -1;
@@ -1373,7 +1437,9 @@ void Scene::addSurface(BSplineSurface::Type type)
 void Scene::addModel(Model* model)
 {
     m_models.emplace_back(model);
+    model->updateBoundingBox();
     m_objects.push_back(&m_models.back());
+//    updateSceneBox();
 }
 
 void Scene::addRay(Ray&& ray)

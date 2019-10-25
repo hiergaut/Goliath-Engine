@@ -52,9 +52,11 @@ public:
 
     Material m_solid = Material("solid", 2.0f, glm::vec3(0.5f), glm::vec3(0.0f), glm::vec3(0.5f, 0.5f, 1.0f));
 //    std::vector<Curve> m_curves;
+    BoundingBox m_box;
 
 
 public:
+    QOpenGLFunctionsCore * m_fun;
     static Scene * m_scene;
 
     Scene();
@@ -68,12 +70,14 @@ public:
 
     //    };
     void initializeGL();
+    void renderScene(Shader & shader);
 
     //    const_it begin() const {
     ////        return iterator(*this);
     //        return m_models.begin();
     //    }
     void prepareHierarchy(ulong frameTime);
+    void updateLightsShadowMap();
     void draw(const MainWindow3dView &view);
 
     void objectSelectRay(const Ray & ray, bool additional = false);
@@ -94,6 +98,7 @@ public:
     void save(std::ofstream & file);
 
     void updateBoundingBox();
+    void updateSceneBox();
 
     void setSelectRootTransform(const glm::mat4 & transformMatrix, const glm::mat4 &worldTransform, MainWindow3dView::Mode mode);
     void setSelectToOriginTransform();
@@ -109,7 +114,7 @@ public:
     void addRay(Ray && ray);
     void addDot(const glm::vec3 & dot);
 
-    void updateTransformationMatrix(float dx, float dy);
+//    void updateTransformationMatrix(float dx, float dy);
 
 //    void removeCamera(uint iCamera);
     void removeNoViewCamera();
@@ -130,6 +135,7 @@ private:
 //    std::map<std::string, Model> m_models;
 
 //    Shader* m_shader;
+    GLint m_fbo;
 
     std::list<const MainWindow3dView *> * m_views; // cameras
 

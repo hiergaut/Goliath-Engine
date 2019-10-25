@@ -19,6 +19,7 @@ public:
         MATERIAL,
         CURVE,
         SURFACE,
+        DEBUG,
     } m_context;
 
     explicit MainWindowProperties(QWidget* parent = nullptr);
@@ -36,6 +37,8 @@ private slots:
     void on_actionMaterial_triggered();
     void on_actionCurve_triggered();
     void on_actionSurface_triggered();
+
+    void on_actionDebug_triggered();
 
 private:
     Ui::MainWindowProperties* ui;

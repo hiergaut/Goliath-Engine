@@ -28,6 +28,7 @@
 #include <opengl/geometry/TriangleGeometry.h>
 #include <opengl/geometry/boneGeometry.h>
 #include <opengl/geometry/uvSphereGeometry.h>
+#include <opengl/geometry/QuadGeometry.h>
 
 #include <QPainter>
 #include <gui/editor/timeline/FormTimeline.h>
@@ -117,9 +118,9 @@ void QOpenGLWidget_Editor::initializeGL()
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
     //    glEnable(GL_CULL_FACE);
-//    glEnable(GL_MULTISAMPLE);
-//    glEnable(GL_SAMPLE_COVERAGE);
-//    glDisable(GL_MULTISAMPLE);
+    //    glEnable(GL_MULTISAMPLE);
+    //    glEnable(GL_SAMPLE_COVERAGE);
+    //    glDisable(GL_MULTISAMPLE);
 
     //    glEnable(GL_STENCIL_TEST);
     //    glStencilMask(0x00);
@@ -165,6 +166,7 @@ void QOpenGLWidget_Editor::initializeGL()
     AxisGeometry::initializeGL();
     UvSphereGeometry::initializeGL();
     BoneGeometry::initializeGL();
+    QuadGeometry::initializeGL();
 
     //    FormTimeline::setScene(&m_scene);
 
@@ -186,11 +188,10 @@ void drawRect(int x1, int y1, int x2, int y2, int windowHeight)
     glLogicOp(GL_XOR);
     glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-    glRecti(x1, windowHeight - y1, x2,windowHeight - y2);
+    glRecti(x1, windowHeight - y1, x2, windowHeight - y2);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glDisable(GL_COLOR_LOGIC_OP);
 }
-
 
 void QOpenGLWidget_Editor::paintGL()
 {
@@ -215,8 +216,9 @@ void QOpenGLWidget_Editor::paintGL()
         //        std::cout << "fps : " << m_fps << std::endl;
         m_statusBar->showMessage("fps:" + QString::number(m_fps) + "  camera:" + QString::number(m_scene.m_cameras.size()) + "  light:" + QString::number(m_scene.m_dirLights.size()));
     }
-    //        glClearColor(0.0f, 1.0f, 0.0f, 0.5f);
-    //    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    //        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+//    glViewport(100, 100, 100, 100);
+//                glClearColor(0.0f, 1.0f, 0.0f, 0.5f);
 
     //    glViewport(width() - 100, 10, 100, 100);
 
@@ -235,7 +237,8 @@ void QOpenGLWidget_Editor::paintGL()
     }
     m_scene.m_autoUpdateBoundingBox = autoUpdate;
     m_scene.prepareHierarchy(currentFrameTime);
-//    m_scene.prepareHierarchy(0);
+    //    m_scene.prepareHierarchy(0);
+    m_scene.updateLightsShadowMap();
 
     for (const MainWindow3dView* view : *m_views) {
         if (view->m_iCamera < Scene::m_cameras.size()) {
@@ -250,11 +253,11 @@ void QOpenGLWidget_Editor::paintGL()
 
             int x = point.x();
             int y = m_mainWindow->height() - point.y() - view->height() + 5;
-//            glViewport(x, y, view->width(), view->height());
-            glViewport(x, y - 3, view->width(), view->height());
+            glViewport(x, y, view->width(), view->height());
+            //            glViewport(x, y - 3, view->width(), view->height());
 
             //        glm::mat4 projectionMatrix = view->projectionMatrix();
-            m_scene.draw(*view);
+                        m_scene.draw(*view);
             //        RayTracer::draw(modelMatrix, viewMatrix, projectionMatrix);
 
             int minSide = qMin(view->width(), view->height());
@@ -262,23 +265,24 @@ void QOpenGLWidget_Editor::paintGL()
             glm::mat4 viewMatrix = view->viewMatrix();
             m_axis->draw(viewMatrix);
 
+            //            drawRect(x + 50, y + 50, x + 2000, y +2000, view->height());
 
-//            drawRect(x + 50, y + 50, x + 2000, y +2000, view->height());
+            //        glClear(GL_DEPTH_BUFFER_BIT);
+            //            glDisable(GL_DEPTH_TEST);
+            //            glDepthFunc(GL_ALWAYS);
+            //                QPainter painter(this);
 
-        //        glClear(GL_DEPTH_BUFFER_BIT);
-//            glDisable(GL_DEPTH_TEST);
-//            glDepthFunc(GL_ALWAYS);
-//                QPainter painter(this);
+            //                painter.setPen(QPen(Qt::white, 12));
+            //                painter.drawLine(x + 100, y + 100, x + 1000, y + 1000);
+            ////            glEnable(GL_DEPTH_TEST);
+            //            glDepthFunc(GL_LESS);
+            //            painter.end();
 
-//                painter.setPen(QPen(Qt::white, 12));
-//                painter.drawLine(x + 100, y + 100, x + 1000, y + 1000);
-////            glEnable(GL_DEPTH_TEST);
-//            glDepthFunc(GL_LESS);
-//            painter.end();
-
-        //        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+            //        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
         }
     }
+//    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+//    m_scene.updateLightsShadowMap();
 
     // ----------------------------------------------------------------
 

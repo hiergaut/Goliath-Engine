@@ -1243,8 +1243,8 @@ void MainWindow3dView::updateTransformMatrix(float dx, float dy)
 
         } else {
 
-            *m_worldTransform = glm::translate(glm::mat4(1.0f), m_memRight * 1.0f * dx);
-            *m_worldTransform = glm::translate(*m_worldTransform, m_memUp * 1.0f * dy);
+            *m_worldTransform = glm::translate(glm::mat4(1.0f), m_memRight * 3.0f * dx);
+            *m_worldTransform = glm::translate(*m_worldTransform, m_memUp * 3.0f * dy);
             *m_worldTransform = glm::translate(*m_worldTransform, m_memFront * m_WheelPos);
         }
         break;

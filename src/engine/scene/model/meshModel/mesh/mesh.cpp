@@ -371,6 +371,7 @@ void Mesh::draw(const Shader& shader, bool dotCloud) const
                 std::string number = std::to_string(j);
                 std::string name = std::string(texture);
                 m_fun->glUniform1i(m_fun->glGetUniformLocation(shader.ID, (name + number).c_str()), cpt);
+//                qDebug() << (name + number).c_str();
                 m_fun->glBindTexture(GL_TEXTURE_2D, texture.m_id);
 
                 ++cpt;

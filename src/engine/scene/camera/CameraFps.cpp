@@ -13,7 +13,7 @@
 
 //}
 const float accuracyRotate = 0.1f;
-const float accuracyMove = 0.5f;
+const float accuracyMove = 0.1f;
 //const float accuracySlide = 0.05f;
 const float accuracyZoom = 0.05f;
 
