@@ -29,13 +29,15 @@ public:
 //    ~DirLight();
     void initGL();
     Shader& depthShader(const glm::mat4& localTransform = glm::mat4(1.0f), const glm::mat4& worldTransform = glm::mat4(1.0f));
+    glm::mat4 lightSpaceMatrix() const;
 
 //    void load(std::ifstream& file);
     void save(std::ofstream& file) const;
 //    void draw(const Shader & shader) const;
     glm::vec3 direction(const glm::mat4 & localTransform = glm::mat4(1.0f)) const;
 
-    glm::mat4 viewMatrix();
+    glm::mat4 viewMatrix() const;
+    uint depthMap() const;
 private:
     QOpenGLFunctionsCore* m_fun;
     uint m_depthFbo;

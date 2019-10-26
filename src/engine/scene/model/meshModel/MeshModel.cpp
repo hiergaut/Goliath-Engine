@@ -25,7 +25,7 @@ MeshModel::MeshModel(const std::string& path)
     //    m_fun = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
 //    m_type = Model::MESH;
 
-    m_meshes.reserve(50);
+    m_meshes.reserve(500);
     m_materials.reserve(50);
     m_textures.reserve(100);
     m_animations.reserve(50);
@@ -46,6 +46,7 @@ MeshModel::MeshModel(const std::string& path)
     //        std::cout << "[MeshModel] " << m_filename << " created " << this << std::endl;
     //        std::cout << "\033[0m";
     //    updateBoundingBoxing();
+    prepareHierarchy(0);
     updateBoundingBox();
 }
 
@@ -55,7 +56,7 @@ MeshModel::MeshModel(std::ifstream& file)
 {
     m_type = Model::MESH;
 
-    m_meshes.reserve(50);
+    m_meshes.reserve(500);
     m_materials.reserve(50);
     m_textures.reserve(100);
     m_animations.reserve(50);
@@ -111,6 +112,7 @@ MeshModel::MeshModel(std::ifstream& file)
     //        std::cout << "[MeshModel] " << m_filename << " created " << this << std::endl;
     //        std::cout << "\033[0m";
     //    updateBoundingBoxing();
+    prepareHierarchy(0);
     updateBoundingBox();
 }
 
@@ -462,6 +464,7 @@ void MeshModel::updateBoundingBox()
     //        const Mesh& mesh = m_meshes[i];
 
     //    }
+    Scene::m_scene->updateSceneBox();
 }
 
 //{

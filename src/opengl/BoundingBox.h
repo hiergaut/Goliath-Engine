@@ -19,7 +19,9 @@ public:
 
     void clear();
     void operator <<(const glm::vec3 & position);
-    void operator <<(const BoundingBox box);
+    void operator <<(const BoundingBox & box);
+
+    std::vector<glm::vec3> corners(const glm::mat4 &basis) const;
 
 //    BoundingBox operator *(glm::mat4 mat) const;
 

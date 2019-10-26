@@ -156,12 +156,16 @@ void Scene::prepareHierarchy(ulong frameTime)
     //            }
     //        }
     //    }
-    updateSceneBox();
+    //    updateSceneBox();
 }
 
 void Scene::updateLightsShadowMap()
 {
     //    m_fun->glGetIntegerv(GL_FRAMEBUFFER, &m_fbo);
+//    glEnable(GL_CULL_FACE);
+    glDisable(GL_CULL_FACE);
+//    glCullFace(GL_FRONT_AND_BACK);
+    glCullFace(GL_FRONT);
     for (DirLight& dirLight : m_dirLights) {
         //        dirLight.useShader();
 
@@ -170,11 +174,14 @@ void Scene::updateLightsShadowMap()
         //        Shader & shader = dirLight.depthShader();
         //        m_fun->glBindFramebuffer(GL_FRAMEBUFFER, 1);
         renderScene(shader);
+        //        glCullFace(GL_BACK);
 
         //        m_fun->glBindFramebuffer(GL_FRAMEBUFFER, 1);
         //        dirLight.showDepth();
     }
     //    m_fun->glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
+    glCullFace(GL_BACK);
+    glDisable(GL_CULL_FACE);
     m_fun->glBindFramebuffer(GL_FRAMEBUFFER, 1);
 }
 
@@ -317,6 +324,10 @@ void Scene::draw(const MainWindow3dView& view)
             const DirLight& dirLight = m_dirLights[i];
 
             //                        dirLight.draw(shader);
+            shader.setInt("shadowMap", 5);
+            shader.setMat4("lightSpaceMatrix", dirLight.lightSpaceMatrix());
+            glActiveTexture(GL_TEXTURE5);
+            glBindTexture(GL_TEXTURE_2D, dirLight.depthMap());
 
             if (dirLight.selected()) {
                 shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].direction", glm::vec4(dirLight.direction(m_localTransform), 1.0f));
@@ -1404,8 +1415,8 @@ void Scene::addLight(Light::Type lightType, const glm::vec3 position)
     switch (lightType) {
     case Light::Type::SUN:
 
-        m_dirLights.emplace_back(glm::vec3(0.0f, 0.0f, 1000.0f), 0.5f * glm::vec3(1.0f), glm::vec3(1.0f),
-            glm::vec3(1.0f), glm::vec3(0.0f, 0.0f, -1.0f));
+        m_dirLights.emplace_back(glm::vec3(0.0f, 0.0f, -1000.0f), 0.5f * glm::vec3(1.0f), glm::vec3(1.0f),
+            glm::vec3(1.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 
         //        m_dirLights.back().updateBoundingBox();
         m_objects.push_back(&m_dirLights.back());

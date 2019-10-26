@@ -31,11 +31,17 @@ void BoundingBox::operator<<(const glm::vec3& position)
     m_bounds[1] = glm::max(m_bounds[1], position);
 }
 
-void BoundingBox::operator<<(const BoundingBox box)
+void BoundingBox::operator<<(const BoundingBox &box)
 {
     m_bounds[0] = glm::min(m_bounds[0], box.m_bounds[0]);
     m_bounds[1] = glm::max(m_bounds[1], box.m_bounds[1]);
+//    qDebug() << m_bounds[0].x << m_bounds[1].x;
 }
+
+//std::vector<glm::vec3> BoundingBox::corners() const
+//{
+
+//}
 
 //BoundingBox BoundingBox::operator *(glm::mat4 mat) const
 //{
@@ -155,24 +161,24 @@ bool BoundingBox::intersect(const Ray &r, float & t) const
     return true;
 }
 
-//std::vector<glm::vec3> BoundingBox::corners(glm::mat4 basis) const
-//{
-//    std::vector<glm::vec3> ret;
-//    glm::vec3 diag(m_max - m_min);
+std::vector<glm::vec3> BoundingBox::corners(const glm::mat4 & basis) const
+{
+    std::vector<glm::vec3> ret;
+    glm::vec3 diag(m_bounds[1] - m_bounds[0]);
 
-//    ret.emplace_back(m_min);
-//    ret.emplace_back(m_min + diag.x);
-//    ret.emplace_back(m_min + diag.y);
-//    ret.emplace_back(m_min + diag.z);
+    ret.emplace_back(m_bounds[0]);
+    ret.emplace_back(m_bounds[0] + diag.x);
+    ret.emplace_back(m_bounds[0] + diag.y);
+    ret.emplace_back(m_bounds[0] + diag.z);
 
-//    ret.emplace_back(m_max);
-//    ret.emplace_back(m_max - diag.x);
-//    ret.emplace_back(m_max - diag.y);
-//    ret.emplace_back(m_max - diag.z);
+    ret.emplace_back(m_bounds[1]);
+    ret.emplace_back(m_bounds[1] - diag.x);
+    ret.emplace_back(m_bounds[1] - diag.y);
+    ret.emplace_back(m_bounds[1] - diag.z);
 
-//    for (glm::vec3 & v : ret) {
-//        v = basis * glm::vec4(v, 0.0f);
-//    }
+    for (glm::vec3 & v : ret) {
+        v = basis * glm::vec4(v, 0.0f);
+    }
 
-//    return ret;
-//}
+    return ret;
+}

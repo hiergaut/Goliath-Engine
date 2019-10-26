@@ -1590,11 +1590,13 @@ const Shader& MainWindow3dView::shader() const
         //        }
     }
 
+//    glCullFace(GL_FRONT_AND_BACK);
     if (ui->actionX_Rays->isChecked()) {
         //        glBlendFunc(GL_ONE, GL_ONE);
         glDisable(GL_CULL_FACE);
     } else {
         //        glBlendFunc(GL_ONE, GL_ZERO);
+//        glDisable(GL_CULL_FACE);
         glEnable(GL_CULL_FACE);
     }
 
