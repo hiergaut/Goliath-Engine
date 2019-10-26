@@ -78,6 +78,7 @@ void BoundingBox::draw(const Shader& shader) const
 
     shader.use();
     shader.setMat4("model", modelMatrix);
+//    shader.setMat4("model",worldTransform *  modelMatrix * localTransform);
 
     Q_ASSERT(m_cube != nullptr);
     m_cube->draw();

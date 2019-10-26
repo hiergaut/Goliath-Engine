@@ -4,6 +4,7 @@
 #include <QKeyEvent>
 #include <glm/glm.hpp>
 #include <iostream>
+#include <engine/scene/model/Model.h>
 
 class CameraStrategy {
 public:
@@ -16,7 +17,8 @@ public:
 public:
     //    glm::vec3 m_target;
     //    static Model * m_modelCamera;
-    glm::mat4 & m_modelTransform;
+//    glm::mat4 & m_modelTransform;
+    Model & m_model;
 
     //    virtual void load(std::ifstream & file);
 
@@ -25,7 +27,8 @@ public:
 //    protected:
 //    CameraStrategy() = delete ;
 public:
-    CameraStrategy(glm::mat4 & modelTransform);
+//    CameraStrategy(glm::mat4 & modelTransform);
+    CameraStrategy(Model & model);
 //    virtual CameraStrategy(std::ifstream & file);
     virtual ~CameraStrategy() = default;
 

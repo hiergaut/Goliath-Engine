@@ -464,7 +464,12 @@ void MeshModel::updateBoundingBox()
     //    }
 }
 
+//{
+
+//}
+
 //void MeshModel::drawBoundingBox(const glm::mat4& modelMatrix, const Shader& shader) const
+//void MeshModel::drawBoundingBox(const Shader &shader) const
 void MeshModel::drawBoundingBox(const Shader &shader) const
 {
     //    for (const Mesh& mesh : m_meshes) {

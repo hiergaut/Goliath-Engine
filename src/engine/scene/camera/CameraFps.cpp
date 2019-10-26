@@ -35,8 +35,10 @@ const float accuracyZoom = 0.05f;
 //    }
 //}
 
-CameraFps::CameraFps(std::ifstream& file, glm::mat4 & modelTransform, float& fov)
-    : CameraStrategy(modelTransform)
+CameraFps::CameraFps(std::ifstream &file, Model &model, float &fov)
+//CameraFps::CameraFps(std::ifstream& file, glm::mat4 & modelTransform, float& fov)
+//    : CameraStrategy(modelTransform)
+    : CameraStrategy(model)
     , m_fov(fov)
 {
     //    Session::load(m_view, file);
@@ -83,8 +85,9 @@ CameraFps::CameraFps(std::ifstream& file, glm::mat4 & modelTransform, float& fov
 //    //    updateView();
 //}
 
-CameraFps::CameraFps(const glm::vec3& position, float yaw, float pitch, MainWindow3dView* view, glm::mat4 & modelTransform, float& fov)
-    : CameraStrategy(modelTransform)
+//CameraFps::CameraFps(const glm::vec3& position, float yaw, float pitch, MainWindow3dView* view, glm::mat4 & modelTransform, float& fov)
+CameraFps::CameraFps(const glm::vec3 &position, float yaw, float pitch, MainWindow3dView *view, Model &model, float &fov)
+    : CameraStrategy(model)
     , m_view(view)
     , m_fov(fov)
     , m_yaw(yaw)
@@ -137,6 +140,7 @@ CameraFps::CameraFps(const glm::vec3& position, float yaw, float pitch, MainWind
 
 //    delete camera;
 //}
+
 
 CameraFps::~CameraFps()
 {
@@ -212,11 +216,14 @@ void CameraFps::ProcessKeyboard() const
     //    qDebug() << "delta time = " << deltaTime;
     m_lastTime = currentTime;
 
-    glm::vec3 position = glm::vec3(m_modelTransform[3]);
+    glm::vec3 position = glm::vec3(m_model.transform()[3]);
     float velocity = accuracyMove * deltaTime;
     glm::vec3 newPosition = position + (m_front * frontDir + m_right * sideDir) * velocity;
     // question : [3][3] 1 or 0 ?
-    m_modelTransform[3] = glm::vec4(newPosition, m_modelTransform[3][3]);
+    glm::mat4 model = m_model.transform();
+    model[3] = glm::vec4(newPosition, m_model.transform()[3][3]);
+
+    m_model.setTransform(model);
 
     //    m_modelTransform = glm::inverse(glm::lookAt(newPosition, newPosition + m_front, m_up));
 
@@ -283,8 +290,9 @@ void CameraFps::updateCameraVectors()
     m_right = glm::normalize(glm::cross(m_front, glm::vec3(0.0f, 0.0f, 1.0f))); // Normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
     m_up = glm::normalize(glm::cross(m_right, m_front));
 
-    glm::vec3 position = m_modelTransform[3];
-    m_modelTransform = glm::inverse(glm::lookAt(position, position + m_front, m_up));
+    glm::vec3 position = m_model.transform()[3];
+//    m_modelTransform = glm::inverse(glm::lookAt(position, position + m_front, m_up));
+    m_model.setTransform(glm::inverse(glm::lookAt(position, position + m_front, m_up)));
 }
 
 void CameraFps::updateCenter()
@@ -521,6 +529,6 @@ glm::vec3 CameraFps::right() const
 
 glm::vec3 CameraFps::target() const
 {
-    glm::vec3 m_position = glm::vec3(m_modelTransform[3]);
+    glm::vec3 m_position = glm::vec3(m_model.transform()[3]);
     return m_position + 200.0f * m_front;
 }

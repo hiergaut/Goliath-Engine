@@ -33,13 +33,13 @@ Model::Model(std::ifstream& file)
 void Model::setTransform(glm::mat4 &&transform)
 {
     m_transform = std::move(transform);
-//    updateBoundingBox();
+    updateBoundingBox();
 }
 
 void Model::setTransform(const glm::mat4 &transform)
 {
     m_transform = transform;
-//    updateBoundingBox();
+    updateBoundingBox();
 }
 
 void Model::save(std::ofstream& file) const

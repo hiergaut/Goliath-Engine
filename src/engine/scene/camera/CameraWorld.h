@@ -18,8 +18,10 @@ public:
 public:
     //    CameraWorld();
     //    CameraWorld(std::ifstream & file);
-    CameraWorld(std::ifstream& file, glm::mat4 &modelTransform);
-    CameraWorld(const glm::vec3& position, glm::vec3 target, glm::mat4 & modelTransform);
+//    CameraWorld(std::ifstream& file, glm::mat4 &modelTransform);
+//    CameraWorld(const glm::vec3& position, glm::vec3 target, glm::mat4 & modelTransform);
+    CameraWorld(std::ifstream& file, Model & model);
+    CameraWorld(const glm::vec3& position, glm::vec3 target, Model & model);
     //    CameraWorld(float fov, glm::vec3 position, glm::vec3 target, Model &model);
     //    CameraWorld(CameraFps * camera);
 

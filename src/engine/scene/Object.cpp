@@ -134,15 +134,19 @@ void Object::draw(const Shader& shader, const glm::mat4& localTransform, const g
     m_model->draw(shader, localTransform, worldTransform);
 }
 
+void Object::drawBoundingBox(const Shader &shader) const
+{
+    m_model->drawBoundingBox(shader);
+}
+
 //void Object::updateBoundingBox()
 //{
 //    m_model->updateBoundingBox();
 //}
 
-void Object::drawBoundingBox(const Shader& shader) const
-{
-    m_model->drawBoundingBox(shader);
-}
+//void Object::drawBoundingBox(const Shader& shader) const
+//{
+//}
 
 void Object::buildItemModel(QStandardItem *parent) const
 {

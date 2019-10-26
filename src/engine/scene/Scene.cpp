@@ -111,8 +111,8 @@ void Scene::initializeGL()
     //            shader.setVec3("dirLight[" + QString::number(0).toStdString() + "].specular", 0.5f, 0.5f, 0.5f);
 
     //    m_axis = new Axis();
-//    updateSceneBox();
-//    updateBoundingBox();
+    //    updateSceneBox();
+    //    updateBoundingBox();
 }
 
 void Scene::renderScene(Shader& shader)
@@ -140,23 +140,23 @@ void Scene::prepareHierarchy(ulong frameTime)
 
         //        model.Draw(modelMatrix, shader, frameTime);
         object->prepareHierarchy(frameTime);
-//        object->updateBoundingBox();
+        //        object->updateBoundingBox();
         //        model.prepareHierarchy(frameTime);
     }
 
-//    if (m_autoUpdateBoundingBox) {
-//        if (FormTimeline::play()) {
-//            updateBoundingBox();
-//        } else {
+    //    if (m_autoUpdateBoundingBox) {
+    //        if (FormTimeline::play()) {
+    //            updateBoundingBox();
+    //        } else {
 
-//            if (FormTimeline::m_animationTimeChanged) {
-//                FormTimeline::m_animationTimeChanged = false;
+    //            if (FormTimeline::m_animationTimeChanged) {
+    //                FormTimeline::m_animationTimeChanged = false;
 
-//                updateBoundingBox();
-//            }
-//        }
-//    }
-//    updateSceneBox();
+    //                updateBoundingBox();
+    //            }
+    //        }
+    //    }
+    updateSceneBox();
 }
 
 void Scene::updateLightsShadowMap()
@@ -281,7 +281,17 @@ void Scene::draw(const MainWindow3dView& view)
         //        for (const Model& model : m_models) {
         for (const Object* object : m_objects) {
             //            model.m_box.draw(modelMatrix, shader);
-            object->drawBoundingBox(shader);
+            if (object != viewCameraObject) {
+
+                object->drawBoundingBox(shader);
+                //                if (object->selected()) {
+                //                    //                    shader.setMat4("model", m_localTransform, m_worldTransform);
+
+                //                } else {
+                //                    object->drawBoundingBox(shader);
+                //                    //                    shader.setMat4("model", onesMatrix);
+                //                }
+            }
             //            if (object->m_selected) {
 
             ////                object->drawBoundingBox(m_worldTransform, shader);
@@ -689,7 +699,10 @@ void Scene::draw(const MainWindow3dView& view)
 void Scene::objectSelectRay(const Ray& ray, bool additional)
 {
     //    qDebug() << "--------------------------------------------------";
-//    updateBoundingBox();
+    //    updateBoundingBox();
+    //    for (auto & camera : m_cameras) {
+    //        camera->updateBoundingBox();
+    //    }
 
     //    std::vector<const Model *> models;
     //    models.insert(models.end(), m_models.begin(), m_models.end());
@@ -746,11 +759,11 @@ void Scene::objectSelectRay(const Ray& ray, bool additional)
     }
     Q_ASSERT(nearestModel.size() == distances.size());
 
-            qDebug() << "nb Objects " << m_objects.size();
-            for (uint iObject : nearestModel) {
-                qDebug() << m_objects[iObject]->name().c_str() << distances[iObject];
-            }
-            qDebug() << "------------------------";
+    qDebug() << "nb Objects " << m_objects.size();
+    for (uint iObject : nearestModel) {
+        qDebug() << m_objects[iObject]->name().c_str() << distances[iObject];
+    }
+    qDebug() << "------------------------";
 
     for (uint iObject : nearestModel) {
         //    iObject = 0;
@@ -952,7 +965,7 @@ void Scene::objectSelectRay(const Ray& ray, bool additional)
             //            Q_ASSERT(FormContextCurve::m_formContextCurve != nullptr);
             FormContextSurface::clearContext();
             //                FormContextSurface::m_formContextSurface->clear();
-//            FormContextCurve::initContext(static_cast<BSplineCurve*>(m_selectObject->model()));
+            //            FormContextCurve::initContext(static_cast<BSplineCurve*>(m_selectObject->model()));
             FormContextCurve::initContext(static_cast<BSplineCurve*>(m_selectObject->getModel()));
             //            if (FormContextCurve::m_formContextCurve != nullptr) {
             //                FormContextCurve::m_formContextCurve->initNewSpline(static_cast<BSplineCurve*>(m_selectObject->m_model));
@@ -1072,14 +1085,14 @@ void Scene::addModel(std::string file, const glm::vec3& spawn)
 
     //    m_models[m_models.size() - 1].m_transform = glm::translate(glm::mat4(1.0f), origin);
     m_models.back().setTransform(glm::translate(glm::mat4(1.0f), spawn));
-//    m_models.back().m_model->updateBoundingBox();
+    //    m_models.back().m_model->updateBoundingBox();
 
     m_objects.push_back(&m_models.back());
 
     //    std::cout << &m_models[0] << std::endl;
     updateSceneItemModel();
-//    updateSceneBox();
-//    updateSceneBox();
+    //    updateSceneBox();
+    //    updateSceneBox();
 }
 
 void Scene::delModel(std::string file)
@@ -1092,7 +1105,7 @@ void Scene::delModel(std::string file)
 
     //    m_models.remove(file);
     //    std::pair<std::string, Model> & pair =
-//    updateSceneBox();
+    //    updateSceneBox();
 }
 
 void Scene::updateSceneItemModel()
@@ -1115,8 +1128,8 @@ void Scene::updateSceneItemModel()
     //        parentItem->appendRow(item);
     //        parentItem = item;
     //    }
-//    updateBoundingBox();
-//    updateSceneBox();
+    //    updateBoundingBox();
+    //    updateSceneBox();
 }
 
 void Scene::clear()
@@ -1145,7 +1158,7 @@ void Scene::load(std::ifstream& file)
         //        m_models.emplace_back(file);
         //        m_models.emplace_back(file);
         m_models.emplace_back(file);
-//        m_models.back().updateBoundingBox();
+        //        m_models.back().updateBoundingBox();
 
         m_objects.push_back(&m_models.back());
     }
@@ -1163,7 +1176,7 @@ void Scene::load(std::ifstream& file)
 
         //        Camera * camera = new Camera();
         Camera* camera = new Camera(file);
-//        camera->m_model->updateBoundingBox();
+        //        camera->m_model->updateBoundingBox();
 
         //        switch (type) {
         //        case Camera::WORLD:
@@ -1193,7 +1206,7 @@ void Scene::load(std::ifstream& file)
     //    for (const MainWindow3dView * view : *m_views) {
     //        view->updateCameraId();
     //    }
-//    updateSceneBox();
+    //    updateSceneBox();
 }
 
 void Scene::save(std::ofstream& file)
@@ -1225,13 +1238,13 @@ void Scene::save(std::ofstream& file)
 
 //void Scene::updateBoundingBox()
 //{
-    //    qDebug() << "dirLights";
-    //    m_dirLights.emplace_back(glm::vec3(0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f),
-    //        glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, -1.0f));
-    //    //        m_dirLights.push_back(5);
-    //    for (Model& model : m_models) {
-    //        model.updateBoundingBox();
-    //    }
+//    qDebug() << "dirLights";
+//    m_dirLights.emplace_back(glm::vec3(0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f),
+//        glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(0.0f, 0.0f, -1.0f));
+//    //        m_dirLights.push_back(5);
+//    for (Model& model : m_models) {
+//        model.updateBoundingBox();
+//    }
 //    for (const Object* object : m_objects) {
 //        object->m_model->updateBoundingBox();
 //    }
@@ -1239,7 +1252,7 @@ void Scene::save(std::ofstream& file)
 
 void Scene::updateSceneBox()
 {
-//    updateBoundingBox();
+    //    updateBoundingBox();
 
     m_box.clear();
     for (const Object& object : m_models) {
@@ -1257,7 +1270,7 @@ void Scene::setSelectRootTransform(const glm::mat4& transformMatrix, const glm::
             if (object->selected()) {
                 //            model.m_rootNode->m_transformation *= transformMatrix;
                 object->setTransform(worldTransform * object->transform() * transformMatrix);
-//                object->m_model->updateBoundingBox();
+                //                object->m_model->updateBoundingBox();
                 //            model.m_rootNode->m_transformation = model.m_rootNode->m_transformation * transformMatrix;
             }
         }
@@ -1272,7 +1285,7 @@ void Scene::setSelectRootTransform(const glm::mat4& transformMatrix, const glm::
         }
         break;
     }
-//    updateBoundingBox();
+    //    updateBoundingBox();
 }
 
 void Scene::setSelectToOriginTransform()
@@ -1283,7 +1296,7 @@ void Scene::setSelectToOriginTransform()
             //            camera.m_target = model.m_rootNode->m_transformation[3];
             //            camera.m_target = model.m_transform[3];
             object->setTransform(glm::mat4(1.0f));
-//            object->m_model->updateBoundingBox();
+            //            object->m_model->updateBoundingBox();
         }
     }
 }
@@ -1394,7 +1407,7 @@ void Scene::addLight(Light::Type lightType, const glm::vec3 position)
         m_dirLights.emplace_back(glm::vec3(0.0f, 0.0f, 1000.0f), 0.5f * glm::vec3(1.0f), glm::vec3(1.0f),
             glm::vec3(1.0f), glm::vec3(0.0f, 0.0f, -1.0f));
 
-//        m_dirLights.back().updateBoundingBox();
+        //        m_dirLights.back().updateBoundingBox();
         m_objects.push_back(&m_dirLights.back());
         //        //        m_dirLights.push_back(Light(position));
 
@@ -1441,9 +1454,9 @@ void Scene::addSurface(BSplineSurface::Type type)
 void Scene::addModel(Model* model)
 {
     m_models.emplace_back(model);
-//    model->updateBoundingBox();
+    //    model->updateBoundingBox();
     m_objects.push_back(&m_models.back());
-//    updateSceneBox();
+    //    updateSceneBox();
 }
 
 void Scene::addRay(Ray&& ray)

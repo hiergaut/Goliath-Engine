@@ -23,7 +23,7 @@ Camera::Camera(float fov)
 {
     //    m_model.m_transform = transform;
 //    m_cameraStrategy = new CameraWorld(glm::vec3(200.0f, -200.0f, 200.0f), glm::vec3(0.0f), m_model->transform());
-    m_cameraStrategy = new CameraWorld(glm::vec3(200.0f, -200.0f, 200.0f), glm::vec3(0.0f), m_model->getTransform());
+    m_cameraStrategy = new CameraWorld(glm::vec3(200.0f, -200.0f, 200.0f), glm::vec3(0.0f), *m_model);
 
 //    updateBoundingBox();
 }
@@ -47,12 +47,12 @@ Camera::Camera(std::ifstream& file)
     switch (type) {
     case CameraStrategy::WORLD:
 //        m_cameraStrategy = new CameraWorld(file, m_model->transform());
-        m_cameraStrategy = new CameraWorld(file, getTransform());
+        m_cameraStrategy = new CameraWorld(file, *m_model);
         break;
 
     case CameraStrategy::FPS:
 //        m_cameraStrategy = new CameraFps(file, m_model->transform(), m_fov);
-        m_cameraStrategy = new CameraFps(file, getTransform(), m_fov);
+        m_cameraStrategy = new CameraFps(file, *m_model, m_fov);
         break;
     }
 
@@ -101,7 +101,7 @@ void Camera::setDefault()
     switch (m_cameraStrategy->m_type) {
     case CameraStrategy::WORLD:
 //        m_cameraStrategy = new CameraWorld(glm::vec3(200.0f, -200.0f, 200.0f), glm::vec3(0.0f), m_model->transform());
-        m_cameraStrategy = new CameraWorld(glm::vec3(200.0f, -200.0f, 200.0f), glm::vec3(0.0f), getTransform());
+        m_cameraStrategy = new CameraWorld(glm::vec3(200.0f, -200.0f, 200.0f), glm::vec3(0.0f), *m_model);
         //        CameraWorld * cameraWorld = static_cast<CameraWorld*>(m_cameraStrategy);
         //        cameraWorld->m_target = glm::vec3(0.0f);
         break;
