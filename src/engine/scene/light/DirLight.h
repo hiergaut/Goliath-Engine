@@ -17,7 +17,7 @@ public:
 
 protected:
     virtual glm::vec3 pos(const glm::mat4& localTransform = glm::mat4(1.0f),
-                          const glm::mat4& worldTransform = glm::mat4(1.0f));
+                          const glm::mat4& worldTransform = glm::mat4(1.0f)) const;
     void draw(const Shader &shader, bool dotCloud, const glm::mat4 &localTransform = glm::mat4(1.0f), const glm::mat4 &worldTransform = glm::mat4(1.0f)) const override;
     void draw(const Shader &shader, const glm::mat4 &localTransform = glm::mat4(1.0f), const glm::mat4 &worldTransform = glm::mat4(1.0f)) const override;
 
@@ -28,8 +28,8 @@ public:
     DirLight(DirLight && dirLight) noexcept = default;
 //    ~DirLight();
     void initGL();
-    Shader& depthShader(const glm::mat4& localTransform = glm::mat4(1.0f), const glm::mat4& worldTransform = glm::mat4(1.0f));
-    glm::mat4 lightSpaceMatrix() const;
+    Shader& depthShader(const glm::mat4& localTransform = glm::mat4(1.0f), const glm::mat4& worldTransform = glm::mat4(1.0f)) const;
+    glm::mat4 lightSpaceMatrix(const glm::mat4 & localTransform = glm::mat4(1.0f)) const;
 
 //    void load(std::ifstream& file);
     void save(std::ofstream& file) const;

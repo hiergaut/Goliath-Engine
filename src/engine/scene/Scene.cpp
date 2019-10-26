@@ -162,9 +162,10 @@ void Scene::prepareHierarchy(ulong frameTime)
 void Scene::updateLightsShadowMap()
 {
     //    m_fun->glGetIntegerv(GL_FRAMEBUFFER, &m_fbo);
-//    glEnable(GL_CULL_FACE);
+    //    glEnable(GL_CULL_FACE);
+    //    glCullFace(GL_FRONT_AND_BACK);
+
     glDisable(GL_CULL_FACE);
-//    glCullFace(GL_FRONT_AND_BACK);
     glCullFace(GL_FRONT);
     for (DirLight& dirLight : m_dirLights) {
         //        dirLight.useShader();
@@ -325,7 +326,11 @@ void Scene::draw(const MainWindow3dView& view)
 
             //                        dirLight.draw(shader);
             shader.setInt("shadowMap", 5);
-            shader.setMat4("lightSpaceMatrix", dirLight.lightSpaceMatrix());
+            if (dirLight.selected()) {
+                shader.setMat4("lightSpaceMatrix", dirLight.lightSpaceMatrix(m_localTransform));
+            } else {
+                shader.setMat4("lightSpaceMatrix", dirLight.lightSpaceMatrix());
+            }
             glActiveTexture(GL_TEXTURE5);
             glBindTexture(GL_TEXTURE_2D, dirLight.depthMap());
 
@@ -1415,7 +1420,7 @@ void Scene::addLight(Light::Type lightType, const glm::vec3 position)
     switch (lightType) {
     case Light::Type::SUN:
 
-        m_dirLights.emplace_back(glm::vec3(0.0f, 0.0f, -1000.0f), 0.5f * glm::vec3(1.0f), glm::vec3(1.0f),
+        m_dirLights.emplace_back(glm::vec3(0.0f, 0.0f, -2000.0f), 0.5f * glm::vec3(1.0f), glm::vec3(1.0f),
             glm::vec3(1.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 
         //        m_dirLights.back().updateBoundingBox();

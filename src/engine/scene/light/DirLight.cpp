@@ -8,13 +8,14 @@
 #include <session/Session.h>
 
 //const uint SHADOW_SIZE = 1024;
-const uint SHADOW_SIZE = 8192;
+//const uint SHADOW_SIZE = 8192;
+const uint SHADOW_SIZE = 16384;
 const uint SHADOW_WIDTH = SHADOW_SIZE;
 const uint SHADOW_HEIGHT = SHADOW_SIZE;
-const float NEAR_PLANE = 100.0f;
-const float FAR_PLANE = 5000.0f;
+//const float NEAR_PLANE = 100.0f;
+//const float FAR_PLANE = 5000.0f;
 
-glm::vec3 DirLight::pos(const glm::mat4& localTransform, const glm::mat4& worldTransform)
+glm::vec3 DirLight::pos(const glm::mat4& localTransform, const glm::mat4& worldTransform) const
 {
     return (worldTransform * m_model->transform() * localTransform)[3];
 }
@@ -23,7 +24,10 @@ void DirLight::draw(const Shader& shader, bool dotCloud, const glm::mat4& localT
 {
     Object::draw(shader, dotCloud, localTransform, worldTransform);
 
+//    if (dotCloud) {
     if (m_selected) {
+//        shader.setBool("userColor", false);
+//        glPolygonMode(GL_FRONT, GL_FILL);
         glm::mat4 local = localTransform;
         //    local = glm::translate(local, glm::vec3(0.0f, 0.0f, 1.0f) * 100.0f);
         local = glm::scale(local, glm::vec3(1.0f) * 1000.0f);
@@ -44,6 +48,7 @@ void DirLight::draw(const Shader& shader, bool dotCloud, const glm::mat4& localT
 void DirLight::draw(const Shader& shader, const glm::mat4& localTransform, const glm::mat4& worldTransform) const
 {
     Object::draw(shader, localTransform, worldTransform);
+
 }
 
 DirLight::DirLight(const glm::vec3 position, const glm::vec3 ambient, const glm::vec3 diffuse,
@@ -141,62 +146,19 @@ void DirLight::initGL()
     //    m_debugDepthQuad->setInt("depthMap", 0);
 }
 
-Shader& DirLight::depthShader(const glm::mat4& localTransform, const glm::mat4& worldTransform)
+Shader& DirLight::depthShader(const glm::mat4& localTransform, const glm::mat4& worldTransform) const
 {
     //    glViewport(200, 200, 100, 100);
     //    m_fun->glBindFramebuffer(GL_FRAMEBUFFER, m_depthFbo);
     //    glClear(GL_DEPTH_BUFFER_BIT);
     //    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    glm::mat4 lightProjection, lightView;
-    glm::mat4 lightSpaceMatrix;
-    float radius = 5000.0f;
+//    glm::mat4 lightSpaceMatrix;
+//    float radius = 5000.0f;
 
-    //    BoundingBox box = Scene::m_scene->m_box;
-    //    float dist = glm::length(box.center() - pos(localTransform, worldTransform));
-    //    float near = dist - box.radius();
-    //    float far = dist + box.radius();
-
-    ////    const glm::vec3 & dir = direction(localTransform);
-    ///
-
-    //    float min[3] = { 10e+9, 10e+9, 10e+9 };
-    //    float max[3] = { -10e+9, -10e+9, -10e+9 };
-    //    for (const glm::vec3& corner : box.corners(worldTransform * transform() * localTransform)) {
-    ////                qDebug() << corner.r << corner.g << corner.b;
-    ////        for (uint i = 0; i < 3; ++i) {
-    //            min[0] = std::min(corner.x, min[0]);
-    //            max[0] = std::max(corner.x, max[0]);
-    //            min[1] = std::min(corner.y, min[1]);
-    //            max[1] = std::max(corner.y, max[1]);
-    //            min[2] = std::min(corner.z, min[2]);
-    //            max[2] = std::max(corner.z, max[2]);
-    ////        }
-    //    }
-
-    //    qDebug() << "---------------------------------";
-    //    float nearPlane = Scene::m_scene
-    //    for (uint i =0; i <3; ++i) {
-    //        Q_ASSERT(min[i] < max[i]);
-    //    }
-
-    lightProjection = glm::ortho(-radius, radius, -radius, radius, NEAR_PLANE, FAR_PLANE);
-    //    lightProjection = glm::ortho(-radius, radius, -radius, radius, near, far);
-    //    qDebug() << "minx: " << min[0] << "maxx: " << max[0] << "diff: " << max[0] -min[0];
-    //    qDebug() << "miny: " << min[1] << "maxy: " << max[1] << "diff: " << max[1] -min[1];
-    //    qDebug() << "minz: " << min[2] << "maxz: " << max[2] << "diff: " << max[2] -min[2];
-    //    lightProjection = glm::ortho(min[0], max[0], min[1], max[1], NEAR_PLANE, FAR_PLANE);
-    //    lightProjection = glm::ortho(min[0], max[0], min[1], max[1], NEAR_PLANE, FAR_PLANE);
-    //        lightView = glm::lookAt(glm::vec3(100.0f, 100.0f, 100.0f), glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
-    //    lightView = glm::lookAt(pos(localTransform, worldTransform), glm::vec3(0.0f), glm::vec3(0.0, 1.0, 0.0));
-    lightView = viewMatrix();
-    //    glm::mat4 translate = glm::translate(glm::mat4(1.0f), glm::vec3(1.0f, 0.0f, 0.0f) * (max[0] -min[0]) /2.0f);
-    //    translate = glm::translate(translate, glm::vec3(0.0f, 1.0f, 0.0f) * (max[1] -min[1]) /2.0f);
-    lightSpaceMatrix = lightProjection * lightView;
-    //    lightSpaceMatrix = translate*  lightProjection * lightView;
 
     m_simpleDepthShader->use();
-    m_simpleDepthShader->setMat4("lightSpaceMatrix", lightSpaceMatrix);
+    m_simpleDepthShader->setMat4("lightSpaceMatrix", this->lightSpaceMatrix(localTransform));
 
     glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
     //    glViewport(100, 100, 200, 200);
@@ -212,12 +174,29 @@ Shader& DirLight::depthShader(const glm::mat4& localTransform, const glm::mat4& 
     return *m_simpleDepthShader;
 }
 
-glm::mat4 DirLight::lightSpaceMatrix() const
+glm::mat4 DirLight::lightSpaceMatrix(const glm::mat4 &localTransform) const
 {
-    float radius = 5000.0f;
-    glm::mat4 lightProjection = glm::ortho(-radius, radius, -radius, radius, NEAR_PLANE, FAR_PLANE);
-    glm::mat4 lightView = viewMatrix();
+    glm::mat4 lightProjection, lightView;
+        BoundingBox box = Scene::m_scene->m_box;
+    //    float dist = glm::length(box.center() - pos(localTransform, worldTransform));
+    //    float near = dist - box.radius();
+    //    float far = dist + box.radius();
+        const glm::vec3 & center = box.center();
+        const float & radius = box.radius();
+
+        const glm::vec3 & dir = direction(localTransform);
+//        glm::vec3 p = pos(localTransform, worldTransform);
+
+//        float dist = glm::length(pos(localTransform) - center);
+
+    ///
+
+    lightProjection = glm::ortho(-radius, radius, -radius, radius, 0.1f, 2.0f * radius);
+//        lightView = glm::lookAt(pos(localTransform), center, glm::vec3(0.0, 1.0, 0.0));
+//    lightView = viewMatrix();
+    lightView = glm::lookAt(center -dir * radius, center, glm::vec3(0.0f, 1.0f, 0.0f));
     return lightProjection * lightView;
+//    return lightProjection * lightView;
 }
 
 void DirLight::save(std::ofstream& file) const
@@ -232,7 +211,8 @@ glm::vec3 DirLight::direction(const glm::mat4& localTransform) const
 {
     //    glm::vec3 dir = glm::normalize(m_model.m_transform[0] + m_model.m_transform[1] + m_model.m_transform[2]);
     glm::vec3 sunUp = glm::vec3(transform() * localTransform * -glm::vec4(0.0f, 0.0f, 1.0f, 0.0f));
-    return glm::normalize(sunUp);
+//    return glm::normalize(sunUp);
+    return sunUp;
     //    glm::vec3 up = glm::vec3(0.0f, 0.0f, 1.0f);
 
     //    glm::vec3 right = glm::normalize(glm::cross(sunUp, up));
