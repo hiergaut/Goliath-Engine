@@ -367,6 +367,7 @@ void Mesh::draw(const Shader& shader, bool dotCloud) const
                 hasTexture = true;
                 const Texture& texture = (*m_textures)[material.m_iTextures[i][j]];
 
+//                if (texture.m_type != Texture::Type::NORMAL) {
                 m_fun->glActiveTexture(GL_TEXTURE0 + cpt);
                 std::string number = std::to_string(j);
                 std::string name = std::string(texture);
@@ -375,6 +376,7 @@ void Mesh::draw(const Shader& shader, bool dotCloud) const
                 m_fun->glBindTexture(GL_TEXTURE_2D, texture.m_id);
 
                 ++cpt;
+//                }
                 //            }
             }
         }

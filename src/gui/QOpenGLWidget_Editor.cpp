@@ -118,9 +118,9 @@ void QOpenGLWidget_Editor::initializeGL()
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
     //    glEnable(GL_CULL_FACE);
-    //    glEnable(GL_MULTISAMPLE);
-    //    glEnable(GL_SAMPLE_COVERAGE);
-    //    glDisable(GL_MULTISAMPLE);
+        glEnable(GL_MULTISAMPLE);
+//        glEnable(GL_SAMPLE_COVERAGE);
+//        glDisable(GL_MULTISAMPLE);
 
     //    glEnable(GL_STENCIL_TEST);
     //    glStencilMask(0x00);

@@ -9,6 +9,7 @@
 #include <image/tga.h>
 
 #include <session/Session.h>
+#include <QDebug>
 
 unsigned int TextureFromFile(const std::string& filename, const std::string& directory);
 
@@ -24,6 +25,9 @@ Texture::Texture(std::string  path, std::string  filename, Texture::Type type)
     //            Texture texture;
     m_id = TextureFromFile(filename.c_str(), m_directory);
     m_type = type;
+    if (m_type == Texture::Type::NORMAL) {
+        qDebug() << m_filename.c_str() << "normal";
+    }
     //            m_directory = m_directory + "/" + str.C_Str();
     //            texture.m_filename = str.C_Str();
     bool success;

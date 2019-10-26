@@ -16,15 +16,15 @@ public:
     QPixmap m_pixmap;
     std::string m_filename;
     std::string m_directory;
-
-public:
     enum Type {
         DIFFUSE = 0,
         SPECULAR,
         NORMAL,
         HEIGHT,
         size
-    };
+    } m_type;
+
+public:
 
     Texture(std::string path, std::string filename, Texture::Type type);
     Texture(std::ifstream& file);
@@ -42,7 +42,7 @@ public:
 private:
     QOpenGLFunctionsCore* m_fun;
 
-    Type m_type;
+//    Type m_type;
     //    std::string type;
 };
 
