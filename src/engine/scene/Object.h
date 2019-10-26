@@ -53,7 +53,9 @@ public:
     const BoundingBox & box() const;
     const std::string & name() const;
     Model::Type type() const;
+
     const glm::mat4 & transform() const;
+    glm::mat4 & getTransform();
     void setTransform(const glm::mat4 & transform);
 
 
@@ -62,6 +64,7 @@ public:
 
     const Model *model() const;
     Model * getModel();
+
 
 //private:
 protected:

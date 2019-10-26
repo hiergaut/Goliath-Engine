@@ -25,7 +25,7 @@ public:
 //    protected:
 //    CameraStrategy() = delete ;
 public:
-    CameraStrategy(glm::mat4 modelTransform);
+    CameraStrategy(glm::mat4 & modelTransform);
 //    virtual CameraStrategy(std::ifstream & file);
     virtual ~CameraStrategy() = default;
 

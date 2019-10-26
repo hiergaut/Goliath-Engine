@@ -76,8 +76,10 @@ DirLight::DirLight(std::ifstream& file)
     : Object(g_resourcesPath + "models/sun/sun.obj")
 {
     Light::load(file);
-    Session::load(transform(), file);
+    glm::mat4 transform;
+    Session::load(transform, file);
 
+    setTransform(std::move(transform));
     //    Session::load(m_direction, file);
 
     //    m_model = new Model(g_resourcesPath + "models/sun/sun.obj");

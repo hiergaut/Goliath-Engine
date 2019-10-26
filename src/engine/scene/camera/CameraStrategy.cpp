@@ -18,7 +18,7 @@
 
 //}
 
-CameraStrategy::CameraStrategy(glm::mat4 modelTransform)
+CameraStrategy::CameraStrategy(glm::mat4 & modelTransform)
     : m_modelTransform(modelTransform)
 {
 

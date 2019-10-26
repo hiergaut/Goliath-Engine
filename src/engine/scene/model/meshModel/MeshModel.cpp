@@ -163,7 +163,6 @@ MeshModel::MeshModel(MeshModel&& model) noexcept
     std::cout << "\033[34m";
     std::cout << "[MeshModel] " << &model  << "  '" << m_filename << "' moved to " << this << std::endl;
     std::cout << "\033[0m";
-//    updateBoundingBox();
 }
 
 //MeshModel::MeshModel(const MeshModel &model)

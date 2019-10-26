@@ -40,7 +40,7 @@ public:
         const glm::mat4& worldTransform = glm::mat4(1.0f))
         const = 0;
 
-//    virtual void updateBoundingBox() const = 0;
+    virtual void updateBoundingBox() = 0;
 
     virtual void drawBoundingBox(const Shader& shader) const = 0;
 
@@ -51,11 +51,12 @@ public:
 
 //    glm::mat4 && transform();
     const glm::mat4 & transform() const;
+    glm::mat4 & getTransform();
 
     const BoundingBox &box() const;
 
 private:
-    virtual void updateBoundingBox() { Q_ASSERT(false); }
+//    virtual void updateBoundingBox() { Q_ASSERT(false); }
 
 //private:
 protected:

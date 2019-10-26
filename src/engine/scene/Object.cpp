@@ -179,6 +179,11 @@ const glm::mat4 &Object::transform() const
     return m_model->transform();
 }
 
+glm::mat4 &Object::getTransform()
+{
+    return m_model->getTransform();
+}
+
 void Object::setTransform(const glm::mat4 & transform)
 {
     m_model->setTransform(transform);

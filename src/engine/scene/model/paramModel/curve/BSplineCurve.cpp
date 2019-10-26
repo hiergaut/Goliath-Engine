@@ -100,6 +100,7 @@ BSplineCurve::BSplineCurve(Type type)
     //    }
 
     updateCurve();
+    updateBoundingBox();
 }
 
 BSplineCurve::BSplineCurve(std::ifstream& file)
@@ -156,6 +157,7 @@ BSplineCurve::BSplineCurve(std::ifstream& file)
     setUniform();
 
     updateCurve();
+    updateBoundingBox();
 }
 
 BSplineCurve::~BSplineCurve()

@@ -222,6 +222,7 @@ BSplineSurface::BSplineSurface(BSplineSurface::Type type)
     }
 
     updateSurface();
+    updateBoundingBox();
 }
 
 BSplineSurface::BSplineSurface(std::ifstream& file)
@@ -304,6 +305,7 @@ BSplineSurface::BSplineSurface(std::ifstream& file)
     //    }
 
     updateSurface();
+    updateBoundingBox();
 }
 
 BSplineSurface::~BSplineSurface()

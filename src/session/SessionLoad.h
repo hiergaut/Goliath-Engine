@@ -133,7 +133,7 @@ public:
 //        //        return glm::make_vec3(data);
 //        mat = glm::make_mat4(data);
 //    }
-    static void load(glm::mat4 mat, std::ifstream& file)
+    static void load(glm::mat4 & mat, std::ifstream& file)
     {
         float data[16];
         file.read(reinterpret_cast<char*>(&data), sizeof(data));

@@ -683,7 +683,8 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
                     //                    delete m_camera;
                     //                m_camera = new CameraWorld(fov, pos, camera->m_target);
                     delete m_camera->m_cameraStrategy;
-                    m_camera->m_cameraStrategy = new CameraWorld(position, target, m_camera->transform());
+//                    m_camera->m_cameraStrategy = new CameraWorld(position, target, m_camera->transform());
+                    m_camera->m_cameraStrategy = new CameraWorld(position, target, m_camera->getTransform());
                     //        Scene::m_scene->m_objects.push_back(m_camera);
                     //            m_camera = new CameraWorld(static_cast<CameraFps*>(m_camera));
                     break;
@@ -705,7 +706,8 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
                     //        Scene::m_scene->removeCamera(m_iCamera);
                     //                    delete m_camera;
                     delete m_camera->m_cameraStrategy;
-                    m_camera->m_cameraStrategy = new CameraFps(position, yaw, pitch, this, m_camera->transform(), m_camera->m_fov);
+//                    m_camera->m_cameraStrategy = new CameraFps(position, yaw, pitch, this, m_camera->transform(), m_camera->m_fov);
+                    m_camera->m_cameraStrategy = new CameraFps(position, yaw, pitch, this, m_camera->getTransform(), m_camera->m_fov);
                     //        Scene::m_scene->m_objects.push_back(m_camera);
 
                     static_cast<CameraFps*>(m_camera->m_cameraStrategy)->startFpsView();
@@ -759,8 +761,11 @@ void MainWindow3dView::keyReleaseEvent(QKeyEvent* event)
 
 void MainWindow3dView::mousePressEvent(QMouseEvent* event)
 {
+//    qDebug() << "nb cameras " << Scene::m_cameras.size();
     if (m_iCamera < Scene::m_cameras.size()) {
         Camera* m_camera = Scene::m_cameras[m_iCamera];
+        Q_ASSERT(m_camera != nullptr);
+        qDebug() << "camera: " << m_camera;
         m_camera->m_cameraStrategy->mousePressEvent(event);
 
         switch (event->button()) {

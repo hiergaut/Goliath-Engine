@@ -20,7 +20,6 @@ Model::Model(const glm::mat4 &transform, Model::Type type)
     : m_type(type)
     , m_transform(transform)
 {
-    updateBoundingBox();
 
 }
 
@@ -28,20 +27,19 @@ Model::Model(std::ifstream& file)
 {
 //    m_type = static_cast<Type>(Session::loadEnum(file));
     Session::load(m_transform, file);
-    updateBoundingBox();
 
 }
 
 void Model::setTransform(glm::mat4 &&transform)
 {
     m_transform = std::move(transform);
-    updateBoundingBox();
+//    updateBoundingBox();
 }
 
 void Model::setTransform(const glm::mat4 &transform)
 {
     m_transform = transform;
-    updateBoundingBox();
+//    updateBoundingBox();
 }
 
 void Model::save(std::ofstream& file) const
@@ -56,6 +54,11 @@ void Model::save(std::ofstream& file) const
 //}
 
 const glm::mat4 &Model::transform() const
+{
+    return m_transform;
+}
+
+glm::mat4 &Model::getTransform()
 {
     return m_transform;
 }
