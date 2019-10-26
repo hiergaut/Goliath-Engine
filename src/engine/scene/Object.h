@@ -16,6 +16,11 @@ public:
     //    mutable BoundingBox m_box;
 //    Model * m_model = nullptr;
 //    Model & m_model;
+//    enum Type {
+//        LIGHT,
+//        CAMERA,
+//        MODEL,
+//    };
 
 public:
 //    Object(Model && model) noexcept;

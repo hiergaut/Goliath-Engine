@@ -24,31 +24,32 @@ void DirLight::draw(const Shader& shader, bool dotCloud, const glm::mat4& localT
 {
     Object::draw(shader, dotCloud, localTransform, worldTransform);
 
-//    if (dotCloud) {
+    //    if (dotCloud) {
     if (m_selected) {
-//        shader.setBool("userColor", false);
-//        glPolygonMode(GL_FRONT, GL_FILL);
-        glm::mat4 local = localTransform;
-        //    local = glm::translate(local, glm::vec3(0.0f, 0.0f, 1.0f) * 100.0f);
-        local = glm::scale(local, glm::vec3(1.0f) * 1000.0f);
-        //    shader.use();
-        shader.setMat4("model", worldTransform * m_model->transform() * local);
+        if (shader.m_shade != Shader::Type::RENDERED) {
+            //        shader.setBool("userColor", false);
+            //        glPolygonMode(GL_FRONT, GL_FILL);
+            glm::mat4 local = localTransform;
+            //    local = glm::translate(local, glm::vec3(0.0f, 0.0f, 1.0f) * 100.0f);
+            local = glm::scale(local, glm::vec3(1.0f) * 1000.0f);
+            //    shader.use();
+            shader.setMat4("model", worldTransform * m_model->transform() * local);
 
-        glActiveTexture(GL_TEXTURE0);
-        //    shader.setBool("userColor", false);
-        //    shader.setVec4("color", glm::vec4(1.0f, 0, 0, 1));
-        //    shader.setBool("hasTexture", true);
-        shader.setInt("texture_diffuse1", 0);
-        glBindTexture(GL_TEXTURE_2D, m_depthMap);
-        QuadGeometry::draw();
-        //    glActiveTexture(GL_TEXTURE0);
+            glActiveTexture(GL_TEXTURE0);
+            //    shader.setBool("userColor", false);
+            //    shader.setVec4("color", glm::vec4(1.0f, 0, 0, 1));
+            //    shader.setBool("hasTexture", true);
+            shader.setInt("texture_diffuse1", 0);
+            glBindTexture(GL_TEXTURE_2D, m_depthMap);
+            QuadGeometry::draw();
+            //    glActiveTexture(GL_TEXTURE0);
+        }
     }
 }
 
 void DirLight::draw(const Shader& shader, const glm::mat4& localTransform, const glm::mat4& worldTransform) const
 {
-    Object::draw(shader, localTransform, worldTransform);
-
+//    Object::draw(shader, localTransform, worldTransform);
 }
 
 DirLight::DirLight(const glm::vec3 position, const glm::vec3 ambient, const glm::vec3 diffuse,
@@ -153,9 +154,8 @@ Shader& DirLight::depthShader(const glm::mat4& localTransform, const glm::mat4& 
     //    glClear(GL_DEPTH_BUFFER_BIT);
     //    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-//    glm::mat4 lightSpaceMatrix;
-//    float radius = 5000.0f;
-
+    //    glm::mat4 lightSpaceMatrix;
+    //    float radius = 5000.0f;
 
     m_simpleDepthShader->use();
     m_simpleDepthShader->setMat4("lightSpaceMatrix", this->lightSpaceMatrix(localTransform));
@@ -174,29 +174,31 @@ Shader& DirLight::depthShader(const glm::mat4& localTransform, const glm::mat4& 
     return *m_simpleDepthShader;
 }
 
-glm::mat4 DirLight::lightSpaceMatrix(const glm::mat4 &localTransform) const
+glm::mat4 DirLight::lightSpaceMatrix(const glm::mat4& localTransform) const
 {
     glm::mat4 lightProjection, lightView;
-        BoundingBox box = Scene::m_scene->m_box;
-    //    float dist = glm::length(box.center() - pos(localTransform, worldTransform));
+    BoundingBox box = Scene::m_scene->m_box;
+
+    //        float dist = glm::length(box.center() - pos(localTransform));
     //    float near = dist - box.radius();
     //    float far = dist + box.radius();
-        const glm::vec3 & center = box.center();
-        const float & radius = box.radius();
+    const glm::vec3& center = box.center();
+    const float& radius = box.radius();
 
-        const glm::vec3 & dir = direction(localTransform);
-//        glm::vec3 p = pos(localTransform, worldTransform);
+    const glm::vec3& dir = direction(localTransform);
+    //        glm::vec3 p = pos(localTransform, worldTransform);
 
-//        float dist = glm::length(pos(localTransform) - center);
+    //        float dist = glm::length(pos(localTransform) - center);
 
     ///
 
-    lightProjection = glm::ortho(-radius, radius, -radius, radius, 0.1f, 2.0f * radius);
-//        lightView = glm::lookAt(pos(localTransform), center, glm::vec3(0.0, 1.0, 0.0));
-//    lightView = viewMatrix();
-    lightView = glm::lookAt(center -dir * radius, center, glm::vec3(0.0f, 1.0f, 0.0f));
+    lightProjection = glm::ortho(-radius, radius, -radius, radius, 10.0f, 2.0f * radius);
+    //        lightView = glm::lookAt(pos(localTransform), center, glm::vec3(0.0, 1.0, 0.0));
+    //    lightView = viewMatrix();
+    //    lightView = glm::lookAt(center -dir * dist, center, glm::vec3(0.0f, 1.0f, 0.0f));
+    lightView = glm::lookAt(center - dir * radius, center, glm::vec3(0.0f, 1.0f, 0.0f));
     return lightProjection * lightView;
-//    return lightProjection * lightView;
+    //    return lightProjection * lightView;
 }
 
 void DirLight::save(std::ofstream& file) const
@@ -211,7 +213,7 @@ glm::vec3 DirLight::direction(const glm::mat4& localTransform) const
 {
     //    glm::vec3 dir = glm::normalize(m_model.m_transform[0] + m_model.m_transform[1] + m_model.m_transform[2]);
     glm::vec3 sunUp = glm::vec3(transform() * localTransform * -glm::vec4(0.0f, 0.0f, 1.0f, 0.0f));
-//    return glm::normalize(sunUp);
+    //    return glm::normalize(sunUp);
     return sunUp;
     //    glm::vec3 up = glm::vec3(0.0f, 0.0f, 1.0f);
 

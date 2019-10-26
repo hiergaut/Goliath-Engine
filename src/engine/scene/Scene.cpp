@@ -120,9 +120,9 @@ void Scene::renderScene(Shader& shader)
     for (const Object* object : m_objects) {
         //        if (object != viewCameraObject) {
         if (object->selected()) {
-            object->draw(shader, false, m_localTransform, m_worldTransform);
+            object->draw(shader, m_localTransform, m_worldTransform);
         } else {
-            object->draw(shader, false);
+            object->draw(shader);
         }
         //        }
     }
@@ -283,8 +283,10 @@ void Scene::draw(const MainWindow3dView& view)
     //    shader.setMat4("model", onesMatrix);
     shader.setBool("userColor", true);
     //    m_rootNode->drawBoundingBox(modelMatrix, shader);
-    shader.setVec4("color", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-    m_box.draw(shader);
+    if (view.m_shade != Shader::Type::RENDERED) {
+        shader.setVec4("color", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+        m_box.draw(shader);
+    }
     if (view.boundingBox()) {
         //        for (const Model& model : m_models) {
         for (const Object* object : m_objects) {
@@ -1420,6 +1422,8 @@ void Scene::addLight(Light::Type lightType, const glm::vec3 position)
     switch (lightType) {
     case Light::Type::SUN:
 
+//        m_dirLights.emplace_back(glm::vec3(0.0f, 0.0f, -2000.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f),
+//            glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
         m_dirLights.emplace_back(glm::vec3(0.0f, 0.0f, -2000.0f), 0.5f * glm::vec3(1.0f), glm::vec3(1.0f),
             glm::vec3(1.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 
