@@ -18,6 +18,7 @@
 #include <engine/scene/camera/CameraWorld.h>
 #include "light/Light.h"
 #include "light/DirLight.h"
+#include "light/PointLight.h"
 
 #include "Object.h"
 #include <engine/scene/model/paramModel/curve/BSplineCurve.h>
@@ -49,6 +50,7 @@ public:
     std::vector<Object> m_models;
     static std::vector<Camera*> m_cameras; // legacy
     std::vector<DirLight> m_dirLights;
+    std::vector<PointLight> m_pointLights;
 
     Material m_solid = Material("solid", 2.0f, glm::vec3(0.5f), glm::vec3(0.0f), glm::vec3(0.5f, 0.5f, 1.0f));
 //    std::vector<Curve> m_curves;

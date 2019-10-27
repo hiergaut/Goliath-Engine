@@ -32,20 +32,24 @@ Material::Material(const aiMaterial* ai_material, Textures* textures, std::strin
     //        qDebug() << ai_name.C_Str();
     aiColor3D ai_ambient;
     ai_material->Get(AI_MATKEY_COLOR_AMBIENT, ai_ambient);
-    m_colors[0] = aiColor3ToGlm(ai_ambient);
+    m_colors[Color::Etype::AMBIENT] = aiColor3ToGlm(ai_ambient);
 
     aiColor3D ai_diffuse;
     ai_material->Get(AI_MATKEY_COLOR_DIFFUSE, ai_diffuse);
     //        qDebug() << ai_diffuse.b << ai_diffuse.g << ai_diffuse.r;
-    m_colors[1] = aiColor3ToGlm(ai_diffuse);
+    m_colors[Color::Etype::DIFFUSE] = aiColor3ToGlm(ai_diffuse);
+//    std::cout << m_name << ": diffuse " << m_colors[Color::Etype::DIFFUSE].color.x << std::endl;
+
 
     aiColor3D ai_specular;
     ai_material->Get(AI_MATKEY_COLOR_SPECULAR, ai_specular);
-    m_colors[2] = aiColor3ToGlm(ai_specular);
+    m_colors[Color::Etype::SPECULAR] = aiColor3ToGlm(ai_specular);
 
     //        qDebug() << material.m_colorAmbient.x << material.m_colorAmbient.y << material.m_colorAmbient.z;
     //        float ai_shininess;
     ai_material->Get(AI_MATKEY_SHININESS, m_shininess);
+//    std::cout << m_name << ": shininess " << m_shininess << std::endl;
+    m_shininess = std::max(1.0f, m_shininess);
     //        material.m_shininess = ai_shininess;
     //        aiColor3D ai_emissive;
     //        aiColor3D ai_transparent;

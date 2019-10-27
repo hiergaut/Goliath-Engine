@@ -169,16 +169,18 @@ void Scene::updateLightsShadowMap()
     glCullFace(GL_FRONT);
     for (DirLight& dirLight : m_dirLights) {
         //        dirLight.useShader();
-
         //                object->draw(shader, false, m_localTransform, m_worldTransform);
         Shader& shader = (dirLight.selected()) ? (dirLight.depthShader(m_localTransform, m_worldTransform)) : (dirLight.depthShader());
         //        Shader & shader = dirLight.depthShader();
         //        m_fun->glBindFramebuffer(GL_FRAMEBUFFER, 1);
         renderScene(shader);
         //        glCullFace(GL_BACK);
-
         //        m_fun->glBindFramebuffer(GL_FRAMEBUFFER, 1);
         //        dirLight.showDepth();
+    }
+    for (PointLight & pointLight : m_pointLights) {
+        Shader& shader = (pointLight.selected()) ? (pointLight.depthShader(m_localTransform, m_worldTransform)) : (pointLight.depthShader());
+        renderScene(shader);
     }
     //    m_fun->glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
     glCullFace(GL_BACK);
@@ -215,6 +217,8 @@ void Scene::draw(const MainWindow3dView& view)
     //    return;
 
     const Shader& shader = view.shader();
+//    shader.use();
+//    shader.setBool("hasSkyBox", false);
 
     //    const glm::mat4& viewTransform = view.m_transformMatrix;
     //    const glm::mat4& m_worldTransform = view.m_worldTransform;
@@ -356,6 +360,19 @@ void Scene::draw(const MainWindow3dView& view)
             //                    shader.setVec3("dirLight.ambient", dirLight.m_ambient);
             //                    shader.setVec3("dirLight.diffuse", dirLight.m_diffuse);
             //                    shader.setVec3("dirLight.specular", dirLight.m_specular);
+        }
+
+        shader.setInt("nbPointLight", m_pointLights.size());
+        for (uint i =0; i <m_pointLights.size(); ++i) {
+            const PointLight & pointLight = m_pointLights[i];
+            shader.setVec3("pointLights[" + QString::number(i).toStdString() + "].position", pointLight.position(m_localTransform, m_worldTransform));
+            shader.setFloat("pointLights[" + QString::number(i).toStdString() + "].constant", 1.0f);
+            shader.setFloat("pointLights[" + QString::number(i).toStdString() + "].linear", 0.000f);
+            shader.setFloat("pointLights[" + QString::number(i).toStdString() + "].quadratic", 0.00001f);
+            shader.setVec3("pointLights[" + QString::number(i).toStdString() + "].ambient", pointLight.m_ambient);
+            shader.setVec3("pointLights[" + QString::number(i).toStdString() + "].diffuse", pointLight.m_diffuse);
+            shader.setVec3("pointLights[" + QString::number(i).toStdString() + "].specular", pointLight.m_specular);
+
         }
 
         //            shader.setVec3("dirLight[" + QString::number(0).toStdString() + "].direction", -0.2f, -1.0f, -0.3f);
@@ -1221,6 +1238,13 @@ void Scene::load(std::ifstream& file)
         m_objects.push_back(&m_dirLights.back());
     }
 
+    m_pointLights.clear();
+    Session::load(size, file);
+    for (uint i = 0; i < size; ++i) {
+        m_pointLights.emplace_back(file);
+        m_objects.push_back(&m_pointLights.back());
+    }
+
     FormTimeline::load(file);
 
     updateSceneItemModel();
@@ -1250,6 +1274,12 @@ void Scene::save(std::ofstream& file)
     Session::save(size, file);
     for (const DirLight& dirLight : m_dirLights) {
         dirLight.save(file);
+    }
+
+    size = m_pointLights.size();
+    Session::save(size, file);
+    for (const PointLight & pointLight : m_pointLights) {
+        pointLight.save(file);
     }
 
     FormTimeline::save(file);
@@ -1405,6 +1435,16 @@ void Scene::deleteSelected()
     }
     m_dirLights = std::move(newDirLights);
 
+    std::vector<PointLight> newPointLights;
+    newPointLights.reserve(10);
+    for (PointLight& pointLight : m_pointLights) {
+        if (!pointLight.selected()) {
+            newPointLights.emplace_back(std::move(pointLight));
+            m_objects.push_back(&newPointLights.back());
+        }
+    }
+    m_pointLights = std::move(newPointLights);
+
     //    std::cout << "dirLights moved" << std::endl;
 
     //    for (DirLight & dirLight : m_dirLights) {
@@ -1443,6 +1483,8 @@ void Scene::addLight(Light::Type lightType, const glm::vec3 position)
         break;
 
     case Light::Type::POINT:
+        m_pointLights.emplace_back(position);
+        m_objects.push_back(&m_pointLights.back());
         break;
     }
 }

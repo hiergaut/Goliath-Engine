@@ -384,6 +384,7 @@ void Mesh::draw(const Shader& shader, bool dotCloud) const
         shader.setBool("hasTexture", hasTexture);
         if (!hasTexture) {
             shader.setVec3("material.ambient", material.m_colors[Color::AMBIENT]);
+            shader.setVec3("material.diffuse", material.m_colors[Color::DIFFUSE]);
         }
         //        shader.setVec3("material.ambient", 0.5f, 0.5f, 0.5f);
         //            shader.setVec3("material.diffuse", 0.3f, 0.3f, 0.3f);
@@ -392,6 +393,8 @@ void Mesh::draw(const Shader& shader, bool dotCloud) const
         shader.setVec3("material.specular", material.m_colors[Color::SPECULAR]);
         //        shader.setVec3("material.specular", material.m_colors[Color::DIFFUSE]);
         shader.setFloat("material.shininess", material.m_shininess);
+//        shader.setFloat("material.shininess", std::max(1.0f, material.m_shininess));
+//        shader.setFloat("material.shininess", 2.0f);
     }
     //    if (shade == MainWindow3dView::Shading::RENDERED) {
 

@@ -29,6 +29,7 @@
 #include <opengl/geometry/boneGeometry.h>
 #include <opengl/geometry/uvSphereGeometry.h>
 #include <opengl/geometry/QuadGeometry.h>
+#include <opengl/geometry/SkyBoxGeometry.h>
 
 #include <QPainter>
 #include <gui/editor/timeline/FormTimeline.h>
@@ -167,6 +168,7 @@ void QOpenGLWidget_Editor::initializeGL()
     UvSphereGeometry::initializeGL();
     BoneGeometry::initializeGL();
     QuadGeometry::initializeGL();
+    SkyBoxGeometry::initializeGL();
 
     //    FormTimeline::setScene(&m_scene);
 
@@ -214,7 +216,7 @@ void QOpenGLWidget_Editor::paintGL()
         //        std::string str;
         //    m_stream << m_fps << "\n";
         //        std::cout << "fps : " << m_fps << std::endl;
-        m_statusBar->showMessage("fps:" + QString::number(m_fps) + "  camera:" + QString::number(m_scene.m_cameras.size()) + "  light:" + QString::number(m_scene.m_dirLights.size()));
+        m_statusBar->showMessage("fps:" + QString::number(m_fps) + "  camera:" + QString::number(m_scene.m_cameras.size()) + "  dirLight:" + QString::number(m_scene.m_dirLights.size()) + "  pointLight:" + QString::number(m_scene.m_pointLights.size()));
     }
     //        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 //    glViewport(100, 100, 100, 100);
