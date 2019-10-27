@@ -22,9 +22,12 @@ glm::vec3 DirLight::pos(const glm::mat4& localTransform, const glm::mat4& worldT
 
 void DirLight::draw(const Shader& shader, bool dotCloud, const glm::mat4& localTransform, const glm::mat4& worldTransform) const
 {
-//    shader.setBool("userColor", true);
+    //    shader.setBool("userColor", true);
 
-    Object::draw(shader, dotCloud, localTransform, worldTransform);
+//    if (shader.m_shade != Shader::Type::RENDERED) {
+
+        Object::draw(shader, dotCloud, localTransform, worldTransform);
+//    }
 
     //    if (dotCloud) {
     if (m_selected) {
@@ -47,16 +50,16 @@ void DirLight::draw(const Shader& shader, bool dotCloud, const glm::mat4& localT
             //    glActiveTexture(GL_TEXTURE0);
         }
     }
-//    shader.setBool("userColor", false);
+    //    shader.setBool("userColor", false);
 }
 
 void DirLight::draw(const Shader& shader, const glm::mat4& localTransform, const glm::mat4& worldTransform) const
 {
-//    Object::draw(shader, localTransform, worldTransform);
+    //    Object::draw(shader, localTransform, worldTransform);
 }
 
-DirLight::DirLight(const glm::vec3 position, const glm::vec3 ambient, const glm::vec3 diffuse,
-    const glm::vec3 specular, const glm::vec3 direction)
+DirLight::DirLight(const glm::vec3 position, const glm::vec3 direction, const glm::vec3 ambient, const glm::vec3 diffuse,
+    const glm::vec3 specular)
     : Light(ambient, diffuse, specular)
     //    , Object(g_resourcesPath + "models/sun/sun.obj")
     , Object(g_resourcesPath + "models/light/sun/sun.obj")

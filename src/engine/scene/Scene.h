@@ -25,6 +25,7 @@
 #include "model/paramModel/surface/BSplineSurface.h"
 //#include "curve/Curve.h"
 #include <opengl/Frustum.h>
+#include "light/SkyBox.h"
 
 class Scene {
 //    Q_OBJECT
@@ -155,6 +156,7 @@ private:
     std::vector<Frustum> m_frustums;
     std::vector<glm::vec3> m_dots;
 //    BoneGeometry * m_bone;
+    SkyBox * m_skyBox;
 
 
 public:

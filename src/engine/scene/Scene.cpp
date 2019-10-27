@@ -90,6 +90,30 @@ void Scene::initializeGL()
     //    normalShader = new Shader("shading/normal.vsh", "shading/normal.fsh");
     //    m_bone = new BoneGeometry;
 
+    m_skyBox = new SkyBox("hw", "morning");
+//    m_skyBox = new SkyBox("ame", "iceflats");
+//    m_skyBox = new SkyBox("hw", "alps");
+//    m_skyBox = new SkyBox("mp", "sorbin");
+//    m_skyBox = new SkyBox("sb", "frozen");
+//    m_skyBox = new SkyBox("hw", "arctic");
+//    m_skyBox = new SkyBox("ame", "siege");
+
+
+//    m_skyBox = new SkyBox("ely", "peaks");
+//    m_skyBox = new SkyBox("mp", "morningdew");
+//    m_skyBox = new SkyBox("sb", "iceflow");
+//    m_skyBox = new SkyBox("mp", "hexagon");
+//    m_skyBox = new SkyBox("hw", "sandstorm");
+//    m_skyBox = new SkyBox("ely", "hills2");
+//    m_skyBox = new SkyBox("hw", "sahara");
+
+//    m_skyBox = new SkyBox("ame", "shadow");
+//    m_skyBox = new SkyBox("sor", "alien");
+//    m_skyBox = new SkyBox("hw", "craterlake");
+//    m_skyBox = new SkyBox("mp", "whirlpool");
+
+
+
     initialized = true;
     //    MainWindow3dView::glInitialize();
 
@@ -212,9 +236,14 @@ void Scene::draw(const MainWindow3dView& view)
         m_grid->draw(onesMatrix, viewMatrix, projectionMatrix);
         //        m_grid->draw(glm::scale(onesMatrix, glm::vec3(1.0f) * glm::length(glm::vec3(viewMatrix[3]))), viewMatrix, projectionMatrix);
     }
+    else {
+        m_skyBox->draw(viewMatrix, projectionMatrix);
+    }
 
+//    shader.setMat4("model", onesMatrix);
     //    glLoadIdentity();
     //    return;
+//    return;
 
     const Shader& shader = view.shader();
 //    shader.use();
@@ -363,8 +392,15 @@ void Scene::draw(const MainWindow3dView& view)
         }
 
         shader.setInt("nbPointLight", m_pointLights.size());
+            uint nbDirLigt = m_dirLights.size();
+        for (uint i =0; i <5; ++i) {
+            shader.setInt("pointLights[" + QString::number(i).toStdString() + "].shadowMap", 5 +i + nbDirLigt);
+        }
         for (uint i =0; i <m_pointLights.size(); ++i) {
             const PointLight & pointLight = m_pointLights[i];
+            shader.setInt("pointLights[" + QString::number(i).toStdString() + "].id", i + nbDirLigt);
+            glActiveTexture(GL_TEXTURE5 + i + nbDirLigt);
+            glBindTexture(GL_TEXTURE_CUBE_MAP, pointLight.depthMap());
             shader.setVec3("pointLights[" + QString::number(i).toStdString() + "].position", pointLight.position(m_localTransform, m_worldTransform));
             shader.setFloat("pointLights[" + QString::number(i).toStdString() + "].constant", 1.0f);
             shader.setFloat("pointLights[" + QString::number(i).toStdString() + "].linear", 0.000f);
@@ -1467,8 +1503,7 @@ void Scene::addLight(Light::Type lightType, const glm::vec3 position)
 
 //        m_dirLights.emplace_back(glm::vec3(0.0f, 0.0f, -2000.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f),
 //            glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-        m_dirLights.emplace_back(glm::vec3(0.0f, 0.0f, -2000.0f), 0.5f * glm::vec3(1.0f), glm::vec3(1.0f),
-            glm::vec3(1.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+        m_dirLights.emplace_back(glm::vec3(0.0f, 0.0f, -2000.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 
         //        m_dirLights.back().updateBoundingBox();
         m_objects.push_back(&m_dirLights.back());

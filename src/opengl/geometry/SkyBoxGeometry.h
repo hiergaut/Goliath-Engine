@@ -40,7 +40,7 @@ private:
 //    uint m_ebo;
 
 //    static Shader * m_shader;
-    Shader * m_shader;
+//    Shader * m_shader;
 
 private:
 //    static bool m_inited;

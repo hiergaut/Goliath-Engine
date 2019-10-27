@@ -146,7 +146,8 @@ void SkyBoxGeometry::draw()
     //    m_fun = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
 
     m_fun->glBindVertexArray(m_vao);
-    m_fun->glDrawElements(GL_LINES, 24, GL_UNSIGNED_INT, nullptr);
+//    m_fun->glDrawElements(GL_LINES, 24, GL_UNSIGNED_INT, nullptr);
+    m_fun->glDrawArrays(GL_TRIANGLES, 0, 36);
     m_fun->glBindVertexArray(0);
     //    shader.setBool("contour", false);
 }

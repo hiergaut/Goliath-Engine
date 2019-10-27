@@ -54,24 +54,24 @@ void PointLight::draw(const Shader& shader, bool dotCloud, const glm::mat4& loca
 
             //            for (uint i = 0; i < 6; ++i) {
 
-                            glm::mat4 local = localTransform;
-            //                //    local = glm::translate(local, glm::vec3(0.0f, 0.0f, 1.0f) * 100.0f);
-                            local = glm::scale(local, glm::vec3(1.0f) * 100.0f);
-            //                //    shader.use();
-                            shader.setMat4("model", worldTransform * m_model->transform() * local * m_viewMatrix[0]);
-            ////                shader.setMat4("model", m_model->transform() * m_viewMatrix[i] * local);
-            ////                shader.setMat4("model", worldTransform * m_model->transform() * local);
+//                            glm::mat4 local = localTransform;
+//            //                //    local = glm::translate(local, glm::vec3(0.0f, 0.0f, 1.0f) * 100.0f);
+//                            local = glm::scale(local, glm::vec3(1.0f) * 100.0f);
+//            //                //    shader.use();
+//                            shader.setMat4("model", worldTransform * m_model->transform() * local * m_viewMatrix[0]);
+//            ////                shader.setMat4("model", m_model->transform() * m_viewMatrix[i] * local);
+//            ////                shader.setMat4("model", worldTransform * m_model->transform() * local);
 
-                            glActiveTexture(GL_TEXTURE0);
-            //                //    shader.setBool("userColor", false);
-            //                //    shader.setVec4("color", glm::vec4(1.0f, 0, 0, 1));
-            //                //    shader.setBool("hasTexture", true);
-                            shader.setInt("texture_diffuse1", 0);
-            //                //                glBindTexture(GL_TEXTURE_2D, m_depthMap);
-                            glBindTexture(GL_TEXTURE_CUBE_MAP, m_depthMap);
-                            QuadGeometry::draw();
-                            //    glActiveTexture(GL_TEXTURE0);
-            //            }
+//                            glActiveTexture(GL_TEXTURE0);
+//            //                //    shader.setBool("userColor", false);
+//            //                //    shader.setVec4("color", glm::vec4(1.0f, 0, 0, 1));
+//            //                //    shader.setBool("hasTexture", true);
+//                            shader.setInt("texture_diffuse1", 0);
+//            //                //                glBindTexture(GL_TEXTURE_2D, m_depthMap);
+//                            glBindTexture(GL_TEXTURE_CUBE_MAP, m_depthMap);
+//                            QuadGeometry::draw();
+//                            //    glActiveTexture(GL_TEXTURE0);
+//            //            }
         }
     }
 }

@@ -23,7 +23,7 @@ protected:
 
 
 public:
-    DirLight(const glm::vec3 position, const glm::vec3 ambient, const glm::vec3 diffuse, const glm::vec3 specular, const glm::vec3 direction);
+    DirLight(const glm::vec3 position, const glm::vec3 direction, const glm::vec3 ambient = glm::vec3(0.5f), const glm::vec3 diffuse = glm::vec3(0.5f), const glm::vec3 specular = glm::vec3(0.5f));
     DirLight(std::ifstream &file);
     DirLight(DirLight && dirLight) noexcept = default;
 //    ~DirLight();
