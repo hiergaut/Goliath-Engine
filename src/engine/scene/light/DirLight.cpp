@@ -140,7 +140,7 @@ void DirLight::initGL()
     //    glEnable(GL_CULL_FACE);
     m_fun->glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-    m_simpleDepthShader = new Shader("shadow/shadow_mapping_depth.vsh", "shadow/shadow_mapping_depth.fsh");
+    m_simpleDepthShader = new Shader("shadow/dirlight_shadow_depth.vsh", "shadow/dirlight_shadow_depth.fsh");
 
     //    m_debugDepthQuad = new Shader("shadow/debug_quad.vsh", "shadow/debug_quad.fsh");
     //    m_debugDepthQuad->use();

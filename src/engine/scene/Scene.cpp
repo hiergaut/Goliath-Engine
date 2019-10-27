@@ -327,14 +327,17 @@ void Scene::draw(const MainWindow3dView& view)
             const DirLight& dirLight = m_dirLights[i];
 
             //                        dirLight.draw(shader);
-            shader.setInt("shadowMap", 5);
-            if (dirLight.selected()) {
-                shader.setMat4("lightSpaceMatrix", dirLight.lightSpaceMatrix(m_localTransform));
-            } else {
-                shader.setMat4("lightSpaceMatrix", dirLight.lightSpaceMatrix());
-            }
-            glActiveTexture(GL_TEXTURE5);
+//            shader.setInt("shadowMap", 5 + i);
+            shader.setInt("dirLight[" + QString::number(i).toStdString() + "].id", i);
+            shader.setInt("dirLight[" + QString::number(i).toStdString() + "].shadowMap", 5 +i);
+            glActiveTexture(GL_TEXTURE5 + i);
             glBindTexture(GL_TEXTURE_2D, dirLight.depthMap());
+            if (dirLight.selected()) {
+                shader.setMat4("dirLight[" + QString::number(i).toStdString() + "].lightSpaceMatrix", dirLight.lightSpaceMatrix(m_localTransform));
+            } else {
+//                shader.setMat4("lightSpaceMatrix", dirLight.lightSpaceMatrix());
+                shader.setMat4("dirLight[" + QString::number(i).toStdString() + "].lightSpaceMatrix", dirLight.lightSpaceMatrix());
+            }
 
             if (dirLight.selected()) {
                 shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].direction", glm::vec4(dirLight.direction(m_localTransform), 1.0f));
@@ -777,11 +780,11 @@ void Scene::objectSelectRay(const Ray& ray, bool additional)
     }
     Q_ASSERT(nearestModel.size() == distances.size());
 
-    qDebug() << "nb Objects " << m_objects.size();
-    for (uint iObject : nearestModel) {
-        qDebug() << m_objects[iObject]->name().c_str() << distances[iObject];
-    }
-    qDebug() << "------------------------";
+//    qDebug() << "nb Objects " << m_objects.size();
+//    for (uint iObject : nearestModel) {
+//        qDebug() << m_objects[iObject]->name().c_str() << distances[iObject];
+//    }
+//    qDebug() << "------------------------";
 
     for (uint iObject : nearestModel) {
         //    iObject = 0;
