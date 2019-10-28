@@ -30,6 +30,7 @@
 #include <opengl/geometry/uvSphereGeometry.h>
 #include <opengl/geometry/QuadGeometry.h>
 #include <opengl/geometry/SkyBoxGeometry.h>
+#include <opengl/geometry/CubeMapGeometry.h>
 
 #include <QPainter>
 #include <gui/editor/timeline/FormTimeline.h>
@@ -169,6 +170,7 @@ void QOpenGLWidget_Editor::initializeGL()
     BoneGeometry::initializeGL();
     QuadGeometry::initializeGL();
     SkyBoxGeometry::initializeGL();
+    CubeMapGeometry::initializeGL();
 
     //    FormTimeline::setScene(&m_scene);
 

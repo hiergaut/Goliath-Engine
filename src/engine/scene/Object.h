@@ -16,11 +16,11 @@ public:
     //    mutable BoundingBox m_box;
 //    Model * m_model = nullptr;
 //    Model & m_model;
-//    enum Type {
-//        LIGHT,
-//        CAMERA,
-//        MODEL,
-//    };
+    enum Type {
+        CAMERA,
+        DIR_LIGHT,
+        POINT_LIGHT,
+    } m_type;
 
 public:
 //    Object(Model && model) noexcept;
@@ -57,7 +57,7 @@ public:
     void setSelected(bool selected);
     const BoundingBox & box() const;
     const std::string & name() const;
-    Model::Type type() const;
+    Model::Type modelType() const;
 
     const glm::mat4 & transform() const;
     glm::mat4 & getTransform();
@@ -75,6 +75,7 @@ public:
 protected:
     mutable bool m_selected = false;
     Model * m_model = nullptr;
+//    Type & m_type;
     //    void drawOrigin(const glm::mat4 & worldTransform, const glm::mat4 & localTransform, const Shader & shader) const;
 };
 

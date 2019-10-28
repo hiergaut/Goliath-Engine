@@ -24,32 +24,34 @@ void DirLight::draw(const Shader& shader, bool dotCloud, const glm::mat4& localT
 {
     //    shader.setBool("userColor", true);
 
-//    if (shader.m_shade != Shader::Type::RENDERED) {
+    //    if (shader.m_shade != Shader::Type::RENDERED) {
 
-        Object::draw(shader, dotCloud, localTransform, worldTransform);
-//    }
+    Object::draw(shader, dotCloud, localTransform, worldTransform);
+    //    }
 
     //    if (dotCloud) {
-    if (m_selected) {
-        if (shader.m_shade != Shader::Type::RENDERED) {
-            //        shader.setBool("userColor", false);
-            //        glPolygonMode(GL_FRONT, GL_FILL);
-            glm::mat4 local = localTransform;
-            //    local = glm::translate(local, glm::vec3(0.0f, 0.0f, 1.0f) * 100.0f);
-            local = glm::scale(local, glm::vec3(1.0f) * 1000.0f);
-            //    shader.use();
-            shader.setMat4("model", worldTransform * m_model->transform() * local);
+    //    if (m_selected) {
+    //        if (shader.m_shade != Shader::Type::RENDERED) {
+    if (shader.m_shade == Shader::Type::DEPTH) {
+        //        shader.setBool("userColor", false);
+        //        glPolygonMode(GL_FRONT, GL_FILL);
+        glm::mat4 local = localTransform;
+        //    local = glm::translate(local, glm::vec3(0.0f, 0.0f, 1.0f) * 100.0f);
+        local = glm::scale(local, glm::vec3(1.0f) * 1000.0f);
+        //    shader.use();
+        shader.setMat4("model", worldTransform * m_model->transform() * local);
 
-            glActiveTexture(GL_TEXTURE0);
-            //    shader.setBool("userColor", false);
-            //    shader.setVec4("color", glm::vec4(1.0f, 0, 0, 1));
-            //    shader.setBool("hasTexture", true);
-            shader.setInt("texture_diffuse1", 0);
-            glBindTexture(GL_TEXTURE_2D, m_depthMap);
-            QuadGeometry::draw();
-            //    glActiveTexture(GL_TEXTURE0);
-        }
+        glActiveTexture(GL_TEXTURE0);
+        //    shader.setBool("userColor", false);
+        //    shader.setVec4("color", glm::vec4(1.0f, 0, 0, 1));
+        shader.setBool("hasTexture", true);
+        shader.setInt("texture_diffuse1", 0);
+        glBindTexture(GL_TEXTURE_2D, m_depthMap);
+        QuadGeometry::draw();
+        shader.setBool("hasTexture", false);
+        //    glActiveTexture(GL_TEXTURE0);
     }
+    //    }
     //    shader.setBool("userColor", false);
 }
 
@@ -66,6 +68,7 @@ DirLight::DirLight(const glm::vec3 position, const glm::vec3 direction, const gl
 //    , m_direction(direction)
 //    , m_sphere(5000.0f)
 {
+    m_type = Object::Type::DIR_LIGHT;
     //    m_sphere = new UvSphereGeometry(100, 100);
     //    m_model = new Model(g_resourcesPath + "models/sun/sun.obj");
 
@@ -91,6 +94,7 @@ DirLight::DirLight(std::ifstream& file)
     //    : Object(g_resourcesPath + "models/sun/sun.obj")
     : Object(g_resourcesPath + "models/light/sun/sun.obj")
 {
+    m_type = Object::Type::DIR_LIGHT;
     Light::load(file);
     glm::mat4 transform;
     Session::load(transform, file);

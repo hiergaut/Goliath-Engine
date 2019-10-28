@@ -13,6 +13,7 @@ public:
     unsigned int loadCubemap(std::string author, std::string name);
 
     void draw(const glm::mat4 & viewMatrix, const glm::mat4 & projectionMatrix);
+    void draw(const glm::mat4 & viewMatrix, const glm::mat4 & projectionMatrix, uint cubeMap);
 
 private:
     QOpenGLFunctionsCore* m_fun;

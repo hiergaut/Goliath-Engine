@@ -8,6 +8,7 @@
 #include <engine/scene/model/meshModel/MeshModel.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <opengl/geometry/CubeMapGeometry.h>
 #include <opengl/geometry/QuadGeometry.h>
 #include <session/Session.h>
 
@@ -26,54 +27,75 @@ glm::vec3 PointLight::position(const glm::mat4& localTransform, const glm::mat4&
 
 void PointLight::draw(const Shader& shader, bool dotCloud, const glm::mat4& localTransform, const glm::mat4& worldTransform) const
 {
-    shader.setBool("userColor", true);
-    shader.setVec4("color", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-    Object::draw(shader, dotCloud, localTransform, worldTransform);
-    //    shader.setVec4("color", glm::vec4(1.0f, 0.5f, 0.5f, 1.0f));
-    shader.setBool("userColor", false);
+    //    if (m_selected) {
+    //        glDepthMask(GL_TRUE);
+    //        glDepthMask(GL_FALSE);
+    if (shader.m_shade == Shader::Type::DEPTH) {
+        glDisable(GL_CULL_FACE);
+        shader.setInt("skybox", 19);
+        glActiveTexture(GL_TEXTURE19);
+        shader.setBool("hasCubeMap", true);
+        shader.setVec3("cubeCenter", position(localTransform, worldTransform));
+
+        glBindTexture(GL_TEXTURE_CUBE_MAP, m_depthMap);
+        shader.setMat4("model", glm::scale(worldTransform * m_model->transform() * localTransform, glm::vec3(1.0f) * 15.0f));
+        CubeMapGeometry::draw();
+        shader.setBool("hasCubeMap", false);
+        //        glDepthMask(GL_TRUE);
+        glEnable(GL_CULL_FACE);
+        return;
+    } else {
+
+        shader.setBool("userColor", true);
+        shader.setVec4("color", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+        Object::draw(shader, dotCloud, localTransform, worldTransform);
+        //    shader.setVec4("color", glm::vec4(1.0f, 0.5f, 0.5f, 1.0f));
+        shader.setBool("userColor", false);
+        return;
+    }
 
     //        if (dotCloud) {
-    if (m_selected) {
-        if (shader.m_shade != Shader::Type::RENDERED) {
+    //    if (m_selected) {
+    //        if (shader.m_shade != Shader::Type::RENDERED) {
 
-//            m_skyBoxShader->use();
-//            shader.setBool("hasCube", true);
-//            shader.setInt("skybox", 0);
-//            shader.setVec3("cubeCenter", position(localTransform, worldTransform));
-//            glActiveTexture(GL_TEXTURE0);
-//            glBindTexture(GL_TEXTURE_CUBE_MAP, m_depthMap);
-//            Object::draw(shader, dotCloud, localTransform, worldTransform);
+    //            m_skyBoxShader->use();
+    //            shader.setBool("hasCube", true);
+    //            shader.setInt("skybox", 0);
+    //            shader.setVec3("cubeCenter", position(localTransform, worldTransform));
+    //            glActiveTexture(GL_TEXTURE0);
+    //            glBindTexture(GL_TEXTURE_CUBE_MAP, m_depthMap);
+    //            Object::draw(shader, dotCloud, localTransform, worldTransform);
 
-//            shader.setBool("hasCube", false);
+    //            shader.setBool("hasCube", false);
 
-//            Object::draw(shader, dotCloud, localTransform, worldTransform);
+    //            Object::draw(shader, dotCloud, localTransform, worldTransform);
 
-            //            shader.setBool("hasTexture", true);
-            //        shader.setBool("userColor", false);
-            //        glPolygonMode(GL_FRONT, GL_FILL);
+    //            shader.setBool("hasTexture", true);
+    //        shader.setBool("userColor", false);
+    //        glPolygonMode(GL_FRONT, GL_FILL);
 
-            //            for (uint i = 0; i < 6; ++i) {
+    //            for (uint i = 0; i < 6; ++i) {
 
-//                            glm::mat4 local = localTransform;
-//            //                //    local = glm::translate(local, glm::vec3(0.0f, 0.0f, 1.0f) * 100.0f);
-//                            local = glm::scale(local, glm::vec3(1.0f) * 100.0f);
-//            //                //    shader.use();
-//                            shader.setMat4("model", worldTransform * m_model->transform() * local * m_viewMatrix[0]);
-//            ////                shader.setMat4("model", m_model->transform() * m_viewMatrix[i] * local);
-//            ////                shader.setMat4("model", worldTransform * m_model->transform() * local);
+    //                            glm::mat4 local = localTransform;
+    //            //                //    local = glm::translate(local, glm::vec3(0.0f, 0.0f, 1.0f) * 100.0f);
+    //                            local = glm::scale(local, glm::vec3(1.0f) * 100.0f);
+    //            //                //    shader.use();
+    //                            shader.setMat4("model", worldTransform * m_model->transform() * local * m_viewMatrix[0]);
+    //            ////                shader.setMat4("model", m_model->transform() * m_viewMatrix[i] * local);
+    //            ////                shader.setMat4("model", worldTransform * m_model->transform() * local);
 
-//                            glActiveTexture(GL_TEXTURE0);
-//            //                //    shader.setBool("userColor", false);
-//            //                //    shader.setVec4("color", glm::vec4(1.0f, 0, 0, 1));
-//            //                //    shader.setBool("hasTexture", true);
-//                            shader.setInt("texture_diffuse1", 0);
-//            //                //                glBindTexture(GL_TEXTURE_2D, m_depthMap);
-//                            glBindTexture(GL_TEXTURE_CUBE_MAP, m_depthMap);
-//                            QuadGeometry::draw();
-//                            //    glActiveTexture(GL_TEXTURE0);
-//            //            }
-        }
-    }
+    //                            glActiveTexture(GL_TEXTURE0);
+    //            //                //    shader.setBool("userColor", false);
+    //            //                //    shader.setVec4("color", glm::vec4(1.0f, 0, 0, 1));
+    //            //                //    shader.setBool("hasTexture", true);
+    //                            shader.setInt("texture_diffuse1", 0);
+    //            //                //                glBindTexture(GL_TEXTURE_2D, m_depthMap);
+    //                            glBindTexture(GL_TEXTURE_CUBE_MAP, m_depthMap);
+    //                            QuadGeometry::draw();
+    //                            //    glActiveTexture(GL_TEXTURE0);
+    //            //            }
+    //        }
+    //    }
 }
 
 void PointLight::draw(const Shader& shader, const glm::mat4& localTransform, const glm::mat4& worldTransform) const
@@ -89,6 +111,7 @@ PointLight::PointLight(const glm::vec3 position, const glm::vec3 ambient, const 
 //    , m_direction(direction)
 //    , m_sphere(5000.0f)
 {
+    m_type = Object::Type::POINT_LIGHT;
     //    m_sphere = new UvSphereGeometry(100, 100);
     //    m_model = new Model(g_resourcesPath + "models/sun/sun.obj");
 
@@ -108,12 +131,12 @@ PointLight::PointLight(const glm::vec3 position, const glm::vec3 ambient, const 
     //    updateBoundingBox();
 
     //    model = glm::rotate()
-    initViewMatrix();
+    //    initViewMatrix();
     initGL();
 
-//    m_skyBoxShader = new Shader("skybox.vsh", "skybox.fsh");
-//    m_skyBoxShader->use();
-//    m_skyBoxShader->setInt("skybox", 0);
+    //    m_skyBoxShader = new Shader("skybox.vsh", "skybox.fsh");
+    //    m_skyBoxShader->use();
+    //    m_skyBoxShader->setInt("skybox", 0);
 }
 
 PointLight::PointLight(std::ifstream& file)
@@ -121,6 +144,7 @@ PointLight::PointLight(std::ifstream& file)
     //    : Object(g_resourcesPath + "models/sun/sun.obj")
     : Object(g_resourcesPath + "models/light/point/cube.obj")
 {
+    m_type = Object::Type::POINT_LIGHT;
     Light::load(file);
     glm::mat4 transform;
     Session::load(transform, file);
@@ -135,7 +159,7 @@ PointLight::PointLight(std::ifstream& file)
     //    modelMatrix = glm::translate(modelMatrix, m_position);
     //    m_model->m_transform = modelMatrix;
     //    model = glm::rotate()
-    initViewMatrix();
+    //    initViewMatrix();
     initGL();
 }
 
@@ -213,21 +237,22 @@ Shader& PointLight::depthShader(const glm::mat4& localTransform, const glm::mat4
     //    float radius = 5000.0f;
 
     //    m_simpleDepthShader->setMat4("lightSpaceMatrix", lightSpaceMatrix(localTransform));
-    float near_plane = 1.0f;
+    float near_plane = 20.0f;
     float far_plane = 5000.0f;
     glm::mat4 shadowProj = glm::perspective(glm::radians(90.0f), (float)SHADOW_WIDTH / (float)SHADOW_HEIGHT, near_plane, far_plane);
     std::vector<glm::mat4> shadowTransforms;
-    const glm::vec3& pos = position();
-    for (uint i = 0; i < 6; ++i) {
-        //        shadowTransforms.push_back(shadowProj * glm::translate(m_viewMatrix[i], pos));
-        shadowTransforms.push_back(shadowProj * m_viewMatrix[i] * glm::translate(glm::mat4(1.0f), pos));
-    }
-    //    shadowTransforms.push_back(shadowProj * glm::lookAt(pos, pos + glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
-    //    shadowTransforms.push_back(shadowProj * glm::lookAt(pos, pos + glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
-    //    shadowTransforms.push_back(shadowProj * glm::lookAt(pos, pos + glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
-    //    shadowTransforms.push_back(shadowProj * glm::lookAt(pos, pos + glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)));
-    //    shadowTransforms.push_back(shadowProj * glm::lookAt(pos, pos + glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
-    //    shadowTransforms.push_back(shadowProj * glm::lookAt(pos, pos + glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
+//    const glm::vec3& pos = (m_selected) ?(position(localTransform, worldTransform)) :(position());
+    const glm::vec3& pos = position(localTransform, worldTransform);
+    //    for (uint i = 0; i < 6; ++i) {
+    //        //        shadowTransforms.push_back(shadowProj * glm::translate(m_viewMatrix[i], pos));
+    //        shadowTransforms.push_back(shadowProj * m_viewMatrix[i] * glm::translate(glm::mat4(1.0f), pos));
+    //    }
+    shadowTransforms.push_back(shadowProj * glm::lookAt(pos, pos + glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
+    shadowTransforms.push_back(shadowProj * glm::lookAt(pos, pos + glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
+    shadowTransforms.push_back(shadowProj * glm::lookAt(pos, pos + glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
+    shadowTransforms.push_back(shadowProj * glm::lookAt(pos, pos + glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)));
+    shadowTransforms.push_back(shadowProj * glm::lookAt(pos, pos + glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
+    shadowTransforms.push_back(shadowProj * glm::lookAt(pos, pos + glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
 
     glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
     //    glViewport(100, 100, 200, 200);

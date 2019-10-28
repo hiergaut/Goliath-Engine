@@ -56,6 +56,7 @@ private:
     //    float m_farPlane;
 
     Shader* m_simpleDepthShader; //{"shadow/shadow_mapping_depth.vsh", "shadow/shadow_mapping_depth.fsh"};
+//    Shader * m_cube
 
     glm::mat4 m_viewMatrix[6];
 //    Shader* m_debugDepthQuad; //{"shadow/debug_quad.vsh", "shadow/debug_quad.fsh"};

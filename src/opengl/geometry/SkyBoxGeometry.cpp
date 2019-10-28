@@ -1,52 +1,10 @@
 #include "SkyBoxGeometry.h"
 
-//SkyBoxGeometry::SkyBoxGeometry()
-//{
-
-//}
-
-
 QOpenGLFunctionsCore* SkyBoxGeometry::m_fun = nullptr;
 uint SkyBoxGeometry::m_vao;
 
 void SkyBoxGeometry::initializeGL()
 {
-//    float radius = 0.5f;
-
-//    std::vector<glm::vec3> m_vertices;
-//    m_vertices.emplace_back(-radius, -radius, -radius);
-//    m_vertices.emplace_back(-radius, radius, -radius);
-//    m_vertices.emplace_back(radius, radius, -radius);
-//    m_vertices.emplace_back(radius, -radius, -radius);
-
-//    m_vertices.emplace_back(-radius, -radius, radius);
-//    m_vertices.emplace_back(-radius, radius, radius);
-//    m_vertices.emplace_back(radius, radius, radius);
-//    m_vertices.emplace_back(radius, -radius, radius);
-
-//    std::vector<glm::vec3> m_normals;
-//    m_normals = m_vertices;
-//    for (glm::vec3& vec : m_normals) {
-//        vec = glm::normalize(vec);
-//    }
-
-//    std::vector<glm::uvec2> m_indices;
-//    m_indices.emplace_back(0, 1);
-//    m_indices.emplace_back(1, 2);
-//    m_indices.emplace_back(2, 3);
-//    m_indices.emplace_back(3, 0);
-
-
-//    m_indices.emplace_back(4, 5);
-//    m_indices.emplace_back(5, 6);
-//    m_indices.emplace_back(6, 7);
-//    m_indices.emplace_back(7, 4);
-
-//    m_indices.emplace_back(0, 4);
-//    m_indices.emplace_back(1, 5);
-//    m_indices.emplace_back(2, 6);
-//    m_indices.emplace_back(3, 7);
-
     float skyboxVertices[] = {
         // positions
         -1.0f,  1.0f, -1.0f,
@@ -93,7 +51,6 @@ void SkyBoxGeometry::initializeGL()
     };
 
 
-    //    Q_ASSERT(m_fun != nullptr);
     m_fun = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
     Q_ASSERT(m_fun != nullptr);
 
@@ -137,14 +94,6 @@ void SkyBoxGeometry::initializeGL()
 void SkyBoxGeometry::draw()
 {
     Q_ASSERT(m_fun != nullptr);
-    //    m_shader->use();
-    //    m_shader->setMat4("model", modelMatrix);
-    //    m_shader->setMat4("view", viewMatrix);
-    //    m_shader->setMat4("projection", projectionMatrix);
-
-    //    shader.setBool("contour", true);
-    //    m_fun = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
-
     m_fun->glBindVertexArray(m_vao);
 //    m_fun->glDrawElements(GL_LINES, 24, GL_UNSIGNED_INT, nullptr);
     m_fun->glDrawArrays(GL_TRIANGLES, 0, 36);

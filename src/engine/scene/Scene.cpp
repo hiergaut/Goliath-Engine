@@ -34,6 +34,7 @@ Scene::Scene()
 
     m_models.reserve(10);
     m_dirLights.reserve(10);
+    m_pointLights.reserve(10);
     //    m_objects.reserve(50);
     //    m_dirLights.reserve(10);
 
@@ -91,28 +92,25 @@ void Scene::initializeGL()
     //    m_bone = new BoneGeometry;
 
     m_skyBox = new SkyBox("hw", "morning");
-//    m_skyBox = new SkyBox("ame", "iceflats");
-//    m_skyBox = new SkyBox("hw", "alps");
-//    m_skyBox = new SkyBox("mp", "sorbin");
-//    m_skyBox = new SkyBox("sb", "frozen");
-//    m_skyBox = new SkyBox("hw", "arctic");
-//    m_skyBox = new SkyBox("ame", "siege");
+    //    m_skyBox = new SkyBox("ame", "iceflats");
+    //    m_skyBox = new SkyBox("hw", "alps");
+    //    m_skyBox = new SkyBox("mp", "sorbin");
+    //    m_skyBox = new SkyBox("sb", "frozen");
+    //    m_skyBox = new SkyBox("hw", "arctic");
+    //    m_skyBox = new SkyBox("ame", "siege");
 
+    //    m_skyBox = new SkyBox("ely", "peaks");
+    //    m_skyBox = new SkyBox("mp", "morningdew");
+    //    m_skyBox = new SkyBox("sb", "iceflow");
+    //    m_skyBox = new SkyBox("mp", "hexagon");
+    //    m_skyBox = new SkyBox("hw", "sandstorm");
+    //    m_skyBox = new SkyBox("ely", "hills2");
+    //    m_skyBox = new SkyBox("hw", "sahara");
 
-//    m_skyBox = new SkyBox("ely", "peaks");
-//    m_skyBox = new SkyBox("mp", "morningdew");
-//    m_skyBox = new SkyBox("sb", "iceflow");
-//    m_skyBox = new SkyBox("mp", "hexagon");
-//    m_skyBox = new SkyBox("hw", "sandstorm");
-//    m_skyBox = new SkyBox("ely", "hills2");
-//    m_skyBox = new SkyBox("hw", "sahara");
-
-//    m_skyBox = new SkyBox("ame", "shadow");
-//    m_skyBox = new SkyBox("sor", "alien");
-//    m_skyBox = new SkyBox("hw", "craterlake");
-//    m_skyBox = new SkyBox("mp", "whirlpool");
-
-
+    //    m_skyBox = new SkyBox("ame", "shadow");
+    //    m_skyBox = new SkyBox("sor", "alien");
+    //    m_skyBox = new SkyBox("hw", "craterlake");
+    //    m_skyBox = new SkyBox("mp", "whirlpool");
 
     initialized = true;
     //    MainWindow3dView::glInitialize();
@@ -202,7 +200,7 @@ void Scene::updateLightsShadowMap()
         //        m_fun->glBindFramebuffer(GL_FRAMEBUFFER, 1);
         //        dirLight.showDepth();
     }
-    for (PointLight & pointLight : m_pointLights) {
+    for (PointLight& pointLight : m_pointLights) {
         Shader& shader = (pointLight.selected()) ? (pointLight.depthShader(m_localTransform, m_worldTransform)) : (pointLight.depthShader());
         renderScene(shader);
     }
@@ -235,19 +233,27 @@ void Scene::draw(const MainWindow3dView& view)
     if (view.m_shade != Shader::Type::RENDERED) {
         m_grid->draw(onesMatrix, viewMatrix, projectionMatrix);
         //        m_grid->draw(glm::scale(onesMatrix, glm::vec3(1.0f) * glm::length(glm::vec3(viewMatrix[3]))), viewMatrix, projectionMatrix);
-    }
-    else {
+    } else {
         m_skyBox->draw(viewMatrix, projectionMatrix);
     }
 
-//    shader.setMat4("model", onesMatrix);
+    //    if (m_selectObject != nullptr && m_selectObject->m_type == Object::Type::POINT_LIGHT) {
+    //        const PointLight& pointLight = static_cast<const PointLight&>(*m_selectObject);
+    //        m_skyBox->draw(viewMatrix, projectionMatrix, pointLight.depthMap());
+    //    } else {
+    //        if (view.m_shade == Shader::Type::RENDERED) {
+    //            m_skyBox->draw(viewMatrix, projectionMatrix);
+    //        }
+    //    }
+
+    //    shader.setMat4("model", onesMatrix);
     //    glLoadIdentity();
     //    return;
-//    return;
+    //    return;
 
     const Shader& shader = view.shader();
-//    shader.use();
-//    shader.setBool("hasSkyBox", false);
+    //    shader.use();
+    //    shader.setBool("hasSkyBox", false);
 
     //    const glm::mat4& viewTransform = view.m_transformMatrix;
     //    const glm::mat4& m_worldTransform = view.m_worldTransform;
@@ -360,15 +366,15 @@ void Scene::draw(const MainWindow3dView& view)
             const DirLight& dirLight = m_dirLights[i];
 
             //                        dirLight.draw(shader);
-//            shader.setInt("shadowMap", 5 + i);
+            //            shader.setInt("shadowMap", 5 + i);
             shader.setInt("dirLight[" + QString::number(i).toStdString() + "].id", i);
-            shader.setInt("dirLight[" + QString::number(i).toStdString() + "].shadowMap", 5 +i);
+            shader.setInt("dirLight[" + QString::number(i).toStdString() + "].shadowMap", 5 + i);
             glActiveTexture(GL_TEXTURE5 + i);
             glBindTexture(GL_TEXTURE_2D, dirLight.depthMap());
             if (dirLight.selected()) {
                 shader.setMat4("dirLight[" + QString::number(i).toStdString() + "].lightSpaceMatrix", dirLight.lightSpaceMatrix(m_localTransform));
             } else {
-//                shader.setMat4("lightSpaceMatrix", dirLight.lightSpaceMatrix());
+                //                shader.setMat4("lightSpaceMatrix", dirLight.lightSpaceMatrix());
                 shader.setMat4("dirLight[" + QString::number(i).toStdString() + "].lightSpaceMatrix", dirLight.lightSpaceMatrix());
             }
 
@@ -392,23 +398,26 @@ void Scene::draw(const MainWindow3dView& view)
         }
 
         shader.setInt("nbPointLight", m_pointLights.size());
-            uint nbDirLigt = m_dirLights.size();
-        for (uint i =0; i <5; ++i) {
-            shader.setInt("pointLights[" + QString::number(i).toStdString() + "].shadowMap", 5 +i + nbDirLigt);
+        uint nbDirLigt = m_dirLights.size();
+        for (uint i = 0; i < 5; ++i) {
+            shader.setInt("pointLights[" + QString::number(i).toStdString() + "].shadowMap", 5 + i + nbDirLigt);
         }
-        for (uint i =0; i <m_pointLights.size(); ++i) {
-            const PointLight & pointLight = m_pointLights[i];
+        for (uint i = 0; i < m_pointLights.size(); ++i) {
+            const PointLight& pointLight = m_pointLights[i];
             shader.setInt("pointLights[" + QString::number(i).toStdString() + "].id", i + nbDirLigt);
             glActiveTexture(GL_TEXTURE5 + i + nbDirLigt);
             glBindTexture(GL_TEXTURE_CUBE_MAP, pointLight.depthMap());
-            shader.setVec3("pointLights[" + QString::number(i).toStdString() + "].position", pointLight.position(m_localTransform, m_worldTransform));
+            if (pointLight.selected()) {
+                shader.setVec3("pointLights[" + QString::number(i).toStdString() + "].position", pointLight.position(m_localTransform, m_worldTransform));
+            } else {
+                shader.setVec3("pointLights[" + QString::number(i).toStdString() + "].position", pointLight.position());
+            }
             shader.setFloat("pointLights[" + QString::number(i).toStdString() + "].constant", 1.0f);
             shader.setFloat("pointLights[" + QString::number(i).toStdString() + "].linear", 0.000f);
             shader.setFloat("pointLights[" + QString::number(i).toStdString() + "].quadratic", 0.00001f);
             shader.setVec3("pointLights[" + QString::number(i).toStdString() + "].ambient", pointLight.m_ambient);
             shader.setVec3("pointLights[" + QString::number(i).toStdString() + "].diffuse", pointLight.m_diffuse);
             shader.setVec3("pointLights[" + QString::number(i).toStdString() + "].specular", pointLight.m_specular);
-
         }
 
         //            shader.setVec3("dirLight[" + QString::number(0).toStdString() + "].direction", -0.2f, -1.0f, -0.3f);
@@ -464,12 +473,12 @@ void Scene::draw(const MainWindow3dView& view)
             //            m_selectObject->draw(shader, true, viewLocalTransform, m_worldTransform);
             //            shader.setVec4("color", glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
             //            shader.setVec4("color", glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
-            if (m_selectObject->type() == Model::PARAM_CURVE) {
+            if (m_selectObject->modelType() == Model::PARAM_CURVE) {
                 //                const ParamModel& paramModel = static_cast<ParamModel&>(*m_selectObject->m_model);
                 const BSplineCurve& splineCurve = static_cast<BSplineCurve&>(*m_selectObject->getModel());
 
                 splineCurve.drawSelected(shader, m_localVertexTransform, m_worldVertexTransform);
-            } else if (m_selectObject->type() == Model::PARAM_SURFACE) {
+            } else if (m_selectObject->modelType() == Model::PARAM_SURFACE) {
                 const BSplineSurface& splineSurface = static_cast<BSplineSurface&>(*m_selectObject->getModel());
                 splineSurface.drawSelected(shader, m_localVertexTransform, m_worldVertexTransform);
             }
@@ -592,7 +601,7 @@ void Scene::draw(const MainWindow3dView& view)
             //        modelMatrix = glm::rotate(modelMatrix, 1.57f, glm::vec3(1, 0, 0));
             //        m_shader->setMat4("model", modelMatrix);
 
-            if (object.type() == Model::MESH) {
+            if (object.modelType() == Model::MESH) {
                 if (object.selected()) {
                     //                object.m_model.DrawHierarchy(viewLocalTransform, viewMatrix, projectionMatrix, cameraPos, m_worldTransform);
                     static_cast<MeshModel*>(object.getModel())->DrawHierarchy(m_localTransform, viewMatrix, projectionMatrix, cameraPos, m_worldTransform);
@@ -833,11 +842,11 @@ void Scene::objectSelectRay(const Ray& ray, bool additional)
     }
     Q_ASSERT(nearestModel.size() == distances.size());
 
-//    qDebug() << "nb Objects " << m_objects.size();
-//    for (uint iObject : nearestModel) {
-//        qDebug() << m_objects[iObject]->name().c_str() << distances[iObject];
-//    }
-//    qDebug() << "------------------------";
+    //    qDebug() << "nb Objects " << m_objects.size();
+    //    for (uint iObject : nearestModel) {
+    //        qDebug() << m_objects[iObject]->name().c_str() << distances[iObject];
+    //    }
+    //    qDebug() << "------------------------";
 
     for (uint iObject : nearestModel) {
         //    iObject = 0;
@@ -869,7 +878,7 @@ void Scene::objectSelectRay(const Ray& ray, bool additional)
             //            switch (object->m_model.m_type) {
 
             //            case Model::MESH:
-            if (object->type() == Model::PARAM_CURVE || object->type() == Model::PARAM_SURFACE) {
+            if (object->modelType() == Model::PARAM_CURVE || object->modelType() == Model::PARAM_SURFACE) {
                 //                const ParamModel & paramModel = static_cast<const ParamModel&>(*object->m_model);
                 //                for (const glm::vec3 & ptsCtrl : paramModel.m_controlPoints) {
                 if (depth < depthMin) {
@@ -878,7 +887,7 @@ void Scene::objectSelectRay(const Ray& ray, bool additional)
                 }
                 //                                            }
 
-            } else if (object->type() == Model::MESH) {
+            } else if (object->modelType() == Model::MESH) {
                 const MeshModel& meshModel = static_cast<const MeshModel&>(*object->model());
 
                 //            for (uint iMesh = 0; iMesh < object->m_model.m_meshes.size(); ++iMesh) {
@@ -1033,7 +1042,7 @@ void Scene::objectSelectRay(const Ray& ray, bool additional)
 
         m_selectObject = m_objects[iObjectMin];
 
-        switch (m_selectObject->type()) {
+        switch (m_selectObject->modelType()) {
         case Model::PARAM_CURVE:
             //            Q_ASSERT(FormContextSurface::m_formContextSurface != nullptr);
             //            Q_ASSERT(FormContextCurve::m_formContextCurve != nullptr);
@@ -1081,12 +1090,12 @@ void Scene::vertexSelectRay(const Ray& ray, bool additional)
     if (m_selectObject != nullptr) {
         //        m_selectVertices.clear();
 
-        if (m_selectObject->type() == Model::PARAM_CURVE) {
+        if (m_selectObject->modelType() == Model::PARAM_CURVE) {
             BSplineCurve& splineCurve = static_cast<BSplineCurve&>(*m_selectObject->getModel());
 
             //            for (const glm::vec3 & vertex : paramModel.m_controlPoints) {
             splineCurve.vertexSelectRay(ray, additional);
-        } else if (m_selectObject->type() == Model::PARAM_SURFACE) {
+        } else if (m_selectObject->modelType() == Model::PARAM_SURFACE) {
             BSplineSurface& splineSurface = static_cast<BSplineSurface&>(*m_selectObject->getModel());
             splineSurface.vertexSelectRay(ray, additional);
         }
@@ -1098,7 +1107,7 @@ void Scene::vertexSelectFrustum(const Frustum& frustum, bool additional)
     //void Scene::vertexSelectFrustum(const glm::mat4 &projectionMatrix, const glm::mat4 &viewMatrix, bool additional)
     //{
     if (m_selectObject != nullptr) {
-        if (m_selectObject->type() == Model::PARAM_CURVE) {
+        if (m_selectObject->modelType() == Model::PARAM_CURVE) {
             BSplineCurve& splineCurve = static_cast<BSplineCurve&>(*m_selectObject->getModel());
             //            splineCurve.vertexSelectFrustum(projectionMatrix, viewMatrix, additional);
             splineCurve.vertexSelectFrustum(frustum, additional);
@@ -1314,7 +1323,7 @@ void Scene::save(std::ofstream& file)
 
     size = m_pointLights.size();
     Session::save(size, file);
-    for (const PointLight & pointLight : m_pointLights) {
+    for (const PointLight& pointLight : m_pointLights) {
         pointLight.save(file);
     }
 
@@ -1416,7 +1425,7 @@ void Scene::deleteSelected()
     //            ++it;
     //        }
     //    }
-    switch (m_selectObject->type()) {
+    switch (m_selectObject->modelType()) {
     case Model::PARAM_CURVE:
         FormContextCurve::clearContext();
         break;
@@ -1501,8 +1510,8 @@ void Scene::addLight(Light::Type lightType, const glm::vec3 position)
     switch (lightType) {
     case Light::Type::SUN:
 
-//        m_dirLights.emplace_back(glm::vec3(0.0f, 0.0f, -2000.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f),
-//            glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+        //        m_dirLights.emplace_back(glm::vec3(0.0f, 0.0f, -2000.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 0.0f),
+        //            glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
         m_dirLights.emplace_back(glm::vec3(0.0f, 0.0f, -2000.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 
         //        m_dirLights.back().updateBoundingBox();
@@ -1655,7 +1664,7 @@ BSplineCurve* Scene::getBsplineCurve()
 {
     for (Object& object : m_models) {
         if (object.selected()) {
-            if (object.type() == Model::PARAM_CURVE) {
+            if (object.modelType() == Model::PARAM_CURVE) {
                 //            ParamModel * paramModel =  static_cast<ParamModel*>(object.m_model);
                 BSplineCurve* splineCurve = static_cast<BSplineCurve*>(object.getModel());
                 return splineCurve;
@@ -1675,7 +1684,7 @@ BSplineSurface* Scene::getBsplineSurface()
 {
     for (Object& object : m_models) {
         if (object.selected()) {
-            if (object.type() == Model::PARAM_SURFACE) {
+            if (object.modelType() == Model::PARAM_SURFACE) {
                 //            ParamModel * paramModel =  static_cast<ParamModel*>(object.m_model);
                 BSplineSurface* splineSurface = static_cast<BSplineSurface*>(object.getModel());
                 return splineSurface;

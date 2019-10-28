@@ -19,6 +19,10 @@ Shader::Shader(const std::string vertexPath, const std::string fragmentPath, con
 {
     //        vertexPath = shaderPath + vertexPath;
     m_fun = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
+    if (shade == Shader::Type::DEPTH) {
+//        setInt("skybox", 19);
+        glActiveTexture(GL_TEXTURE19);
+    }
     //        m_fun = fun;
     //        initializeOpenGLFunctions();
 

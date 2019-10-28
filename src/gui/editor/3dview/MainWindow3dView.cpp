@@ -787,14 +787,14 @@ void MainWindow3dView::mousePressEvent(QMouseEvent* event)
                 if (m_mode == Mode::EDIT) {
                     //                    m_paramModelSelected->updateSelectedVertexPosition(*m_localTransform, *m_worldTransform);
                     if (Scene::m_scene->m_selectObject != nullptr) {
-                        if (Scene::m_scene->m_selectObject->type() == Model::PARAM_CURVE) {
+                        if (Scene::m_scene->m_selectObject->modelType() == Model::PARAM_CURVE) {
                             //                    m_paramModelSelected = static_cast<ParamModel*>(Scene::m_scene->m_selectObject->m_model);
                             //                    m_splineCurve = static_cast<BSplineCurve*>(Scene::m_scene->m_selectObject->m_model);
                             m_splineCurve->updateSelectedVertexPosition(*m_localTransform, *m_worldTransform);
                             //                    m_splineCurve = Scene::m_scene->m_selectObject->m_model;
                             m_timerAutoUpdateCurve->stop();
                             //                    m_timerAutoUpdateCurve->start(50);
-                        } else if (Scene::m_scene->m_selectObject->type() == Model::PARAM_SURFACE) {
+                        } else if (Scene::m_scene->m_selectObject->modelType() == Model::PARAM_SURFACE) {
                             m_splineSurface->updateSelectedVertexPosition(*m_localTransform, *m_worldTransform);
                             m_timerAutoUpdateSurface->stop();
                         }
@@ -1394,12 +1394,12 @@ void MainWindow3dView::setTransformActive()
 
         if (m_mode == Mode::EDIT) {
             if (Scene::m_scene->m_selectObject != nullptr) {
-                if (Scene::m_scene->m_selectObject->type() == Model::PARAM_CURVE) {
+                if (Scene::m_scene->m_selectObject->modelType() == Model::PARAM_CURVE) {
                     //                    m_paramModelSelected = static_cast<ParamModel*>(Scene::m_scene->m_selectObject->m_model);
                     m_splineCurve = static_cast<BSplineCurve*>(Scene::m_scene->m_selectObject->getModel());
                     //                    m_splineCurve = Scene::m_scene->m_selectObject->m_model;
                     m_timerAutoUpdateCurve->start(50);
-                } else if (Scene::m_scene->m_selectObject->type() == Model::PARAM_SURFACE) {
+                } else if (Scene::m_scene->m_selectObject->modelType() == Model::PARAM_SURFACE) {
 
                     m_splineSurface = static_cast<BSplineSurface*>(Scene::m_scene->m_selectObject->getModel());
                     m_timerAutoUpdateSurface->start(50);

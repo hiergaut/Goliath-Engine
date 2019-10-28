@@ -173,7 +173,7 @@ const std::string &Object::name() const
     return m_model->name();
 }
 
-Model::Type Object::type() const
+Model::Type Object::modelType() const
 {
     return m_model->m_type;
 }

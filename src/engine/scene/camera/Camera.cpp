@@ -21,6 +21,7 @@ Camera::Camera(float fov)
     , m_fov(fov)
 //    , m_position(position)
 {
+    m_type = Object::Type::CAMERA;
     //    m_model.m_transform = transform;
 //    m_cameraStrategy = new CameraWorld(glm::vec3(200.0f, -200.0f, 200.0f), glm::vec3(0.0f), m_model->transform());
     m_cameraStrategy = new CameraWorld(glm::vec3(200.0f, -200.0f, 200.0f), glm::vec3(0.0f), *m_model);
@@ -32,6 +33,7 @@ Camera::Camera(std::ifstream& file)
     //    : Object(g_resourcesPath + "models/camera/camera.obj")
     : Object(g_resourcesPath + "models/camera/camera.obj")
 {
+    m_type = Object::Type::CAMERA;
     //    Camera::Type type;
 
     Session::load(m_fov, file);
