@@ -218,7 +218,7 @@ void CameraFps::ProcessKeyboard() const
 
     glm::vec3 position = glm::vec3(m_model.transform()[3]);
     float velocity = accuracyMove * deltaTime;
-    glm::vec3 newPosition = position + (m_front * frontDir + m_right * sideDir) * velocity;
+    glm::vec3 newPosition = position + (m_front * frontDir + m_right * sideDir + m_up * upDir) * velocity;
     // question : [3][3] 1 or 0 ?
     glm::mat4 model = m_model.transform();
     model[3] = glm::vec4(newPosition, m_model.transform()[3][3]);
@@ -356,6 +356,14 @@ void CameraFps::keyPressEvent(QKeyEvent* event)
         //                        m_position -= m_front * MOVE_SPEED;
         break;
 
+    case Qt::Key_PageDown:
+        upDir = -1;
+        break;
+
+    case Qt::Key_PageUp:
+        upDir = 1;
+        break;
+
     case Qt::Key_Left:
     case Qt::Key_A:
         sideDir = -1;
@@ -407,6 +415,11 @@ void CameraFps::keyReleaseEvent(QKeyEvent* event)
     case Qt::Key_Right:
     case Qt::Key_E:
         sideDir = 0;
+        break;
+
+    case Qt::Key_PageUp:
+    case Qt::Key_PageDown:
+        upDir = 0;
         break;
     }
 }

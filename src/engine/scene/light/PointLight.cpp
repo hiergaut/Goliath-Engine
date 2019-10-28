@@ -12,7 +12,8 @@
 #include <opengl/geometry/QuadGeometry.h>
 #include <session/Session.h>
 
-const uint SHADOW_SIZE = 1024;
+//const uint SHADOW_SIZE = 1024;
+const uint SHADOW_SIZE = 2048;
 //const uint SHADOW_SIZE = 8192;
 //const uint SHADOW_SIZE = 16384;
 const uint SHADOW_WIDTH = SHADOW_SIZE;
@@ -38,7 +39,7 @@ void PointLight::draw(const Shader& shader, bool dotCloud, const glm::mat4& loca
         shader.setVec3("cubeCenter", position(localTransform, worldTransform));
 
         glBindTexture(GL_TEXTURE_CUBE_MAP, m_depthMap);
-        shader.setMat4("model", glm::scale(worldTransform * m_model->transform() * localTransform, glm::vec3(1.0f) * 15.0f));
+        shader.setMat4("model", glm::scale(worldTransform * m_model->transform() * localTransform, glm::vec3(1.0f) * 15.4f));
         CubeMapGeometry::draw();
         shader.setBool("hasCubeMap", false);
         //        glDepthMask(GL_TRUE);

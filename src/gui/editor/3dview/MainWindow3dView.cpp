@@ -483,7 +483,14 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
         Camera* m_camera = Scene::m_cameras[m_iCamera];
         m_camera->m_cameraStrategy->keyPressEvent(event);
 
+//        CameraStrategy::Type cameraType = m_camera->m_cameraStrategy->m_type;
+        bool fpsCamera = m_camera->m_cameraStrategy->m_type == CameraStrategy::FPS;
+
         switch (event->key()) {
+
+//        case Qt::Key_PageUp:
+//            on_actionPoint_Light_triggered();
+//            break;
 
         case Qt::Key_Delete:
             //        qDebug() << "delete";
@@ -494,6 +501,13 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
             if (m_transformActive) {
                 sendTransformToScene();
                 m_firstTransform = true;
+            }
+            else {
+
+                if (m_camera->m_cameraStrategy->m_type == CameraStrategy::WORLD) {
+                    CameraWorld* camera = static_cast<CameraWorld*>(m_camera->m_cameraStrategy);
+                    RayTracer::setSelectFocus(*camera);
+                }
             }
             break;
 
@@ -635,9 +649,11 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
 
         case Qt::Key_PageDown:
             //        qDebug() << "x";
+            if (! fpsCamera) {
             m_camera->setFront(glm::vec3(-1.0f, 0.0f, 0.0f));
             updateOrthoProjection();
             m_alignAxis = true;
+            }
             //        m_ortho = true;
             break;
 
@@ -663,7 +679,7 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
             break;
 
         case Qt::Key_F:
-            if (m_shiftPressed) {
+            if (!m_shiftPressed) {
                 glm::vec3 position = m_camera->position();
                 glm::vec3 target = m_camera->target();
                 //                m_camera->switchStrategy();
@@ -683,7 +699,7 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
                     //                    delete m_camera;
                     //                m_camera = new CameraWorld(fov, pos, camera->m_target);
                     delete m_camera->m_cameraStrategy;
-//                    m_camera->m_cameraStrategy = new CameraWorld(position, target, m_camera->transform());
+                    //                    m_camera->m_cameraStrategy = new CameraWorld(position, target, m_camera->transform());
                     m_camera->m_cameraStrategy = new CameraWorld(position, target, *m_camera->getModel());
                     //        Scene::m_scene->m_objects.push_back(m_camera);
                     //            m_camera = new CameraWorld(static_cast<CameraFps*>(m_camera));
@@ -706,7 +722,7 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
                     //        Scene::m_scene->removeCamera(m_iCamera);
                     //                    delete m_camera;
                     delete m_camera->m_cameraStrategy;
-//                    m_camera->m_cameraStrategy = new CameraFps(position, yaw, pitch, this, m_camera->transform(), m_camera->m_fov);
+                    //                    m_camera->m_cameraStrategy = new CameraFps(position, yaw, pitch, this, m_camera->transform(), m_camera->m_fov);
                     m_camera->m_cameraStrategy = new CameraFps(position, yaw, pitch, this, *m_camera->getModel(), m_camera->m_fov);
                     //        Scene::m_scene->m_objects.push_back(m_camera);
 
@@ -716,11 +732,11 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
                     break;
                 }
 
-            } else {
-                if (m_camera->m_cameraStrategy->m_type == CameraStrategy::WORLD) {
-                    CameraWorld* camera = static_cast<CameraWorld*>(m_camera->m_cameraStrategy);
-                    RayTracer::setSelectFocus(*camera);
-                }
+//            } else {
+//                if (m_camera->m_cameraStrategy->m_type == CameraStrategy::WORLD) {
+//                    CameraWorld* camera = static_cast<CameraWorld*>(m_camera->m_cameraStrategy);
+//                    RayTracer::setSelectFocus(*camera);
+//                }
             }
             break;
         }
@@ -761,11 +777,11 @@ void MainWindow3dView::keyReleaseEvent(QKeyEvent* event)
 
 void MainWindow3dView::mousePressEvent(QMouseEvent* event)
 {
-//    qDebug() << "nb cameras " << Scene::m_cameras.size();
+    //    qDebug() << "nb cameras " << Scene::m_cameras.size();
     if (m_iCamera < Scene::m_cameras.size()) {
         Camera* m_camera = Scene::m_cameras[m_iCamera];
         Q_ASSERT(m_camera != nullptr);
-//        qDebug() << "camera: " << m_camera;
+        //        qDebug() << "camera: " << m_camera;
         m_camera->m_cameraStrategy->mousePressEvent(event);
 
         switch (event->button()) {
@@ -819,18 +835,25 @@ void MainWindow3dView::mousePressEvent(QMouseEvent* event)
             break;
             //        }
         case Qt::MidButton:
+
+            //            } else {
             if (!m_shiftPressed) {
                 if (m_alignAxis) {
                     m_alignAxis = false;
                     updatePersepectiveProjection();
                 }
             }
+            //            }
             break;
 
         case Qt::RightButton:
-            m_rightClicked = true;
-            m_posFirstRightClick = event->pos();
-            m_posMouse = event->pos();
+            if (m_camera->m_cameraStrategy->m_type == CameraStrategy::FPS) {
+                on_actionPoint_Light_triggered();
+            } else {
+                m_rightClicked = true;
+                m_posFirstRightClick = event->pos();
+                m_posMouse = event->pos();
+            }
             break;
         }
     }
@@ -1590,13 +1613,13 @@ const Shader& MainWindow3dView::shader() const
         //        }
     }
 
-//    glCullFace(GL_FRONT_AND_BACK);
+    //    glCullFace(GL_FRONT_AND_BACK);
     if (ui->actionX_Rays->isChecked()) {
         //        glBlendFunc(GL_ONE, GL_ONE);
         glDisable(GL_CULL_FACE);
     } else {
         //        glBlendFunc(GL_ONE, GL_ZERO);
-//        glDisable(GL_CULL_FACE);
+        //        glDisable(GL_CULL_FACE);
         glEnable(GL_CULL_FACE);
     }
 

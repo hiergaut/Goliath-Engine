@@ -106,6 +106,7 @@ private:
 
     float frontDir = 0.0f;
     float sideDir = 0.0f;
+    float upDir = 0.0f;
 
     mutable uint64_t m_lastTime;
     // Camera options
