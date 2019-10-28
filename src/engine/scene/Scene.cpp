@@ -35,6 +35,7 @@ Scene::Scene()
     m_models.reserve(10);
     m_dirLights.reserve(10);
     m_pointLights.reserve(10);
+    m_spotLights.reserve(10);
     //    m_objects.reserve(50);
     //    m_dirLights.reserve(10);
 
@@ -204,6 +205,10 @@ void Scene::updateLightsShadowMap()
         Shader& shader = (pointLight.selected()) ? (pointLight.depthShader(m_localTransform, m_worldTransform)) : (pointLight.depthShader());
         renderScene(shader);
     }
+    for (SpotLight& spotLight : m_spotLights) {
+        Shader& shader = (spotLight.selected()) ? (spotLight.depthShader(m_localTransform, m_worldTransform)) : (spotLight.depthShader());
+        renderScene(shader);
+    }
     //    m_fun->glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
     glCullFace(GL_BACK);
     glDisable(GL_CULL_FACE);
@@ -361,8 +366,9 @@ void Scene::draw(const MainWindow3dView& view)
     if (view.m_shade == Shader::Type::RENDERED) {
 
         //                for (const DirLight & dirLight : m_dirLights) {
-        shader.setInt("nbDirLight", m_dirLights.size());
-        for (uint i = 0; i < m_dirLights.size(); ++i) {
+        uint nbDirLight = m_dirLights.size();
+        shader.setInt("nbDirLight", nbDirLight);
+        for (uint i = 0; i < nbDirLight; ++i) {
             const DirLight& dirLight = m_dirLights[i];
 
             //                        dirLight.draw(shader);
@@ -373,19 +379,19 @@ void Scene::draw(const MainWindow3dView& view)
             glBindTexture(GL_TEXTURE_2D, dirLight.depthMap());
             if (dirLight.selected()) {
                 shader.setMat4("dirLight[" + QString::number(i).toStdString() + "].lightSpaceMatrix", dirLight.lightSpaceMatrix(m_localTransform));
+                shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].direction", glm::vec4(dirLight.direction(m_localTransform), 1.0f));
             } else {
                 //                shader.setMat4("lightSpaceMatrix", dirLight.lightSpaceMatrix());
                 shader.setMat4("dirLight[" + QString::number(i).toStdString() + "].lightSpaceMatrix", dirLight.lightSpaceMatrix());
-            }
-
-            if (dirLight.selected()) {
-                shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].direction", glm::vec4(dirLight.direction(m_localTransform), 1.0f));
-            } else {
                 shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].direction", glm::vec4(dirLight.direction(onesMatrix), 1.0f));
             }
-            shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].ambient", dirLight.m_ambient);
-            shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].diffuse", dirLight.m_diffuse);
-            shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].specular", dirLight.m_specular);
+
+//            shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].ambient", dirLight.m_ambient);
+            shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].ambient", glm::vec3(0.5f));
+//            shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].diffuse", dirLight.m_diffuse);
+            shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].diffuse", glm::vec3(1.0f));
+//            shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].specular", dirLight.m_specular);
+            shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].specular", glm::vec3(1.0f));
 
             //            shader.setVec3("dirLight[" + QString::number(0).toStdString() + "].direction", -0.2f, -1.0f, -0.3f);
             //            shader.setVec3("dirLight[" + QString::number(0).toStdString() + "].ambient", 0.05f, 0.05f, 0.05f);
@@ -413,11 +419,50 @@ void Scene::draw(const MainWindow3dView& view)
                 shader.setVec3("pointLights[" + QString::number(i).toStdString() + "].position", pointLight.position());
             }
             shader.setFloat("pointLights[" + QString::number(i).toStdString() + "].constant", 1.0f);
-            shader.setFloat("pointLights[" + QString::number(i).toStdString() + "].linear", 0.000f);
-            shader.setFloat("pointLights[" + QString::number(i).toStdString() + "].quadratic", 0.00001f);
-            shader.setVec3("pointLights[" + QString::number(i).toStdString() + "].ambient", pointLight.m_ambient);
-            shader.setVec3("pointLights[" + QString::number(i).toStdString() + "].diffuse", pointLight.m_diffuse);
-            shader.setVec3("pointLights[" + QString::number(i).toStdString() + "].specular", pointLight.m_specular);
+            //            shader.setFloat("pointLights[" + QString::number(i).toStdString() + "].linear", 0.09f);
+            shader.setFloat("pointLights[" + QString::number(i).toStdString() + "].linear", 0.00f);
+            //            shader.setFloat("pointLights[" + QString::number(i).toStdString() + "].quadratic", 0.032f);
+            shader.setFloat("pointLights[" + QString::number(i).toStdString() + "].quadratic", 0.000001f);
+//            shader.setVec3("pointLights[" + QString::number(i).toStdString() + "].ambient", pointLight.m_ambient);
+            shader.setVec3("pointLights[" + QString::number(i).toStdString() + "].ambient", glm::vec3(0.0f));
+//            shader.setVec3("pointLights[" + QString::number(i).toStdString() + "].diffuse", pointLight.m_diffuse);
+            shader.setVec3("pointLights[" + QString::number(i).toStdString() + "].diffuse", glm::vec3(0.0f));
+//            shader.setVec3("pointLights[" + QString::number(i).toStdString() + "].specular", pointLight.m_specular);
+            shader.setVec3("pointLights[" + QString::number(i).toStdString() + "].specular", glm::vec3(0.0f));
+        }
+
+        shader.setInt("nbSpotLight", m_spotLights.size());
+        for (uint i = 0; i < m_spotLights.size(); ++i) {
+            const SpotLight& spotLight = m_spotLights[i];
+            shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].direction", spotLight.direction(m_localTransform));
+            shader.setFloat("spotLights[" + QString::number(i).toStdString() + "].cutOff", glm::cos(glm::radians(12.5f)));
+            shader.setFloat("spotLights[" + QString::number(i).toStdString() + "].outerCutOff", glm::cos(glm::radians(15.0f)));
+
+            shader.setInt("spotLights[" + QString::number(i).toStdString() + "].id", nbDirLigt + i);
+            shader.setInt("spotLights[" + QString::number(i).toStdString() + "].shadowMap",nbDirLigt +  5 + i);
+            glActiveTexture(GL_TEXTURE5 +nbDirLigt +  i);
+            glBindTexture(GL_TEXTURE_2D, spotLight.depthMap());
+
+            if (spotLight.selected()) {
+
+                shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].position", spotLight.position(m_localTransform, m_worldTransform));
+                shader.setMat4("spotLights[" + QString::number(i).toStdString() + "].lightSpaceMatrix", spotLight.lightSpaceMatrix(m_localTransform));
+            } else {
+                shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].position", spotLight.position());
+                shader.setMat4("spotLights[" + QString::number(i).toStdString() + "].lightSpaceMatrix", spotLight.lightSpaceMatrix());
+            }
+            shader.setFloat("spotLights[" + QString::number(i).toStdString() + "].constant", 1.0f);
+            //            shader.setFloat("spotLights[" + QString::number(i).toStdString() + "].linear", 0.09f);
+            shader.setFloat("spotLights[" + QString::number(i).toStdString() + "].linear", 0.00f);
+            //            shader.setFloat("spotLights[" + QString::number(i).toStdString() + "].quadratic", 0.032f);
+            shader.setFloat("spotLights[" + QString::number(i).toStdString() + "].quadratic", 0.000001f);
+
+            //            shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].ambient", spotLight.m_ambient);
+            shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].ambient", glm::vec3(0.0f));
+            //            shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].diffuse", spotLight.m_diffuse);
+            shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].diffuse", glm::vec3(1.0f));
+            //            shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].specular", spotLight.m_specular);
+            shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].specular", glm::vec3(1.0f));
         }
 
         //            shader.setVec3("dirLight[" + QString::number(0).toStdString() + "].direction", -0.2f, -1.0f, -0.3f);
@@ -1290,6 +1335,13 @@ void Scene::load(std::ifstream& file)
         m_objects.push_back(&m_pointLights.back());
     }
 
+    m_spotLights.clear();
+    Session::load(size, file);
+    for (uint i = 0; i < size; ++i) {
+        m_spotLights.emplace_back(file);
+        m_objects.push_back(&m_spotLights.back());
+    }
+
     FormTimeline::load(file);
 
     updateSceneItemModel();
@@ -1325,6 +1377,12 @@ void Scene::save(std::ofstream& file)
     Session::save(size, file);
     for (const PointLight& pointLight : m_pointLights) {
         pointLight.save(file);
+    }
+
+    size = m_spotLights.size();
+    Session::save(size, file);
+    for (const SpotLight& spotLight : m_spotLights) {
+        spotLight.save(file);
     }
 
     FormTimeline::save(file);
@@ -1490,6 +1548,16 @@ void Scene::deleteSelected()
     }
     m_pointLights = std::move(newPointLights);
 
+    std::vector<SpotLight> newSpotLights;
+    newSpotLights.reserve(10);
+    for (SpotLight& spotLight : m_spotLights) {
+        if (!spotLight.selected()) {
+            newSpotLights.emplace_back(std::move(spotLight));
+            m_objects.push_back(&newSpotLights.back());
+        }
+    }
+    m_spotLights = std::move(newSpotLights);
+
     //    std::cout << "dirLights moved" << std::endl;
 
     //    for (DirLight & dirLight : m_dirLights) {
@@ -1524,6 +1592,8 @@ void Scene::addLight(Light::Type lightType, const glm::vec3 position)
         break;
 
     case Light::Type::SPOT:
+        m_spotLights.emplace_back(position, glm::vec3(0.0f, 1.0f, 0.0f));
+        m_objects.push_back(&m_spotLights.back());
         break;
 
     case Light::Type::POINT:

@@ -20,6 +20,7 @@ public:
         CAMERA,
         DIR_LIGHT,
         POINT_LIGHT,
+        SPOT_LIGHT,
     } m_type;
 
 public:

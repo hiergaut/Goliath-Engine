@@ -29,7 +29,7 @@ protected:
 
 
 public:
-    PointLight(const glm::vec3 position, const glm::vec3 ambient = glm::vec3(0.5f), const glm::vec3 diffuse = glm::vec3(0.5f), const glm::vec3 specular = glm::vec3(0.5f));
+    PointLight(const glm::vec3 position, const glm::vec3 ambient = glm::vec3(0.05f), const glm::vec3 diffuse = glm::vec3(0.8f), const glm::vec3 specular = glm::vec3(1.0f));
     PointLight(std::ifstream &file);
     PointLight(PointLight && dirLight) noexcept = default;
 //    ~PointLight();
@@ -59,6 +59,11 @@ private:
 //    Shader * m_cube
 
     glm::mat4 m_viewMatrix[6];
+
+//    float m_constant;
+//    float m_linear;
+//    float m_quadratic;
+
 //    Shader* m_debugDepthQuad; //{"shadow/debug_quad.vsh", "shadow/debug_quad.fsh"};
 //    UvSphereGeometry m_sphere;
 //    Shader * m_skyBoxShader;
