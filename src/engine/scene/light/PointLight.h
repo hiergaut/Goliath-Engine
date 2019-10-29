@@ -60,6 +60,10 @@ private:
 
     glm::mat4 m_viewMatrix[6];
 
+    glm::mat4 m_shadowProj;
+    float m_near_plane = 20.0f;
+    float m_far_plane = 5000.0f;
+
 //    float m_constant;
 //    float m_linear;
 //    float m_quadratic;

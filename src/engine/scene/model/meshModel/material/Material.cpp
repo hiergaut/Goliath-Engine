@@ -64,12 +64,13 @@ Material::Material(const aiMaterial* ai_material, Textures* textures, std::strin
     //        textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
     // 3. normal maps
     m_iTextures[Texture::NORMAL] = assimpLoadMaterialTextures(ai_material, aiTextureType_NORMALS, Texture::NORMAL);
+//    m_iTextures[Texture::NORMAL] = assimpLoadMaterialTextures(ai_material, aiTextureType_HEIGHT, Texture::NORMAL);
 //    if (ai_material->GetTextureCount(aiTextureType_NORMALS) > 0) {
 //        std::cout << m_name << ": normal texture loaded" << std::endl;
 //    }
     //        textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
     // 4. height maps
-    m_iTextures[Texture::HEIGHT] = assimpLoadMaterialTextures(ai_material, aiTextureType_HEIGHT, Texture::HEIGHT);
+//    m_iTextures[Texture::HEIGHT] = assimpLoadMaterialTextures(ai_material, aiTextureType_HEIGHT, Texture::HEIGHT);
     //        textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
     m_iTextures[Texture::OPACITY] = assimpLoadMaterialTextures(ai_material, aiTextureType_OPACITY, Texture::OPACITY);
 

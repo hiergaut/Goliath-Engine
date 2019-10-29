@@ -122,6 +122,9 @@ Texture::operator const char*() const
     case HEIGHT:
         return "height";
 
+    case OPACITY:
+        return "opacity";
+
     default:
         throw std::out_of_range("no texture type");
     }

@@ -12,8 +12,8 @@
 #include <opengl/geometry/QuadGeometry.h>
 #include <session/Session.h>
 
-//const uint SHADOW_SIZE = 1024;
-const uint SHADOW_SIZE = 2048;
+const uint SHADOW_SIZE = 1024;
+//const uint SHADOW_SIZE = 2048;
 //const uint SHADOW_SIZE = 8192;
 //const uint SHADOW_SIZE = 16384;
 const uint SHADOW_WIDTH = SHADOW_SIZE;
@@ -132,12 +132,13 @@ PointLight::PointLight(const glm::vec3 position, const glm::vec3 ambient, const 
     //    updateBoundingBox();
 
     //    model = glm::rotate()
-    //    initViewMatrix();
+//        initViewMatrix();
     initGL();
 
     //    m_skyBoxShader = new Shader("skybox.vsh", "skybox.fsh");
     //    m_skyBoxShader->use();
     //    m_skyBoxShader->setInt("skybox", 0);
+    m_shadowProj = glm::perspective(glm::radians(90.0f), (float)SHADOW_WIDTH / (float)SHADOW_HEIGHT, m_near_plane, m_far_plane);
 }
 
 PointLight::PointLight(std::ifstream& file)
@@ -160,8 +161,9 @@ PointLight::PointLight(std::ifstream& file)
     //    modelMatrix = glm::translate(modelMatrix, m_position);
     //    m_model->m_transform = modelMatrix;
     //    model = glm::rotate()
-    //    initViewMatrix();
+//        initViewMatrix();
     initGL();
+    m_shadowProj = glm::perspective(glm::radians(90.0f), (float)SHADOW_WIDTH / (float)SHADOW_HEIGHT, m_near_plane, m_far_plane);
 }
 
 //PointLight::~PointLight()
@@ -219,12 +221,12 @@ void PointLight::initGL()
 
 void PointLight::initViewMatrix()
 {
-    m_viewMatrix[0] = glm::lookAt(glm::vec3(0.0f), glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f));
-    m_viewMatrix[1] = glm::lookAt(glm::vec3(0.0f), glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f));
-    m_viewMatrix[2] = glm::lookAt(glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-    m_viewMatrix[3] = glm::lookAt(glm::vec3(0.0f), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f));
-    m_viewMatrix[4] = glm::lookAt(glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f));
-    m_viewMatrix[5] = glm::lookAt(glm::vec3(0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f));
+    m_viewMatrix[0] = glm::mat4(glm::mat3( glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f))));
+    m_viewMatrix[1] =  glm::mat4(glm::mat3(glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f))));
+    m_viewMatrix[2] = glm::mat4(glm::mat3( glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f))));
+    m_viewMatrix[3] =  glm::mat4(glm::mat3(glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f))));
+    m_viewMatrix[4] =  glm::mat4(glm::mat3(glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f))));
+    m_viewMatrix[5] =  glm::mat4(glm::mat3(glm::lookAt(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f))));
 }
 
 Shader& PointLight::depthShader(const glm::mat4& localTransform, const glm::mat4& worldTransform) const
@@ -238,22 +240,20 @@ Shader& PointLight::depthShader(const glm::mat4& localTransform, const glm::mat4
     //    float radius = 5000.0f;
 
     //    m_simpleDepthShader->setMat4("lightSpaceMatrix", lightSpaceMatrix(localTransform));
-    float near_plane = 20.0f;
-    float far_plane = 5000.0f;
-    glm::mat4 shadowProj = glm::perspective(glm::radians(90.0f), (float)SHADOW_WIDTH / (float)SHADOW_HEIGHT, near_plane, far_plane);
+//    glm::mat4 shadowProj = glm::perspective(glm::radians(90.0f), (float)SHADOW_WIDTH / (float)SHADOW_HEIGHT, near_plane, far_plane);
     std::vector<glm::mat4> shadowTransforms;
 //    const glm::vec3& pos = (m_selected) ?(position(localTransform, worldTransform)) :(position());
     const glm::vec3& pos = position(localTransform, worldTransform);
-    //    for (uint i = 0; i < 6; ++i) {
-    //        //        shadowTransforms.push_back(shadowProj * glm::translate(m_viewMatrix[i], pos));
-    //        shadowTransforms.push_back(shadowProj * m_viewMatrix[i] * glm::translate(glm::mat4(1.0f), pos));
-    //    }
-    shadowTransforms.push_back(shadowProj * glm::lookAt(pos, pos + glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
-    shadowTransforms.push_back(shadowProj * glm::lookAt(pos, pos + glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
-    shadowTransforms.push_back(shadowProj * glm::lookAt(pos, pos + glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
-    shadowTransforms.push_back(shadowProj * glm::lookAt(pos, pos + glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)));
-    shadowTransforms.push_back(shadowProj * glm::lookAt(pos, pos + glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
-    shadowTransforms.push_back(shadowProj * glm::lookAt(pos, pos + glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
+//        for (uint i = 0; i < 6; ++i) {
+//            //        shadowTransforms.push_back(shadowProj * glm::translate(m_viewMatrix[i], pos));
+//            shadowTransforms.push_back(m_shadowProj * m_viewMatrix[i]* glm::translate(glm::mat4(1.0f), pos));
+//        }
+    shadowTransforms.emplace_back(m_shadowProj * glm::lookAt(pos, pos + glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
+    shadowTransforms.emplace_back(m_shadowProj * glm::lookAt(pos, pos + glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
+    shadowTransforms.emplace_back(m_shadowProj * glm::lookAt(pos, pos + glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
+    shadowTransforms.emplace_back(m_shadowProj * glm::lookAt(pos, pos + glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)));
+    shadowTransforms.emplace_back(m_shadowProj * glm::lookAt(pos, pos + glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
+    shadowTransforms.emplace_back(m_shadowProj * glm::lookAt(pos, pos + glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
 
     glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
     //    glViewport(100, 100, 200, 200);
@@ -268,7 +268,7 @@ Shader& PointLight::depthShader(const glm::mat4& localTransform, const glm::mat4
     m_simpleDepthShader->use();
     for (unsigned int i = 0; i < 6; ++i)
         m_simpleDepthShader->setMat4("shadowMatrices[" + std::to_string(i) + "]", shadowTransforms[i]);
-    m_simpleDepthShader->setFloat("far_plane", far_plane);
+    m_simpleDepthShader->setFloat("far_plane", m_far_plane);
     m_simpleDepthShader->setVec3("lightPos", pos);
 
     return *m_simpleDepthShader;

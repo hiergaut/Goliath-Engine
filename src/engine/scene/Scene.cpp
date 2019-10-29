@@ -188,32 +188,34 @@ void Scene::updateLightsShadowMap()
     //    m_fun->glGetIntegerv(GL_FRAMEBUFFER, &m_fbo);
     //    glEnable(GL_CULL_FACE);
     //    glCullFace(GL_FRONT_AND_BACK);
+    if (m_computeShadow) {
 
-    glDisable(GL_CULL_FACE);
-    glCullFace(GL_FRONT);
-    for (DirLight& dirLight : m_dirLights) {
-        //        dirLight.useShader();
-        //                object->draw(shader, false, m_localTransform, m_worldTransform);
-        Shader& shader = (dirLight.selected()) ? (dirLight.depthShader(m_localTransform, m_worldTransform)) : (dirLight.depthShader());
-        //        Shader & shader = dirLight.depthShader();
-        //        m_fun->glBindFramebuffer(GL_FRAMEBUFFER, 1);
-        renderScene(shader);
-        //        glCullFace(GL_BACK);
-        //        m_fun->glBindFramebuffer(GL_FRAMEBUFFER, 1);
-        //        dirLight.showDepth();
+        glDisable(GL_CULL_FACE);
+        glCullFace(GL_FRONT);
+        for (DirLight& dirLight : m_dirLights) {
+            //        dirLight.useShader();
+            //                object->draw(shader, false, m_localTransform, m_worldTransform);
+            Shader& shader = (dirLight.selected()) ? (dirLight.depthShader(m_localTransform, m_worldTransform)) : (dirLight.depthShader());
+            //        Shader & shader = dirLight.depthShader();
+            //        m_fun->glBindFramebuffer(GL_FRAMEBUFFER, 1);
+            renderScene(shader);
+            //        glCullFace(GL_BACK);
+            //        m_fun->glBindFramebuffer(GL_FRAMEBUFFER, 1);
+            //        dirLight.showDepth();
+        }
+        for (PointLight& pointLight : m_pointLights) {
+            Shader& shader = (pointLight.selected()) ? (pointLight.depthShader(m_localTransform, m_worldTransform)) : (pointLight.depthShader());
+            renderScene(shader);
+        }
+        for (SpotLight& spotLight : m_spotLights) {
+            Shader& shader = (spotLight.selected()) ? (spotLight.depthShader(m_localTransform, m_worldTransform)) : (spotLight.depthShader());
+            renderScene(shader);
+        }
+        //    m_fun->glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
+        glCullFace(GL_BACK);
+        glDisable(GL_CULL_FACE);
+        m_fun->glBindFramebuffer(GL_FRAMEBUFFER, 1);
     }
-    for (PointLight& pointLight : m_pointLights) {
-        Shader& shader = (pointLight.selected()) ? (pointLight.depthShader(m_localTransform, m_worldTransform)) : (pointLight.depthShader());
-        renderScene(shader);
-    }
-    for (SpotLight& spotLight : m_spotLights) {
-        Shader& shader = (spotLight.selected()) ? (spotLight.depthShader(m_localTransform, m_worldTransform)) : (spotLight.depthShader());
-        renderScene(shader);
-    }
-    //    m_fun->glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
-    glCullFace(GL_BACK);
-    glDisable(GL_CULL_FACE);
-    m_fun->glBindFramebuffer(GL_FRAMEBUFFER, 1);
 }
 
 void Scene::draw(const MainWindow3dView& view)
@@ -1250,7 +1252,7 @@ void Scene::updateSceneItemModel()
         QStandardItem* item = new QStandardItem(object.name().c_str());
         parentItem->appendRow(item);
 
-        //        object.buildItemModel(item);
+                object.buildItemModel(item);
     }
 
     emit m_sceneModel.dataChanged(m_sceneModel.index(0, 0), m_sceneModel.index(0, 0));

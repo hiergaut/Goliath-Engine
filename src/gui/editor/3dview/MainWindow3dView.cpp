@@ -390,6 +390,10 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
         Mesh::enableSwitchTexture(Texture::HEIGHT);
         break;
 
+    case Qt::Key_F5:
+        Mesh::enableSwitchTexture(Texture::OPACITY);
+        break;
+
     case Qt::Key_F6:
         Scene::m_scene->m_computeShadow = ! Scene::m_scene->m_computeShadow;
         break;

@@ -3,7 +3,7 @@
 #include <assimp/Assimp.h>
 #include <gui/editor/timeline/FormTimeline.h>
 
-bool Mesh::m_enableTexture[Texture::size] = { true, true, true, true };
+bool Mesh::m_enableTexture[Texture::size] = { true, true, true, true, true };
 
 Mesh::Mesh(const aiMesh* ai_mesh, Materials* materials, Textures* textures)
     : m_materials(materials)
@@ -410,14 +410,11 @@ void Mesh::draw(const Shader& shader, bool dotCloud) const
 
         if (!material.m_iTextures[Texture::SPECULAR].empty() && m_enableTexture[Texture::SPECULAR]) {
             shader.setBool("has_texture_specular", true);
-//            shader.setBool("has_texture_diffuse", true);
             m_fun->glActiveTexture(GL_TEXTURE1);
             shader.setInt("texture_specular", 1);
-//            shader.setInt("texture_diffuse", 0);
             m_fun->glBindTexture(GL_TEXTURE_2D, (*m_textures)[material.m_iTextures[Texture::SPECULAR][0]].m_id);
         } else {
             shader.setBool("has_texture_specular", false);
-//            shader.setBool("has_texture_diffuse", false);
         }
 
         if (!material.m_iTextures[Texture::NORMAL].empty() && m_enableTexture[Texture::NORMAL]) {
@@ -428,6 +425,27 @@ void Mesh::draw(const Shader& shader, bool dotCloud) const
         } else {
             shader.setBool("has_texture_normal", false);
         }
+
+        if (!material.m_iTextures[Texture::OPACITY].empty() && m_enableTexture[Texture::OPACITY]) {
+            shader.setBool("has_texture_opacity", true);
+            m_fun->glActiveTexture(GL_TEXTURE2);
+            shader.setInt("texture_opacity", 2);
+            m_fun->glBindTexture(GL_TEXTURE_2D, (*m_textures)[material.m_iTextures[Texture::OPACITY][0]].m_id);
+        } else {
+            shader.setBool("has_texture_opacity", false);
+        }
+
+        // ----------------------------------------------------- DEBUG
+//        if (!material.m_iTextures[Texture::SPECULAR].empty() && m_enableTexture[Texture::SPECULAR]) {
+//            shader.setBool("has_texture_diffuse", true);
+//            m_fun->glActiveTexture(GL_TEXTURE0);
+//            shader.setInt("texture_diffuse", 0);
+//            m_fun->glBindTexture(GL_TEXTURE_2D, (*m_textures)[material.m_iTextures[Texture::SPECULAR][0]].m_id);
+//        } else {
+//            shader.setBool("has_texture_diffuse", false);
+//        }
+//        shader.setBool("has_texture_normal", false);
+//        shader.setBool("has_texture_specular", false);
 
         //        if (material.m_name == "Material__25") {
         //            if (!material.m_iTextures[Texture::NORMAL].empty()) {
