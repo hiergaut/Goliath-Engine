@@ -7,43 +7,50 @@
 #include <QDebug>
 #include <opengl/geometry/LineGeometry.h>
 
-Frustum::Frustum(const glm::mat4& vp)
+Frustum::Frustum(const glm::mat4& mat)
 {
-    // column2 + column3
-    m_planes[Z_NEAR].m_a = vp[2][0] + vp[3][0];
-    m_planes[Z_NEAR].m_b = vp[2][1] + vp[3][1];
-    m_planes[Z_NEAR].m_c = vp[2][2] + vp[3][2];
-    m_planes[Z_NEAR].m_d = vp[2][3] + vp[3][3];
+    m_planes[TOP].set( mat[0][3] - mat[0][1], mat[1][3] - mat[1][1], mat[2][3] - mat[2][1], -mat[3][3] + mat[3][1] );
+        m_planes[BOTTOM].set( mat[0][3] + mat[0][1], mat[1][3] + mat[1][1], mat[2][3] + mat[2][1], -mat[3][3] - mat[3][1] );
+        m_planes[LEFT].set( mat[0][3] + mat[0][0], mat[1][3] + mat[1][0], mat[2][3] + mat[2][0], -mat[3][3] - mat[3][0] );
+        m_planes[RIGHT].set( mat[0][3] - mat[0][0], mat[1][3] - mat[1][0], mat[2][3] - mat[2][0], -mat[3][3] + mat[3][0] );
+        m_planes[Z_NEAR].set( mat[0][3] + mat[0][2], mat[1][3] + mat[1][2], mat[2][3] + mat[2][2], -mat[3][3] - mat[3][2] );
+        m_planes[Z_FAR].set( mat[0][3] - mat[0][2], mat[1][3] - mat[1][2], mat[2][3] - mat[2][2], -mat[3][3] + mat[3][2] );
 
-    // column3 - column2
-    m_planes[Z_FAR].m_a = -vp[2][0] + vp[3][0];
-    m_planes[Z_FAR].m_b = -vp[2][1] + vp[3][1];
-    m_planes[Z_FAR].m_c = -vp[2][2] + vp[3][2];
-    m_planes[Z_FAR].m_d = -vp[2][3] + vp[3][3];
+//    // column2 + column3
+//    m_planes[Z_NEAR].m_a = vp[0][3] + vp[0][2];
+//    m_planes[Z_NEAR].m_b = vp[2][1] + vp[3][1];
+//    m_planes[Z_NEAR].m_c = vp[2][2] + vp[3][2];
+//    m_planes[Z_NEAR].m_d = vp[2][3] + vp[3][3];
 
-    // column1 + column3
-    m_planes[BOTTOM].m_a = vp[1][0] + vp[3][0];
-    m_planes[BOTTOM].m_b = vp[1][1] + vp[3][1];
-    m_planes[BOTTOM].m_c = vp[1][2] + vp[3][2];
-    m_planes[BOTTOM].m_d = vp[1][3] + vp[3][3];
+//    // column3 - column2
+//    m_planes[Z_FAR].m_a = -vp[2][0] + vp[3][0];
+//    m_planes[Z_FAR].m_b = -vp[2][1] + vp[3][1];
+//    m_planes[Z_FAR].m_c = -vp[2][2] + vp[3][2];
+//    m_planes[Z_FAR].m_d = -vp[2][3] + vp[3][3];
 
-    // column3 - column1
-    m_planes[TOP].m_a = -vp[1][0] + vp[3][0];
-    m_planes[TOP].m_b = -vp[1][1] + vp[3][1];
-    m_planes[TOP].m_c = -vp[1][2] + vp[3][2];
-    m_planes[TOP].m_d = -vp[1][3] + vp[3][3];
+//    // column1 + column3
+//    m_planes[BOTTOM].m_a = vp[1][0] + vp[3][0];
+//    m_planes[BOTTOM].m_b = vp[1][1] + vp[3][1];
+//    m_planes[BOTTOM].m_c = vp[1][2] + vp[3][2];
+//    m_planes[BOTTOM].m_d = vp[1][3] + vp[3][3];
 
-    // column0 + column3
-    m_planes[LEFT].m_a = vp[0][0] + vp[3][0];
-    m_planes[LEFT].m_b = vp[0][1] + vp[3][1];
-    m_planes[LEFT].m_c = vp[0][2] + vp[3][2];
-    m_planes[LEFT].m_d = vp[0][3] + vp[3][3];
+//    // column3 - column1
+//    m_planes[TOP].m_a = -vp[1][0] + vp[3][0];
+//    m_planes[TOP].m_b = -vp[1][1] + vp[3][1];
+//    m_planes[TOP].m_c = -vp[1][2] + vp[3][2];
+//    m_planes[TOP].m_d = -vp[1][3] + vp[3][3];
 
-    // column3 - column0
-    m_planes[RIGHT].m_a = -vp[0][0] + vp[3][0];
-    m_planes[RIGHT].m_b = -vp[0][1] + vp[3][1];
-    m_planes[RIGHT].m_c = -vp[0][2] + vp[3][2];
-    m_planes[RIGHT].m_d = -vp[0][3] + vp[3][3];
+//    // column0 + column3
+//    m_planes[LEFT].m_a = vp[0][0] + vp[3][0];
+//    m_planes[LEFT].m_b = vp[0][1] + vp[3][1];
+//    m_planes[LEFT].m_c = vp[0][2] + vp[3][2];
+//    m_planes[LEFT].m_d = vp[0][3] + vp[3][3];
+
+//    // column3 - column0
+//    m_planes[RIGHT].m_a = -vp[0][0] + vp[3][0];
+//    m_planes[RIGHT].m_b = -vp[0][1] + vp[3][1];
+//    m_planes[RIGHT].m_c = -vp[0][2] + vp[3][2];
+//    m_planes[RIGHT].m_d = -vp[0][3] + vp[3][3];
 
     //    m_top.normalize();
     //    m_bottom.normalize();
@@ -51,9 +58,9 @@ Frustum::Frustum(const glm::mat4& vp)
     //    m_left.normalize();
     //    m_planes[Z_NEAR].normalize();
     //    m_zFar.normalize();
-    for (uint i = 0; i < 6; ++i) {
-        m_planes[i].normalize();
-    }
+//    for (uint i = 0; i < 6; ++i) {
+//        m_planes[i].normalize();
+//    }
 }
 
 Frustum::Frustum(const glm::vec3& source, const glm::vec3& front,

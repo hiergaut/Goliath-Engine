@@ -18,6 +18,9 @@
 #include <opengl/geometry/LineGeometry.h>
 #include <opengl/geometry/TriangleGeometry.h>
 #include <session/Session.h>
+//#include <glm/matrix.hpp>
+//#include <glm/gtc/matrix_transform.hpp>
+//#include <glm/gtc/type_ptr.hpp>
 
 Scene* Scene::m_scene = nullptr;
 //QStandardItemModel Scene::m_sceneModel;
@@ -139,7 +142,7 @@ void Scene::initializeGL()
     //    updateBoundingBox();
 }
 
-void Scene::renderScene(Shader& shader)
+void Scene::renderScene(const Shader& shader)
 {
     for (const Object* object : m_objects) {
         //        if (object != viewCameraObject) {
@@ -236,10 +239,17 @@ void Scene::draw(const MainWindow3dView& view)
     //    glm::vec3 cameraPos = view.m_camera->position();
     glm::vec3 cameraPos = m_cameras[view.m_iCamera]->position();
 
+    GLboolean multiSample;
+    glGetBooleanv(GL_MULTISAMPLE, &multiSample);
     //    glm::mat4 modelMatrix(1.0);
     const glm::mat4 onesMatrix(1.0);
     if (view.m_shade != Shader::Type::RENDERED) {
+        glDisable(GL_MULTISAMPLE);
         m_grid->draw(onesMatrix, viewMatrix, projectionMatrix);
+        if (multiSample) {
+            glEnable(GL_MULTISAMPLE);
+        }
+        //        glEnable(GL_MULTISAMPLE);
         //        m_grid->draw(glm::scale(onesMatrix, glm::vec3(1.0f) * glm::length(glm::vec3(viewMatrix[3]))), viewMatrix, projectionMatrix);
     } else {
         m_skyBox->draw(viewMatrix, projectionMatrix);
@@ -262,6 +272,10 @@ void Scene::draw(const MainWindow3dView& view)
     const Shader& shader = view.shader();
     //    shader.use();
     //    shader.setBool("hasSkyBox", false);
+    glm::mat4 projectionMatrix2 = glm::perspective(glm::radians(30.0f), 1.0f, 100.0f, 1000.0f);
+    const Frustum frustum(projectionMatrix2 * viewMatrix);
+    shader.setMat4("model", onesMatrix);
+    frustum.draw(shader);
 
     //    const glm::mat4& viewTransform = view.m_transformMatrix;
     //    const glm::mat4& m_worldTransform = view.m_worldTransform;
@@ -330,6 +344,7 @@ void Scene::draw(const MainWindow3dView& view)
     //    shader.setMat4("model", onesMatrix);
     shader.setBool("userColor", true);
     //    m_rootNode->drawBoundingBox(modelMatrix, shader);
+    glDisable(GL_MULTISAMPLE);
     if (view.m_shade != Shader::Type::RENDERED) {
         shader.setVec4("color", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
         m_box.draw(shader);
@@ -358,6 +373,9 @@ void Scene::draw(const MainWindow3dView& view)
         }
     }
     shader.setBool("userColor", false);
+    if (multiSample) {
+        glEnable(GL_MULTISAMPLE);
+    }
 
     //    for (uint i = 0; i < m_dirLights.size(); ++i) {
     //        const DirLight& dirLight = m_dirLights[i];
@@ -480,6 +498,23 @@ void Scene::draw(const MainWindow3dView& view)
     //    glPolygonMode(GL_FRONT, GL_LINE);
     // -------------------------------- DRAW MODELS
     //    for (const Model& model : m_models) {
+    //    glDepthFunc(GL_EQUAL);
+    //    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    if (m_zPrepass) {
+        glClear(GL_DEPTH_BUFFER_BIT);
+        glDepthMask(1); // enable depth buffer writes
+        glColorMask(0, 0, 0, 0); // disable color buffer writes
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        glDepthFunc(GL_LESS);
+        glEnable(GL_DEPTH_TEST);
+
+        renderScene(shader);
+
+        glDepthMask(0); // don't write to the depth buffer
+        glColorMask(1, 1, 1, 1); // now set the color component
+        glDepthFunc(GL_EQUAL);
+    }
+    //    renderScene(shader);
     //            qDebug() << m_objects;
     //    glEnable(GL_MULTISAMPLE);
     for (const Object* object : m_objects) {
@@ -493,6 +528,7 @@ void Scene::draw(const MainWindow3dView& view)
             }
         }
     }
+    glDepthFunc(GL_LESS);
     //    glDisable(GL_MULTISAMPLE);
     switch (view.m_mode) {
     case MainWindow3dView::Mode::OBJECT:
@@ -543,6 +579,7 @@ void Scene::draw(const MainWindow3dView& view)
     glClear(GL_DEPTH_BUFFER_BIT);
 
     // -------------------------------- DRAW CONTOURS
+    glClear(GL_STENCIL_BUFFER_BIT);
     glEnable(GL_STENCIL_TEST);
     glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 
@@ -1252,7 +1289,7 @@ void Scene::updateSceneItemModel()
         QStandardItem* item = new QStandardItem(object.name().c_str());
         parentItem->appendRow(item);
 
-                object.buildItemModel(item);
+        object.buildItemModel(item);
     }
 
     emit m_sceneModel.dataChanged(m_sceneModel.index(0, 0), m_sceneModel.index(0, 0));

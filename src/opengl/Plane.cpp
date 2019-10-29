@@ -32,3 +32,11 @@ Plane::Plane(const glm::vec3 &normal, const glm::vec3 &vertex)
 
     normalize();
 }
+
+void Plane::set(float a, float b, float c, float d)
+{
+    m_a = a;
+    m_b = b;
+    m_c = c;
+    m_d = d;
+}

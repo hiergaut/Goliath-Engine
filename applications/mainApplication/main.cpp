@@ -15,12 +15,13 @@ int main(int argc, char* argv[])
 {
 //    QCoreApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
 
-//    QSurfaceFormat format;
-//    format.setVersion(4, 1);
+    QSurfaceFormat format;
+    format.setVersion(4, 1);
 //    format.setProfile(QSurfaceFormat::CoreProfile);
-//    format.setDepthBufferSize(24);
-//    format.setSamples(8);
-//    QSurfaceFormat::setDefaultFormat(format);
+    format.setProfile(QSurfaceFormat::CompatibilityProfile);
+    format.setDepthBufferSize(24);
+    format.setSamples(8);
+    QSurfaceFormat::setDefaultFormat(format);
 
 
     //    g_openglContext = new OpenglContext;

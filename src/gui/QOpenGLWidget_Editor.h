@@ -52,11 +52,13 @@ public:
 //    void deleteCamera(uint iCamera);
     void addCurve(BSplineCurve::Type type);
     void addSurface(BSplineSurface::Type type);
+    void switchMultiSample();
 
 protected:
     void initializeGL() override;
 //    void resizeGL(int w, int h) override;
     void paintGL() override;
+
 
 
 signals:
@@ -97,6 +99,7 @@ private:
     int m_cpt = 1;
 //    QSplitterNode * m_splitterRoot;
 //    QTimer * m_renderTimer = nullptr;
+    bool m_multiSample = true;
 
 
 };

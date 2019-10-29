@@ -60,6 +60,8 @@ public:
     BoundingBox m_box;
 
     bool m_computeShadow = true;
+    bool m_zPrepass = false;
+//    bool m_multiSampling = true;
 
 
 public:
@@ -77,7 +79,7 @@ public:
 
     //    };
     void initializeGL();
-    void renderScene(Shader & shader);
+    void renderScene(const Shader &shader);
 
     //    const_it begin() const {
     ////        return iterator(*this);

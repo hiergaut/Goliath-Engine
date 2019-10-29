@@ -23,14 +23,14 @@
 #include <iomanip>
 #include <opengl/geometry/AxisGeometry.h>
 #include <opengl/geometry/CubeGeometry.h>
+#include <opengl/geometry/CubeMapGeometry.h>
 #include <opengl/geometry/DotGeometry.h>
 #include <opengl/geometry/LineGeometry.h>
+#include <opengl/geometry/QuadGeometry.h>
+#include <opengl/geometry/SkyBoxGeometry.h>
 #include <opengl/geometry/TriangleGeometry.h>
 #include <opengl/geometry/boneGeometry.h>
 #include <opengl/geometry/uvSphereGeometry.h>
-#include <opengl/geometry/QuadGeometry.h>
-#include <opengl/geometry/SkyBoxGeometry.h>
-#include <opengl/geometry/CubeMapGeometry.h>
 
 #include <QPainter>
 #include <gui/editor/timeline/FormTimeline.h>
@@ -120,9 +120,11 @@ void QOpenGLWidget_Editor::initializeGL()
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
     //    glEnable(GL_CULL_FACE);
-        glEnable(GL_MULTISAMPLE);
-//        glEnable(GL_SAMPLE_COVERAGE);
-//        glDisable(GL_MULTISAMPLE);
+    glEnable(GL_MULTISAMPLE);
+    //        glDisable(GL_MULTISAMPLE);
+
+    //        glEnable(GL_SAMPLE_COVERAGE);
+    //        glDisable(GL_MULTISAMPLE);
 
     //    glEnable(GL_STENCIL_TEST);
     //    glStencilMask(0x00);
@@ -204,7 +206,7 @@ void QOpenGLWidget_Editor::paintGL()
 
     uint64_t currentFrameTime = QDateTime::currentMSecsSinceEpoch();
 
-    int period = 10; // nb frames
+    int period = 60; // nb frames
     if (m_cpt % period == 0) {
         m_deltaTime = currentFrameTime - m_lastFrame;
         m_lastFrame = currentFrameTime;
@@ -218,11 +220,12 @@ void QOpenGLWidget_Editor::paintGL()
         //        std::string str;
         //    m_stream << m_fps << "\n";
         //        std::cout << "fps : " << m_fps << std::endl;
-        m_statusBar->showMessage("fps:" + QString::number(m_fps) + "  camera:" + QString::number(m_scene.m_cameras.size()) + "  dirLight:" + QString::number(m_scene.m_dirLights.size()) + "  pointLight:" + QString::number(m_scene.m_pointLights.size())+ "  spotLight:" + QString::number(m_scene.m_spotLights.size()));
+        m_statusBar->showMessage("fps:" + QString::number(m_fps) + "  camera:" + QString::number(m_scene.m_cameras.size()) + "  dirLight:" + QString::number(m_scene.m_dirLights.size()) + "  pointLight:" + QString::number(m_scene.m_pointLights.size()) + "  spotLight:" + QString::number(m_scene.m_spotLights.size()));
     }
     //        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-//    glViewport(100, 100, 100, 100);
-//                glClearColor(0.0f, 1.0f, 0.0f, 0.5f);
+    //    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    //    glViewport(100, 100, 100, 100);
+    //                glClearColor(0.0f, 1.0f, 0.0f, 0.5f);
 
     //    glViewport(width() - 100, 10, 100, 100);
 
@@ -261,7 +264,7 @@ void QOpenGLWidget_Editor::paintGL()
             //            glViewport(x, y - 3, view->width(), view->height());
 
             //        glm::mat4 projectionMatrix = view->projectionMatrix();
-                        m_scene.draw(*view);
+            m_scene.draw(*view);
             //        RayTracer::draw(modelMatrix, viewMatrix, projectionMatrix);
 
             int minSide = qMin(view->width(), view->height());
@@ -285,8 +288,8 @@ void QOpenGLWidget_Editor::paintGL()
             //        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
         }
     }
-//    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-//    m_scene.updateLightsShadowMap();
+    //    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    //    m_scene.updateLightsShadowMap();
 
     // ----------------------------------------------------------------
 
@@ -330,6 +333,18 @@ void QOpenGLWidget_Editor::addSurface(BSplineSurface::Type type)
 {
     makeCurrent();
     m_scene.addSurface(type);
+}
+
+void QOpenGLWidget_Editor::switchMultiSample()
+{
+    makeCurrent();
+    if (m_multiSample) {
+        glDisable(GL_MULTISAMPLE);
+    } else {
+        glEnable(GL_MULTISAMPLE);
+    }
+
+    m_multiSample = !m_multiSample;
 }
 
 //void QOpenGLWidget_Editor::addCameraWorld(float fov, glm::vec3&& position, glm::vec3&& target)

@@ -374,6 +374,7 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
 {
     //                qDebug() << this << ": keyPressEvent" << event;
     uint size = Scene::m_cameras.size();
+//    bool& multiSampling = Scene::m_scene->m_multiSampling;
 
     switch (event->key()) {
 
@@ -395,7 +396,22 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
         break;
 
     case Qt::Key_F6:
-        Scene::m_scene->m_computeShadow = ! Scene::m_scene->m_computeShadow;
+        Scene::m_scene->m_computeShadow = !Scene::m_scene->m_computeShadow;
+        break;
+
+    case Qt::Key_F7:
+        Scene::m_scene->m_zPrepass = !Scene::m_scene->m_zPrepass;
+        break;
+
+    case Qt::Key_F8:
+        QOpenGLWidget_Editor::m_editor->switchMultiSample();
+//        if (multiSampling) {
+//            glDisable(GL_MULTISAMPLE);
+//            multiSampling = false;
+//        } else {
+//            glEnable(GL_MULTISAMPLE);
+//            multiSampling = true;
+//        }
         break;
 
     case Qt::Key_C:
@@ -504,14 +520,14 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
         Camera* m_camera = Scene::m_cameras[m_iCamera];
         m_camera->m_cameraStrategy->keyPressEvent(event);
 
-//        CameraStrategy::Type cameraType = m_camera->m_cameraStrategy->m_type;
+        //        CameraStrategy::Type cameraType = m_camera->m_cameraStrategy->m_type;
         bool fpsCamera = m_camera->m_cameraStrategy->m_type == CameraStrategy::FPS;
 
         switch (event->key()) {
 
-//        case Qt::Key_PageUp:
-//            on_actionPoint_Light_triggered();
-//            break;
+            //        case Qt::Key_PageUp:
+            //            on_actionPoint_Light_triggered();
+            //            break;
 
         case Qt::Key_Delete:
             //        qDebug() << "delete";
@@ -522,8 +538,7 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
             if (m_transformActive) {
                 sendTransformToScene();
                 m_firstTransform = true;
-            }
-            else {
+            } else {
 
                 if (m_camera->m_cameraStrategy->m_type == CameraStrategy::WORLD) {
                     CameraWorld* camera = static_cast<CameraWorld*>(m_camera->m_cameraStrategy);
@@ -537,13 +552,13 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
                 RayTracer::setSelectToOriginTransform();
             } else {
                 //                m_camera->setDefault();
-//                m_camera->setTarget(glm::vec3(0.0f));
-            m_camera->setDefault();
+                //                m_camera->setTarget(glm::vec3(0.0f));
+                m_camera->setDefault();
             }
 
             break;
 
-//        case Qt::Key_F5:
+            //        case Qt::Key_F5:
             break;
 
         case Qt::Key_X:
@@ -670,10 +685,10 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
 
         case Qt::Key_PageDown:
             //        qDebug() << "x";
-            if (! fpsCamera) {
-            m_camera->setFront(glm::vec3(-1.0f, 0.0f, 0.0f));
-            updateOrthoProjection();
-            m_alignAxis = true;
+            if (!fpsCamera) {
+                m_camera->setFront(glm::vec3(-1.0f, 0.0f, 0.0f));
+                updateOrthoProjection();
+                m_alignAxis = true;
             }
             //        m_ortho = true;
             break;
@@ -753,11 +768,11 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
                     break;
                 }
 
-//            } else {
-//                if (m_camera->m_cameraStrategy->m_type == CameraStrategy::WORLD) {
-//                    CameraWorld* camera = static_cast<CameraWorld*>(m_camera->m_cameraStrategy);
-//                    RayTracer::setSelectFocus(*camera);
-//                }
+                //            } else {
+                //                if (m_camera->m_cameraStrategy->m_type == CameraStrategy::WORLD) {
+                //                    CameraWorld* camera = static_cast<CameraWorld*>(m_camera->m_cameraStrategy);
+                //                    RayTracer::setSelectFocus(*camera);
+                //                }
             }
             break;
         }

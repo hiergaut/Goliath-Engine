@@ -11,6 +11,8 @@ public:
     Plane(const glm::vec3 & normal, const glm::vec3 & vertex);
     Plane() {}
 
+    void set(float a, float b, float c, float d);
+
     float m_a;
     float m_b;
     float m_c;
