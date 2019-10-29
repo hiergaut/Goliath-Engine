@@ -59,6 +59,8 @@ public:
 //    std::vector<Curve> m_curves;
     BoundingBox m_box;
 
+    bool m_computeShadow = true;
+
 
 public:
     QOpenGLFunctionsCore * m_fun;

@@ -25,7 +25,7 @@ MeshModel::MeshModel(const std::string& path)
     //    m_fun = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
 //    m_type = Model::MESH;
 
-    m_meshes.reserve(50);
+    m_meshes.reserve(200);
     m_materials.reserve(50);
     m_textures.reserve(100);
     m_animations.reserve(50);
@@ -56,7 +56,7 @@ MeshModel::MeshModel(std::ifstream& file)
 {
     m_type = Model::MESH;
 
-    m_meshes.reserve(50);
+    m_meshes.reserve(400);
     m_materials.reserve(50);
     m_textures.reserve(100);
     m_animations.reserve(50);
@@ -205,7 +205,10 @@ void MeshModel::assimpLoadModel(std::string const& path)
     //        qDebug() << "[MODEL] m_importer : " << &m_importer;
     //    const aiScene* scene = m_importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenSmoothNormals);
     //    const aiScene* scene = m_importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace | aiProcess_SplitByBoneCount);
-    const aiScene* scene = m_importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
+//    const aiScene* scene = m_importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
+    const aiScene *scene = m_importer.ReadFile(
+        path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace
+    );
     //    const aiScene* scene = m_importer.ReadFile(path, aiProcess_FlipUVs);
     //    m_scene = m_importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
     //        const aiScene* scene = m_importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace | aiProcess_FlipWindingOrder);
@@ -596,12 +599,13 @@ void MeshModel::buildItemModel(QStandardItem* parent) const
     //        animation.buildItemModel(item);
     //    }
 
-    //    item = new QStandardItem("materials  " + QString::number(m_materials.size()));
-    //    parent->appendRow(item);
-    //    for (const Material& material : m_materials) {
-    //        //        modelRecurseMaterial(material, item);
-    //        material.buildItemModel(item);
-    //    }
+    QStandardItem * item;
+        item = new QStandardItem("materials  " + QString::number(m_materials.size()));
+        parent->appendRow(item);
+        for (const Material& material : m_materials) {
+            //        modelRecurseMaterial(material, item);
+            material.buildItemModel(item);
+        }
 }
 
 //void MeshModel::load(std::ifstream &file) const

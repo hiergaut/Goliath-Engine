@@ -377,6 +377,23 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
 
     switch (event->key()) {
 
+    case Qt::Key_F1:
+        Mesh::enableSwitchTexture(Texture::DIFFUSE);
+        break;
+    case Qt::Key_F2:
+        Mesh::enableSwitchTexture(Texture::SPECULAR);
+        break;
+    case Qt::Key_F3:
+        Mesh::enableSwitchTexture(Texture::NORMAL);
+        break;
+    case Qt::Key_F4:
+        Mesh::enableSwitchTexture(Texture::HEIGHT);
+        break;
+
+    case Qt::Key_F6:
+        Scene::m_scene->m_computeShadow = ! Scene::m_scene->m_computeShadow;
+        break;
+
     case Qt::Key_C:
         //        if (size == 0) {
         //            ui->menuCameraId->setTitle("No Camera");

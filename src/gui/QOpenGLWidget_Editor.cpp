@@ -204,7 +204,7 @@ void QOpenGLWidget_Editor::paintGL()
 
     uint64_t currentFrameTime = QDateTime::currentMSecsSinceEpoch();
 
-    int period = 100;
+    int period = 10; // nb frames
     if (m_cpt % period == 0) {
         m_deltaTime = currentFrameTime - m_lastFrame;
         m_lastFrame = currentFrameTime;

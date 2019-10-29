@@ -3,11 +3,16 @@
 #include <assimp/Assimp.h>
 #include <gui/editor/timeline/FormTimeline.h>
 
+bool Mesh::m_enableTexture[Texture::size] = { true, true, true, true };
+
 Mesh::Mesh(const aiMesh* ai_mesh, Materials* materials, Textures* textures)
     : m_materials(materials)
     , m_textures(textures)
     , m_name(ai_mesh->mName.C_Str())
 {
+    //    m_enableTexture[Texture::DIFFUSE] = true;
+
+    //    m_enableTexture = {true, true, true, true}
     const uint numVertices = ai_mesh->mNumVertices;
     //    m_box = new BoundingBox;
 
@@ -238,10 +243,11 @@ void Mesh::buildItemModel(QStandardItem* parent) const
 
     const Material& material = (*m_materials)[m_iMaterial];
     //    modelRecurseMaterial(material, item);
-    //    QStandardItem* item2 = new QStandardItem(material.m_name.c_str());
-    //    QStandardItem * item2 = new QStandardItem(QIcon(":/icons/material.png"), material.m_name.c_str());
-    //    item->appendRow(item2);
-    material.buildItemModel(item);
+    //        QStandardItem* item2 = new QStandardItem(material.m_name.c_str());
+    QStandardItem* item2 = new QStandardItem(QIcon(":/icons/material.png"), material.m_name.c_str());
+    item->appendRow(item2);
+
+    //    material.buildItemModel(item);
 
     //        QStandardItem * item2 = new QStandardItem(QIcon)
     QStandardItem* item3 = new QStandardItem(QIcon(":/icons/vertexGroups.png"), "Vertex Groups  bones:" + QString::number(m_bones.size()) + "  sumBoneWeights:" + QString::number(m_sumBoneWeights));
@@ -342,7 +348,7 @@ void Mesh::draw(const Shader& shader) const
 
 void Mesh::draw(const Shader& shader, bool dotCloud) const
 {
-//    qDebug() << "context " << m_fun;
+    //    qDebug() << "context " << m_fun;
     //    Q_ASSERT(m_box != nullptr);
     //    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     //    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -360,44 +366,116 @@ void Mesh::draw(const Shader& shader, bool dotCloud) const
         //                const Texture& texture = m_textures[material.m_iTextures[i]];
 
         //        }
-        bool hasTexture = false;
-        uint cpt = 0;
-        for (uint i = 0; i < Texture::size; ++i) {
-            for (uint j = 0; j < material.m_iTextures[i].size(); ++j) {
-                hasTexture = true;
-                const Texture& texture = (*m_textures)[material.m_iTextures[i][j]];
+        //        bool hasTexture = false;
+        //        uint cpt = 0;
+        //        for (uint i = 0; i < Texture::size; ++i) {
+        //            //            const Color& color = material.m_colors[i];
+        //            std::string name = Texture::to_string(static_cast<Texture::Type>(i));
+        //            //            for (uint j = 0; j < material.m_iTextures[i].size(); ++j) {
+        //            if (material.m_iTextures[i].empty() || !m_enableTexture[i]) {
+        //                shader.setBool("has_texture_" + name, false);
 
-//                if (texture.m_type != Texture::Type::NORMAL) {
-                m_fun->glActiveTexture(GL_TEXTURE0 + cpt);
-                std::string number = std::to_string(j);
-                std::string name = std::string(texture);
-                m_fun->glUniform1i(m_fun->glGetUniformLocation(shader.ID, (name + number).c_str()), cpt);
-//                qDebug() << (name + number).c_str();
-                m_fun->glBindTexture(GL_TEXTURE_2D, texture.m_id);
+        //                //                shader.setVec3((std::string("material.") + color.to_string()), color);
 
-                ++cpt;
-//                }
-                //            }
-            }
+        //            } else {
+        //                shader.setBool("has_texture_" + name, true);
+        //                //                    Q_ASSERT(j < 1);
+        //                //                    hasTexture = true;
+        //                const Texture& texture = (*m_textures)[material.m_iTextures[i][0]];
+
+        //                //                if (texture.m_type != Texture::Type::NORMAL) {
+        //                m_fun->glActiveTexture(GL_TEXTURE0 + i);
+        //                //                std::string number = std::to_string(i);
+        //                //                std::string name = std::string(texture) + std::to_string(i);
+        //                //                m_fun->glUniform1i(m_fun->glGetUniformLocation(shader.ID, (name + number).c_str()), cpt);
+        //                shader.setInt("texture_" + name, i);
+        //                //                qDebug() << (name + number).c_str();
+        //                m_fun->glBindTexture(GL_TEXTURE_2D, texture.m_id);
+
+        //                //                ++cpt;
+        //            }
+        //            //                }
+        //            //            }
+        //            //            }
+        //        }
+
+        if (!material.m_iTextures[Texture::DIFFUSE].empty() && m_enableTexture[Texture::DIFFUSE]) {
+            shader.setBool("has_texture_diffuse", true);
+            m_fun->glActiveTexture(GL_TEXTURE0);
+            shader.setInt("texture_diffuse", 0);
+            m_fun->glBindTexture(GL_TEXTURE_2D, (*m_textures)[material.m_iTextures[Texture::DIFFUSE][0]].m_id);
+        } else {
+            shader.setBool("has_texture_diffuse", false);
         }
 
-        shader.setBool("hasTexture", hasTexture);
-        if (!hasTexture) {
-            shader.setVec3("material.ambient", material.m_colors[Color::AMBIENT]);
-            shader.setVec3("material.diffuse", material.m_colors[Color::DIFFUSE]);
+        if (!material.m_iTextures[Texture::SPECULAR].empty() && m_enableTexture[Texture::SPECULAR]) {
+            shader.setBool("has_texture_specular", true);
+//            shader.setBool("has_texture_diffuse", true);
+            m_fun->glActiveTexture(GL_TEXTURE1);
+            shader.setInt("texture_specular", 1);
+//            shader.setInt("texture_diffuse", 0);
+            m_fun->glBindTexture(GL_TEXTURE_2D, (*m_textures)[material.m_iTextures[Texture::SPECULAR][0]].m_id);
+        } else {
+            shader.setBool("has_texture_specular", false);
+//            shader.setBool("has_texture_diffuse", false);
         }
+
+        if (!material.m_iTextures[Texture::NORMAL].empty() && m_enableTexture[Texture::NORMAL]) {
+            shader.setBool("has_texture_normal", true);
+            m_fun->glActiveTexture(GL_TEXTURE2);
+            shader.setInt("texture_normal", 2);
+            m_fun->glBindTexture(GL_TEXTURE_2D, (*m_textures)[material.m_iTextures[Texture::NORMAL][0]].m_id);
+        } else {
+            shader.setBool("has_texture_normal", false);
+        }
+
+        //        if (material.m_name == "Material__25") {
+        //            if (!material.m_iTextures[Texture::NORMAL].empty()) {
+        //                qDebug() << m_name.c_str() << material.m_name.c_str() << ": has normal texture";
+        //            }
+        //        }
+
+        //        for (uint i =0; i <Color::size; ++i) {
+        shader.setVec3("material.ambient", material.m_colors[Color::AMBIENT]);
+        shader.setVec3("material.diffuse", material.m_colors[Color::DIFFUSE]);
+        shader.setVec3("material.specular", material.m_colors[Color::SPECULAR]);
+        shader.setFloat("material.shininess", material.m_shininess);
+
+        //        }
+
+        //        if (material.m_iTextures[Texture::DIFFUSE].empty()) {
+        //            shader.setVec3("material.")
+        //        }
+
+        //        if (material.m_iTextures[Texture::NORMAL].size() > 0) {
+        //            qDebug() << material.m_name.c_str() << (*m_textures)[Texture::NORMAL][0] << ": normal texture load";
+        //        }
+
+        //        shader.setBool("hasTexture", hasTexture);
+        //        if (!hasTexture) {
+        //            shader.setVec3("material.ambient", material.m_colors[Color::AMBIENT]);
+        //            shader.setVec3("material.diffuse", material.m_colors[Color::DIFFUSE]);
+        //        }
         //        shader.setVec3("material.ambient", 0.5f, 0.5f, 0.5f);
         //            shader.setVec3("material.diffuse", 0.3f, 0.3f, 0.3f);
         //        shader.setVec3("material.specular", 1.0f, 1.0f, 1.0f);
 
-        shader.setVec3("material.specular", material.m_colors[Color::SPECULAR]);
+        //        shader.setVec3("material.specular", material.m_colors[Color::SPECULAR]);
         //        shader.setVec3("material.specular", material.m_colors[Color::DIFFUSE]);
-        shader.setFloat("material.shininess", material.m_shininess);
-//        shader.setFloat("material.shininess", std::max(1.0f, material.m_shininess));
-//        shader.setFloat("material.shininess", 2.0f);
+        //        shader.setFloat("material.shininess", std::max(1.0f, material.m_shininess));
+        //        shader.setFloat("material.shininess", 2.0f);
+    } else if (shader.m_shade == Shader::Type::NORMAL) {
+        const Material& material = (*m_materials)[m_iMaterial];
+        //    if (shade == MainWindow3dView::Shading::RENDERED) {
+        if (!material.m_iTextures[Texture::NORMAL].empty() && m_enableTexture[Texture::NORMAL]) {
+            shader.setBool("has_texture_normal", true);
+            m_fun->glActiveTexture(GL_TEXTURE2);
+            shader.setInt("texture_normal", 2);
+            m_fun->glBindTexture(GL_TEXTURE_2D, (*m_textures)[material.m_iTextures[Texture::NORMAL][0]].m_id);
+        } else {
+            shader.setBool("has_texture_normal", false);
+        }
     }
-    //    if (shade == MainWindow3dView::Shading::RENDERED) {
-
     //    }
 
     if (FormTimeline::animation() != nullptr) {
@@ -425,7 +503,7 @@ void Mesh::draw(const Shader& shader, bool dotCloud) const
     m_fun->glBindVertexArray(m_vao);
 
     if (dotCloud) {
-//        glPointSize(6.0f);
+        //        glPointSize(6.0f);
         m_fun->glDrawArrays(GL_POINTS, 0, m_vertices.size());
     }
     //        m_fun->glDrawElements(GL_POINTS, m_vertices.size(), GL_UNSIGNED_INT, 0);
@@ -583,4 +661,9 @@ void Mesh::updateBoundingBox(const glm::mat4& modelTransform) const
     //        //        m_box << bone.min();
     //        //        m_box << bone.max();
     //    }
+}
+
+void Mesh::enableSwitchTexture(Texture::Type typeTexture)
+{
+    m_enableTexture[typeTexture] = !m_enableTexture[typeTexture];
 }

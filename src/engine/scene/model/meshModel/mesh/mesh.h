@@ -54,6 +54,8 @@ public:
     std::string m_name;
 
     std::vector<uint> m_indices; // triangles
+//    bool m_disable
+    static bool m_enableTexture[Texture::size];
 
 public:
     //    Mesh(std::string name, std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures) : m_name(name)
@@ -77,6 +79,8 @@ public:
 
 //    void initBonesBoundingBox() const;
     void updateBoundingBox(const glm::mat4 &modelTransform) const;
+
+    static void enableSwitchTexture(Texture::Type typeTexture);
 
 private:
 //    std::vector<BoundingBox> m_box;

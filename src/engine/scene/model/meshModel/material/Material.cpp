@@ -50,6 +50,7 @@ Material::Material(const aiMaterial* ai_material, Textures* textures, std::strin
     ai_material->Get(AI_MATKEY_SHININESS, m_shininess);
 //    std::cout << m_name << ": shininess " << m_shininess << std::endl;
     m_shininess = std::max(1.0f, m_shininess);
+    Q_ASSERT(m_shininess <= 256);
     //        material.m_shininess = ai_shininess;
     //        aiColor3D ai_emissive;
     //        aiColor3D ai_transparent;
@@ -63,13 +64,14 @@ Material::Material(const aiMaterial* ai_material, Textures* textures, std::strin
     //        textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
     // 3. normal maps
     m_iTextures[Texture::NORMAL] = assimpLoadMaterialTextures(ai_material, aiTextureType_NORMALS, Texture::NORMAL);
-    if (ai_material->GetTextureCount(aiTextureType_NORMALS) > 0) {
-        std::cout << m_name << ": normal texture" << std::endl;
-    }
+//    if (ai_material->GetTextureCount(aiTextureType_NORMALS) > 0) {
+//        std::cout << m_name << ": normal texture loaded" << std::endl;
+//    }
     //        textures.insert(textures.end(), normalMaps.begin(), normalMaps.end());
     // 4. height maps
     m_iTextures[Texture::HEIGHT] = assimpLoadMaterialTextures(ai_material, aiTextureType_HEIGHT, Texture::HEIGHT);
     //        textures.insert(textures.end(), heightMaps.begin(), heightMaps.end());
+    m_iTextures[Texture::OPACITY] = assimpLoadMaterialTextures(ai_material, aiTextureType_OPACITY, Texture::OPACITY);
 
     //    std::cout << "\033[32m";
     //    std::cout << "[Material] " << m_name << " created " << this << std::endl;
@@ -234,6 +236,8 @@ void Material::buildItemModel(QStandardItem* parent) const
             }
         }
     }
+    QStandardItem* shininess = new QStandardItem("shininess: " + QString::number(m_shininess));
+    item2->appendRow(shininess);
     parent->appendRow(item2);
 }
 
@@ -257,6 +261,7 @@ std::vector<uint> Material::assimpLoadMaterialTextures(const aiMaterial* mat, ai
                 //                textures.push_back(m_textures[j]);
                 textures.push_back(j);
                 skip = true; // a texture with the same filepath has already been loaded, continue to next one. (optimization)
+                std::cout << filename.c_str() << " already loaded";
                 break;
             }
         }

@@ -21,11 +21,31 @@ public:
         SPECULAR,
         NORMAL,
         HEIGHT,
+        OPACITY,
         size
     } m_type;
 
-public:
+    static const char* to_string(Type type)
+    {
+        switch (type) {
+        case DIFFUSE:
+            return "diffuse";
 
+        case SPECULAR:
+            return "specular";
+
+        case NORMAL:
+            return "normal";
+
+        case HEIGHT:
+            return "height";
+
+        default:
+            throw std::out_of_range("no texture type");
+        }
+    }
+
+public:
     Texture(std::string path, std::string filename, Texture::Type type);
     Texture(std::ifstream& file);
 
@@ -42,7 +62,7 @@ public:
 private:
     QOpenGLFunctionsCore* m_fun;
 
-//    Type m_type;
+    //    Type m_type;
     //    std::string type;
 };
 

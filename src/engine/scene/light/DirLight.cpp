@@ -41,14 +41,16 @@ void DirLight::draw(const Shader& shader, bool dotCloud, const glm::mat4& localT
         //    shader.use();
         shader.setMat4("model", worldTransform * m_model->transform() * local);
 
-        glActiveTexture(GL_TEXTURE0);
         //    shader.setBool("userColor", false);
         //    shader.setVec4("color", glm::vec4(1.0f, 0, 0, 1));
-        shader.setBool("hasTexture", true);
-        shader.setInt("texture_diffuse1", 0);
+//        shader.setBool("hasTexture", true);
+        shader.setBool("has_texture_diffuse", true);
+        shader.setInt("texture_diffuse", 5);
+        glActiveTexture(GL_TEXTURE5);
         glBindTexture(GL_TEXTURE_2D, m_depthMap);
         QuadGeometry::draw();
-        shader.setBool("hasTexture", false);
+        shader.setBool("has_texture_diffuse", false);
+//        shader.setBool("hasTexture", false);
         //    glActiveTexture(GL_TEXTURE0);
     }
     //    }

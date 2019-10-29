@@ -16,6 +16,9 @@ void Shader::glInitialize()
 //Shader::Shader(const std::string vertexPath, const std::string fragmentPath, Shader::Type shade, const std::string geometryPath)
 Shader::Shader(const std::string vertexPath, const std::string fragmentPath, const std::string geometryPath, Shader::Type shade)
     : m_shade(shade)
+    , m_vertexPath(vertexPath)
+    , m_fragmentPath(fragmentPath)
+    , m_geometryPath(geometryPath)
 {
     //        vertexPath = shaderPath + vertexPath;
     m_fun = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
@@ -213,14 +216,14 @@ void Shader::checkCompileErrors(GLuint shader, std::string type)
         m_fun->glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
         if (!success) {
             m_fun->glGetShaderInfoLog(shader, 1024, NULL, infoLog);
-            std::cout << "ERROR::SHADER_COMPILATION_ERROR of type: " << type << "\n"
+            std::cout << m_vertexPath << ": ERROR::SHADER_COMPILATION_ERROR of type: " << type << "\n"
                       << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
         }
     } else {
         m_fun->glGetProgramiv(shader, GL_LINK_STATUS, &success);
         if (!success) {
             m_fun->glGetProgramInfoLog(shader, 1024, NULL, infoLog);
-            std::cout << "ERROR::PROGRAM_LINKING_ERROR of type: " << type << "\n"
+            std::cout << m_vertexPath << ": ERROR::PROGRAM_LINKING_ERROR of type: " << type << "\n"
                       << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
         }
     }

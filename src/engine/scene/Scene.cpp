@@ -365,6 +365,7 @@ void Scene::draw(const MainWindow3dView& view)
     //    }
 
     if (view.m_shade == Shader::Type::RENDERED) {
+        shader.setBool("shadow", m_computeShadow);
 
         //                for (const DirLight & dirLight : m_dirLights) {
         uint nbDirLight = m_dirLights.size();
@@ -387,11 +388,11 @@ void Scene::draw(const MainWindow3dView& view)
                 shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].direction", glm::vec4(dirLight.direction(onesMatrix), 1.0f));
             }
 
-//            shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].ambient", dirLight.m_ambient);
+            //            shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].ambient", dirLight.m_ambient);
             shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].ambient", glm::vec3(0.2f));
-//            shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].diffuse", dirLight.m_diffuse);
+            //            shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].diffuse", dirLight.m_diffuse);
             shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].diffuse", glm::vec3(1.0f));
-//            shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].specular", dirLight.m_specular);
+            //            shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].specular", dirLight.m_specular);
             shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].specular", glm::vec3(1.0f));
 
             //            shader.setVec3("dirLight[" + QString::number(0).toStdString() + "].direction", -0.2f, -1.0f, -0.3f);
@@ -425,25 +426,25 @@ void Scene::draw(const MainWindow3dView& view)
             shader.setFloat("pointLights[" + QString::number(i).toStdString() + "].linear", 0.00f);
             //            shader.setFloat("pointLights[" + QString::number(i).toStdString() + "].quadratic", 0.032f);
             shader.setFloat("pointLights[" + QString::number(i).toStdString() + "].quadratic", 0.000005f);
-//            shader.setVec3("pointLights[" + QString::number(i).toStdString() + "].ambient", pointLight.m_ambient);
+            //            shader.setVec3("pointLights[" + QString::number(i).toStdString() + "].ambient", pointLight.m_ambient);
             shader.setVec3("pointLights[" + QString::number(i).toStdString() + "].ambient", glm::vec3(0.0f));
-//            shader.setVec3("pointLights[" + QString::number(i).toStdString() + "].diffuse", pointLight.m_diffuse);
+            //            shader.setVec3("pointLights[" + QString::number(i).toStdString() + "].diffuse", pointLight.m_diffuse);
             shader.setVec3("pointLights[" + QString::number(i).toStdString() + "].diffuse", glm::vec3(1.0f));
-//            shader.setVec3("pointLights[" + QString::number(i).toStdString() + "].specular", pointLight.m_specular);
+            //            shader.setVec3("pointLights[" + QString::number(i).toStdString() + "].specular", pointLight.m_specular);
             shader.setVec3("pointLights[" + QString::number(i).toStdString() + "].specular", glm::vec3(1.0f));
         }
 
         uint nbSpotLight = m_spotLights.size();
         shader.setInt("nbSpotLight", nbSpotLight);
-        for (uint i = 0; i <  nbSpotLight; ++i) {
+        for (uint i = 0; i < nbSpotLight; ++i) {
             const SpotLight& spotLight = m_spotLights[i];
             shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].direction", spotLight.direction(m_localTransform));
             shader.setFloat("spotLights[" + QString::number(i).toStdString() + "].cutOff", glm::cos(glm::radians(12.5f)));
             shader.setFloat("spotLights[" + QString::number(i).toStdString() + "].outerCutOff", glm::cos(glm::radians(15.0f)));
 
             shader.setInt("spotLights[" + QString::number(i).toStdString() + "].id", nbDirLight + i);
-            shader.setInt("spotLights[" + QString::number(i).toStdString() + "].shadowMap",nbDirLight +  MAX_POINT_LIGHT + 5 + i);
-            glActiveTexture(GL_TEXTURE5 +nbDirLight + MAX_POINT_LIGHT +  i);
+            shader.setInt("spotLights[" + QString::number(i).toStdString() + "].shadowMap", nbDirLight + MAX_POINT_LIGHT + 5 + i);
+            glActiveTexture(GL_TEXTURE5 + nbDirLight + MAX_POINT_LIGHT + i);
             glBindTexture(GL_TEXTURE_2D, spotLight.depthMap());
 
             if (spotLight.selected()) {
@@ -458,7 +459,7 @@ void Scene::draw(const MainWindow3dView& view)
             //            shader.setFloat("spotLights[" + QString::number(i).toStdString() + "].linear", 0.09f);
             shader.setFloat("spotLights[" + QString::number(i).toStdString() + "].linear", 0.00f);
             //            shader.setFloat("spotLights[" + QString::number(i).toStdString() + "].quadratic", 0.032f);
-            shader.setFloat("spotLights[" + QString::number(i).toStdString() + "].quadratic", 0.000001f);
+            shader.setFloat("spotLights[" + QString::number(i).toStdString() + "].quadratic", 0.0000000f);
 
             //            shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].ambient", spotLight.m_ambient);
             shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].ambient", glm::vec3(0.0f));
@@ -1249,7 +1250,7 @@ void Scene::updateSceneItemModel()
         QStandardItem* item = new QStandardItem(object.name().c_str());
         parentItem->appendRow(item);
 
-        object.buildItemModel(item);
+        //        object.buildItemModel(item);
     }
 
     emit m_sceneModel.dataChanged(m_sceneModel.index(0, 0), m_sceneModel.index(0, 0));
@@ -1512,15 +1513,14 @@ void Scene::deleteSelected()
     m_objects.clear();
     //    qDebug() << "object clear";
     //    std::cout << "object clear" << std::endl;
-    std::vector<Camera *> newCameras;
+    std::vector<Camera*> newCameras;
     newCameras.reserve(10);
-    for (Camera * camera : m_cameras) {
+    for (Camera* camera : m_cameras) {
         if (!camera->selected()) {
             newCameras.emplace_back(camera);
             m_objects.push_back(camera);
         }
     }
-
 
     std::vector<Object> newModels;
     newModels.reserve(10);
