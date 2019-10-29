@@ -605,7 +605,9 @@ void MeshModel::buildItemModel(QStandardItem* parent) const
         parent->appendRow(item);
         for (const Material& material : m_materials) {
             //        modelRecurseMaterial(material, item);
+//            if (material.m_name == "floor") {
             material.buildItemModel(item);
+//            }
         }
 }
 

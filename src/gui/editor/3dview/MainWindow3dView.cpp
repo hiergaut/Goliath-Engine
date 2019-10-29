@@ -537,13 +537,13 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
                 RayTracer::setSelectToOriginTransform();
             } else {
                 //                m_camera->setDefault();
-                m_camera->setTarget(glm::vec3(0.0f));
+//                m_camera->setTarget(glm::vec3(0.0f));
+            m_camera->setDefault();
             }
 
             break;
 
-        case Qt::Key_F5:
-            m_camera->setDefault();
+//        case Qt::Key_F5:
             break;
 
         case Qt::Key_X:

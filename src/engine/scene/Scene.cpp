@@ -391,7 +391,7 @@ void Scene::draw(const MainWindow3dView& view)
             }
 
             //            shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].ambient", dirLight.m_ambient);
-            shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].ambient", glm::vec3(0.2f));
+            shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].ambient", glm::vec3(0.4f));
             //            shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].diffuse", dirLight.m_diffuse);
             shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].diffuse", glm::vec3(1.0f));
             //            shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].specular", dirLight.m_specular);
@@ -1256,6 +1256,7 @@ void Scene::updateSceneItemModel()
     }
 
     emit m_sceneModel.dataChanged(m_sceneModel.index(0, 0), m_sceneModel.index(0, 0));
+
     //    for (int i = 0; i < 4; ++i) {
     //        QStandardItem* item = new QStandardItem(QString("item %0").arg(i));
     //        item->setData(QVariant("fuck"));
