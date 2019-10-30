@@ -93,7 +93,7 @@ void Scene::initializeGL()
 
     m_grid = new Grid;
     normalShader = new Shader("normalVector.vsh", "normalVector.fsh", "normalVector.gsh");
-//    m_minimalShader = new Shader("minimal.vsh", "empty.fsh");
+    //    m_minimalShader = new Shader("minimal.vsh", "empty.fsh");
     //    normalShader = new Shader("shading/normal.vsh", "shading/normal.fsh");
     //    m_bone = new BoneGeometry;
 
@@ -145,11 +145,11 @@ void Scene::initializeGL()
 
 void Scene::renderScene(const Shader& shader)
 {
-//    m_minimalShader->use();
+    //    m_minimalShader->use();
     for (const Object* object : m_objects) {
         //        if (object != viewCameraObject) {
         if (object->selected()) {
-//            object->draw(shader, m_localTransform, m_worldTransform);
+            //            object->draw(shader, m_localTransform, m_worldTransform);
             object->draw(shader, m_localTransform, m_worldTransform);
         } else {
             object->draw(shader);
@@ -195,7 +195,7 @@ void Scene::updateLightsShadowMap()
     //    glEnable(GL_CULL_FACE);
     //    glCullFace(GL_FRONT_AND_BACK);
     if (m_computeShadow) {
-//        m_minimalShader->use();
+        //        m_minimalShader->use();
 
         glDisable(GL_CULL_FACE);
         glCullFace(GL_FRONT);
@@ -218,6 +218,12 @@ void Scene::updateLightsShadowMap()
             Shader& shader = (spotLight.selected()) ? (spotLight.depthShader(m_localTransform, m_worldTransform)) : (spotLight.depthShader());
             renderScene(shader);
         }
+        for (Camera* camera : m_cameras) {
+            if (camera->m_torchEnable) {
+                Shader& shader = (camera->selected()) ? (camera->depthShader(m_localTransform, m_worldTransform)) : (camera->depthShader());
+                renderScene(shader);
+            }
+        }
         //    m_fun->glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
         glCullFace(GL_BACK);
         glDisable(GL_CULL_FACE);
@@ -237,8 +243,8 @@ void Scene::draw(const MainWindow3dView& view)
     Q_ASSERT(initialized);
     glm::mat4 viewMatrix = view.viewMatrix();
     glm::mat4 projectionMatrix = view.projectionMatrix();
-//    m_minimalShader->setMat4("view", viewMatrix);
-//    m_minimalShader->setMat4("projection", projectionMatrix);
+    //    m_minimalShader->setMat4("view", viewMatrix);
+    //    m_minimalShader->setMat4("projection", projectionMatrix);
 
     //    Object* viewCameraObject = view.m_camera;
 
@@ -488,7 +494,7 @@ void Scene::draw(const MainWindow3dView& view)
                 shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].position", spotLight.position());
                 shader.setMat4("spotLights[" + QString::number(i).toStdString() + "].lightSpaceMatrix", spotLight.lightSpaceMatrix());
             }
-            shader.setFloat("spotLights[" + QString::number(i).toStdString() + "].constant", 1.0f);
+            shader.setFloat("spotLights[" + QString::number(i).toStdString() + "].constant", 0.5f);
             //            shader.setFloat("spotLights[" + QString::number(i).toStdString() + "].linear", 0.09f);
             shader.setFloat("spotLights[" + QString::number(i).toStdString() + "].linear", 0.00f);
             //            shader.setFloat("spotLights[" + QString::number(i).toStdString() + "].quadratic", 0.032f);
@@ -502,6 +508,44 @@ void Scene::draw(const MainWindow3dView& view)
             shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].specular", glm::vec3(1.0f));
         }
 
+        uint cpt = 0;
+        for (const Camera* camera : m_cameras) {
+            if (camera->m_torchEnable) {
+                uint i = cpt++ + nbSpotLight;
+
+                shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].direction", camera->direction(m_localTransform));
+                shader.setFloat("spotLights[" + QString::number(i).toStdString() + "].cutOff", glm::cos(glm::radians(20.0f)));
+                shader.setFloat("spotLights[" + QString::number(i).toStdString() + "].outerCutOff", glm::cos(glm::radians(22.0f)));
+
+                shader.setInt("spotLights[" + QString::number(i).toStdString() + "].id", nbDirLight + i);
+                shader.setInt("spotLights[" + QString::number(i).toStdString() + "].shadowMap", nbDirLight + MAX_POINT_LIGHT + 5 + i);
+                glActiveTexture(GL_TEXTURE5 + nbDirLight + MAX_POINT_LIGHT + i);
+                glBindTexture(GL_TEXTURE_2D, camera->depthMap());
+
+                if (camera->selected()) {
+
+                    shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].position", camera->position(m_localTransform, m_worldTransform));
+                    shader.setMat4("spotLights[" + QString::number(i).toStdString() + "].lightSpaceMatrix", camera->lightSpaceMatrix(m_localTransform));
+                } else {
+                    shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].position", camera->position());
+                    shader.setMat4("spotLights[" + QString::number(i).toStdString() + "].lightSpaceMatrix", camera->lightSpaceMatrix());
+                }
+                shader.setFloat("spotLights[" + QString::number(i).toStdString() + "].constant", 1.0f);
+                //            shader.setFloat("spotLights[" + QString::number(i).toStdString() + "].linear", 0.09f);
+                shader.setFloat("spotLights[" + QString::number(i).toStdString() + "].linear", 0.00f);
+                //            shader.setFloat("spotLights[" + QString::number(i).toStdString() + "].quadratic", 0.032f);
+                shader.setFloat("spotLights[" + QString::number(i).toStdString() + "].quadratic", 0.0000000f);
+
+                //            shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].ambient", spotLight.m_ambient);
+                shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].ambient", glm::vec3(0.0f));
+                //            shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].diffuse", spotLight.m_diffuse);
+                shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].diffuse", glm::vec3(1.0f));
+                //            shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].specular", spotLight.m_specular);
+                shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].specular", glm::vec3(1.0f));
+            }
+        }
+        shader.setInt("nbSpotLight", nbSpotLight + cpt);
+
         //            shader.setVec3("dirLight[" + QString::number(0).toStdString() + "].direction", -0.2f, -1.0f, -0.3f);
         //            shader.setVec3("dirLight[" + QString::number(0).toStdString() + "].ambient", 0.05f, 0.05f, 0.05f);
         //            shader.setVec3("dirLight[" + QString::number(0).toStdString() + "].diffuse", 0.4f, 0.4f, 0.4f);
@@ -514,7 +558,7 @@ void Scene::draw(const MainWindow3dView& view)
     //    glDepthFunc(GL_EQUAL);
     //    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     if (m_zPrepass) {
-//        m_minimalShader->use();
+        //        m_minimalShader->use();
         glClear(GL_DEPTH_BUFFER_BIT);
         glDepthMask(1); // enable depth buffer writes
         glColorMask(0, 0, 0, 0); // disable color buffer writes
@@ -523,13 +567,13 @@ void Scene::draw(const MainWindow3dView& view)
         glEnable(GL_DEPTH_TEST);
 
         renderScene(shader);
-//        renderScene(*m_minimalShader);
+        //        renderScene(*m_minimalShader);
 
         glDepthMask(0); // don't write to the depth buffer
         glColorMask(1, 1, 1, 1); // now set the color component
         glDepthFunc(GL_EQUAL);
 
-//        shader.use();
+        //        shader.use();
     }
     //    renderScene(shader);
     //            qDebug() << m_objects;

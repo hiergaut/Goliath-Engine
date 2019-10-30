@@ -320,6 +320,17 @@ void Mesh::setupMesh()
 
 void Mesh::draw(const Shader& shader) const
 {
+    const Material& material = (*m_materials)[m_iMaterial];
+    if (!material.m_iTextures[Texture::OPACITY].empty() && m_enableTexture[Texture::OPACITY]) {
+        shader.setBool("has_texture_opacity", true);
+        m_fun->glActiveTexture(GL_TEXTURE2);
+        shader.setInt("texture_opacity", 2);
+        m_fun->glBindTexture(GL_TEXTURE_2D, (*m_textures)[material.m_iTextures[Texture::OPACITY][0]].m_id);
+    } else {
+        shader.setBool("has_texture_opacity", false);
+    }
+
+    // ----------------------------------------------------- DEBUG
     if (FormTimeline::animation() != nullptr) {
         if (m_bones.size() > 0) {
             for (uint i = 0; i < m_bones.size(); ++i) {
@@ -346,7 +357,7 @@ void Mesh::draw(const Shader& shader) const
     m_fun->glActiveTexture(GL_TEXTURE0);
 }
 
-void Mesh::draw(const Shader& shader, bool dotCloud, const Frustum & frustum) const
+void Mesh::draw(const Shader& shader, bool dotCloud, const Frustum& frustum) const
 {
     if (!frustum.contains(m_box)) {
         return;
@@ -358,7 +369,7 @@ void Mesh::draw(const Shader& shader, bool dotCloud, const Frustum & frustum) co
     //    shader.setMat4("model", m_transform);
     //    shader.setMat4("model", glm::mat4(1));
 
-        const Material& material = (*m_materials)[m_iMaterial];
+    const Material& material = (*m_materials)[m_iMaterial];
     if (shader.m_shade == Shader::Type::RENDERED) {
         //        const Material& material = mesh.m_material;
         //        const Material& material = mesh.m_material;
@@ -439,16 +450,16 @@ void Mesh::draw(const Shader& shader, bool dotCloud, const Frustum & frustum) co
         }
 
         // ----------------------------------------------------- DEBUG
-//        if (!material.m_iTextures[Texture::SPECULAR].empty() && m_enableTexture[Texture::SPECULAR]) {
-//            shader.setBool("has_texture_diffuse", true);
-//            m_fun->glActiveTexture(GL_TEXTURE0);
-//            shader.setInt("texture_diffuse", 0);
-//            m_fun->glBindTexture(GL_TEXTURE_2D, (*m_textures)[material.m_iTextures[Texture::SPECULAR][0]].m_id);
-//        } else {
-//            shader.setBool("has_texture_diffuse", false);
-//        }
-//        shader.setBool("has_texture_normal", false);
-//        shader.setBool("has_texture_specular", false);
+        //        if (!material.m_iTextures[Texture::SPECULAR].empty() && m_enableTexture[Texture::SPECULAR]) {
+        //            shader.setBool("has_texture_diffuse", true);
+        //            m_fun->glActiveTexture(GL_TEXTURE0);
+        //            shader.setInt("texture_diffuse", 0);
+        //            m_fun->glBindTexture(GL_TEXTURE_2D, (*m_textures)[material.m_iTextures[Texture::SPECULAR][0]].m_id);
+        //        } else {
+        //            shader.setBool("has_texture_diffuse", false);
+        //        }
+        //        shader.setBool("has_texture_normal", false);
+        //        shader.setBool("has_texture_specular", false);
 
         //        if (material.m_name == "Material__25") {
         //            if (!material.m_iTextures[Texture::NORMAL].empty()) {
@@ -485,9 +496,8 @@ void Mesh::draw(const Shader& shader, bool dotCloud, const Frustum & frustum) co
         //        shader.setVec3("material.specular", material.m_colors[Color::DIFFUSE]);
         //        shader.setFloat("material.shininess", std::max(1.0f, material.m_shininess));
         //        shader.setFloat("material.shininess", 2.0f);
-    }
-    else if (shader.m_shade == Shader::Type::LOOK_DEV) {
-//        const Material& material = (*m_materials)[m_iMaterial];
+    } else if (shader.m_shade == Shader::Type::LOOK_DEV) {
+        //        const Material& material = (*m_materials)[m_iMaterial];
 
         if (!material.m_iTextures[Texture::DIFFUSE].empty() && m_enableTexture[Texture::DIFFUSE]) {
             shader.setBool("has_texture_diffuse", true);
@@ -508,12 +518,12 @@ void Mesh::draw(const Shader& shader, bool dotCloud, const Frustum & frustum) co
         }
 
         shader.setVec3("material.ambient", material.m_colors[Color::AMBIENT]);
-//        shader.setVec3("material.diffuse", material.m_colors[Color::DIFFUSE]);
-//        shader.setVec3("material.specular", material.m_colors[Color::SPECULAR]);
-//        shader.setFloat("material.shininess", material.m_shininess);
+        //        shader.setVec3("material.diffuse", material.m_colors[Color::DIFFUSE]);
+        //        shader.setVec3("material.specular", material.m_colors[Color::SPECULAR]);
+        //        shader.setFloat("material.shininess", material.m_shininess);
 
     } else if (shader.m_shade == Shader::Type::NORMAL) {
-//        const Material& material = (*m_materials)[m_iMaterial];
+        //        const Material& material = (*m_materials)[m_iMaterial];
         //    if (shade == MainWindow3dView::Shading::RENDERED) {
         if (!material.m_iTextures[Texture::NORMAL].empty() && m_enableTexture[Texture::NORMAL]) {
             shader.setBool("has_texture_normal", true);

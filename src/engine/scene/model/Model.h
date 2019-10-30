@@ -62,6 +62,8 @@ private:
 //private:
 protected:
     BoundingBox m_box;
+//    bool m_noBox;
+
     glm::mat4 m_transform = glm::mat4(1.0f);
 };
 

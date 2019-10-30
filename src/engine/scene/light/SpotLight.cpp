@@ -7,7 +7,8 @@
 #include <opengl/geometry/QuadGeometry.h>
 #include <session/Session.h>
 
-const uint SHADOW_SIZE = 1024;
+//const uint SHADOW_SIZE = 1024;
+const uint SHADOW_SIZE = 4096;
 //const uint SHADOW_SIZE = 8192;
 //const uint SHADOW_SIZE = 16384;
 const uint SHADOW_WIDTH = SHADOW_SIZE;
@@ -38,7 +39,7 @@ void SpotLight::draw(const Shader& shader, bool dotCloud, const Frustum &frustum
         //        glPolygonMode(GL_FRONT, GL_FILL);
         glm::mat4 local = localTransform;
         //    local = glm::translate(local, glm::vec3(0.0f, 0.0f, 1.0f) * 100.0f);
-        local = glm::scale(local, glm::vec3(1.0f) * 100.0f);
+        local = glm::scale(local, glm::vec3(1.0f) * 50.0f);
         //    shader.use();
         shader.setMat4("model", worldTransform * m_model->transform() * local);
 

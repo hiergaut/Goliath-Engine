@@ -9,6 +9,16 @@
 #include <engine/scene/model/meshModel/MeshModel.h>
 #include <glm/gtc/type_ptr.hpp>
 #include <session/Session.h>
+#include <opengl/geometry/QuadGeometry.h>
+
+//const uint SHADOW_SIZE = 1024;
+//const uint SHADOW_SIZE = 2048;
+const uint SHADOW_SIZE = 4096;
+//const uint SHADOW_SIZE = 8192;
+//const uint SHADOW_SIZE = 16384;
+const uint SHADOW_WIDTH = SHADOW_SIZE;
+const uint SHADOW_HEIGHT = SHADOW_SIZE;
+//const float NEAR_PLANE = 100.0f;
 
 //static const Model * cameraModel = Scene::m_scene->m_cameraModel;
 
@@ -28,6 +38,7 @@ Camera::Camera(float fov, uint id)
 //    m_cameraStrategy = new CameraWorld(glm::vec3(200.0f, -200.0f, 200.0f), glm::vec3(0.0f), *m_model, m_id);
 
 //    updateBoundingBox();
+    initGL();
 }
 
 Camera::Camera(std::ifstream& file, uint id)
@@ -60,6 +71,7 @@ Camera::Camera(std::ifstream& file, uint id)
         break;
     }
 
+    initGL();
 //    updateBoundingBox();
 }
 
@@ -115,7 +127,7 @@ void Camera::setDefault()
     }
 }
 
-glm::mat4 Camera::viewMatrix()
+glm::mat4 Camera::viewMatrix() const
 {
     // question : return mat4 &&
     if (m_selected) {
@@ -124,6 +136,25 @@ glm::mat4 Camera::viewMatrix()
     } else {
         return glm::inverse(m_model->transform());
     }
+}
+
+glm::vec3 Camera::direction(const glm::mat4 &localTransform) const
+{
+    //    glm::vec3 dir = glm::normalize(m_model.m_transform[0] + m_model.m_transform[1] + m_model.m_transform[2]);
+    glm::vec3 sunUp = glm::vec3(transform() * localTransform * -glm::vec4(0.0f, 0.0f, 1.0f, 0.0f));
+    //    return glm::normalize(sunUp);
+    return sunUp;
+    //    glm::vec3 up = glm::vec3(0.0f, 0.0f, 1.0f);
+
+    //    glm::vec3 right = glm::normalize(glm::cross(sunUp, up));
+
+}
+
+glm::vec3 Camera::position(const glm::mat4 &localTransform, const glm::mat4 &worldTransform) const
+{
+    return (worldTransform * m_model->transform() * localTransform)[3];
+
+
 }
 
 //void Camera::switchStrategy()
@@ -144,12 +175,40 @@ void Camera::prepareHierarchy(ulong frameTime) const
 void Camera::draw(const Shader& shader, bool dotCloud, const Frustum &frustum, const glm::mat4& localTransform, const glm::mat4& worldTransform) const
 {
     //    m_model.draw(shader, dotCloud, localTransform, glm::inverse(viewMatrix()) * worldTransform);
+    if (m_torchEnable) {
+            shader.setBool("userColor", true);
+            shader.setVec4("color", glm::vec4(1.0f));
+    }
     Object::draw(shader, dotCloud, frustum, localTransform, worldTransform);
+    if (m_torchEnable) {
+            shader.setBool("userColor", false);
+//            shader.setVec4("color", glm::vec4(1.0f));
+    }
 //    m_model->draw(shader, dotCloud, localTransform, worldTransform);
     //    Scene::m_camera.d
     //    Scene::m_scene->m_cameraModel->draw(shader, dotCloud, localTransform, worldTransform);
     //    qDebug() << "draw camera";
     //    cameraModel->draw(shader, dotCloud, localTransform, glm::inverse(viewMatrix()) * worldTransform);
+    if (shader.m_shade == Shader::Type::DEPTH) {
+        //        shader.setBool("userColor", false);
+        //        glPolygonMode(GL_FRONT, GL_FILL);
+        glm::mat4 local = localTransform;
+        //    local = glm::translate(local, glm::vec3(0.0f, 0.0f, 1.0f) * 100.0f);
+        local = glm::scale(local, glm::vec3(1.0f) * 50.0f);
+        //    shader.use();
+        shader.setMat4("model", worldTransform * m_model->transform() * local);
+
+        glActiveTexture(GL_TEXTURE5);
+        //    shader.setBool("userColor", false);
+        //    shader.setVec4("color", glm::vec4(1.0f, 0, 0, 1));
+        shader.setBool("has_texture_diffuse", true);
+        shader.setInt("texture_diffuse", 5);
+        glBindTexture(GL_TEXTURE_2D, m_depthMap);
+        QuadGeometry::draw();
+        shader.setBool("has_texture_diffuse", false);
+//        shader.setBool("hasTexture", false);
+        //    glActiveTexture(GL_TEXTURE0);
+    }
 }
 
 void Camera::draw(const Shader& shader, const glm::mat4& localTransform, const glm::mat4& worldTransform) const
@@ -173,6 +232,100 @@ void Camera::drawBoundingBox(const Shader& shader) const
     //    Scene::m_cameraModel->draw(shader, localTransform, worldTransform);
     //    cameraModel->drawBoundingBox(shader);
 }
+
+void Camera::initGL()
+{
+    m_fun = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
+    m_fun->glGenFramebuffers(1, &m_depthFbo);
+
+    glGenTextures(1, &m_depthMap);
+    glBindTexture(GL_TEXTURE_2D, m_depthMap);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT,
+        SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    //    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    //    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+    float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+
+    m_fun->glBindFramebuffer(GL_FRAMEBUFFER, m_depthFbo);
+    m_fun->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, m_depthMap, 0);
+    glDrawBuffer(GL_NONE);
+    glReadBuffer(GL_NONE);
+    //        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    //    glEnable(GL_CULL_FACE);
+    m_fun->glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    m_simpleDepthShader = new Shader("shadow/dirlight_shadow_depth.vsh", "shadow/dirlight_shadow_depth.fsh");
+
+    //    m_debugDepthQuad = new Shader("shadow/debug_quad.vsh", "shadow/debug_quad.fsh");
+    //    m_debugDepthQuad->use();
+    //    m_debugDepthQuad->setInt("depthMap", 0);
+}
+
+
+Shader& Camera::depthShader(const glm::mat4& localTransform, const glm::mat4& worldTransform) const
+{
+    //    glViewport(200, 200, 100, 100);
+    //    m_fun->glBindFramebuffer(GL_FRAMEBUFFER, m_depthFbo);
+    //    glClear(GL_DEPTH_BUFFER_BIT);
+    //    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    //    glm::mat4 lightSpaceMatrix;
+    //    float radius = 5000.0f;
+
+    m_simpleDepthShader->use();
+    m_simpleDepthShader->setMat4("lightSpaceMatrix", lightSpaceMatrix(localTransform));
+
+    glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
+    //    glViewport(100, 100, 200, 200);
+    m_fun->glBindFramebuffer(GL_FRAMEBUFFER, m_depthFbo);
+    glClear(GL_DEPTH_BUFFER_BIT);
+    //    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    //    glActiveTexture(GL_TEXTURE0);
+    //    glBindTexture(GL_TEXTURE_2D, woodTexture);
+    //    renderScene(simpleDepthShader);
+    //    m_fun->glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    return *m_simpleDepthShader;
+}
+
+glm::mat4 Camera::lightSpaceMatrix(const glm::mat4& localTransform) const
+{
+//    glm::mat4 lightProjection, lightView;
+//    BoundingBox box = Scene::m_scene->m_box;
+
+//    //        float dist = glm::length(box.center() - pos(localTransform));
+//    //    float near = dist - box.radius();
+//    //    float far = dist + box.radius();
+//    const glm::vec3& center = box.center();
+//    const float& radius = box.radius();
+
+//    const glm::vec3& dir = direction(localTransform);
+//    //        glm::vec3 p = pos(localTransform, worldTransform);
+
+//    //        float dist = glm::length(pos(localTransform) - center);
+
+//    ///
+
+//    lightProjection = glm::ortho(-radius, radius, -radius, radius, 10.0f, 2.0f * radius);
+//    //        lightView = glm::lookAt(pos(localTransform), center, glm::vec3(0.0, 1.0, 0.0));
+//    //    lightView = viewMatrix();
+//    //    lightView = glm::lookAt(center -dir * dist, center, glm::vec3(0.0f, 1.0f, 0.0f));
+//    lightView = glm::lookAt(center - dir * radius, center, glm::vec3(0.0f, 1.0f, 0.0f));
+//    return lightProjection * lightView;
+    //    return lightProjection * lightView;
+    float near_plane = 100.0f;
+    float far_plane = 2000.0f;
+    glm::mat4 projection = glm::perspective(glm::radians(40.0f), (float)SHADOW_WIDTH / (float)SHADOW_HEIGHT, near_plane, far_plane);
+    return projection * viewMatrix();
+
+}
+
 
 //void Camera::setDefault()
 //{
@@ -225,7 +378,12 @@ glm::vec3 Camera::target() const
     return m_cameraStrategy->target();
 }
 
-const glm::vec3 Camera::position() const
+//const glm::vec3 Camera::position() const
+//{
+//    return m_model->transform()[3];
+//}
+
+uint Camera::depthMap() const
 {
-    return m_model->transform()[3];
+    return m_depthMap;
 }

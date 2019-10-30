@@ -19,11 +19,13 @@
 Model::Model(const glm::mat4 &transform, Model::Type type)
     : m_type(type)
     , m_transform(transform)
+//    , m_noBox(noBox)
 {
 
 }
 
 Model::Model(std::ifstream& file)
+//    : m_noBox(noBox)
 {
 //    m_type = static_cast<Type>(Session::loadEnum(file));
     Session::load(m_transform, file);

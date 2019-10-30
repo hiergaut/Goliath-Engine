@@ -529,6 +529,10 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
 
         switch (event->key()) {
 
+        case Qt::Key_T:
+            m_camera->m_torchEnable = !m_camera->m_torchEnable;
+            break;
+
             //        case Qt::Key_PageUp:
             //            on_actionPoint_Light_triggered();
             //            break;

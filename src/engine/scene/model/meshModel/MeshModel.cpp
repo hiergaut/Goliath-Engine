@@ -14,8 +14,8 @@
 #include <functional>
 #include <glm/gtc/matrix_transform.hpp>
 #include <gui/editor/timeline/FormTimeline.h>
-#include <opengl/geometry/TriangleGeometry.h>
 #include <opengl/geometry/DotGeometry.h>
+#include <opengl/geometry/TriangleGeometry.h>
 
 MeshModel::MeshModel(const std::string& path)
     : Model(glm::mat4(1.0f), Model::MESH)
@@ -23,7 +23,7 @@ MeshModel::MeshModel(const std::string& path)
 //        : m_file(path)
 {
     //    m_fun = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
-//    m_type = Model::MESH;
+    //    m_type = Model::MESH;
 
     m_meshes.reserve(200);
     m_materials.reserve(50);
@@ -105,8 +105,7 @@ MeshModel::MeshModel(std::ifstream& file)
     //    std::cout << "load directory" << std::endl;
     Session::load(directory, file);
 
-
-//    Session::load(m_transform, file);
+    //    Session::load(m_transform, file);
 
     //        std::cout << "\033[32m";
     //        std::cout << "[MeshModel] " << m_filename << " created " << this << std::endl;
@@ -129,7 +128,7 @@ MeshModel::MeshModel(std::ifstream& file)
 
 MeshModel::MeshModel(MeshModel&& model) noexcept
     //    : m_box(std::move(model.m_box))
-//    : Model(std::move(model.m_transform), std::move(model.m_type))
+    //    : Model(std::move(model.m_transform), std::move(model.m_type))
     : Model(model.transform(), std::move(model.m_type))
 
     , m_meshes(std::move(model.m_meshes))
@@ -142,8 +141,8 @@ MeshModel::MeshModel(MeshModel&& model) noexcept
     , m_rootNode(std::move(model.m_rootNode))
 //    , m_transform(std::move(model.m_transform))
 {
-//    m_transform = std::move(model.m_transform);
-//    std::cout << "move " << std::endl;
+    //    m_transform = std::move(model.m_transform);
+    //    std::cout << "move " << std::endl;
     for (Material& material : m_materials) {
         material.m_textures = &m_textures;
     }
@@ -151,7 +150,6 @@ MeshModel::MeshModel(MeshModel&& model) noexcept
     //    for (Material& material : model.m_materials) {
     //        m_materials.emplace_back(material);
     //    }
-
 
     for (Mesh& mesh : m_meshes) {
         //        const_cast<Materials&>(mesh.m_materials) = m_materials;
@@ -163,7 +161,7 @@ MeshModel::MeshModel(MeshModel&& model) noexcept
     m_rootNode->updateReferences(&m_meshes, &m_animations);
 
     std::cout << "\033[34m";
-    std::cout << "[MeshModel] " << &model  << "  '" << m_filename << "' moved to " << this << std::endl;
+    std::cout << "[MeshModel] " << &model << "  '" << m_filename << "' moved to " << this << std::endl;
     std::cout << "\033[0m";
 }
 
@@ -186,10 +184,10 @@ MeshModel::~MeshModel()
 
     //    if (m_rootNode != nullptr)
     //        delete m_rootNode;
-//    auto & models = Scene::m_scene->m_models;
-//    Q_ASSERT(std::find(models.begin(), models.end(), this) != models.end());
-//    Scene::m_scene->m_models.remove(this);
-//    Scene::m_scene->m_models.erase()
+    //    auto & models = Scene::m_scene->m_models;
+    //    Q_ASSERT(std::find(models.begin(), models.end(), this) != models.end());
+    //    Scene::m_scene->m_models.remove(this);
+    //    Scene::m_scene->m_models.erase()
 }
 
 //    static Assimp::Importer m_importer;
@@ -205,10 +203,9 @@ void MeshModel::assimpLoadModel(std::string const& path)
     //        qDebug() << "[MODEL] m_importer : " << &m_importer;
     //    const aiScene* scene = m_importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenSmoothNormals);
     //    const aiScene* scene = m_importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace | aiProcess_SplitByBoneCount);
-//    const aiScene* scene = m_importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
-    const aiScene *scene = m_importer.ReadFile(
-        path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace
-    );
+    //    const aiScene* scene = m_importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
+    const aiScene* scene = m_importer.ReadFile(
+        path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
     //    const aiScene* scene = m_importer.ReadFile(path, aiProcess_FlipUVs);
     //    m_scene = m_importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
     //        const aiScene* scene = m_importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_CalcTangentSpace | aiProcess_FlipWindingOrder);
@@ -365,13 +362,12 @@ void MeshModel::prepareHierarchy(ulong frameTime) const
     //    updateBoundingBoxing();
 }
 
-
 //void MeshModel::Draw(const glm::mat4& modelMatrix, const MainWindow3dView& view) const
 //void MeshModel::Draw(const glm::mat4& modelMatrix, const Shader& shader, bool dotCloud, bool vertexGroupShader) const
 //void MeshModel::draw(const glm::mat4 &modelMatrix, const Shader &shader, bool dotCloud, const glm::mat4 & worldTransform) const
-void MeshModel::draw(const Shader &shader, bool dotCloud, const Frustum &frustum, const glm::mat4 &modelMatrix, const glm::mat4 &worldTransform) const
+void MeshModel::draw(const Shader& shader, bool dotCloud, const Frustum& frustum, const glm::mat4& modelMatrix, const glm::mat4& worldTransform) const
 {
-    if (! frustum.contains(m_box)) {
+    if (!frustum.contains(m_box)) {
         return;
     }
     //    model = glm::mat4(1.0f);
@@ -391,8 +387,8 @@ void MeshModel::draw(const Shader &shader, bool dotCloud, const Frustum &frustum
 
     //        TriangleGeometry::draw(v0, v1, v2);
     //    }
-//    const MainWindow3dView::Shading & shade = view.m_shade;
-//    bool dotCloud = view.dotCloud();
+    //    const MainWindow3dView::Shading & shade = view.m_shade;
+    //    bool dotCloud = view.dotCloud();
 
     if (shader.m_shade == Shader::Type::VERTEX_GROUP) {
 
@@ -431,46 +427,46 @@ void MeshModel::draw(const Shader &shader, bool dotCloud, const Frustum &frustum
         for (const Mesh& mesh : m_meshes) {
             //        const Mesh& mesh = m_meshes[i];
 
-            shader.setMat4("model",worldTransform * m_transform * modelMatrix * mesh.m_transform);
+            shader.setMat4("model", worldTransform * m_transform * modelMatrix * mesh.m_transform);
 
             mesh.draw(shader, dotCloud, frustum);
         }
         //        shader.setBool("userColor", false);
     }
 
-//    DotGeometry::draw(modelMatrix, shader, m_rootNode->m_transformation[3]);
+    //    DotGeometry::draw(modelMatrix, shader, m_rootNode->m_transformation[3]);
 
     //    m_box.draw(modelMatrix, )
 
     //    shader.use();
 }
 //void MeshModel::draw(const glm::mat4 &modelMatrix, const Shader &shader, const glm::mat4 & worldTransform) const
-void MeshModel::draw(const Shader &shader, const glm::mat4 &modelMatrix, const glm::mat4 &worldTransform) const
+void MeshModel::draw(const Shader& shader, const glm::mat4& modelMatrix, const glm::mat4& worldTransform) const
 {
-        for (const Mesh& mesh : m_meshes) {
-            //        const Mesh& mesh = m_meshes[i];
+    for (const Mesh& mesh : m_meshes) {
+        //        const Mesh& mesh = m_meshes[i];
 
-            shader.setMat4("model", worldTransform * m_transform *modelMatrix* mesh.m_transform);
+        shader.setMat4("model", worldTransform * m_transform * modelMatrix * mesh.m_transform);
 
-            mesh.draw(shader);
-        }
-        //        shader.setBool("userColor", false);
-
+        mesh.draw(shader);
+    }
+    //        shader.setBool("userColor", false);
 }
-
 
 void MeshModel::updateBoundingBox()
 {
-    m_box.clear();
-    for (const Mesh& mesh : m_meshes) {
-        mesh.updateBoundingBox(m_transform);
-        m_box << mesh.m_box;
-    }
-    //    for (uint i = 0; i < m_meshes.size(); ++i) {
-    //        const Mesh& mesh = m_meshes[i];
+//    if (!m_noBox) {
+        m_box.clear();
+        for (const Mesh& mesh : m_meshes) {
+            mesh.updateBoundingBox(m_transform);
+            m_box << mesh.m_box;
+        }
+        //    for (uint i = 0; i < m_meshes.size(); ++i) {
+        //        const Mesh& mesh = m_meshes[i];
 
-    //    }
-    Scene::m_scene->updateSceneBox();
+        //    }
+        Scene::m_scene->updateSceneBox();
+//    }
 }
 
 //{
@@ -479,7 +475,7 @@ void MeshModel::updateBoundingBox()
 
 //void MeshModel::drawBoundingBox(const glm::mat4& modelMatrix, const Shader& shader) const
 //void MeshModel::drawBoundingBox(const Shader &shader) const
-void MeshModel::drawBoundingBox(const Shader &shader) const
+void MeshModel::drawBoundingBox(const Shader& shader) const
 {
     //    for (const Mesh& mesh : m_meshes) {
     //        //        shader.setMat4("model", modelMatrix);
@@ -523,12 +519,10 @@ void MeshModel::drawBoundingBox(const Shader &shader) const
     shader.setBool("userColor", false);
 }
 
-void MeshModel::updateSelectedVertexPosition(const glm::mat4 &localTransform, const glm::mat4 &worldTransform)
+void MeshModel::updateSelectedVertexPosition(const glm::mat4& localTransform, const glm::mat4& worldTransform)
 {
     //TODO
-
 }
-
 
 //void MeshModel::selectRay(const Ray& ray) const
 //void MeshModel::selectObject(const Ray& ray, float& depthMin, bool& find, uint& iModelMin, uint& iMeshMin, uint& iBoneMin, uint& iTriangleMin, bool unselect /* = false */) const
@@ -568,7 +562,7 @@ void MeshModel::updateSelectedVertexPosition(const glm::mat4 &localTransform, co
 
 //}
 
-void MeshModel::DrawHierarchy(const glm::mat4& modelMatrix, const glm::mat4 &viewMatrix, const glm::mat4 &projectionMatrix, const glm::vec3 &cameraPos, const glm::mat4 & worldTransform) const
+void MeshModel::DrawHierarchy(const glm::mat4& modelMatrix, const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix, const glm::vec3& cameraPos, const glm::mat4& worldTransform) const
 {
     //    const Shader& shader = view.shader();
     //    shader.use();
@@ -581,7 +575,7 @@ void MeshModel::DrawHierarchy(const glm::mat4& modelMatrix, const glm::mat4 &vie
     glClear(GL_DEPTH_BUFFER_BIT);
 
     //    m_boneGeometry.setVP(viewMatrix, projectionMatrix);
-//    m_boneGeometry.updateShader(view);
+    //    m_boneGeometry.updateShader(view);
     BoneGeometry::updateShader(viewMatrix, projectionMatrix, cameraPos);
     m_rootNode->drawHierarchy(worldTransform * m_transform * modelMatrix);
     //        glDepthFunc(GL_LESS);
@@ -594,8 +588,7 @@ void MeshModel::buildItemModel(QStandardItem* parent) const
     if (m_rootNode == nullptr)
         return;
 
-//    m_rootNode->buildItemModel(parent);
-
+    //    m_rootNode->buildItemModel(parent);
 
     //    QStandardItem* item = new QStandardItem(QIcon(":/icons/animations.png"), "animations  " + QString::number(m_animations.size()));
     //    parent->appendRow(item);
@@ -603,15 +596,15 @@ void MeshModel::buildItemModel(QStandardItem* parent) const
     //        animation.buildItemModel(item);
     //    }
 
-    QStandardItem * item;
-        item = new QStandardItem("materials  " + QString::number(m_materials.size()));
-        parent->appendRow(item);
-        for (const Material& material : m_materials) {
-            //        modelRecurseMaterial(material, item);
-//            if (material.m_name == "floor") {
-            material.buildItemModel(item);
-//            }
-        }
+    QStandardItem* item;
+    item = new QStandardItem("materials  " + QString::number(m_materials.size()));
+    parent->appendRow(item);
+    for (const Material& material : m_materials) {
+        //        modelRecurseMaterial(material, item);
+        //            if (material.m_name == "floor") {
+        material.buildItemModel(item);
+        //            }
+    }
 }
 
 //void MeshModel::load(std::ifstream &file) const
@@ -669,7 +662,7 @@ void MeshModel::save(std::ofstream& file) const
     //    std::cout << "save directory" << std::endl;
     Session::save(directory, file);
 
-//    Session::save(m_transform, file);
+    //    Session::save(m_transform, file);
 }
 
 //glm::mat4 MeshModel::scaleCenter(float scale) const
@@ -707,7 +700,7 @@ void MeshModel::save(std::ofstream& file) const
 //    parent->appendRow(item);
 //}
 
-const std::string & MeshModel::name() const
+const std::string& MeshModel::name() const
 {
     return m_filename;
 }
