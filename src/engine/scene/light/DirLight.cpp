@@ -26,7 +26,7 @@ void DirLight::draw(const Shader& shader, bool dotCloud, const Frustum &frustum,
 
     //    if (shader.m_shade != Shader::Type::RENDERED) {
 
-    Object::draw(shader, dotCloud, localTransform, worldTransform);
+    Object::draw(shader, dotCloud, frustum, localTransform, worldTransform);
     //    }
 
     //    if (dotCloud) {

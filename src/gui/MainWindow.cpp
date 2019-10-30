@@ -270,6 +270,7 @@ void MainWindow::loadLastSession() // call by main
     } else {
         loadStartupFile();
     }
+    MainWindow3dView::updateAllFrutumViews();
 }
 
 void MainWindow::loadStartupFile()

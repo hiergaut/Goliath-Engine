@@ -374,7 +374,7 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
 {
     //                qDebug() << this << ": keyPressEvent" << event;
     uint size = Scene::m_cameras.size();
-//    bool& multiSampling = Scene::m_scene->m_multiSampling;
+    //    bool& multiSampling = Scene::m_scene->m_multiSampling;
 
     switch (event->key()) {
 
@@ -403,20 +403,19 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
         Scene::m_scene->m_zPrepass = !Scene::m_scene->m_zPrepass;
         break;
 
-
     case Qt::Key_F8:
         QOpenGLWidget_Editor::m_editor->switchMultiSample();
-//        if (multiSampling) {
-//            glDisable(GL_MULTISAMPLE);
-//            multiSampling = false;
-//        } else {
-//            glEnable(GL_MULTISAMPLE);
-//            multiSampling = true;
-//        }
+        //        if (multiSampling) {
+        //            glDisable(GL_MULTISAMPLE);
+        //            multiSampling = false;
+        //        } else {
+        //            glEnable(GL_MULTISAMPLE);
+        //            multiSampling = true;
+        //        }
         break;
 
     case Qt::Key_F9:
-        Frustum::m_enable = ! Frustum::m_enable;
+        Frustum::m_enable = !Frustum::m_enable;
         break;
 
     case Qt::Key_C:
@@ -740,8 +739,8 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
                     //                    delete m_camera;
                     //                m_camera = new CameraWorld(fov, pos, camera->m_target);
                     delete m_camera->m_cameraStrategy;
-                    //                    m_camera->m_cameraStrategy = new CameraWorld(position, target, m_camera->transform());
-                    m_camera->m_cameraStrategy = new CameraWorld(position, target, *m_camera->getModel());
+                                        m_camera->m_cameraStrategy = new CameraWorld(position, target, m_camera->getTransform(), m_camera->m_id);
+//                    m_camera->m_cameraStrategy = new CameraWorld(position, target, *m_camera->getModel(), m_camera->m_id);
                     //        Scene::m_scene->m_objects.push_back(m_camera);
                     //            m_camera = new CameraWorld(static_cast<CameraFps*>(m_camera));
                     break;
@@ -763,8 +762,8 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
                     //        Scene::m_scene->removeCamera(m_iCamera);
                     //                    delete m_camera;
                     delete m_camera->m_cameraStrategy;
-                    //                    m_camera->m_cameraStrategy = new CameraFps(position, yaw, pitch, this, m_camera->transform(), m_camera->m_fov);
-                    m_camera->m_cameraStrategy = new CameraFps(position, yaw, pitch, this, *m_camera->getModel(), m_camera->m_fov);
+                                        m_camera->m_cameraStrategy = new CameraFps(position, yaw, pitch, this, m_camera->getTransform(), m_camera->m_id, m_camera->m_fov);
+//                    m_camera->m_cameraStrategy = new CameraFps(position, yaw, pitch, this, *m_camera->getModel(), m_camera->m_id, m_camera->m_fov);
                     //        Scene::m_scene->m_objects.push_back(m_camera);
 
                     static_cast<CameraFps*>(m_camera->m_cameraStrategy)->startFpsView();
@@ -1312,9 +1311,9 @@ void MainWindow3dView::updateTransformMatrix(float dx, float dy)
 
         } else {
 
-            *m_worldTransform = glm::translate(glm::mat4(1.0f), m_memRight * 3.0f * dx);
-            *m_worldTransform = glm::translate(*m_worldTransform, m_memUp * 3.0f * dy);
-            *m_worldTransform = glm::translate(*m_worldTransform, m_memFront * m_WheelPos);
+            *m_worldTransform = glm::translate(glm::mat4(1.0f), m_memRight * 1.0f * dx);
+            *m_worldTransform = glm::translate(*m_worldTransform, m_memUp * 1.0f * dy);
+            *m_worldTransform = glm::translate(*m_worldTransform, m_memFront * 0.1f * m_WheelPos);
         }
         break;
 
@@ -1588,12 +1587,25 @@ bool MainWindow3dView::solid() const
 
 void MainWindow3dView::updateFrustum() const
 {
-    Q_ASSERT((m_iCamera < Scene::m_cameras.size()));
-    Camera* m_camera = Scene::m_cameras[m_iCamera];
+//    Q_ASSERT((m_iCamera < Scene::m_cameras.size()));
+    if (m_iCamera < Scene::m_cameras.size()) {
+        Camera* m_camera = Scene::m_cameras[m_iCamera];
 
-//    glm::mat4 projectionMatrix2 = glm::perspective(glm::radians(30.0f), 1.0f, 10.0f, 10000.0f);
-    m_frustum.update(m_projectionMatrix * m_camera->viewMatrix());
-//    m_frustum.update(projectionMatrix2 * m_camera->viewMatrix());
+                m_frustum.update(m_projectionMatrix * m_camera->viewMatrix());
+
+//        glm::mat4 projectionMatrix2 = glm::perspective(glm::radians(30.0f), 1.0f, 10.0f, 10000.0f);
+//        m_frustum.update(projectionMatrix2 * m_camera->viewMatrix());
+    }
+}
+
+void MainWindow3dView::updateAllFrutumViews()
+{
+    for (const MainWindow3dView* view : *Scene::m_scene->m_views) {
+        //        if (view->m_iCamera == m_id) {
+        view->updateFrustum();
+        //        }
+        //        iCameras.push_back(view->m_iCamera);
+    }
 }
 
 void MainWindow3dView::setCursorToCenter()

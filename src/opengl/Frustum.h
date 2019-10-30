@@ -44,6 +44,7 @@ public:
     bool encompass(const glm::vec3 & vertex) const;
     Frustum(const glm::vec3 &source, const glm::vec3 &front, const glm::vec3 &right, const glm::vec3 &up, float zNear, float zFar, float fov, float ratio);
 
+
 //    void update(const glm::mat4 & viewProjectionMatrix);
 
 
@@ -53,6 +54,8 @@ public:
 //    bool cullAABB(const BoundingBox &box) const;
 
     static bool m_enable;
+private:
+//    void buildFrustum(const glm::mat4 & viewProjectionMatrix);
 
 };
 

@@ -13,25 +13,27 @@
 //static const Model * cameraModel = Scene::m_scene->m_cameraModel;
 
 //Camera::Camera(float fov, const glm::vec3& position)
-Camera::Camera(float fov)
+Camera::Camera(float fov, uint id)
     //    : m_target(target)
     //        : Object(std::move(MeshModel(g_resourcesPath + "models/camera/camera.obj")))
     : Object(g_resourcesPath + "models/camera/camera.obj")
     //    : Object(g_resourcesPath + "models/camera/camera.obj")
     , m_fov(fov)
+    , m_id(id)
 //    , m_position(position)
 {
     m_type = Object::Type::CAMERA;
     //    m_model.m_transform = transform;
-//    m_cameraStrategy = new CameraWorld(glm::vec3(200.0f, -200.0f, 200.0f), glm::vec3(0.0f), m_model->transform());
-    m_cameraStrategy = new CameraWorld(glm::vec3(200.0f, -200.0f, 200.0f), glm::vec3(0.0f), *m_model);
+    m_cameraStrategy = new CameraWorld(glm::vec3(200.0f, -200.0f, 200.0f), glm::vec3(0.0f), m_model->getTransform(), m_id);
+//    m_cameraStrategy = new CameraWorld(glm::vec3(200.0f, -200.0f, 200.0f), glm::vec3(0.0f), *m_model, m_id);
 
 //    updateBoundingBox();
 }
 
-Camera::Camera(std::ifstream& file)
+Camera::Camera(std::ifstream& file, uint id)
     //    : Object(g_resourcesPath + "models/camera/camera.obj")
     : Object(g_resourcesPath + "models/camera/camera.obj")
+    , m_id(id)
 {
     m_type = Object::Type::CAMERA;
     //    Camera::Type type;
@@ -48,13 +50,13 @@ Camera::Camera(std::ifstream& file)
     type = static_cast<CameraStrategy::Type>(Session::loadEnum(file));
     switch (type) {
     case CameraStrategy::WORLD:
-//        m_cameraStrategy = new CameraWorld(file, m_model->transform());
-        m_cameraStrategy = new CameraWorld(file, *m_model);
+        m_cameraStrategy = new CameraWorld(file, m_model->getTransform(), m_id);
+//        m_cameraStrategy = new CameraWorld(file, *m_model, m_id);
         break;
 
     case CameraStrategy::FPS:
-//        m_cameraStrategy = new CameraFps(file, m_model->transform(), m_fov);
-        m_cameraStrategy = new CameraFps(file, *m_model, m_fov);
+        m_cameraStrategy = new CameraFps(file, m_model->getTransform(), m_id, m_fov);
+//        m_cameraStrategy = new CameraFps(file, *m_model, m_id, m_fov);
         break;
     }
 
@@ -102,8 +104,8 @@ void Camera::setDefault()
     //    m_cameraStrategy = new CameraWorld(glm::vec3(200.0f, -200.0f, 200.0f), glm::vec3(0.0f), m_model.m_transform);
     switch (m_cameraStrategy->m_type) {
     case CameraStrategy::WORLD:
-//        m_cameraStrategy = new CameraWorld(glm::vec3(200.0f, -200.0f, 200.0f), glm::vec3(0.0f), m_model->transform());
-        m_cameraStrategy = new CameraWorld(glm::vec3(200.0f, -200.0f, 200.0f), glm::vec3(0.0f), *m_model);
+        m_cameraStrategy = new CameraWorld(glm::vec3(200.0f, -200.0f, 200.0f), glm::vec3(0.0f), m_model->getTransform(), m_id);
+//        m_cameraStrategy = new CameraWorld(glm::vec3(200.0f, -200.0f, 200.0f), glm::vec3(0.0f), *m_model, m_id);
         //        CameraWorld * cameraWorld = static_cast<CameraWorld*>(m_cameraStrategy);
         //        cameraWorld->m_target = glm::vec3(0.0f);
         break;
@@ -156,14 +158,14 @@ void Camera::draw(const Shader& shader, const glm::mat4& localTransform, const g
     //    cameraModel->draw(shader, localTransform, worldTransform);
 }
 
-//void Camera::updateBoundingBox() const
-//{
-////    updateBoundingBox();
-//    //    m_model.m_transform = glm::inverse(viewMatrix());
-////    m_model->updateBoundingBox();
-//    //    Scene::m_scene
-//    //    cameraModel->updateBoundingBox(m_box);
-//}
+void Camera::updateBoundingBox() const
+{
+//    updateBoundingBox();
+    //    m_model.m_transform = glm::inverse(viewMatrix());
+    m_model->updateBoundingBox();
+    //    Scene::m_scene
+    //    cameraModel->updateBoundingBox(m_box);
+}
 
 void Camera::drawBoundingBox(const Shader& shader) const
 {

@@ -237,6 +237,7 @@ public:
     bool solid() const;
 
     void updateFrustum() const;
+    static void updateAllFrutumViews();
 
 private slots:
     //    void on_actionWireFrame_triggered();

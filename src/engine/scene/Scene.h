@@ -64,6 +64,8 @@ public:
 //    bool m_multiSampling = true;
     std::list<const MainWindow3dView *> * m_views; // cameras
 
+//    Shader * m_minimalShader;
+
 
 public:
     QOpenGLFunctionsCore * m_fun;

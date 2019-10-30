@@ -93,6 +93,7 @@ void Scene::initializeGL()
 
     m_grid = new Grid;
     normalShader = new Shader("normalVector.vsh", "normalVector.fsh", "normalVector.gsh");
+//    m_minimalShader = new Shader("minimal.vsh", "empty.fsh");
     //    normalShader = new Shader("shading/normal.vsh", "shading/normal.fsh");
     //    m_bone = new BoneGeometry;
 
@@ -144,9 +145,11 @@ void Scene::initializeGL()
 
 void Scene::renderScene(const Shader& shader)
 {
+//    m_minimalShader->use();
     for (const Object* object : m_objects) {
         //        if (object != viewCameraObject) {
         if (object->selected()) {
+//            object->draw(shader, m_localTransform, m_worldTransform);
             object->draw(shader, m_localTransform, m_worldTransform);
         } else {
             object->draw(shader);
@@ -192,6 +195,7 @@ void Scene::updateLightsShadowMap()
     //    glEnable(GL_CULL_FACE);
     //    glCullFace(GL_FRONT_AND_BACK);
     if (m_computeShadow) {
+//        m_minimalShader->use();
 
         glDisable(GL_CULL_FACE);
         glCullFace(GL_FRONT);
@@ -233,6 +237,8 @@ void Scene::draw(const MainWindow3dView& view)
     Q_ASSERT(initialized);
     glm::mat4 viewMatrix = view.viewMatrix();
     glm::mat4 projectionMatrix = view.projectionMatrix();
+//    m_minimalShader->setMat4("view", viewMatrix);
+//    m_minimalShader->setMat4("projection", projectionMatrix);
 
     //    Object* viewCameraObject = view.m_camera;
 
@@ -270,18 +276,19 @@ void Scene::draw(const MainWindow3dView& view)
     //    return;
 
     const Shader& shader = view.shader();
-    const Frustum & frustum = view.m_frustum;
+    const Frustum& frustum = view.m_frustum;
     //    shader.use();
     //    shader.setBool("hasSkyBox", false);
-//    glDisable(GL_MULTISAMPLE);
-//    glm::mat4 projectionMatrix2 = glm::perspective(glm::radians(30.0f), 1.0f, 10.0f, 10000.0f);
-//    const Frustum frustum(projectionMatrix2 * viewMatrix);
-//    shader.setMat4("model", onesMatrix);
-//    frustum.draw(shader);
-//    for (const MainWindow3dView* view : *Scene::m_scene->m_views) {
-//        view->m_frustum.draw(shader);
-//    }
-
+    //    glDisable(GL_MULTISAMPLE);
+    //    glm::mat4 projectionMatrix2 = glm::perspective(glm::radians(30.0f), 1.0f, 10.0f, 10000.0f);
+    //    const Frustum frustum(projectionMatrix2 * viewMatrix);
+    //    shader.setMat4("model", onesMatrix);
+    //    glLineWidth(4.0f);
+    //    frustum.draw(shader);
+    //    glLineWidth(1.0f);
+    //    for (const MainWindow3dView* view : *Scene::m_scene->m_views) {
+    //        view->m_frustum.draw(shader);
+    //    }
 
     //    const glm::mat4& viewTransform = view.m_transformMatrix;
     //    const glm::mat4& m_worldTransform = view.m_worldTransform;
@@ -306,9 +313,9 @@ void Scene::draw(const MainWindow3dView& view)
 
     //     -------------------------------- DRAW RAYS
     //    glPolygonMode(GL_FRONT, GL_FILL);
-    glPolygonMode(GL_FRONT, GL_LINE);
     //    shader.use();
     if (view.intersectRay()) {
+        glPolygonMode(GL_FRONT, GL_LINE);
         shader.setMat4("model", onesMatrix);
         shader.setBool("userColor", true);
         shader.setVec4("color", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
@@ -340,8 +347,8 @@ void Scene::draw(const MainWindow3dView& view)
         Q_ASSERT(triangles.size() % 3 == 0);
         TriangleGeometry::draw(triangles);
         shader.setBool("userColor", false);
+        glPolygonMode(GL_FRONT, polygonMode);
     }
-    glPolygonMode(GL_FRONT, polygonMode);
 
     //    glClear(GL_DEPTH_BUFFER_BIT);
     //    glClear(GL_STENCIL_BUFFER_BIT);
@@ -507,6 +514,7 @@ void Scene::draw(const MainWindow3dView& view)
     //    glDepthFunc(GL_EQUAL);
     //    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     if (m_zPrepass) {
+//        m_minimalShader->use();
         glClear(GL_DEPTH_BUFFER_BIT);
         glDepthMask(1); // enable depth buffer writes
         glColorMask(0, 0, 0, 0); // disable color buffer writes
@@ -515,10 +523,13 @@ void Scene::draw(const MainWindow3dView& view)
         glEnable(GL_DEPTH_TEST);
 
         renderScene(shader);
+//        renderScene(*m_minimalShader);
 
         glDepthMask(0); // don't write to the depth buffer
         glColorMask(1, 1, 1, 1); // now set the color component
         glDepthFunc(GL_EQUAL);
+
+//        shader.use();
     }
     //    renderScene(shader);
     //            qDebug() << m_objects;
@@ -877,9 +888,9 @@ void Scene::objectSelectRay(const Ray& ray, bool additional)
 {
     //    qDebug() << "--------------------------------------------------";
     //    updateBoundingBox();
-    //    for (auto & camera : m_cameras) {
-    //        camera->updateBoundingBox();
-    //    }
+    for (auto& camera : m_cameras) {
+        camera->updateBoundingBox();
+    }
 
     //    std::vector<const Model *> models;
     //    models.insert(models.end(), m_models.begin(), m_models.end());
@@ -1353,7 +1364,7 @@ void Scene::load(std::ifstream& file)
         //        type = static_cast<Camera::Type>(Session::loadEnum(file));
 
         //        Camera * camera = new Camera();
-        Camera* camera = new Camera(file);
+        Camera* camera = new Camera(file, m_cameras.size());
         //        camera->m_model->updateBoundingBox();
 
         //        switch (type) {
@@ -1663,7 +1674,7 @@ void Scene::addLight(Light::Type lightType, const glm::vec3 position)
 
 void Scene::addDefaultCamera()
 {
-    m_cameras.emplace_back(new Camera(60.0f));
+    m_cameras.emplace_back(new Camera(60.0f, m_cameras.size()));
     m_objects.push_back(m_cameras.back());
 }
 

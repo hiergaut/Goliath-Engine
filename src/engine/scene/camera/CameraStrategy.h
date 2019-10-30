@@ -6,6 +6,7 @@
 #include <iostream>
 #include <engine/scene/model/Model.h>
 #include <opengl/Frustum.h>
+//#include <engine/scene/camera/Camera.h>
 
 class CameraStrategy {
 public:
@@ -18,8 +19,11 @@ public:
 public:
     //    glm::vec3 m_target;
     //    static Model * m_modelCamera;
-//    glm::mat4 & m_modelTransform;
-    Model & m_model;
+
+    glm::mat4 & m_modelTransform;
+//    Model & m_model;
+
+//    Camera & m_camera;
 
     //    virtual void load(std::ifstream & file);
 
@@ -28,8 +32,8 @@ public:
 //    protected:
 //    CameraStrategy() = delete ;
 public:
-//    CameraStrategy(glm::mat4 & modelTransform);
-    CameraStrategy(Model & model);
+    CameraStrategy(glm::mat4 & modelTransform, uint & id);
+//    CameraStrategy(Model & model, uint &id);
 //    virtual CameraStrategy(std::ifstream & file);
     virtual ~CameraStrategy() = default;
 
@@ -61,10 +65,12 @@ public:
 
 //    virtual void updateModelTransform(const glm::mat4 & modelTransform) = 0;
     void updateModelTransform(glm::mat4 && modelTransform);
+    void updateAttachFrustumViews();
 
 
 protected:
     //    mutable glm::vec3 m_position;
+    uint & m_id;
 
     bool m_middleClicked = false;
     bool m_shiftPressed = false;

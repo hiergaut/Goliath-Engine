@@ -22,6 +22,7 @@ Frustum::Frustum()
 
 Frustum::Frustum(const glm::mat4& viewProjectionMatrix)
 {
+    update(viewProjectionMatrix);
     //    glm::mat4 comboMatrix = projectionMatrix * glm::transpose(viewMatrix);
     //    m_planes[TOP].set(mat[0][3] - mat[0][1], mat[1][3] - mat[1][1], mat[2][3] - mat[2][1], -mat[3][3] + mat[3][1]);
     //    m_planes[BOTTOM].set(mat[0][3] + mat[0][1], mat[1][3] + mat[1][1], mat[2][3] + mat[2][1], -mat[3][3] - mat[3][1]);
@@ -31,104 +32,104 @@ Frustum::Frustum(const glm::mat4& viewProjectionMatrix)
     //    m_planes[FAR].set(mat[0][3] - mat[0][2], mat[1][3] - mat[1][2], mat[2][3] - mat[2][2], -mat[3][3] + mat[3][2]);
 
     //    m_planes[LEFT].set(m[])
-    for (uint i = 0; i < 4; ++i) {
-        m_planes[LEFT].m_abcd[i] = viewProjectionMatrix[3][i] + viewProjectionMatrix[0][i];
-    }
-    for (uint i = 0; i < 4; ++i) {
-        m_planes[RIGHT].m_abcd[i] = viewProjectionMatrix[3][i] - viewProjectionMatrix[0][i];
-    }
+//    for (uint i = 0; i < 4; ++i) {
+//        m_planes[LEFT].m_abcd[i] = viewProjectionMatrix[3][i] + viewProjectionMatrix[0][i];
+//    }
+//    for (uint i = 0; i < 4; ++i) {
+//        m_planes[RIGHT].m_abcd[i] = viewProjectionMatrix[3][i] - viewProjectionMatrix[0][i];
+//    }
 
-    for (uint i = 0; i < 4; ++i) {
-        m_planes[TOP].m_abcd[i] = viewProjectionMatrix[3][i] - viewProjectionMatrix[1][i];
-    }
-    for (uint i = 0; i < 4; ++i) {
-        m_planes[BOTTOM].m_abcd[i] = viewProjectionMatrix[3][i] + viewProjectionMatrix[1][i];
-    }
+//    for (uint i = 0; i < 4; ++i) {
+//        m_planes[TOP].m_abcd[i] = viewProjectionMatrix[3][i] - viewProjectionMatrix[1][i];
+//    }
+//    for (uint i = 0; i < 4; ++i) {
+//        m_planes[BOTTOM].m_abcd[i] = viewProjectionMatrix[3][i] + viewProjectionMatrix[1][i];
+//    }
 
-    for (uint i = 0; i < 4; ++i) {
-        m_planes[NEAR].m_abcd[i] = viewProjectionMatrix[3][i] + viewProjectionMatrix[2][i];
-    }
-    for (uint i = 0; i < 4; ++i) {
-        m_planes[FAR].m_abcd[i] = viewProjectionMatrix[3][i] - viewProjectionMatrix[2][i];
-    }
-    for (uint i = 0; i < 6; ++i) {
-        m_planes[i].normalize();
-    }
-    //    float radius = 100.0f;
-    //    m_ntl = glm::vec3(0.0f, radius, 0.0f);
-    //    m_ntr = glm::vec3(radius, radius, 0.0f);
-    //    m_nbl = glm::vec3(0.0f, 0.0f, 0.0f);
-    //    m_nbr = glm::vec3(radius, 0.0f, 0.0f);
+//    for (uint i = 0; i < 4; ++i) {
+//        m_planes[NEAR].m_abcd[i] = viewProjectionMatrix[3][i] + viewProjectionMatrix[2][i];
+//    }
+//    for (uint i = 0; i < 4; ++i) {
+//        m_planes[FAR].m_abcd[i] = viewProjectionMatrix[3][i] - viewProjectionMatrix[2][i];
+//    }
+//    for (uint i = 0; i < 6; ++i) {
+//        m_planes[i].normalize();
+//    }
+//    //    float radius = 100.0f;
+//    //    m_ntl = glm::vec3(0.0f, radius, 0.0f);
+//    //    m_ntr = glm::vec3(radius, radius, 0.0f);
+//    //    m_nbl = glm::vec3(0.0f, 0.0f, 0.0f);
+//    //    m_nbr = glm::vec3(radius, 0.0f, 0.0f);
 
-    //    m_ftl = glm::vec3(0.0f, radius, 2.0f * radius);
-    //    m_ftr = glm::vec3(radius, radius, 2.0f * radius);
-    //    m_fbl = glm::vec3(0.0f, 0.0f, 2.0f * radius);
-    //    m_fbr = glm::vec3(radius, 0.0f, 2.0f * radius);
+//    //    m_ftl = glm::vec3(0.0f, radius, 2.0f * radius);
+//    //    m_ftr = glm::vec3(radius, radius, 2.0f * radius);
+//    //    m_fbl = glm::vec3(0.0f, 0.0f, 2.0f * radius);
+//    //    m_fbr = glm::vec3(radius, 0.0f, 2.0f * radius);
 
-//    Q_ASSERT(Plane::intersection(m_planes[LEFT], m_planes[TOP], m_planes[NEAR], m_ntl));
-//    Q_ASSERT(Plane::intersection(m_planes[RIGHT], m_planes[TOP], m_planes[NEAR], m_ntr));
-//    Q_ASSERT(Plane::intersection(m_planes[LEFT], m_planes[BOTTOM], m_planes[NEAR], m_nbl));
-//    Q_ASSERT(Plane::intersection(m_planes[RIGHT], m_planes[BOTTOM], m_planes[NEAR], m_nbr));
+////    Q_ASSERT(Plane::intersection(m_planes[LEFT], m_planes[TOP], m_planes[NEAR], m_ntl));
+////    Q_ASSERT(Plane::intersection(m_planes[RIGHT], m_planes[TOP], m_planes[NEAR], m_ntr));
+////    Q_ASSERT(Plane::intersection(m_planes[LEFT], m_planes[BOTTOM], m_planes[NEAR], m_nbl));
+////    Q_ASSERT(Plane::intersection(m_planes[RIGHT], m_planes[BOTTOM], m_planes[NEAR], m_nbr));
 
-//    Q_ASSERT(Plane::intersection(m_planes[LEFT], m_planes[TOP], m_planes[FAR], m_ftl));
-//    Q_ASSERT(Plane::intersection(m_planes[RIGHT], m_planes[TOP], m_planes[FAR], m_ftr));
-//    Q_ASSERT(Plane::intersection(m_planes[LEFT], m_planes[BOTTOM], m_planes[FAR], m_fbl));
-//    Q_ASSERT(Plane::intersection(m_planes[RIGHT], m_planes[BOTTOM], m_planes[FAR], m_fbr));
+////    Q_ASSERT(Plane::intersection(m_planes[LEFT], m_planes[TOP], m_planes[FAR], m_ftl));
+////    Q_ASSERT(Plane::intersection(m_planes[RIGHT], m_planes[TOP], m_planes[FAR], m_ftr));
+////    Q_ASSERT(Plane::intersection(m_planes[LEFT], m_planes[BOTTOM], m_planes[FAR], m_fbl));
+////    Q_ASSERT(Plane::intersection(m_planes[RIGHT], m_planes[BOTTOM], m_planes[FAR], m_fbr));
 
-//    Plane::intersection(m_planes[LEFT], m_planes[TOP], m_planes[NEAR], m_ntl);
-//    Plane::intersection(m_planes[RIGHT], m_planes[TOP], m_planes[NEAR], m_ntr);
-//    Plane::intersection(m_planes[LEFT], m_planes[BOTTOM], m_planes[NEAR], m_nbl);
-//    Plane::intersection(m_planes[RIGHT], m_planes[BOTTOM], m_planes[NEAR], m_nbr);
+////    Plane::intersection(m_planes[LEFT], m_planes[TOP], m_planes[NEAR], m_ntl);
+////    Plane::intersection(m_planes[RIGHT], m_planes[TOP], m_planes[NEAR], m_ntr);
+////    Plane::intersection(m_planes[LEFT], m_planes[BOTTOM], m_planes[NEAR], m_nbl);
+////    Plane::intersection(m_planes[RIGHT], m_planes[BOTTOM], m_planes[NEAR], m_nbr);
 
-//    Plane::intersection(m_planes[LEFT], m_planes[TOP], m_planes[FAR], m_ftl);
-//    Plane::intersection(m_planes[RIGHT], m_planes[TOP], m_planes[FAR], m_ftr);
-//    Plane::intersection(m_planes[LEFT], m_planes[BOTTOM], m_planes[FAR], m_fbl);
-//    Plane::intersection(m_planes[RIGHT], m_planes[BOTTOM], m_planes[FAR], m_fbr);
+////    Plane::intersection(m_planes[LEFT], m_planes[TOP], m_planes[FAR], m_ftl);
+////    Plane::intersection(m_planes[RIGHT], m_planes[TOP], m_planes[FAR], m_ftr);
+////    Plane::intersection(m_planes[LEFT], m_planes[BOTTOM], m_planes[FAR], m_fbl);
+////    Plane::intersection(m_planes[RIGHT], m_planes[BOTTOM], m_planes[FAR], m_fbr);
 
-    //    // column2 + column3
-    //    m_planes[NEAR].m_a = vp[0][3] + vp[0][2];
-    //    m_planes[NEAR].m_b = vp[2][1] + vp[3][1];
-    //    m_planes[NEAR].m_c = vp[2][2] + vp[3][2];
-    //    m_planes[NEAR].m_d = vp[2][3] + vp[3][3];
+//    //    // column2 + column3
+//    //    m_planes[NEAR].m_a = vp[0][3] + vp[0][2];
+//    //    m_planes[NEAR].m_b = vp[2][1] + vp[3][1];
+//    //    m_planes[NEAR].m_c = vp[2][2] + vp[3][2];
+//    //    m_planes[NEAR].m_d = vp[2][3] + vp[3][3];
 
-    //    // column3 - column2
-    //    m_planes[FAR].m_a = -vp[2][0] + vp[3][0];
-    //    m_planes[FAR].m_b = -vp[2][1] + vp[3][1];
-    //    m_planes[FAR].m_c = -vp[2][2] + vp[3][2];
-    //    m_planes[FAR].m_d = -vp[2][3] + vp[3][3];
+//    //    // column3 - column2
+//    //    m_planes[FAR].m_a = -vp[2][0] + vp[3][0];
+//    //    m_planes[FAR].m_b = -vp[2][1] + vp[3][1];
+//    //    m_planes[FAR].m_c = -vp[2][2] + vp[3][2];
+//    //    m_planes[FAR].m_d = -vp[2][3] + vp[3][3];
 
-    //    // column1 + column3
-    //    m_planes[BOTTOM].m_a = vp[1][0] + vp[3][0];
-    //    m_planes[BOTTOM].m_b = vp[1][1] + vp[3][1];
-    //    m_planes[BOTTOM].m_c = vp[1][2] + vp[3][2];
-    //    m_planes[BOTTOM].m_d = vp[1][3] + vp[3][3];
+//    //    // column1 + column3
+//    //    m_planes[BOTTOM].m_a = vp[1][0] + vp[3][0];
+//    //    m_planes[BOTTOM].m_b = vp[1][1] + vp[3][1];
+//    //    m_planes[BOTTOM].m_c = vp[1][2] + vp[3][2];
+//    //    m_planes[BOTTOM].m_d = vp[1][3] + vp[3][3];
 
-    //    // column3 - column1
-    //    m_planes[TOP].m_a = -vp[1][0] + vp[3][0];
-    //    m_planes[TOP].m_b = -vp[1][1] + vp[3][1];
-    //    m_planes[TOP].m_c = -vp[1][2] + vp[3][2];
-    //    m_planes[TOP].m_d = -vp[1][3] + vp[3][3];
+//    //    // column3 - column1
+//    //    m_planes[TOP].m_a = -vp[1][0] + vp[3][0];
+//    //    m_planes[TOP].m_b = -vp[1][1] + vp[3][1];
+//    //    m_planes[TOP].m_c = -vp[1][2] + vp[3][2];
+//    //    m_planes[TOP].m_d = -vp[1][3] + vp[3][3];
 
-    //    // column0 + column3
-    //    m_planes[LEFT].m_a = vp[0][0] + vp[3][0];
-    //    m_planes[LEFT].m_b = vp[0][1] + vp[3][1];
-    //    m_planes[LEFT].m_c = vp[0][2] + vp[3][2];
-    //    m_planes[LEFT].m_d = vp[0][3] + vp[3][3];
+//    //    // column0 + column3
+//    //    m_planes[LEFT].m_a = vp[0][0] + vp[3][0];
+//    //    m_planes[LEFT].m_b = vp[0][1] + vp[3][1];
+//    //    m_planes[LEFT].m_c = vp[0][2] + vp[3][2];
+//    //    m_planes[LEFT].m_d = vp[0][3] + vp[3][3];
 
-    //    // column3 - column0
-    //    m_planes[RIGHT].m_a = -vp[0][0] + vp[3][0];
-    //    m_planes[RIGHT].m_b = -vp[0][1] + vp[3][1];
-    //    m_planes[RIGHT].m_c = -vp[0][2] + vp[3][2];
-    //    m_planes[RIGHT].m_d = -vp[0][3] + vp[3][3];
+//    //    // column3 - column0
+//    //    m_planes[RIGHT].m_a = -vp[0][0] + vp[3][0];
+//    //    m_planes[RIGHT].m_b = -vp[0][1] + vp[3][1];
+//    //    m_planes[RIGHT].m_c = -vp[0][2] + vp[3][2];
+//    //    m_planes[RIGHT].m_d = -vp[0][3] + vp[3][3];
 
-    //    m_top.normalize();
-    //    m_bottom.normalize();
-    //    m_right.normalize();
-    //    m_left.normalize();
-    //    m_planes[NEAR].normalize();
-    //    m_zFar.normalize();
-    //    for (uint i = 0; i < 6; ++i) {
-    //        m_planes[i].normalize();
+//    //    m_top.normalize();
+//    //    m_bottom.normalize();
+//    //    m_right.normalize();
+//    //    m_left.normalize();
+//    //    m_planes[NEAR].normalize();
+//    //    m_zFar.normalize();
+//    //    for (uint i = 0; i < 6; ++i) {
+//    //        m_planes[i].normalize();
     //    }
 }
 
@@ -234,15 +235,15 @@ void Frustum::update(const glm::mat4& viewProjectionMatrix)
 //    Q_ASSERT(Plane::intersection(m_planes[RIGHT], m_planes[BOTTOM], m_planes[FAR], m_fbr));
 
 
-//    Plane::intersection(m_planes[LEFT], m_planes[TOP], m_planes[NEAR], m_ntl);
-//    Plane::intersection(m_planes[RIGHT], m_planes[TOP], m_planes[NEAR], m_ntr);
-//    Plane::intersection(m_planes[LEFT], m_planes[BOTTOM], m_planes[NEAR], m_nbl);
-//    Plane::intersection(m_planes[RIGHT], m_planes[BOTTOM], m_planes[NEAR], m_nbr);
+    Plane::intersection(m_planes[LEFT], m_planes[TOP], m_planes[NEAR], m_ntl);
+    Plane::intersection(m_planes[RIGHT], m_planes[TOP], m_planes[NEAR], m_ntr);
+    Plane::intersection(m_planes[LEFT], m_planes[BOTTOM], m_planes[NEAR], m_nbl);
+    Plane::intersection(m_planes[RIGHT], m_planes[BOTTOM], m_planes[NEAR], m_nbr);
 
-//    Plane::intersection(m_planes[LEFT], m_planes[TOP], m_planes[FAR], m_ftl);
-//    Plane::intersection(m_planes[RIGHT], m_planes[TOP], m_planes[FAR], m_ftr);
-//    Plane::intersection(m_planes[LEFT], m_planes[BOTTOM], m_planes[FAR], m_fbl);
-//    Plane::intersection(m_planes[RIGHT], m_planes[BOTTOM], m_planes[FAR], m_fbr);
+    Plane::intersection(m_planes[LEFT], m_planes[TOP], m_planes[FAR], m_ftl);
+    Plane::intersection(m_planes[RIGHT], m_planes[TOP], m_planes[FAR], m_ftr);
+    Plane::intersection(m_planes[LEFT], m_planes[BOTTOM], m_planes[FAR], m_fbl);
+    Plane::intersection(m_planes[RIGHT], m_planes[BOTTOM], m_planes[FAR], m_fbr);
 }
 
 void Frustum::draw(const Shader& shader) const
@@ -306,7 +307,7 @@ bool Frustum::encompass(const glm::vec3& vertex) const
 
 bool Frustum::contains(const BoundingBox& box) const
 {
-    if (m_enable)
+    if (!m_enable)
         return true;
 //    return true;
 //    return m_planes[RIGHT].distance(glm::vec3(0.0f)) > 0;
@@ -324,6 +325,11 @@ bool Frustum::contains(const BoundingBox& box) const
 
     return true;
 }
+
+//void Frustum::buildFrustum(const glm::mat4 &viewProjectionMatrix)
+//{
+
+//}
 
 //bool Frustum::cullAABB(const BoundingBox& box) const
 //{

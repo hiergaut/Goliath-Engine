@@ -19,17 +19,21 @@
 
 //}
 
-//CameraStrategy::CameraStrategy(glm::mat4 & modelTransform)
-//    : m_modelTransform(modelTransform)
-//{
-
-//}
-
-CameraStrategy::CameraStrategy(Model &model)
-    : m_model(model)
+CameraStrategy::CameraStrategy(glm::mat4 & modelTransform, uint & id)
+    : m_modelTransform(modelTransform)
+    , m_id(id)
 {
+//    updateAttachFrustumViews();
 
 }
+
+//CameraStrategy::CameraStrategy(Model& model, uint& id)
+//    : m_model(model)
+//    //    , m_camera(camera)
+//    , m_id(id)
+//{
+//    updateAttachFrustumViews();
+//}
 
 void CameraStrategy::keyPressEvent(QKeyEvent* event)
 {
@@ -97,14 +101,20 @@ void CameraStrategy::resizeEvent(QResizeEvent* event)
 {
 }
 
-void CameraStrategy::updateModelTransform(glm::mat4 &&modelTransform)
+void CameraStrategy::updateModelTransform(glm::mat4&& modelTransform)
 {
-    m_model.setTransform(std::move(modelTransform));
+//    m_model.setTransform(std::move(modelTransform));
+    m_modelTransform = std::move(modelTransform);
 
-    for (const MainWindow3dView* view : *Scene::m_scene->m_views) {
-        view->updateFrustum();
-//        iCameras.push_back(view->m_iCamera);
-    }
-
+    updateAttachFrustumViews();
 }
 
+void CameraStrategy::updateAttachFrustumViews()
+{
+    for (const MainWindow3dView* view : *Scene::m_scene->m_views) {
+        if (view->m_iCamera == m_id) {
+            view->updateFrustum();
+        }
+        //        iCameras.push_back(view->m_iCamera);
+    }
+}

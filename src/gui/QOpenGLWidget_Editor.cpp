@@ -186,6 +186,12 @@ void QOpenGLWidget_Editor::initializeGL()
 
     m_initialized = true;
     //    m_renderTimer->start(100);
+//    for (const MainWindow3dView* view : *Scene::m_scene->m_views) {
+////        if (view->m_iCamera == m_id) {
+//            view->updateFrustum();
+////        }
+//        //        iCameras.push_back(view->m_iCamera);
+//    }
 }
 
 void drawRect(int x1, int y1, int x2, int y2, int windowHeight)
