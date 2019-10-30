@@ -264,7 +264,16 @@ void Scene::draw(const MainWindow3dView& view)
         //        glEnable(GL_MULTISAMPLE);
         //        m_grid->draw(glm::scale(onesMatrix, glm::vec3(1.0f) * glm::length(glm::vec3(viewMatrix[3]))), viewMatrix, projectionMatrix);
     } else {
-        m_skyBox->draw(viewMatrix, projectionMatrix);
+        if (!m_dirLights.empty()) {
+            if (m_dirLights[0].selected()) {
+                m_skyBox->draw(viewMatrix, projectionMatrix, m_dirLights[0].direction(m_localTransform));
+            } else {
+                m_skyBox->draw(viewMatrix, projectionMatrix, m_dirLights[0].direction());
+            }
+
+        } else {
+            m_skyBox->draw(viewMatrix, projectionMatrix);
+        }
     }
 
     //    if (m_selectObject != nullptr && m_selectObject->m_type == Object::Type::POINT_LIGHT) {
@@ -477,7 +486,6 @@ void Scene::draw(const MainWindow3dView& view)
         shader.setInt("nbSpotLight", nbSpotLight);
         for (uint i = 0; i < nbSpotLight; ++i) {
             const SpotLight& spotLight = m_spotLights[i];
-            shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].direction", spotLight.direction(m_localTransform));
             shader.setFloat("spotLights[" + QString::number(i).toStdString() + "].cutOff", glm::cos(glm::radians(12.5f)));
             shader.setFloat("spotLights[" + QString::number(i).toStdString() + "].outerCutOff", glm::cos(glm::radians(15.0f)));
 
@@ -488,9 +496,11 @@ void Scene::draw(const MainWindow3dView& view)
 
             if (spotLight.selected()) {
 
+                shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].direction", spotLight.direction(m_localTransform));
                 shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].position", spotLight.position(m_localTransform, m_worldTransform));
                 shader.setMat4("spotLights[" + QString::number(i).toStdString() + "].lightSpaceMatrix", spotLight.lightSpaceMatrix(m_localTransform));
             } else {
+                shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].direction", spotLight.direction());
                 shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].position", spotLight.position());
                 shader.setMat4("spotLights[" + QString::number(i).toStdString() + "].lightSpaceMatrix", spotLight.lightSpaceMatrix());
             }
@@ -513,7 +523,6 @@ void Scene::draw(const MainWindow3dView& view)
             if (camera->m_torchEnable) {
                 uint i = cpt++ + nbSpotLight;
 
-                shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].direction", camera->direction(m_localTransform));
                 shader.setFloat("spotLights[" + QString::number(i).toStdString() + "].cutOff", glm::cos(glm::radians(20.0f)));
                 shader.setFloat("spotLights[" + QString::number(i).toStdString() + "].outerCutOff", glm::cos(glm::radians(22.0f)));
 
@@ -524,9 +533,11 @@ void Scene::draw(const MainWindow3dView& view)
 
                 if (camera->selected()) {
 
+                    shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].direction", camera->direction(m_localTransform));
                     shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].position", camera->position(m_localTransform, m_worldTransform));
                     shader.setMat4("spotLights[" + QString::number(i).toStdString() + "].lightSpaceMatrix", camera->lightSpaceMatrix(m_localTransform));
                 } else {
+                    shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].direction", camera->direction());
                     shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].position", camera->position());
                     shader.setMat4("spotLights[" + QString::number(i).toStdString() + "].lightSpaceMatrix", camera->lightSpaceMatrix());
                 }

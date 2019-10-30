@@ -20,14 +20,14 @@ glm::vec3 DirLight::pos(const glm::mat4& localTransform, const glm::mat4& worldT
     return (worldTransform * m_model->transform() * localTransform)[3];
 }
 
-void DirLight::draw(const Shader& shader, bool dotCloud, const Frustum &frustum, const glm::mat4& localTransform, const glm::mat4& worldTransform) const
+void DirLight::draw(const Shader& shader, bool dotCloud, const Frustum& frustum, const glm::mat4& localTransform, const glm::mat4& worldTransform) const
 {
     //    shader.setBool("userColor", true);
 
-    //    if (shader.m_shade != Shader::Type::RENDERED) {
+    if (shader.m_shade != Shader::Type::RENDERED) {
 
-    Object::draw(shader, dotCloud, frustum, localTransform, worldTransform);
-    //    }
+        Object::draw(shader, dotCloud, frustum, localTransform, worldTransform);
+    }
 
     //    if (dotCloud) {
     //    if (m_selected) {
@@ -43,14 +43,14 @@ void DirLight::draw(const Shader& shader, bool dotCloud, const Frustum &frustum,
 
         //    shader.setBool("userColor", false);
         //    shader.setVec4("color", glm::vec4(1.0f, 0, 0, 1));
-//        shader.setBool("hasTexture", true);
+        //        shader.setBool("hasTexture", true);
         shader.setBool("has_texture_diffuse", true);
         shader.setInt("texture_diffuse", 5);
         glActiveTexture(GL_TEXTURE5);
         glBindTexture(GL_TEXTURE_2D, m_depthMap);
         QuadGeometry::draw();
         shader.setBool("has_texture_diffuse", false);
-//        shader.setBool("hasTexture", false);
+        //        shader.setBool("hasTexture", false);
         //    glActiveTexture(GL_TEXTURE0);
     }
     //    }
@@ -59,7 +59,7 @@ void DirLight::draw(const Shader& shader, bool dotCloud, const Frustum &frustum,
 
 void DirLight::draw(const Shader& shader, const glm::mat4& localTransform, const glm::mat4& worldTransform) const
 {
-    //    Object::draw(shader, localTransform, worldTransform);
+        Object::draw(shader, localTransform, worldTransform);
 }
 
 DirLight::DirLight(const glm::vec3 position, const glm::vec3 direction, const glm::vec3 ambient, const glm::vec3 diffuse,

@@ -80,6 +80,34 @@ void SkyBox::draw(const glm::mat4 &viewMatrix, const glm::mat4 &projectionMatrix
 
 }
 
+void SkyBox::draw(const glm::mat4 &viewMatrix, const glm::mat4 &projectionMatrix, const glm::vec3 &sunDirection)
+{
+    glDepthMask(GL_FALSE);
+    glDepthFunc(GL_LEQUAL);
+//    glDepthFunc(GL_ALWAYS);
+    m_shader->use();
+    m_shader->setBool("debug", false);
+//    glm::mat4 localTransform = glm::scale(glm::mat4(1.0f), glm::vec3(1.0f) * 100.0f);
+//    glm::mat4 localTransform = glm::translate(glm::mat4(1.0f), glm::vec3(1.0f) * 1.0f);
+//    m_shader->setMat4("view", viewMatrix * localTransform);
+    m_shader->setMat4("view", glm::mat4(glm::mat3(viewMatrix)));
+//    m_shader->setMat4("view", glm::rotate(glm::mat4(glm::mat3(viewMatrix)), glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f)));
+    m_shader->setMat4("projection", projectionMatrix);
+
+    m_shader->setVec3("lightDir", sunDirection);
+
+    m_shader->setInt("skybox", 0);
+    glActiveTexture(GL_TEXTURE0);
+
+    glBindTexture(GL_TEXTURE_CUBE_MAP, m_cubeMap);
+    SkyBoxGeometry::draw();
+    glDepthFunc(GL_LESS);
+
+    glDepthMask(GL_TRUE);
+
+
+}
+
 void SkyBox::draw(const glm::mat4 &viewMatrix, const glm::mat4 &projectionMatrix, uint cubeMap)
 {
     glDepthMask(GL_FALSE);
