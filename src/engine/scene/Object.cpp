@@ -124,9 +124,9 @@ void Object::prepareHierarchy(ulong frameTime) const
     m_model->prepareHierarchy(frameTime);
 }
 
-void Object::draw(const Shader& shader, bool dotCloud, const glm::mat4& localTransform, const glm::mat4& worldTransform) const
+void Object::draw(const Shader& shader, bool dotCloud, const Frustum &frustum, const glm::mat4& localTransform, const glm::mat4& worldTransform) const
 {
-    m_model->draw(shader, dotCloud, localTransform, worldTransform);
+    m_model->draw(shader, dotCloud, frustum, localTransform, worldTransform);
 }
 
 void Object::draw(const Shader& shader, const glm::mat4& localTransform, const glm::mat4& worldTransform) const

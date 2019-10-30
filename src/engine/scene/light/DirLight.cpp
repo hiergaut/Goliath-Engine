@@ -20,7 +20,7 @@ glm::vec3 DirLight::pos(const glm::mat4& localTransform, const glm::mat4& worldT
     return (worldTransform * m_model->transform() * localTransform)[3];
 }
 
-void DirLight::draw(const Shader& shader, bool dotCloud, const glm::mat4& localTransform, const glm::mat4& worldTransform) const
+void DirLight::draw(const Shader& shader, bool dotCloud, const Frustum &frustum, const glm::mat4& localTransform, const glm::mat4& worldTransform) const
 {
     //    shader.setBool("userColor", true);
 

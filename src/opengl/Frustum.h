@@ -4,6 +4,7 @@
 #include "Plane.h"
 #include <glm/glm.hpp>
 #include <opengl/shader.h>
+#include <opengl/BoundingBox.h>
 
 class Frustum
 {
@@ -13,12 +14,12 @@ public:
         BOTTOM,
         LEFT,
         RIGHT,
-        Z_NEAR,
-        Z_FAR
+        NEAR,
+        FAR,
     };
 
     Plane m_planes[6];
-    mutable bool m_hits[6];
+//    mutable bool m_hits[6];
 //    Plane m_top;
 //    Plane m_bottom;
 //    Plane m_right;
@@ -43,8 +44,16 @@ public:
     bool encompass(const glm::vec3 & vertex) const;
     Frustum(const glm::vec3 &source, const glm::vec3 &front, const glm::vec3 &right, const glm::vec3 &up, float zNear, float zFar, float fov, float ratio);
 
+//    void update(const glm::mat4 & viewProjectionMatrix);
+
 
     void draw(const Shader &shader) const;
+    void update(const glm::mat4 &viewProjectionMatrix);
+    bool contains(const BoundingBox &box) const;
+//    bool cullAABB(const BoundingBox &box) const;
+
+    static bool m_enable;
+
 };
 
 #endif // FRUSTUM_H

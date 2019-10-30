@@ -26,7 +26,7 @@ glm::vec3 PointLight::position(const glm::mat4& localTransform, const glm::mat4&
     return (worldTransform * m_model->transform() * localTransform)[3];
 }
 
-void PointLight::draw(const Shader& shader, bool dotCloud, const glm::mat4& localTransform, const glm::mat4& worldTransform) const
+void PointLight::draw(const Shader& shader, bool dotCloud, const Frustum &frustum, const glm::mat4& localTransform, const glm::mat4& worldTransform) const
 {
     //    if (m_selected) {
     //        glDepthMask(GL_TRUE);

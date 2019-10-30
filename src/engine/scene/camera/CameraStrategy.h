@@ -5,6 +5,7 @@
 #include <glm/glm.hpp>
 #include <iostream>
 #include <engine/scene/model/Model.h>
+#include <opengl/Frustum.h>
 
 class CameraStrategy {
 public:
@@ -58,6 +59,8 @@ public:
 
     virtual glm::vec3 target() const = 0;
 
+//    virtual void updateModelTransform(const glm::mat4 & modelTransform) = 0;
+    void updateModelTransform(glm::mat4 && modelTransform);
 
 
 protected:
@@ -65,6 +68,8 @@ protected:
 
     bool m_middleClicked = false;
     bool m_shiftPressed = false;
+
+//    Frustum m_frustum;
 
 public:
 //    float fov() const;

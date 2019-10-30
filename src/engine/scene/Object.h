@@ -9,6 +9,7 @@
 #include <engine/scene/model/meshModel/MeshModel.h>
 //#include "model/paramModel/ParamModel.h"
 //#include <engine/scene/model/paramModel/curve/BSplineCurve.h>
+#include <opengl/Frustum.h>
 
 class Object {
 public:
@@ -40,7 +41,7 @@ public:
     virtual ~Object();
 
     virtual void prepareHierarchy(ulong frameTime) const;
-    virtual void draw(const Shader& shader, bool dotCloud, const glm::mat4& localTransform = glm::mat4(1.0f),
+    virtual void draw(const Shader& shader, bool dotCloud, const Frustum & frustum,  const glm::mat4& localTransform = glm::mat4(1.0f),
         const glm::mat4& worldTransform = glm::mat4(1.0f)) const;
 
     virtual void draw(const Shader& shader, const glm::mat4& localTransform = glm::mat4(1.0f),

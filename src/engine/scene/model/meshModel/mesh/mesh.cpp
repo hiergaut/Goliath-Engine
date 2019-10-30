@@ -346,8 +346,11 @@ void Mesh::draw(const Shader& shader) const
     m_fun->glActiveTexture(GL_TEXTURE0);
 }
 
-void Mesh::draw(const Shader& shader, bool dotCloud) const
+void Mesh::draw(const Shader& shader, bool dotCloud, const Frustum & frustum) const
 {
+    if (!frustum.contains(m_box)) {
+        return;
+    }
     //    qDebug() << "context " << m_fun;
     //    Q_ASSERT(m_box != nullptr);
     //    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -355,8 +358,8 @@ void Mesh::draw(const Shader& shader, bool dotCloud) const
     //    shader.setMat4("model", m_transform);
     //    shader.setMat4("model", glm::mat4(1));
 
-    if (shader.m_shade == Shader::Type::LOOK_DEV || shader.m_shade == Shader::Type::RENDERED) {
         const Material& material = (*m_materials)[m_iMaterial];
+    if (shader.m_shade == Shader::Type::RENDERED) {
         //        const Material& material = mesh.m_material;
         //        const Material& material = mesh.m_material;
 
@@ -482,8 +485,21 @@ void Mesh::draw(const Shader& shader, bool dotCloud) const
         //        shader.setVec3("material.specular", material.m_colors[Color::DIFFUSE]);
         //        shader.setFloat("material.shininess", std::max(1.0f, material.m_shininess));
         //        shader.setFloat("material.shininess", 2.0f);
+    }
+    else if (shader.m_shade == Shader::Type::LOOK_DEV || shader.m_shade == Shader::Type::RENDERED) {
+//        const Material& material = (*m_materials)[m_iMaterial];
+
+        if (!material.m_iTextures[Texture::DIFFUSE].empty() && m_enableTexture[Texture::DIFFUSE]) {
+            shader.setBool("has_texture_diffuse", true);
+            m_fun->glActiveTexture(GL_TEXTURE0);
+            shader.setInt("texture_diffuse", 0);
+            m_fun->glBindTexture(GL_TEXTURE_2D, (*m_textures)[material.m_iTextures[Texture::DIFFUSE][0]].m_id);
+        } else {
+            shader.setBool("has_texture_diffuse", false);
+        }
+
     } else if (shader.m_shade == Shader::Type::NORMAL) {
-        const Material& material = (*m_materials)[m_iMaterial];
+//        const Material& material = (*m_materials)[m_iMaterial];
         //    if (shade == MainWindow3dView::Shading::RENDERED) {
         if (!material.m_iTextures[Texture::NORMAL].empty() && m_enableTexture[Texture::NORMAL]) {
             shader.setBool("has_texture_normal", true);

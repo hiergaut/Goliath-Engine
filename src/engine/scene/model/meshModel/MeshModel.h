@@ -90,7 +90,7 @@ public:
 
     void prepareHierarchy(ulong frameTime) const override;
 
-    void draw(const Shader &shader, bool dotCloud, const glm::mat4 &modelMatrix = glm::mat4(1.0f),
+    void draw(const Shader &shader, bool dotCloud, const Frustum & frustum, const glm::mat4 &modelMatrix = glm::mat4(1.0f),
               const glm::mat4 & worldTransform = glm::mat4(1.0f)) const override;
     void draw(const Shader & shader, const glm::mat4 &modelMatrix = glm::mat4(1.0f),
               const glm::mat4 &worldTransform = glm::mat4(1.0f)) const override;

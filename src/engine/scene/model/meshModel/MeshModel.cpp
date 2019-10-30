@@ -369,8 +369,11 @@ void MeshModel::prepareHierarchy(ulong frameTime) const
 //void MeshModel::Draw(const glm::mat4& modelMatrix, const MainWindow3dView& view) const
 //void MeshModel::Draw(const glm::mat4& modelMatrix, const Shader& shader, bool dotCloud, bool vertexGroupShader) const
 //void MeshModel::draw(const glm::mat4 &modelMatrix, const Shader &shader, bool dotCloud, const glm::mat4 & worldTransform) const
-void MeshModel::draw(const Shader &shader, bool dotCloud, const glm::mat4 &modelMatrix, const glm::mat4 &worldTransform) const
+void MeshModel::draw(const Shader &shader, bool dotCloud, const Frustum &frustum, const glm::mat4 &modelMatrix, const glm::mat4 &worldTransform) const
 {
+    if (! frustum.contains(m_box)) {
+        return;
+    }
     //    model = glm::mat4(1.0f);
     //    model = glm::scale(model, glm::vec3(0.01));
     //    //    model = glm::rotate(model, 1.57f, glm::vec3(1, 0, 0));
@@ -417,7 +420,7 @@ void MeshModel::draw(const Shader &shader, bool dotCloud, const glm::mat4 &model
                 shader.setVec4("color", glm::vec4(r, g, b, 1.0f));
             }
             shader.setMat4("model", worldTransform * m_transform * modelMatrix * mesh.m_transform);
-            mesh.draw(shader, dotCloud);
+            mesh.draw(shader, dotCloud, frustum);
             //        shader.setBool("userColor", false);
 
             //        mesh.m_box->draw(modelMatrix * mesh.m_transform, shader);
@@ -430,7 +433,7 @@ void MeshModel::draw(const Shader &shader, bool dotCloud, const glm::mat4 &model
 
             shader.setMat4("model",worldTransform * m_transform * modelMatrix * mesh.m_transform);
 
-            mesh.draw(shader, dotCloud);
+            mesh.draw(shader, dotCloud, frustum);
         }
         //        shader.setBool("userColor", false);
     }

@@ -220,7 +220,15 @@ void QOpenGLWidget_Editor::paintGL()
         //        std::string str;
         //    m_stream << m_fps << "\n";
         //        std::cout << "fps : " << m_fps << std::endl;
-        m_statusBar->showMessage("fps:" + QString::number(m_fps) + "  camera:" + QString::number(m_scene.m_cameras.size()) + "  dirLight:" + QString::number(m_scene.m_dirLights.size()) + "  pointLight:" + QString::number(m_scene.m_pointLights.size()) + "  spotLight:" + QString::number(m_scene.m_spotLights.size()));
+        m_statusBar->showMessage("fps:" + QString::number(m_fps) +
+                                 "  camera:" + QString::number(m_scene.m_cameras.size()) +
+                                 "  dirLight:" + QString::number(m_scene.m_dirLights.size()) +
+                                 "  pointLight:" + QString::number(m_scene.m_pointLights.size()) +
+                                 "  spotLight:" + QString::number(m_scene.m_spotLights.size()) +
+                                 "  shadow:" + QString::number(m_scene.m_computeShadow) +
+                                 "  zPrepass:" + QString::number(m_scene.m_zPrepass) +
+                                 "  multisample:" + QString::number(m_multiSample) +
+                                 "  frustumCulling:" + QString::number(Frustum::m_enable));
     }
     //        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     //    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

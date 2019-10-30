@@ -100,6 +100,8 @@ public:
     QPoint m_posFirstRightClick;
     QPoint m_posMouse;
 
+    mutable Frustum m_frustum;
+
 public:
     explicit MainWindow3dView(QWidget* parent = nullptr);
     ~MainWindow3dView() override;
@@ -203,6 +205,7 @@ private:
 
     float m_memAxisPos = 0.0f; //wheel
 
+
 //    QPoint m_posClickPress;
 //    QPoint m_posClickPress;
 
@@ -232,6 +235,8 @@ public:
 
     bool vertexGroupShader() const;
     bool solid() const;
+
+    void updateFrustum() const;
 
 private slots:
     //    void on_actionWireFrame_triggered();

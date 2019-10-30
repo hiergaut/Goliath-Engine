@@ -270,12 +270,18 @@ void Scene::draw(const MainWindow3dView& view)
     //    return;
 
     const Shader& shader = view.shader();
+    const Frustum & frustum = view.m_frustum;
     //    shader.use();
     //    shader.setBool("hasSkyBox", false);
-    glm::mat4 projectionMatrix2 = glm::perspective(glm::radians(30.0f), 1.0f, 100.0f, 1000.0f);
-    const Frustum frustum(projectionMatrix2 * viewMatrix);
-    shader.setMat4("model", onesMatrix);
-    frustum.draw(shader);
+//    glDisable(GL_MULTISAMPLE);
+//    glm::mat4 projectionMatrix2 = glm::perspective(glm::radians(30.0f), 1.0f, 10.0f, 10000.0f);
+//    const Frustum frustum(projectionMatrix2 * viewMatrix);
+//    shader.setMat4("model", onesMatrix);
+//    frustum.draw(shader);
+//    for (const MainWindow3dView* view : *Scene::m_scene->m_views) {
+//        view->m_frustum.draw(shader);
+//    }
+
 
     //    const glm::mat4& viewTransform = view.m_transformMatrix;
     //    const glm::mat4& m_worldTransform = view.m_worldTransform;
@@ -520,11 +526,11 @@ void Scene::draw(const MainWindow3dView& view)
     for (const Object* object : m_objects) {
         if (object != viewCameraObject) {
             if (object->selected()) {
-                object->draw(shader, view.dotCloud(), m_localTransform, m_worldTransform);
+                object->draw(shader, view.dotCloud(), frustum, m_localTransform, m_worldTransform);
 
             } else {
 
-                object->draw(shader, view.dotCloud(), onesMatrix, onesMatrix);
+                object->draw(shader, view.dotCloud(), frustum, onesMatrix, onesMatrix);
             }
         }
     }

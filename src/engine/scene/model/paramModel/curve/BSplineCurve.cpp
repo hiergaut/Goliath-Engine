@@ -224,8 +224,11 @@ void BSplineCurve::prepareHierarchy(ulong frameTime) const
 {
 }
 
-void BSplineCurve::draw(const Shader& shader, bool dotCloud, const glm::mat4& localTransform, const glm::mat4& worldTransform) const
+void BSplineCurve::draw(const Shader& shader, bool dotCloud, const Frustum &frustum, const glm::mat4& localTransform, const glm::mat4& worldTransform) const
 {
+    if (! frustum.contains(m_box)) {
+        return;
+    }
     Q_ASSERT(m_fun != nullptr);
     m_fun->glLineWidth(2.0f);
 

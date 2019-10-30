@@ -13,6 +13,7 @@ class BoundingBox // AABB
 public:
 //    const static CubeGeometry m_cube;
 
+    glm::vec3 m_bounds[2];
 
 public:
     BoundingBox();
@@ -34,10 +35,12 @@ public:
 
 //    std::vector<glm::vec3> corners(glm::mat4 basis) const;
 
+    glm::vec3 getPositive(const glm::vec3 &normal) const;
+    glm::vec3 getNegative(const glm::vec3 &normal) const;
+    glm::vec3 getSize() const;
 private:
 //    glm::vec3 m_min;
 //    glm::vec3 m_max;
-    glm::vec3 m_bounds[2];
 
     const static CubeGeometry * m_cube;
 //    std::vector<glm::vec3> m_vertices;

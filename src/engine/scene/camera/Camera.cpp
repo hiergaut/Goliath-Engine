@@ -139,10 +139,11 @@ void Camera::prepareHierarchy(ulong frameTime) const
     m_model->prepareHierarchy(frameTime);
 }
 
-void Camera::draw(const Shader& shader, bool dotCloud, const glm::mat4& localTransform, const glm::mat4& worldTransform) const
+void Camera::draw(const Shader& shader, bool dotCloud, const Frustum &frustum, const glm::mat4& localTransform, const glm::mat4& worldTransform) const
 {
     //    m_model.draw(shader, dotCloud, localTransform, glm::inverse(viewMatrix()) * worldTransform);
-    m_model->draw(shader, dotCloud, localTransform, worldTransform);
+    Object::draw(shader, dotCloud, frustum, localTransform, worldTransform);
+//    m_model->draw(shader, dotCloud, localTransform, worldTransform);
     //    Scene::m_camera.d
     //    Scene::m_scene->m_cameraModel->draw(shader, dotCloud, localTransform, worldTransform);
     //    qDebug() << "draw camera";

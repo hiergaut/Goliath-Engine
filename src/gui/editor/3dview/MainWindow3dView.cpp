@@ -403,6 +403,7 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
         Scene::m_scene->m_zPrepass = !Scene::m_scene->m_zPrepass;
         break;
 
+
     case Qt::Key_F8:
         QOpenGLWidget_Editor::m_editor->switchMultiSample();
 //        if (multiSampling) {
@@ -412,6 +413,10 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
 //            glEnable(GL_MULTISAMPLE);
 //            multiSampling = true;
 //        }
+        break;
+
+    case Qt::Key_F9:
+        Frustum::m_enable = ! Frustum::m_enable;
         break;
 
     case Qt::Key_C:
@@ -921,7 +926,7 @@ void MainWindow3dView::mouseReleaseEvent(QMouseEvent* event)
             //            glm::mat4 projectionMatrix = glm::perspective(glm::radians(m_camera->m_fov), (float)width() / height(), l_near, l_far);
             //            Scene::m_scene->vertexSelectFrustum(projectionMatrix, viewMatrix(), m_shiftPressed);
             //            Scene::m_scene->vertexSelectFrustum({viewMatrix() * m_projectionMatrix}, m_shiftPressed);
-            //            Scene::m_scene->vertexSelectFrustum({viewMatrix() * m_projectionMatrix}, m_shiftPressed);
+            //            Scene::m_scene->vertexSelectFrustum({NiewMatrix() * m_projectionMatrix}, m_shiftPressed);
             //            Scene::m_scene->vertexSelectFrustum(Frustum(viewMatrix() * m_projectionMatrix), m_shiftPressed);
             //            Scene::m_scene->vertexSelectFrustum(Frustum(m_projectionMatrix * viewMatrix()), m_shiftPressed);
             Scene::m_scene->vertexSelectFrustum(Frustum(m_camera->position(), m_camera->front(),
@@ -1579,6 +1584,16 @@ bool MainWindow3dView::vertexGroupShader() const
 bool MainWindow3dView::solid() const
 {
     return m_shade == Shader::Type::SOLID;
+}
+
+void MainWindow3dView::updateFrustum() const
+{
+    Q_ASSERT((m_iCamera < Scene::m_cameras.size()));
+    Camera* m_camera = Scene::m_cameras[m_iCamera];
+
+//    glm::mat4 projectionMatrix2 = glm::perspective(glm::radians(30.0f), 1.0f, 10.0f, 10000.0f);
+    m_frustum.update(m_projectionMatrix * m_camera->viewMatrix());
+//    m_frustum.update(projectionMatrix2 * m_camera->viewMatrix());
 }
 
 void MainWindow3dView::setCursorToCenter()

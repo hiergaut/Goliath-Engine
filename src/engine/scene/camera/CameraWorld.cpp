@@ -49,7 +49,8 @@ CameraWorld::CameraWorld(const glm::vec3 &position, glm::vec3 target, Model &mod
     , m_target(target)
 {
     m_type = WORLD;
-    m_model.setTransform(glm::inverse(glm::lookAt(position, target, m_up)));
+//    m_model.setTransform(glm::inverse(glm::lookAt(position, target, m_up)));
+    updateModelTransform(glm::inverse(glm::lookAt(position, target, m_up)));
 }
 
 void CameraWorld::processMouseMovement(float xoffset, float yoffset)
@@ -136,7 +137,8 @@ void CameraWorld::processMouseMovement(float xoffset, float yoffset)
     front = m * glm::vec4(front, 1.0);
     glm::vec3 newPosition = front * dist + m_target;
 
-    m_model.setTransform(glm::inverse(glm::lookAt(newPosition, m_target, m_up)));
+//    m_model.setTransform(glm::inverse(glm::lookAt(newPosition, m_target, m_up)));
+    updateModelTransform(glm::inverse(glm::lookAt(newPosition, m_target, m_up)));
     //    m_model. = front * dist + m_target;
 
     //    }
@@ -159,7 +161,8 @@ void CameraWorld::processMouseScroll(float yoffset)
     translate.y = newPosition.y;
     translate.z = newPosition.z;
 
-    m_model.setTransform(std::move(model));
+//    m_model.setTransform(std::move(model));
+    updateModelTransform(std::move(model));
 }
 
 void CameraWorld::processSliding(float dx, float dy)
@@ -182,7 +185,8 @@ void CameraWorld::processSliding(float dx, float dy)
     translate.y = position.y;
     translate.z = position.z;
 
-    m_model.setTransform(std::move(model));
+//    m_model.setTransform(std::move(model));
+    updateModelTransform(std::move(model));
 }
 
 void CameraWorld::updateUpAfterReverse()
@@ -302,12 +306,18 @@ void CameraWorld::wheelEvent(QWheelEvent* event)
     //    updateProjection();
 }
 
+//void CameraWorld::updateModelTransform(glm::mat4 &&modelTransform)
+//{
+//    m_model.setTransform(std::move(modelTransform));
+//}
+
 void CameraWorld::setTarget(const glm::vec3 &target)
 {
     m_target = target;
 
 //    m_modelTransform = glm::inverse(glm::lookAt(glm::vec3(m_modelTransform[3]), m_target, m_up));
-    m_model.setTransform(glm::inverse(glm::lookAt(glm::vec3(m_model.transform()[3]), m_target, m_up)));
+//    m_model.setTransform(glm::inverse(glm::lookAt(glm::vec3(m_model.transform()[3]), m_target, m_up)));
+    updateModelTransform(glm::inverse(glm::lookAt(glm::vec3(m_model.transform()[3]), m_target, m_up)));
 }
 
 //void CameraWorld::setDefault()
@@ -386,5 +396,6 @@ void CameraWorld::setFront(const glm::vec3& front)
     }
 
 //    m_modelTransform = glm::inverse(glm::lookAt(m_position, m_target, m_up));
-    m_model.setTransform(glm::inverse(glm::lookAt(m_position, m_target, m_up)));
+//    m_model.setTransform(glm::inverse(glm::lookAt(m_position, m_target, m_up)));
+    updateModelTransform(glm::inverse(glm::lookAt(m_position, m_target, m_up)));
 }

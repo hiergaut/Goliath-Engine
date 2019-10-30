@@ -5,6 +5,7 @@
 #include <opengl/BoundingBox.h>
 #include <opengl/shader.h>
 #include <QStandardItemModel>
+#include <opengl/Frustum.h>
 
 class Model {
 public:
@@ -30,7 +31,7 @@ public:
     virtual void save(std::ofstream & file) const;
 
     virtual void prepareHierarchy(ulong frameTime) const = 0;
-    virtual void draw(const Shader& shader, bool dotCloud,
+    virtual void draw(const Shader& shader, bool dotCloud, const Frustum & frustum,
         const glm::mat4& localTransform = glm::mat4(1.0f),
         const glm::mat4& worldTransform = glm::mat4(1.0f))
         const = 0;

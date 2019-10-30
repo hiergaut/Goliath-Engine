@@ -48,6 +48,7 @@ protected:
     void wheelEvent(QWheelEvent* event) override;
 
     //    void setDefault() override;
+//    void updateModelTransform(glm::mat4 &&modelTransform) override;
 
 private:
     bool m_reverse = false;

@@ -31,11 +31,11 @@ void BoundingBox::operator<<(const glm::vec3& position)
     m_bounds[1] = glm::max(m_bounds[1], position);
 }
 
-void BoundingBox::operator<<(const BoundingBox &box)
+void BoundingBox::operator<<(const BoundingBox& box)
 {
     m_bounds[0] = glm::min(m_bounds[0], box.m_bounds[0]);
     m_bounds[1] = glm::max(m_bounds[1], box.m_bounds[1]);
-//    qDebug() << m_bounds[0].x << m_bounds[1].x;
+    //    qDebug() << m_bounds[0].x << m_bounds[1].x;
 }
 
 //std::vector<glm::vec3> BoundingBox::corners() const
@@ -70,8 +70,7 @@ glm::vec3 BoundingBox::center() const
 
 float BoundingBox::radius() const
 {
-    return glm::length(m_bounds[0] -m_bounds[1]) / 2.0f;
-
+    return glm::length(m_bounds[0] - m_bounds[1]) / 2.0f;
 }
 
 void BoundingBox::draw(const Shader& shader) const
@@ -84,7 +83,7 @@ void BoundingBox::draw(const Shader& shader) const
 
     shader.use();
     shader.setMat4("model", modelMatrix);
-//    shader.setMat4("model",worldTransform *  modelMatrix * localTransform);
+    //    shader.setMat4("model",worldTransform *  modelMatrix * localTransform);
 
     Q_ASSERT(m_cube != nullptr);
     m_cube->draw();
@@ -131,14 +130,14 @@ void BoundingBox::draw(const Shader& shader) const
 //    return true;
 //}
 
-bool BoundingBox::intersect(const Ray &r, float & t) const
+bool BoundingBox::intersect(const Ray& r, float& t) const
 {
     float tmin, tmax, tymin, tymax, tzmin, tzmax;
 
     tmin = (m_bounds[r.m_sign[0]].x - r.m_source.x) * r.m_invDir.x;
-    tmax = (m_bounds[1-r.m_sign[0]].x - r.m_source.x) * r.m_invDir.x;
+    tmax = (m_bounds[1 - r.m_sign[0]].x - r.m_source.x) * r.m_invDir.x;
     tymin = (m_bounds[r.m_sign[1]].y - r.m_source.y) * r.m_invDir.y;
-    tymax = (m_bounds[1-r.m_sign[1]].y - r.m_source.y) * r.m_invDir.y;
+    tymax = (m_bounds[1 - r.m_sign[1]].y - r.m_source.y) * r.m_invDir.y;
 
     if ((tmin > tymax) || (tymin > tmax))
         return false;
@@ -148,7 +147,7 @@ bool BoundingBox::intersect(const Ray &r, float & t) const
         tmax = tymax;
 
     tzmin = (m_bounds[r.m_sign[2]].z - r.m_source.z) * r.m_invDir.z;
-    tzmax = (m_bounds[1-r.m_sign[2]].z - r.m_source.z) * r.m_invDir.z;
+    tzmax = (m_bounds[1 - r.m_sign[2]].z - r.m_source.z) * r.m_invDir.z;
 
     if ((tmin > tzmax) || (tzmin > tmax))
         return false;
@@ -161,7 +160,7 @@ bool BoundingBox::intersect(const Ray &r, float & t) const
     return true;
 }
 
-std::vector<glm::vec3> BoundingBox::corners(const glm::mat4 & basis) const
+std::vector<glm::vec3> BoundingBox::corners(const glm::mat4& basis) const
 {
     std::vector<glm::vec3> ret;
     glm::vec3 diag(m_bounds[1] - m_bounds[0]);
@@ -176,9 +175,50 @@ std::vector<glm::vec3> BoundingBox::corners(const glm::mat4 & basis) const
     ret.emplace_back(m_bounds[1] - diag.y);
     ret.emplace_back(m_bounds[1] - diag.z);
 
-    for (glm::vec3 & v : ret) {
+    for (glm::vec3& v : ret) {
         v = basis * glm::vec4(v, 0.0f);
     }
 
     return ret;
+}
+
+glm::vec3 BoundingBox::getNegative(const glm::vec3& normal) const
+{
+    glm::vec3 result = m_bounds[0];
+    glm::vec3 size = getSize();
+
+    if (normal.x < 0)
+        result.x += size.x;
+
+    if (normal.y < 0)
+        result.y += size.y;
+
+    if (normal.z < 0)
+        result.z += size.z;
+
+    return result;
+}
+
+glm::vec3 BoundingBox::getSize() const
+{
+    return m_bounds[1] - m_bounds[0];
+//    return m_bounds[0] -m_bounds[1];
+}
+
+//! Given a plane through the origin with \a normal, returns the corner farthest from the plane.
+glm::vec3 BoundingBox::getPositive(const glm::vec3& normal) const
+{
+    glm::vec3 result = m_bounds[0];
+    glm::vec3 size = getSize();
+
+    if (normal.x > 0)
+        result.x += size.x;
+
+    if (normal.y > 0)
+        result.y += size.y;
+
+    if (normal.z > 0)
+        result.z += size.z;
+
+    return result;
 }

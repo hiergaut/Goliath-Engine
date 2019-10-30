@@ -204,7 +204,7 @@ void CameraFps::save(std::ofstream& file)
 //}
 
 // Processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
-void CameraFps::ProcessKeyboard() const
+void CameraFps::ProcessKeyboard()
 {
 //    qDebug() << "procces keyboard";
 
@@ -223,7 +223,8 @@ void CameraFps::ProcessKeyboard() const
     glm::mat4 model = m_model.transform();
     model[3] = glm::vec4(newPosition, m_model.transform()[3][3]);
 
-    m_model.setTransform(model);
+//    m_model.setTransform(model);
+    updateModelTransform(std::move(model));
 
     //    m_modelTransform = glm::inverse(glm::lookAt(newPosition, newPosition + m_front, m_up));
 
@@ -292,7 +293,8 @@ void CameraFps::updateCameraVectors()
 
     glm::vec3 position = m_model.transform()[3];
 //    m_modelTransform = glm::inverse(glm::lookAt(position, position + m_front, m_up));
-    m_model.setTransform(glm::inverse(glm::lookAt(position, position + m_front, m_up)));
+//    m_model.setTransform(glm::inverse(glm::lookAt(position, position + m_front, m_up)));
+    updateModelTransform(glm::inverse(glm::lookAt(position, position + m_front, m_up)));
 }
 
 void CameraFps::updateCenter()
@@ -505,6 +507,12 @@ void CameraFps::resizeEvent(QResizeEvent* event)
     //    updateView();
     updateCenter();
 }
+
+//void CameraFps::updateModelTransform(glm::mat4 &&modelTransform)
+//{
+//    m_model.setTransform(std::move(modelTransform));
+////    updateModelTransform(std::move(modelTransform));
+//}
 
 void CameraFps::setTarget(const glm::vec3 &target)
 {

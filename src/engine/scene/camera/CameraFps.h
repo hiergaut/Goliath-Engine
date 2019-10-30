@@ -60,7 +60,7 @@ public:
     void save(std::ofstream &file) override;
 
 //    glm::mat4 viewMatrix() const override;
-    void ProcessKeyboard() const;
+    void ProcessKeyboard();
 
     void ProcessMouseMovement(float xoffset, float yoffset, bool constrainPitch = true);
     void ProcessMouseScroll(float yoffset);
@@ -73,6 +73,7 @@ public:
 
     void startFpsView();
 
+protected:
 
     void keyPressEvent(QKeyEvent *event) override;
     void keyReleaseEvent(QKeyEvent *event) override;
@@ -85,6 +86,9 @@ public:
 
 //    void focusInEvent(QFocusEvent *event) override;
     void resizeEvent(QResizeEvent *event) override;
+
+//    void updateModelTransform(glm::mat4 &&modelTransform) override;
+
 
 private:
     float & m_fov;

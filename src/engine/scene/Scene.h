@@ -62,6 +62,7 @@ public:
     bool m_computeShadow = true;
     bool m_zPrepass = false;
 //    bool m_multiSampling = true;
+    std::list<const MainWindow3dView *> * m_views; // cameras
 
 
 public:
@@ -146,7 +147,6 @@ private:
 //    Shader* m_shader;
     GLint m_fbo;
 
-    std::list<const MainWindow3dView *> * m_views; // cameras
 
 
 //    Shader* m_shaderCamera;

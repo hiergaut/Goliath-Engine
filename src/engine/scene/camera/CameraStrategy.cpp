@@ -1,4 +1,5 @@
 #include "CameraStrategy.h"
+#include <engine/scene/Scene.h>
 
 //#include <session/Session.h>
 
@@ -94,5 +95,16 @@ void CameraStrategy::focusInEvent(QFocusEvent* event)
 
 void CameraStrategy::resizeEvent(QResizeEvent* event)
 {
+}
+
+void CameraStrategy::updateModelTransform(glm::mat4 &&modelTransform)
+{
+    m_model.setTransform(std::move(modelTransform));
+
+    for (const MainWindow3dView* view : *Scene::m_scene->m_views) {
+        view->updateFrustum();
+//        iCameras.push_back(view->m_iCamera);
+    }
+
 }
 

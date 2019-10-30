@@ -31,6 +31,7 @@
 #include <assimp/scene.h>
 
 #include "../material/Material.h"
+#include <opengl/Frustum.h>
 
 #include <opengl/BoundingBox.h>
 //#include <gui/editor/3dview/MainWindow3dView.h>
@@ -72,7 +73,7 @@ public:
     void buildItemModel(QStandardItem* parent) const;
     void setupMesh();
     void draw(const Shader& shader) const;
-    void draw(const Shader& shader, bool dotCloud) const;
+    void draw(const Shader& shader, bool dotCloud, const Frustum & frustum) const;
     void drawBoundingBox(const Shader & shader) const;
 
     void save(std::ofstream& file) const;
