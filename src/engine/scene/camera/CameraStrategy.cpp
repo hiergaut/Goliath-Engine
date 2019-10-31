@@ -105,6 +105,8 @@ void CameraStrategy::updateModelTransform(glm::mat4&& modelTransform)
 {
 //    m_model.setTransform(std::move(modelTransform));
     m_modelTransform = std::move(modelTransform);
+//    Scene::m_scene->m_oneModelTransformChanged = true;
+//    Scene::m_scene->m_cptShadowMapDetail = 0;
 
     updateAttachFrustumViews();
 }

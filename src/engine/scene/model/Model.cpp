@@ -15,6 +15,7 @@
 //{
 
 //}
+#include <engine/scene/Scene.h>
 
 Model::Model(const glm::mat4 &transform, Model::Type type)
     : m_type(type)
@@ -36,12 +37,16 @@ void Model::setTransform(glm::mat4 &&transform)
 {
     m_transform = std::move(transform);
     updateBoundingBox();
+//    Scene::m_scene->m_oneModelTransformChanged = true;
+//    Scene::m_scene->m_cptShadowMapDetail = 0;
 }
 
 void Model::setTransform(const glm::mat4 &transform)
 {
     m_transform = transform;
     updateBoundingBox();
+//    Scene::m_scene->m_oneModelTransformChanged = true;
+//    Scene::m_scene->m_cptShadowMapDetail = 0;
 }
 
 void Model::save(std::ofstream& file) const

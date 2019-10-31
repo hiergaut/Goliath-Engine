@@ -31,6 +31,10 @@ public:
     void load(std::ifstream& file);
     void save(std::ofstream& file) const;
 
+    virtual bool selected() const = 0;
+//    virtual Shader & depthShader(glm::)
+    virtual Shader& depthShader(const glm::mat4& localTransform = glm::mat4(1.0f), const glm::mat4& worldTransform = glm::mat4(1.0f)) const = 0;
+
     //    void updateShadowMap();
 //    Shader& depthShader(const glm::mat4& localTransform = glm::mat4(1.0f), const glm::mat4& worldTransform = glm::mat4(1.0f));
 //    void showDepth();

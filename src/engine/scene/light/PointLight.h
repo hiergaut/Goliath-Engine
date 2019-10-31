@@ -22,6 +22,8 @@ public:
 //    glm::vec3 m_direction;
 
 //    Model* m_model = nullptr;
+    Shader& depthShader(const glm::mat4& localTransform = glm::mat4(1.0f), const glm::mat4& worldTransform = glm::mat4(1.0f)) const override;
+    bool selected() const override;
 
 protected:
     void draw(const Shader &shader, bool dotCloud, const Frustum & frustum, const glm::mat4 &localTransform = glm::mat4(1.0f), const glm::mat4 &worldTransform = glm::mat4(1.0f)) const override;
@@ -38,7 +40,6 @@ public:
 
     virtual glm::vec3 position(const glm::mat4& localTransform = glm::mat4(1.0f),
                           const glm::mat4& worldTransform = glm::mat4(1.0f)) const;
-    Shader& depthShader(const glm::mat4& localTransform = glm::mat4(1.0f), const glm::mat4& worldTransform = glm::mat4(1.0f)) const;
 //    glm::mat4 lightSpaceMatrix(const glm::mat4 & localTransform = glm::mat4(1.0f)) const;
 
 //    void load(std::ifstream& file);
@@ -50,6 +51,8 @@ public:
     uint depthMap() const;
 private:
     QOpenGLFunctionsCore* m_fun;
+//    uint m_depthFbo[2];
+//    uint m_depthMap[2];
     uint m_depthFbo;
     uint m_depthMap;
     //    float m_nearPlane;

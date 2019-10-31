@@ -51,6 +51,7 @@ public:
 //    std::vector<Model> m_models;
     std::vector<Object> m_models;
     static std::vector<Camera*> m_cameras; // legacy
+    std::vector<Light *> m_lights;
     std::vector<DirLight> m_dirLights;
     std::vector<PointLight> m_pointLights;
     std::vector<SpotLight> m_spotLights;
@@ -65,6 +66,13 @@ public:
     std::list<const MainWindow3dView *> * m_views; // cameras
 
 //    Shader * m_minimalShader;
+//    bool m_oneModelTransformChanged = false;
+//    bool m_viewTransformActive = false;
+//    uint m_shadowMapDetail = 0;
+//    uint m_cptShadowMapDetail = 0;
+
+    uint m_iLightDepthMap = 0;
+//    uint m_nbLight;
 
 
 public:
@@ -118,6 +126,7 @@ public:
     void deleteSelected();
 
     void addLight(Light::Type lightType, const glm::vec3 position);
+//    void updateNbLight();
 //    void addCamera(float fov, const glm::vec3 & position, const glm::vec3 &target);
     void addDefaultCamera();
     void addCurve(BSplineCurve::Type type);

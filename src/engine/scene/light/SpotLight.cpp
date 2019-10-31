@@ -8,7 +8,7 @@
 #include <session/Session.h>
 
 //const uint SHADOW_SIZE = 1024;
-const uint SHADOW_SIZE = 4096;
+const uint SHADOW_SIZE = 2048;
 //const uint SHADOW_SIZE = 8192;
 //const uint SHADOW_SIZE = 16384;
 const uint SHADOW_WIDTH = SHADOW_SIZE;
@@ -189,6 +189,11 @@ Shader& SpotLight::depthShader(const glm::mat4& localTransform, const glm::mat4&
     //    m_fun->glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
     return *m_simpleDepthShader;
+}
+
+bool SpotLight::selected() const
+{
+    return Object::selected();
 }
 
 glm::mat4 SpotLight::lightSpaceMatrix(const glm::mat4& localTransform) const

@@ -186,6 +186,11 @@ Shader& DirLight::depthShader(const glm::mat4& localTransform, const glm::mat4& 
     return *m_simpleDepthShader;
 }
 
+bool DirLight::selected() const
+{
+    return Object::selected();
+}
+
 glm::mat4 DirLight::lightSpaceMatrix(const glm::mat4& localTransform) const
 {
     glm::mat4 lightProjection, lightView;

@@ -14,6 +14,8 @@ public:
 //    glm::vec3 m_direction;
 
 //    Model* m_model = nullptr;
+    Shader& depthShader(const glm::mat4& localTransform = glm::mat4(1.0f), const glm::mat4& worldTransform = glm::mat4(1.0f)) const override;
+    bool selected() const override;
 
 protected:
     virtual glm::vec3 pos(const glm::mat4& localTransform = glm::mat4(1.0f),
@@ -28,7 +30,6 @@ public:
     DirLight(DirLight && dirLight) noexcept = default;
 //    ~DirLight();
     void initGL();
-    Shader& depthShader(const glm::mat4& localTransform = glm::mat4(1.0f), const glm::mat4& worldTransform = glm::mat4(1.0f)) const;
     glm::mat4 lightSpaceMatrix(const glm::mat4 & localTransform = glm::mat4(1.0f)) const;
 
 //    void load(std::ifstream& file);

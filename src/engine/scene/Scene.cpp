@@ -194,41 +194,78 @@ void Scene::updateLightsShadowMap()
     //    m_fun->glGetIntegerv(GL_FRAMEBUFFER, &m_fbo);
     //    glEnable(GL_CULL_FACE);
     //    glCullFace(GL_FRONT_AND_BACK);
-    if (m_computeShadow) {
-        //        m_minimalShader->use();
+    //    const uint frameTick = 60;
+    //    Q_ASSERT(0 <= m_cptShadowMapDetail && m_cptShadowMapDetail <= frameTick);
+    //    if (m_computeShadow && m_cptShadowMapDetail < frameTick) {
 
-        glDisable(GL_CULL_FACE);
-        glCullFace(GL_FRONT);
-        for (DirLight& dirLight : m_dirLights) {
-            //        dirLight.useShader();
-            //                object->draw(shader, false, m_localTransform, m_worldTransform);
-            Shader& shader = (dirLight.selected()) ? (dirLight.depthShader(m_localTransform, m_worldTransform)) : (dirLight.depthShader());
-            //        Shader & shader = dirLight.depthShader();
-            //        m_fun->glBindFramebuffer(GL_FRAMEBUFFER, 1);
-            renderScene(shader);
-            //        glCullFace(GL_BACK);
-            //        m_fun->glBindFramebuffer(GL_FRAMEBUFFER, 1);
-            //        dirLight.showDepth();
-        }
-        for (PointLight& pointLight : m_pointLights) {
-            Shader& shader = (pointLight.selected()) ? (pointLight.depthShader(m_localTransform, m_worldTransform)) : (pointLight.depthShader());
-            renderScene(shader);
-        }
-        for (SpotLight& spotLight : m_spotLights) {
-            Shader& shader = (spotLight.selected()) ? (spotLight.depthShader(m_localTransform, m_worldTransform)) : (spotLight.depthShader());
-            renderScene(shader);
-        }
-        for (Camera* camera : m_cameras) {
-            if (camera->m_torchEnable) {
-                Shader& shader = (camera->selected()) ? (camera->depthShader(m_localTransform, m_worldTransform)) : (camera->depthShader());
-                renderScene(shader);
-            }
-        }
-        //    m_fun->glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
-        glCullFace(GL_BACK);
-        glDisable(GL_CULL_FACE);
-        m_fun->glBindFramebuffer(GL_FRAMEBUFFER, 1);
+    //        //        uint currentDetail;
+    ////        if (m_viewTransformActive) {
+    ////            //            currentDetail = 0;
+    ////            m_shadowMapDetail = 0;
+    ////            m_cptShadowMapDetail = 0;
+
+    ////        } else {
+    //            //            if (m_shadowMapDetail < 2) {
+    //            //            if (m_shadowMapDetail == 0) {
+    //            //                m_cpt = 0;
+    //            //            }
+    //            if (++m_cptShadowMapDetail < frameTick) {
+    //                //                currentDetail = 0;
+    //                if (m_cptShadowMapDetail > 1) {
+    //                    return;
+    //                }
+    //                m_shadowMapDetail = 0;
+    //            } else {
+    //                //                currentDetail = 1;
+    //                m_shadowMapDetail = 1;
+    //            }
+    //            //            }
+    ////        }
+    //        //            m_oneModelTransformChanged = false;
+    //        //        m_minimalShader->use();
+    //            qDebug() << "update shadow map " << m_cptShadowMapDetail;
+
+    glDisable(GL_CULL_FACE);
+    glCullFace(GL_FRONT);
+
+    if (m_lights.size() > 0) {
+        m_iLightDepthMap = (m_iLightDepthMap + 1) % m_lights.size();
+        const Light* light = m_lights[m_iLightDepthMap];
+        //    for (const Light* light : m_lights) {
+        Shader& shader = (light->selected()) ? (light->depthShader(m_localTransform, m_worldTransform)) : (light->depthShader());
+        renderScene(shader);
     }
+
+    //        for (DirLight& dirLight : m_dirLights) {
+    //            //        dirLight.useShader();
+    //            //                object->draw(shader, false, m_localTransform, m_worldTransform);
+    //            Shader& shader = (dirLight.selected()) ? (dirLight.depthShader(m_localTransform, m_worldTransform)) : (dirLight.depthShader());
+    //            //        Shader & shader = dirLight.depthShader();
+    //            //        m_fun->glBindFramebuffer(GL_FRAMEBUFFER, 1);
+    //            renderScene(shader);
+    //            //        glCullFace(GL_BACK);
+    //            //        m_fun->glBindFramebuffer(GL_FRAMEBUFFER, 1);
+    //            //        dirLight.showDepth();
+    //        }
+    //        for (PointLight& pointLight : m_pointLights) {
+    //            Shader& shader = (pointLight.selected()) ? (pointLight.depthShader(m_localTransform, m_worldTransform)) : (pointLight.depthShader());
+    //            renderScene(shader);
+    //        }
+    //        for (SpotLight& spotLight : m_spotLights) {
+    //            Shader& shader = (spotLight.selected()) ? (spotLight.depthShader(m_localTransform, m_worldTransform)) : (spotLight.depthShader());
+    //            renderScene(shader);
+    //        }
+    for (Camera* camera : m_cameras) {
+        if (camera->m_torchEnable) {
+            Shader& shader = (camera->selected()) ? (camera->depthShader(m_localTransform, m_worldTransform)) : (camera->depthShader());
+            renderScene(shader);
+        }
+    }
+    //    m_fun->glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
+    glCullFace(GL_BACK);
+    glDisable(GL_CULL_FACE);
+    m_fun->glBindFramebuffer(GL_FRAMEBUFFER, 1);
+    //    }
 }
 
 void Scene::draw(const MainWindow3dView& view)
@@ -574,7 +611,7 @@ void Scene::draw(const MainWindow3dView& view)
         glDepthMask(1); // enable depth buffer writes
         glColorMask(0, 0, 0, 0); // disable color buffer writes
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-        glDepthFunc(GL_LESS);
+        glDepthFunc(GL_LEQUAL);
         glEnable(GL_DEPTH_TEST);
 
         renderScene(shader);
@@ -1379,9 +1416,13 @@ void Scene::updateSceneItemModel()
 void Scene::clear()
 {
     m_objects.clear();
+    m_lights.clear();
+
     m_models.clear();
     m_cameras.clear();
     m_dirLights.clear();
+    m_spotLights.clear();
+    m_pointLights.clear();
 }
 
 void Scene::load(std::ifstream& file)
@@ -1442,6 +1483,7 @@ void Scene::load(std::ifstream& file)
     for (uint i = 0; i < size; ++i) {
         m_dirLights.emplace_back(file);
         m_objects.push_back(&m_dirLights.back());
+        m_lights.push_back(&m_dirLights.back());
     }
 
     m_pointLights.clear();
@@ -1449,6 +1491,7 @@ void Scene::load(std::ifstream& file)
     for (uint i = 0; i < size; ++i) {
         m_pointLights.emplace_back(file);
         m_objects.push_back(&m_pointLights.back());
+        m_lights.push_back(&m_pointLights.back());
     }
 
     m_spotLights.clear();
@@ -1456,7 +1499,9 @@ void Scene::load(std::ifstream& file)
     for (uint i = 0; i < size; ++i) {
         m_spotLights.emplace_back(file);
         m_objects.push_back(&m_spotLights.back());
+        m_lights.push_back(&m_spotLights.back());
     }
+    //    updateNbLight();
 
     FormTimeline::load(file);
 
@@ -1708,6 +1753,7 @@ void Scene::addLight(Light::Type lightType, const glm::vec3 position)
 
         //        m_dirLights.back().updateBoundingBox();
         m_objects.push_back(&m_dirLights.back());
+        m_lights.push_back(&m_dirLights.back());
         //        //        m_dirLights.push_back(Light(position));
 
         break;
@@ -1718,14 +1764,23 @@ void Scene::addLight(Light::Type lightType, const glm::vec3 position)
     case Light::Type::SPOT:
         m_spotLights.emplace_back(position, glm::vec3(0.0f, 1.0f, 0.0f));
         m_objects.push_back(&m_spotLights.back());
+        m_lights.push_back(&m_spotLights.back());
         break;
 
     case Light::Type::POINT:
         m_pointLights.emplace_back(position);
         m_objects.push_back(&m_pointLights.back());
+        m_lights.push_back(&m_pointLights.back());
         break;
     }
+
+    //    updateNbLight();
 }
+
+//void Scene::updateNbLight()
+//{
+//    m_nbLight = m_dirLights.size() + m_pointLights.size() + m_spotLights.size();
+//}
 
 void Scene::addDefaultCamera()
 {
