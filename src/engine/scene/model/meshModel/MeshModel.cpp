@@ -588,7 +588,7 @@ void MeshModel::buildItemModel(QStandardItem* parent) const
     if (m_rootNode == nullptr)
         return;
 
-    //    m_rootNode->buildItemModel(parent);
+        m_rootNode->buildItemModel(parent);
 
     //    QStandardItem* item = new QStandardItem(QIcon(":/icons/animations.png"), "animations  " + QString::number(m_animations.size()));
     //    parent->appendRow(item);

@@ -9,6 +9,7 @@
 #include <iostream>
 #include <map>
 #include <vector>
+//#include <engine/scene/model/Vertex.h>
 
 class SessionLoad {
 public:
@@ -72,14 +73,17 @@ public:
         //        file.read(reinterpret_cast<char*>(&size), sizeof(size));
         load(size, file);
 
+        vec.resize(size);
+        auto * tab = vec.data();
+        file.read(reinterpret_cast<char*>(tab), sizeof(T) * size);
         //        Session::load()
-        for (uint j = 0; j < size; j++) {
-            T val;
-            //            file.read(reinterpret_cast<char*>(&val), sizeof(val));
-            load(val, file);
-            //            m_iTextures[i].emplace_back(val);
-            vec.emplace_back(val);
-        }
+//        for (uint j = 0; j < size; j++) {
+//            T val;
+//            //            file.read(reinterpret_cast<char*>(&val), sizeof(val));
+//            load(val, file);
+//            //            m_iTextures[i].emplace_back(val);
+//            vec.emplace_back(val);
+//        }
     }
 
     template <class T, class U>

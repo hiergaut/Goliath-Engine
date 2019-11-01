@@ -16,9 +16,9 @@ struct Vertex {
     // texCoords
     glm::vec2 TexCoords;
     // tangent
-    //    glm::vec3 Tangent;
+    glm::vec3 Tangent;
     // bitangent
-    //    glm::vec3 Bitangent;
+    glm::vec3 Bitangent;
     operator QString() const
     {
         std::string str = "";
@@ -29,8 +29,8 @@ struct Vertex {
         return str.c_str();
     }
 
-    Vertex() {
-
+    Vertex()
+    {
     }
 
     Vertex(std::ifstream& file)
@@ -38,6 +38,8 @@ struct Vertex {
         Session::load(Position, file);
         Session::load(Normal, file);
         Session::load(TexCoords, file);
+        Session::load(Tangent, file);
+        Session::load(Bitangent, file);
     }
 
     void save(std::ofstream& file) const
@@ -45,11 +47,13 @@ struct Vertex {
         Session::save(Position, file);
         Session::save(Normal, file);
         Session::save(TexCoords, file);
+        Session::save(Tangent, file);
+        Session::save(Bitangent, file);
     }
 
-//    bool intersect(const Ray & ray, float & depth) const {
+    //    bool intersect(const Ray & ray, float & depth) const {
 
-//    }
+    //    }
 };
 
 //using NUM_BONES_PER_VEREX = 4;
@@ -58,12 +62,11 @@ struct VertexBoneData {
     uint IDs[4];
     float Weights[4];
 
-    VertexBoneData() :
-        IDs{0}
-      , Weights{0}
+    VertexBoneData()
+        : IDs { 0 }
+        , Weights { 0 }
     {
     }
-
 
     VertexBoneData(std::ifstream& file)
     {

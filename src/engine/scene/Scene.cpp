@@ -230,10 +230,20 @@ void Scene::updateLightsShadowMap()
 
     if (m_lights.size() > 0) {
         m_iLightDepthMap = (m_iLightDepthMap + 1) % m_lights.size();
-        const Light* light = m_lights[m_iLightDepthMap];
+        //        const Light* light = m_lights[m_iLightDepthMap];
         //    for (const Light* light : m_lights) {
-        Shader& shader = (light->selected()) ? (light->depthShader(m_localTransform, m_worldTransform)) : (light->depthShader());
-        renderScene(shader);
+        //        Shader& shader = (light->selected()) ? (light->depthShader(m_localTransform, m_worldTransform)) : (light->depthShader());
+        //        renderScene(shader);
+
+        //        for (const Light * light : m_lights) {
+        for (uint i = 0; i < m_lights.size(); ++i) {
+            const Light* light = m_lights[i];
+
+            if (light->selected() || i == m_iLightDepthMap) {
+                Shader& shader = (light->selected()) ? (light->depthShader(m_localTransform, m_worldTransform)) : (light->depthShader());
+                renderScene(shader);
+            }
+        }
     }
 
     //        for (DirLight& dirLight : m_dirLights) {

@@ -72,18 +72,21 @@ public:
     {
 
         uint size = vec.size();
+
 //        file.write(reinterpret_cast<const char*>(&size), sizeof(size));
         save(size, file);
 
-        //        Session::load()
-        for (uint j = 0; j < size; j++) {
-            const T& val = vec[j];
-            //            file.write(reinterpret_cast<const char*>(&val), sizeof(val));
+        auto * tab = vec.data();
+        file.write(reinterpret_cast<const char *>(tab), sizeof(T) * size);
 
-            save(val, file);
-            //            m_iTextures[i].emplace_back(val);
-            //            vec.emplace_back(val);
-        }
+//        for (uint j = 0; j < size; j++) {
+//            const T& val = vec[j];
+//            //            file.write(reinterpret_cast<const char*>(&val), sizeof(val));
+
+//            save(val, file);
+//            //            m_iTextures[i].emplace_back(val);
+//            //            vec.emplace_back(val);
+//        }
     }
 
     template <class T, class U>
