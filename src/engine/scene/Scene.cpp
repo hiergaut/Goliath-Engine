@@ -1707,12 +1707,15 @@ void Scene::deleteSelected()
     m_models = std::move(newModels);
     //    std::cout << "models moved" << std::endl;
 
+    m_lights.clear();
+
     std::vector<DirLight> newDirLights;
     newDirLights.reserve(10);
     for (DirLight& dirLight : m_dirLights) {
         if (!dirLight.selected()) {
             newDirLights.emplace_back(std::move(dirLight));
             m_objects.push_back(&newDirLights.back());
+            m_lights.push_back(&newDirLights.back());
         }
     }
     m_dirLights = std::move(newDirLights);
@@ -1723,6 +1726,7 @@ void Scene::deleteSelected()
         if (!pointLight.selected()) {
             newPointLights.emplace_back(std::move(pointLight));
             m_objects.push_back(&newPointLights.back());
+            m_lights.push_back(&newPointLights.back());
         }
     }
     m_pointLights = std::move(newPointLights);
@@ -1733,6 +1737,7 @@ void Scene::deleteSelected()
         if (!spotLight.selected()) {
             newSpotLights.emplace_back(std::move(spotLight));
             m_objects.push_back(&newSpotLights.back());
+            m_lights.push_back(&newSpotLights.back());
         }
     }
     m_spotLights = std::move(newSpotLights);

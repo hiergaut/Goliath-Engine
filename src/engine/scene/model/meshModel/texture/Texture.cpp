@@ -141,11 +141,11 @@ unsigned int Texture::TextureFromFile(const char* path, const std::string& direc
     m_fun->glGenTextures(1, &textureID);
 
     int width, height, nrComponents;
-    if (m_type == Texture::NORMAL) {
-        stbi_set_flip_vertically_on_load(1);
-    } else {
-        stbi_set_flip_vertically_on_load(0);
-    }
+//    if (m_type == Texture::NORMAL) {
+//        stbi_set_flip_vertically_on_load(1);
+//    } else {
+//        stbi_set_flip_vertically_on_load(0);
+//    }
     unsigned char* data = stbi_load(filename.c_str(), &width, &height, &nrComponents, 0);
     if (data) {
         GLenum format;

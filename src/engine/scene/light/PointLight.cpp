@@ -23,6 +23,7 @@
 //const uint shadow_size[2] = { 512, 4096 };
 //const uint shadow_size = 256;
 const uint shadow_size = 2048;
+//const uint shadow_size = 4096;
 
 glm::vec3 PointLight::position(const glm::mat4& localTransform, const glm::mat4& worldTransform) const
 {
