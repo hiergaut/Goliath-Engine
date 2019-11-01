@@ -8,12 +8,12 @@
 #include <image/stb_image.h>
 #include <image/tga.h>
 
-#include <session/Session.h>
 #include <QDebug>
+#include <session/Session.h>
 
-unsigned int TextureFromFile(const std::string& filename, const std::string& directory);
+//unsigned int TextureFromFile(const std::string& filename, const std::string& directory);
 
-Texture::Texture(std::string  path, std::string  filename, Texture::Type type)
+Texture::Texture(std::string path, std::string filename, Texture::Type type)
     : m_filename(filename)
     , m_directory(path)
 {
@@ -23,16 +23,16 @@ Texture::Texture(std::string  path, std::string  filename, Texture::Type type)
     //    std::cout << "[Texture] " << m_filename << " created " << this << std::endl;
     //    std::cout << "\033[0m";
     //            Texture texture;
-    m_id = TextureFromFile(filename.c_str(), m_directory);
     m_type = type;
+    m_id = TextureFromFile(filename.c_str(), m_directory);
     if (m_type == Texture::Type::NORMAL) {
         qDebug() << m_filename.c_str() << "normal";
     }
     //            m_directory = m_directory + "/" + str.C_Str();
     //            texture.m_filename = str.C_Str();
     bool success;
-    QImage image = loadTga(m_directory +"/" + m_filename, success);
-//    Q_ASSERT(success);
+    QImage image = loadTga(m_directory + "/" + m_filename, success);
+    //    Q_ASSERT(success);
 
     //            Q_ASSERT(! image.isNull());
     //            QPixmap pixmap(image);
@@ -45,21 +45,21 @@ Texture::Texture(std::string  path, std::string  filename, Texture::Type type)
     //            m_textures.push_back(std::move(texture)); // store it as texture loaded for entire model, to ensure we won't unnecesery load duplicate textures.
 }
 
-Texture::Texture(std::ifstream &file)
+Texture::Texture(std::ifstream& file)
 {
     m_fun = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
 
-//    Session::load(m_id, file);
+    //    Session::load(m_id, file);
     Session::load(m_filename, file);
     Session::load(m_directory, file);
 
+    m_type = Texture::Type(Session::loadEnum(file));
     m_id = TextureFromFile(m_filename.c_str(), m_directory);
 
-    m_type = Texture::Type(Session::loadEnum(file));
 
     bool success;
-    QImage image = loadTga(m_directory +"/" + m_filename, success);
-//    Q_ASSERT(success);
+    QImage image = loadTga(m_directory + "/" + m_filename, success);
+    //    Q_ASSERT(success);
     //            Q_ASSERT(! image.isNull());
     //            QPixmap pixmap(image);
     //            QPixmap pixmap(QPixmap::fromImage(image));
@@ -89,22 +89,21 @@ Texture::~Texture()
     std::cout << "\033[0m";
 }
 
-void Texture::save(std::ofstream &file) const
+void Texture::save(std::ofstream& file) const
 {
-//    Session::save(m_id, file);
+    //    Session::save(m_id, file);
     Session::save(m_filename, file);
     Session::save(m_directory, file);
     Session::saveEnum(static_cast<int>(m_type), file);
 
-//    bool success;
-//    QImage image = loadTga(m_directory +"/" + m_filename, success);
-//    Q_ASSERT(success);
+    //    bool success;
+    //    QImage image = loadTga(m_directory +"/" + m_filename, success);
+    //    Q_ASSERT(success);
     //            Q_ASSERT(! image.isNull());
     //            QPixmap pixmap(image);
     //            QPixmap pixmap(QPixmap::fromImage(image));
-//    m_pixmap = QPixmap::fromImage(image);
+    //    m_pixmap = QPixmap::fromImage(image);
     //            textures.push_back(texture);
-
 }
 
 Texture::operator const char*() const
@@ -142,6 +141,11 @@ unsigned int Texture::TextureFromFile(const char* path, const std::string& direc
     m_fun->glGenTextures(1, &textureID);
 
     int width, height, nrComponents;
+    if (m_type == Texture::NORMAL) {
+        stbi_set_flip_vertically_on_load(1);
+    } else {
+        stbi_set_flip_vertically_on_load(0);
+    }
     unsigned char* data = stbi_load(filename.c_str(), &width, &height, &nrComponents, 0);
     if (data) {
         GLenum format;
