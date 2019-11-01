@@ -66,10 +66,10 @@ void MainWindowProperties::setContext(Type context)
         ui->menuCurrentContext->setTitle("Surface");
         break;
 
-    case Type::DEBUG:
-        setCentralWidget(new FormContextDebug);
-        ui->menuCurrentContext->setTitle("Debug");
-        break;
+//    case Type::DEBUG:
+//        setCentralWidget(new FormContextDebug);
+//        ui->menuCurrentContext->setTitle("Debug");
+//        break;
 
     }
 
@@ -105,5 +105,5 @@ void MainWindowProperties::on_actionSurface_triggered()
 
 void MainWindowProperties::on_actionDebug_triggered()
 {
-    setContext(Type::DEBUG);
+//    setContext(Type::DEBUG);
 }

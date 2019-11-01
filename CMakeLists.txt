@@ -3,10 +3,31 @@ project (Goliath-Engine)
 cmake_minimum_required(VERSION 3.14.0)
 set(CMAKE_CXX_STANDARD 14)
 
+if ( NOT CMAKE_BUILD_TYPE )
+  set( CMAKE_BUILD_TYPE Debug )
+endif()
 #project (src)
 #set(CMAKE_CXX_STANDARD 11)
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Wall -pedantic -Wextra -lassimp -O0 -g -Wfatal-errors")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic -Wextra -lassimp -O0 -g -Wfatal-errors")
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG -std=c++14 -Wall -pedantic -Wextra -lassimp -O0 -g -Wfatal-errors")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -std=c++14 -O3 -Wall -DNDEBUG -lassimp")
+#if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+#        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic -Wextra -lassimp -O0 -g -Wfatal-errors")
+#endif()
+
+#ADD_CUSTOM_TARGET(debug
+#  COMMAND ${CMAKE_COMMAND} -DCMAKE_BUILD_TYPE=Debug ${CMAKE_SOURCE_DIR}
+#  COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target all
+#  COMMENT "Switch CMAKE_BUILD_TYPE to Debug"
+#  )
+
+#ADD_CUSTOM_TARGET(release
+#  COMMAND ${CMAKE_COMMAND} -DCMAKE_BUILD_TYPE=Release ${CMAKE_SOURCE_DIR}
+#  COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target all
+#  COMMENT "Switch CMAKE_BUILD_TYPE to Release"
+#  )
+
+
+
 
 find_package(Freetype REQUIRED)
 

@@ -19,7 +19,7 @@ public:
         MATERIAL,
         CURVE,
         SURFACE,
-        DEBUG,
+//        DEBUG,
     } m_context;
 
     explicit MainWindowProperties(QWidget* parent = nullptr);

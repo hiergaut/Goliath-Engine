@@ -7,6 +7,8 @@
 #include <QSurfaceFormat>
 //#include <opengl/OpenglContext.h>
 //#include <opengl/version.h>
+#include <cassert>
+//#include <QDebug>
 
 #include <QThread>
 //#include <QOpenGLFunctionsCokk>
@@ -14,6 +16,10 @@
 int main(int argc, char* argv[])
 {
 //    QCoreApplication::setAttribute(Qt::AA_ShareOpenGLContexts);
+#ifndef DEBUG
+    assert(false);
+    Q_ASSERT(false);
+#endif
 
     QSurfaceFormat format;
     format.setVersion(4, 1);
