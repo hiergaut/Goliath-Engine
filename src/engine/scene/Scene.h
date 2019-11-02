@@ -147,6 +147,19 @@ public:
 
 private:
 //    void clear();
+    void prepareLightUniform(const MainWindow3dView &view, const Shader &shader);
+    void zPrepass(const Shader & shader);
+    void drawBoundingBox(const MainWindow3dView &view, const Shader &shader, const Object *viewCameraObject, bool multiSample);
+    void drawRay(const MainWindow3dView &view, const Shader &shader, uint polygonMode);
+    void drawSkyBox(const MainWindow3dView &view, bool multiSample, const glm::mat4 &viewMatrix, const glm::mat4 &projectionMatrix);
+
+    void drawSpecificMode(const MainWindow3dView & view, const Shader & shader);
+    void drawContours(const Shader &shader, uint polygonMode);
+    void drawNormal(const MainWindow3dView & view, const glm::mat4 &viewMatrix, const glm::mat4 &projectionMatrix);
+    void drawSkeleton(const MainWindow3dView &view, const Shader &shader, const glm::mat4 &viewMatrix, const glm::mat4 &projectionMatrix, glm::vec3 &cameraPos);
+    void drawOriginModel(const MainWindow3dView & view, const Shader & shader, const glm::vec3 &cameraPos);
+    void drawAxisTransform(const MainWindow3dView & view, const Shader & shader);
+    void drawRectangleSelection(const MainWindow3dView & view, const Shader & shader);
 
 private:
 //    std::vector<std::string> m_modelPaths;
@@ -174,6 +187,12 @@ private:
     std::vector<glm::vec3> m_dots;
 //    BoneGeometry * m_bone;
     SkyBox * m_skyBox;
+
+    uint m_hdrFbo;
+//    uint m_colorBuffers[2];
+    uint m_colorBuffer;;
+    Shader * m_bloomShader;
+
 
 
 public:

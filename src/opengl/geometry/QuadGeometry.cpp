@@ -30,8 +30,10 @@ void QuadGeometry::initializeGL()
     m_fun->glEnableVertexAttribArray(0);
     m_fun->glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
 //    m_fun->glEnableVertexAttribArray(1);
-    m_fun->glEnableVertexAttribArray(2);
-    m_fun->glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+//    m_fun->glEnableVertexAttribArray(2);
+//    m_fun->glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    m_fun->glEnableVertexAttribArray(1);
+   m_fun->glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
     //    }
     m_fun->glBindVertexArray(0);
     //    float radius = 0.5f;

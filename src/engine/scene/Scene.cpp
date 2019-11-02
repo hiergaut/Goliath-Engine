@@ -16,11 +16,17 @@
 #include <opengl/geometry/AxisGeometry.h>
 #include <opengl/geometry/DotGeometry.h>
 #include <opengl/geometry/LineGeometry.h>
+#include <opengl/geometry/QuadGeometry.h>
 #include <opengl/geometry/TriangleGeometry.h>
 #include <session/Session.h>
 //#include <glm/matrix.hpp>
 //#include <glm/gtc/matrix_transform.hpp>
 //#include <glm/gtc/type_ptr.hpp>
+const uint SCR_WIDTH = 765;
+//const uint SCR_WIDTH = 765 * 2;
+const uint SCR_HEIGHT = 1018;
+//const uint SCR_HEIGHT = 1018 * 2;
+const uint SCR_FBO = 2;
 
 Scene* Scene::m_scene = nullptr;
 //QStandardItemModel Scene::m_sceneModel;
@@ -96,8 +102,13 @@ void Scene::initializeGL()
     //    m_minimalShader = new Shader("minimal.vsh", "empty.fsh");
     //    normalShader = new Shader("shading/normal.vsh", "shading/normal.fsh");
     //    m_bone = new BoneGeometry;
+    m_bloomShader = new Shader("bloom.vsh", "bloom.fsh");
+    m_bloomShader->use();
+    m_bloomShader->setInt("scene", 0);
+    //    m_bloomShader->setInt("bloomBlur", 1);
 
     m_skyBox = new SkyBox("hw", "morning");
+
     //    m_skyBox = new SkyBox("ame", "iceflats");
     //    m_skyBox = new SkyBox("hw", "alps");
     //    m_skyBox = new SkyBox("mp", "sorbin");
@@ -117,6 +128,40 @@ void Scene::initializeGL()
     //    m_skyBox = new SkyBox("sor", "alien");
     //    m_skyBox = new SkyBox("hw", "craterlake");
     //    m_skyBox = new SkyBox("mp", "whirlpool");
+    m_fun->glGenFramebuffers(1, &m_hdrFbo);
+    m_fun->glBindFramebuffer(GL_FRAMEBUFFER, m_hdrFbo);
+
+    //    unsigned int colorBuffers[2];
+    glGenTextures(1, &m_colorBuffer);
+    //    for (unsigned int i = 0; i < 1; i++) {
+    glBindTexture(GL_TEXTURE_2D, m_colorBuffer);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, SCR_WIDTH, SCR_HEIGHT, 0, GL_RGB, GL_FLOAT, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); // we clamp to the edge as the blur filter would otherwise sample repeated texture values!
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    // attach texture to framebuffer
+    m_fun->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_colorBuffer, 0);
+    //    }
+//    glDrawBuffer(GL_NONE);
+//    glReadBuffer(GL_NONE);
+
+//    m_fun->glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+        unsigned int rboDepth;
+        m_fun->glGenRenderbuffers(1, &rboDepth);
+        m_fun->glBindRenderbuffer(GL_RENDERBUFFER, rboDepth);
+        m_fun->glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, SCR_WIDTH, SCR_HEIGHT);
+        m_fun->glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rboDepth);
+    //    // tell OpenGL which color attachments we'll use (of this framebuffer) for rendering
+//        unsigned int attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+        unsigned int attachments[1] = { GL_COLOR_ATTACHMENT0};
+        m_fun->glDrawBuffers(1, attachments);
+    //    m_fun->glDrawBuffers(1, attachments);
+    //    // finally check if framebuffer is complete
+    if (m_fun->glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+        std::cout << "Framebuffer not complete!" << std::endl;
+    m_fun->glBindFramebuffer(GL_FRAMEBUFFER, SCR_FBO);
 
     initialized = true;
     //    MainWindow3dView::glInitialize();
@@ -191,39 +236,6 @@ void Scene::prepareHierarchy(ulong frameTime)
 
 void Scene::updateLightsShadowMap()
 {
-    //    m_fun->glGetIntegerv(GL_FRAMEBUFFER, &m_fbo);
-    //    glEnable(GL_CULL_FACE);
-    //    glCullFace(GL_FRONT_AND_BACK);
-    //    const uint frameTick = 60;
-    //    Q_ASSERT(0 <= m_cptShadowMapDetail && m_cptShadowMapDetail <= frameTick);
-    //    if (m_computeShadow && m_cptShadowMapDetail < frameTick) {
-
-    //        //        uint currentDetail;
-    ////        if (m_viewTransformActive) {
-    ////            //            currentDetail = 0;
-    ////            m_shadowMapDetail = 0;
-    ////            m_cptShadowMapDetail = 0;
-
-    ////        } else {
-    //            //            if (m_shadowMapDetail < 2) {
-    //            //            if (m_shadowMapDetail == 0) {
-    //            //                m_cpt = 0;
-    //            //            }
-    //            if (++m_cptShadowMapDetail < frameTick) {
-    //                //                currentDetail = 0;
-    //                if (m_cptShadowMapDetail > 1) {
-    //                    return;
-    //                }
-    //                m_shadowMapDetail = 0;
-    //            } else {
-    //                //                currentDetail = 1;
-    //                m_shadowMapDetail = 1;
-    //            }
-    //            //            }
-    ////        }
-    //        //            m_oneModelTransformChanged = false;
-    //        //        m_minimalShader->use();
-    //            qDebug() << "update shadow map " << m_cptShadowMapDetail;
 
     glDisable(GL_CULL_FACE);
     glCullFace(GL_FRONT);
@@ -246,25 +258,6 @@ void Scene::updateLightsShadowMap()
         }
     }
 
-    //        for (DirLight& dirLight : m_dirLights) {
-    //            //        dirLight.useShader();
-    //            //                object->draw(shader, false, m_localTransform, m_worldTransform);
-    //            Shader& shader = (dirLight.selected()) ? (dirLight.depthShader(m_localTransform, m_worldTransform)) : (dirLight.depthShader());
-    //            //        Shader & shader = dirLight.depthShader();
-    //            //        m_fun->glBindFramebuffer(GL_FRAMEBUFFER, 1);
-    //            renderScene(shader);
-    //            //        glCullFace(GL_BACK);
-    //            //        m_fun->glBindFramebuffer(GL_FRAMEBUFFER, 1);
-    //            //        dirLight.showDepth();
-    //        }
-    //        for (PointLight& pointLight : m_pointLights) {
-    //            Shader& shader = (pointLight.selected()) ? (pointLight.depthShader(m_localTransform, m_worldTransform)) : (pointLight.depthShader());
-    //            renderScene(shader);
-    //        }
-    //        for (SpotLight& spotLight : m_spotLights) {
-    //            Shader& shader = (spotLight.selected()) ? (spotLight.depthShader(m_localTransform, m_worldTransform)) : (spotLight.depthShader());
-    //            renderScene(shader);
-    //        }
     for (Camera* camera : m_cameras) {
         if (camera->m_torchEnable) {
             Shader& shader = (camera->selected()) ? (camera->depthShader(m_localTransform, m_worldTransform)) : (camera->depthShader());
@@ -274,368 +267,40 @@ void Scene::updateLightsShadowMap()
     //    m_fun->glBindFramebuffer(GL_FRAMEBUFFER, m_fbo);
     glCullFace(GL_BACK);
     glDisable(GL_CULL_FACE);
-    m_fun->glBindFramebuffer(GL_FRAMEBUFFER, 1);
+    m_fun->glBindFramebuffer(GL_FRAMEBUFFER, SCR_FBO);
+    //    m_fun->glBindFramebuffer(GL_FRAMEBUFFER, m_hdrFbo);
     //    }
 }
 
 void Scene::draw(const MainWindow3dView& view)
 {
-    //    qDebug() << m_cameras.size();
-    //    qDebug() << m_objects.size();
-    //    if (view.m_iCamera >= m_cameras.size()) {
-    //        return;
-    //    }
-    Object* viewCameraObject = m_cameras[view.m_iCamera];
-
     Q_ASSERT(initialized);
+    Object* viewCameraObject = m_cameras[view.m_iCamera];
     glm::mat4 viewMatrix = view.viewMatrix();
     glm::mat4 projectionMatrix = view.projectionMatrix();
-    //    m_minimalShader->setMat4("view", viewMatrix);
-    //    m_minimalShader->setMat4("projection", projectionMatrix);
-
-    //    Object* viewCameraObject = view.m_camera;
-
-    //    glm::vec3 cameraPos = view.m_camera->position();
     glm::vec3 cameraPos = m_cameras[view.m_iCamera]->position();
-
     GLboolean multiSample;
     glGetBooleanv(GL_MULTISAMPLE, &multiSample);
-    //    glm::mat4 modelMatrix(1.0);
     const glm::mat4 onesMatrix(1.0);
-    if (view.m_shade != Shader::Type::RENDERED) {
-        glDisable(GL_MULTISAMPLE);
-        m_grid->draw(onesMatrix, viewMatrix, projectionMatrix);
-        if (multiSample) {
-            glEnable(GL_MULTISAMPLE);
-        }
-        //        glEnable(GL_MULTISAMPLE);
-        //        m_grid->draw(glm::scale(onesMatrix, glm::vec3(1.0f) * glm::length(glm::vec3(viewMatrix[3]))), viewMatrix, projectionMatrix);
-    } else {
-        if (!m_dirLights.empty()) {
-            if (m_dirLights[0].selected()) {
-                m_skyBox->draw(viewMatrix, projectionMatrix, m_dirLights[0].direction(m_localTransform));
-            } else {
-                m_skyBox->draw(viewMatrix, projectionMatrix, m_dirLights[0].direction());
-            }
-
-        } else {
-            m_skyBox->draw(viewMatrix, projectionMatrix);
-        }
-    }
-
-    //    if (m_selectObject != nullptr && m_selectObject->m_type == Object::Type::POINT_LIGHT) {
-    //        const PointLight& pointLight = static_cast<const PointLight&>(*m_selectObject);
-    //        m_skyBox->draw(viewMatrix, projectionMatrix, pointLight.depthMap());
-    //    } else {
-    //        if (view.m_shade == Shader::Type::RENDERED) {
-    //            m_skyBox->draw(viewMatrix, projectionMatrix);
-    //        }
-    //    }
-
-    //    shader.setMat4("model", onesMatrix);
-    //    glLoadIdentity();
-    //    return;
-    //    return;
-
-    const Shader& shader = view.shader();
-    const Frustum& frustum = view.m_frustum;
-    //    shader.use();
-    //    shader.setBool("hasSkyBox", false);
-    //    glDisable(GL_MULTISAMPLE);
-    //    glm::mat4 projectionMatrix2 = glm::perspective(glm::radians(30.0f), 1.0f, 10.0f, 10000.0f);
-    //    const Frustum frustum(projectionMatrix2 * viewMatrix);
-    //    shader.setMat4("model", onesMatrix);
-    //    glLineWidth(4.0f);
-    //    frustum.draw(shader);
-    //    glLineWidth(1.0f);
-    //    for (const MainWindow3dView* view : *Scene::m_scene->m_views) {
-    //        view->m_frustum.draw(shader);
-    //    }
-
-    //    const glm::mat4& viewTransform = view.m_transformMatrix;
-    //    const glm::mat4& m_worldTransform = view.m_worldTransform;
-    //    const glm::mat4& m_localTransform = m_localTransform;
-    //    const glm::mat4& viewLocalTransform = m_localTransform;
-    //    const glm::mat4& m_worldTransform = m_worldTransform;
-
     GLint polygonMode;
     glGetIntegerv(GL_POLYGON_MODE, &polygonMode);
+    const Frustum& frustum = view.m_frustum;
+    // ----------------------------------- END INIT
+    //    m_fun->glBindFramebuffer(GL_FRAMEBUFFER, SCR_FBO);
+//    glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
+//    m_fun->glBindFramebuffer(GL_FRAMEBUFFER, m_hdrFbo);
+//    glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
-    //    return;
-    //    shader.setBool("userColor", true);
-    //    shader.setVec4("color", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-    //    shader.setMat4("model", onesMatrix);
-    //    for (const glm::vec3 & dot : m_dots) {
-    //        DotGeometry::draw(glm::translate(onesMatrix, dot), shader, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f), 20.0f);
-    //    }
-    //    for (const Frustum & frustum : m_frustums) {
-    //        frustum.draw(shader);
-    //    }
-    //    shader.setBool("userColor", false);
+    drawSkyBox(view, multiSample, viewMatrix, projectionMatrix);
+    const Shader& shader = view.shader();
 
-    //     -------------------------------- DRAW RAYS
-    //    glPolygonMode(GL_FRONT, GL_FILL);
-    //    shader.use();
-    if (view.intersectRay()) {
-        glPolygonMode(GL_FRONT, GL_LINE);
-        shader.setMat4("model", onesMatrix);
-        shader.setBool("userColor", true);
-        shader.setVec4("color", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-        for (const Ray& ray : m_rays) {
-            if (!ray.m_hit) {
-                LineGeometry::draw(ray.m_source, ray.m_source + ray.m_direction * ray.m_length);
-            }
-        }
-        shader.setVec4("color", glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
-        //        std::vector<glm::vec3>
-        std::vector<glm::vec3> triangles;
-        for (const Ray& ray : m_rays) {
-            if (ray.m_hit) {
-                LineGeometry::draw(ray.m_source, ray.m_source + ray.m_direction * ray.m_length);
-                //                TriangleGeometry::draw(ray.m_vertices[0], ray.m_vertices[1], ray.m_vertices[2]);
-                //                for (const glm::vec3[3] & triangle : ray.m_triangles) {
-                //                TriangleGeometry::draw(ray.m_triangles);
-                triangles.insert(triangles.end(), ray.m_triangles.begin(), ray.m_triangles.end());
-                //                for (uint i = 0; i < ray.m_triangles.size() / 3; ++i) {
-                //                    const uint i3 = i * 3;
-                //                    const glm::vec3& v0 = ray.m_triangles[i3];
-                //                    const glm::vec3& v1 = ray.m_triangles[i3 + 1];
-                //                    const glm::vec3& v2 = ray.m_triangles[i3 + 2];
+    //    drawRay(view, shader, polygonMode);
+    //    drawBoundingBox(view, shader, viewCameraObject, multiSample);
 
-                //                    TriangleGeometry::draw(v0, v1, v2);
-                //                }
-            }
-        }
-        Q_ASSERT(triangles.size() % 3 == 0);
-        TriangleGeometry::draw(triangles);
-        shader.setBool("userColor", false);
-        glPolygonMode(GL_FRONT, polygonMode);
-    }
+    prepareLightUniform(view, shader);
+    //    zPrepass(shader);
 
-    //    glClear(GL_DEPTH_BUFFER_BIT);
-    //    glClear(GL_STENCIL_BUFFER_BIT);
-    //    glEnable(GL_DEPTH_TEST);
-    // -------------------------------- DRAW BOUNDING BOXES
-    //    shader.setMat4("model", onesMatrix);
-    shader.setBool("userColor", true);
-    //    m_rootNode->drawBoundingBox(modelMatrix, shader);
-    glDisable(GL_MULTISAMPLE);
-    if (view.m_shade != Shader::Type::RENDERED) {
-        shader.setVec4("color", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-        m_box.draw(shader);
-    }
-    if (view.boundingBox()) {
-        //        for (const Model& model : m_models) {
-        for (const Object* object : m_objects) {
-            //            model.m_box.draw(modelMatrix, shader);
-            if (object != viewCameraObject) {
-
-                object->drawBoundingBox(shader);
-                //                if (object->selected()) {
-                //                    //                    shader.setMat4("model", m_localTransform, m_worldTransform);
-
-                //                } else {
-                //                    object->drawBoundingBox(shader);
-                //                    //                    shader.setMat4("model", onesMatrix);
-                //                }
-            }
-            //            if (object->m_selected) {
-
-            ////                object->drawBoundingBox(m_worldTransform, shader);
-            //            } else {
-            //                object->drawBoundingBox(onesMatrix, shader);
-            //            }
-        }
-    }
-    shader.setBool("userColor", false);
-    if (multiSample) {
-        glEnable(GL_MULTISAMPLE);
-    }
-
-    //    for (uint i = 0; i < m_dirLights.size(); ++i) {
-    //        const DirLight& dirLight = m_dirLights[i];
-
-    //        dirLight.draw(shader);
-    //        //        qDebug() << "draw light";
-    //    }
-
-    if (view.m_shade == Shader::Type::RENDERED) {
-        shader.setBool("shadow", m_computeShadow);
-
-        //                for (const DirLight & dirLight : m_dirLights) {
-        uint nbDirLight = m_dirLights.size();
-        shader.setInt("nbDirLight", nbDirLight);
-        for (uint i = 0; i < nbDirLight; ++i) {
-            const DirLight& dirLight = m_dirLights[i];
-
-            //                        dirLight.draw(shader);
-            //            shader.setInt("shadowMap", 5 + i);
-            shader.setInt("dirLight[" + QString::number(i).toStdString() + "].id", i);
-            shader.setInt("dirLight[" + QString::number(i).toStdString() + "].shadowMap", 5 + i);
-            glActiveTexture(GL_TEXTURE5 + i);
-            glBindTexture(GL_TEXTURE_2D, dirLight.depthMap());
-            if (dirLight.selected()) {
-                shader.setMat4("dirLight[" + QString::number(i).toStdString() + "].lightSpaceMatrix", dirLight.lightSpaceMatrix(m_localTransform));
-                shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].direction", glm::vec4(dirLight.direction(m_localTransform), 1.0f));
-            } else {
-                //                shader.setMat4("lightSpaceMatrix", dirLight.lightSpaceMatrix());
-                shader.setMat4("dirLight[" + QString::number(i).toStdString() + "].lightSpaceMatrix", dirLight.lightSpaceMatrix());
-                shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].direction", glm::vec4(dirLight.direction(onesMatrix), 1.0f));
-            }
-
-            //            shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].ambient", dirLight.m_ambient);
-            shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].ambient", glm::vec3(0.4f));
-            //            shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].diffuse", dirLight.m_diffuse);
-            shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].diffuse", glm::vec3(1.0f));
-            //            shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].specular", dirLight.m_specular);
-            shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].specular", glm::vec3(1.0f));
-
-            //            shader.setVec3("dirLight[" + QString::number(0).toStdString() + "].direction", -0.2f, -1.0f, -0.3f);
-            //            shader.setVec3("dirLight[" + QString::number(0).toStdString() + "].ambient", 0.05f, 0.05f, 0.05f);
-            //            shader.setVec3("dirLight[" + QString::number(0).toStdString() + "].diffuse", 0.4f, 0.4f, 0.4f);
-            //            shader.setVec3("dirLight[" + QString::number(0).toStdString() + "].specular", 0.5f, 0.5f, 0.5f);
-
-            //                    shader.setVec3("dirLight.ambient", dirLight.m_ambient);
-            //                    shader.setVec3("dirLight.diffuse", dirLight.m_diffuse);
-            //                    shader.setVec3("dirLight.specular", dirLight.m_specular);
-        }
-
-        uint nbPointLight = m_pointLights.size();
-        const uint MAX_POINT_LIGHT = 20;
-        shader.setInt("nbPointLight", nbPointLight);
-        for (uint i = 0; i < MAX_POINT_LIGHT; ++i) {
-            shader.setInt("pointLights[" + QString::number(i).toStdString() + "].shadowMap", 5 + i + nbDirLight);
-        }
-        for (uint i = 0; i < nbPointLight; ++i) {
-            const PointLight& pointLight = m_pointLights[i];
-            shader.setInt("pointLights[" + QString::number(i).toStdString() + "].id", i + nbDirLight);
-            glActiveTexture(GL_TEXTURE5 + i + nbDirLight);
-            glBindTexture(GL_TEXTURE_CUBE_MAP, pointLight.depthMap());
-            if (pointLight.selected()) {
-                shader.setVec3("pointLights[" + QString::number(i).toStdString() + "].position", pointLight.position(m_localTransform, m_worldTransform));
-            } else {
-                shader.setVec3("pointLights[" + QString::number(i).toStdString() + "].position", pointLight.position());
-            }
-            shader.setFloat("pointLights[" + QString::number(i).toStdString() + "].constant", 1.0f);
-            //            shader.setFloat("pointLights[" + QString::number(i).toStdString() + "].linear", 0.09f);
-            shader.setFloat("pointLights[" + QString::number(i).toStdString() + "].linear", 0.00f);
-            //            shader.setFloat("pointLights[" + QString::number(i).toStdString() + "].quadratic", 0.032f);
-            shader.setFloat("pointLights[" + QString::number(i).toStdString() + "].quadratic", 0.000005f);
-            //            shader.setVec3("pointLights[" + QString::number(i).toStdString() + "].ambient", pointLight.m_ambient);
-            shader.setVec3("pointLights[" + QString::number(i).toStdString() + "].ambient", glm::vec3(0.0f));
-            //            shader.setVec3("pointLights[" + QString::number(i).toStdString() + "].diffuse", pointLight.m_diffuse);
-            shader.setVec3("pointLights[" + QString::number(i).toStdString() + "].diffuse", glm::vec3(1.0f));
-            //            shader.setVec3("pointLights[" + QString::number(i).toStdString() + "].specular", pointLight.m_specular);
-            shader.setVec3("pointLights[" + QString::number(i).toStdString() + "].specular", glm::vec3(1.0f));
-        }
-
-        uint nbSpotLight = m_spotLights.size();
-        shader.setInt("nbSpotLight", nbSpotLight);
-        for (uint i = 0; i < nbSpotLight; ++i) {
-            const SpotLight& spotLight = m_spotLights[i];
-            shader.setFloat("spotLights[" + QString::number(i).toStdString() + "].cutOff", glm::cos(glm::radians(12.5f)));
-            shader.setFloat("spotLights[" + QString::number(i).toStdString() + "].outerCutOff", glm::cos(glm::radians(15.0f)));
-
-            shader.setInt("spotLights[" + QString::number(i).toStdString() + "].id", nbDirLight + i);
-            shader.setInt("spotLights[" + QString::number(i).toStdString() + "].shadowMap", nbDirLight + MAX_POINT_LIGHT + 5 + i);
-            glActiveTexture(GL_TEXTURE5 + nbDirLight + MAX_POINT_LIGHT + i);
-            glBindTexture(GL_TEXTURE_2D, spotLight.depthMap());
-
-            if (spotLight.selected()) {
-
-                shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].direction", spotLight.direction(m_localTransform));
-                shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].position", spotLight.position(m_localTransform, m_worldTransform));
-                shader.setMat4("spotLights[" + QString::number(i).toStdString() + "].lightSpaceMatrix", spotLight.lightSpaceMatrix(m_localTransform));
-            } else {
-                shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].direction", spotLight.direction());
-                shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].position", spotLight.position());
-                shader.setMat4("spotLights[" + QString::number(i).toStdString() + "].lightSpaceMatrix", spotLight.lightSpaceMatrix());
-            }
-            shader.setFloat("spotLights[" + QString::number(i).toStdString() + "].constant", 0.5f);
-            //            shader.setFloat("spotLights[" + QString::number(i).toStdString() + "].linear", 0.09f);
-            shader.setFloat("spotLights[" + QString::number(i).toStdString() + "].linear", 0.00f);
-            //            shader.setFloat("spotLights[" + QString::number(i).toStdString() + "].quadratic", 0.032f);
-            shader.setFloat("spotLights[" + QString::number(i).toStdString() + "].quadratic", 0.0000000f);
-
-            //            shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].ambient", spotLight.m_ambient);
-            shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].ambient", glm::vec3(0.0f));
-            //            shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].diffuse", spotLight.m_diffuse);
-            shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].diffuse", glm::vec3(1.0f));
-            //            shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].specular", spotLight.m_specular);
-            shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].specular", glm::vec3(1.0f));
-        }
-
-        uint cpt = 0;
-        for (const Camera* camera : m_cameras) {
-            if (camera->m_torchEnable) {
-                uint i = cpt++ + nbSpotLight;
-
-                shader.setFloat("spotLights[" + QString::number(i).toStdString() + "].cutOff", glm::cos(glm::radians(20.0f)));
-                shader.setFloat("spotLights[" + QString::number(i).toStdString() + "].outerCutOff", glm::cos(glm::radians(22.0f)));
-
-                shader.setInt("spotLights[" + QString::number(i).toStdString() + "].id", nbDirLight + i);
-                shader.setInt("spotLights[" + QString::number(i).toStdString() + "].shadowMap", nbDirLight + MAX_POINT_LIGHT + 5 + i);
-                glActiveTexture(GL_TEXTURE5 + nbDirLight + MAX_POINT_LIGHT + i);
-                glBindTexture(GL_TEXTURE_2D, camera->depthMap());
-
-                if (camera->selected()) {
-
-                    shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].direction", camera->direction(m_localTransform));
-                    shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].position", camera->position(m_localTransform, m_worldTransform));
-                    shader.setMat4("spotLights[" + QString::number(i).toStdString() + "].lightSpaceMatrix", camera->lightSpaceMatrix(m_localTransform));
-                } else {
-                    shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].direction", camera->direction());
-                    shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].position", camera->position());
-                    shader.setMat4("spotLights[" + QString::number(i).toStdString() + "].lightSpaceMatrix", camera->lightSpaceMatrix());
-                }
-                shader.setFloat("spotLights[" + QString::number(i).toStdString() + "].constant", 1.0f);
-                //            shader.setFloat("spotLights[" + QString::number(i).toStdString() + "].linear", 0.09f);
-                shader.setFloat("spotLights[" + QString::number(i).toStdString() + "].linear", 0.00f);
-                //            shader.setFloat("spotLights[" + QString::number(i).toStdString() + "].quadratic", 0.032f);
-                shader.setFloat("spotLights[" + QString::number(i).toStdString() + "].quadratic", 0.0000000f);
-
-                //            shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].ambient", spotLight.m_ambient);
-                shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].ambient", glm::vec3(0.0f));
-                //            shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].diffuse", spotLight.m_diffuse);
-                shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].diffuse", glm::vec3(1.0f));
-                //            shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].specular", spotLight.m_specular);
-                shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].specular", glm::vec3(1.0f));
-            }
-        }
-        shader.setInt("nbSpotLight", nbSpotLight + cpt);
-
-        //            shader.setVec3("dirLight[" + QString::number(0).toStdString() + "].direction", -0.2f, -1.0f, -0.3f);
-        //            shader.setVec3("dirLight[" + QString::number(0).toStdString() + "].ambient", 0.05f, 0.05f, 0.05f);
-        //            shader.setVec3("dirLight[" + QString::number(0).toStdString() + "].diffuse", 0.4f, 0.4f, 0.4f);
-        //            shader.setVec3("dirLight[" + QString::number(0).toStdString() + "].specular", 0.5f, 0.5f, 0.5f);
-    }
-    //    glLineWidth(1);
-    //    glPolygonMode(GL_FRONT, GL_LINE);
-    // -------------------------------- DRAW MODELS
-    //    for (const Model& model : m_models) {
-    //    glDepthFunc(GL_EQUAL);
-    //    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    if (m_zPrepass) {
-        //        m_minimalShader->use();
-        glClear(GL_DEPTH_BUFFER_BIT);
-        glDepthMask(1); // enable depth buffer writes
-        glColorMask(0, 0, 0, 0); // disable color buffer writes
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-        glDepthFunc(GL_LEQUAL);
-        glEnable(GL_DEPTH_TEST);
-
-        renderScene(shader);
-        //        renderScene(*m_minimalShader);
-
-        glDepthMask(0); // don't write to the depth buffer
-        glColorMask(1, 1, 1, 1); // now set the color component
-        glDepthFunc(GL_EQUAL);
-
-        //        shader.use();
-    }
-    //    renderScene(shader);
-    //            qDebug() << m_objects;
-    //    glEnable(GL_MULTISAMPLE);
+    Q_ASSERT(m_hdrFbo == 1);
     for (const Object* object : m_objects) {
         if (object != viewCameraObject) {
             if (object->selected()) {
@@ -647,114 +312,58 @@ void Scene::draw(const MainWindow3dView& view)
             }
         }
     }
-    glDepthFunc(GL_LESS);
-    //    glDisable(GL_MULTISAMPLE);
-    switch (view.m_mode) {
-    case MainWindow3dView::Mode::OBJECT:
-        break;
-    case MainWindow3dView::Mode::EDIT:
-        if (m_selectObject != nullptr) {
-            shader.setBool("userColor", true);
+    return;
+    m_fun->glBindFramebuffer(GL_FRAMEBUFFER, SCR_FBO);
+    glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+//    shader.use();
+//    shader.setBool("has_texture_diffuse", true);
+//    shader.setBool("has_texture_normal", false);
+//    shader.setBool("has_texture_specular", false);
+//    shader.setBool("has_texture_opacity", false);
+//    shader.setInt("texture_diffuse", 0);
+//    shader.setMat4("model", onesMatrix);
+////    shader.setMat4("model", glm::scale(onesMatrix, glm::vec3(1.0) * 0.5f));
+////    shader.setMat4("view", onesMatrix);
+//    shader.setMat4("view", viewMatrix);
+////    shader.setMat4("projection", onesMatrix);
+//    shader.setMat4("projection", projectionMatrix);
+//    shader.setBool("userColor", false);
+//    shader.setBool("shadow", false);
+//    glActiveTexture(GL_TEXTURE0);
+//    glBindTexture(GL_TEXTURE_2D, m_colorBuffer);
+//    QuadGeometry::draw();
+//    shader.setBool("has_texture_diffuse", false);
 
-            glPolygonMode(GL_FRONT, GL_LINE);
-            shader.setVec4("color", glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));
-            //        glLineWidth(4);
-            //        glPolygonMode(GL_FRONT, GL_LINE);
-            glLineWidth(2);
-            m_selectObject->draw(shader, false, m_localTransform, m_worldTransform);
 
-            shader.setVec4("color", glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));
-            glPointSize(6.0f);
-            m_selectObject->draw(shader, true, m_localTransform, m_worldTransform);
 
-            //        for (uint i = 0; i < m_selected.size(); ++i) {
-            //            if (m_selected[i]) {
-            //                //                qDebug() << "draw " << i;
-            //                DotGeometry::draw(glm::translate(glm::mat4(1.0f), m_controlPoints[i]) * worldTransform * m_transform, shader, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), 8);
-            //            }
-            //        }
-            //        m_fun->glPointSize(5.0f);
-            //            shader.setVec4("color", glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
-            //            glPointSize(6.0f);
-            //            m_selectObject->draw(shader, true, viewLocalTransform, m_worldTransform);
-            //            shader.setVec4("color", glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
-            //            shader.setVec4("color", glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
-            if (m_selectObject->modelType() == Model::PARAM_CURVE) {
-                //                const ParamModel& paramModel = static_cast<ParamModel&>(*m_selectObject->m_model);
-                const BSplineCurve& splineCurve = static_cast<BSplineCurve&>(*m_selectObject->getModel());
+//    return;
+    //    glViewport(0, 0, 100, 100);
 
-                splineCurve.drawSelected(shader, m_localVertexTransform, m_worldVertexTransform);
-            } else if (m_selectObject->modelType() == Model::PARAM_SURFACE) {
-                const BSplineSurface& splineSurface = static_cast<BSplineSurface&>(*m_selectObject->getModel());
-                splineSurface.drawSelected(shader, m_localVertexTransform, m_worldVertexTransform);
-            }
+    //    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    //    m_fun->glBindFramebuffer(GL_FRAMEBUFFER, 1);
+    m_bloomShader->use();
+    m_bloomShader->setInt("scene", 0);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, m_colorBuffer);
+    //    glActiveTexture(GL_TEXTURE1);
+    //    glBindTexture(GL_TEXTURE_2D, pingpongColorbuffers[!horizontal]);
+    m_bloomShader->setInt("bloom", false);
+    m_bloomShader->setFloat("exposure", 1.0f);
+    //    glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
+    QuadGeometry::draw();
 
-            shader.setBool("userColor", false);
-        }
-        break;
-    case MainWindow3dView::Mode::POSE:
-        break;
-    }
-    glClear(GL_DEPTH_BUFFER_BIT);
-
-    // -------------------------------- DRAW CONTOURS
-    glClear(GL_STENCIL_BUFFER_BIT);
-    glEnable(GL_STENCIL_TEST);
-    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-
-    glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-
-    glPolygonMode(GL_FRONT, GL_FILL);
-    glStencilFunc(GL_ALWAYS, 1, 0xFF);
-    glStencilMask(0xFF);
-    //    for (const Model& model : m_models) {
-    for (const Object* object : m_objects) {
-        if (object->selected()) {
-            //            model.Draw(modelMatrix, shader);
-            //            if (object != m_selectObject) {
-            object->draw(shader, m_localTransform, m_worldTransform);
-            //            }
-            //            else {
-            //                object->draw(shader, viewLocalTransform, m_worldTransform);
-
-            //            }
-        }
-    }
-    //    glClear(GL_COLOR_BUFFER_BIT);
-
-    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-    glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
-    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-    glStencilMask(0x00);
-    //        glDisable(GL_DEPTH_TEST);
-    glLineWidth(4);
-    glPolygonMode(GL_FRONT, GL_LINE);
-    //    modelMatrix = glm::scale(modelMatrix, glm::vec3(1.1f, 1.1f, 1.1f));
-    shader.setBool("userColor", true);
-    shader.setVec4("color", glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));
-    //    for (const Model& model : m_models) {
-    for (const Object* object : m_objects) {
-        if (object->selected()) {
-            //            model.Draw(modelMatrix, shader);
-            //            if (object != m_selectObject) {
-            object->draw(shader, m_localTransform, m_worldTransform);
-            //            }
-            //            else {
-            //                object->draw(shader, viewLocalTransform, m_worldTransform);
-
-            //            }
-
-            //            DotGeometry::draw(modelMatrix, shader, model.m_rootNode->m_transformation[3]);
-        }
-    }
+//    m_fun->glBindFramebuffer(GL_FRAMEBUFFER, SCR_FBO);
+    //    m_fun->glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    //    glPolygonMode(GL_FRONT, polygonMode);
     //    shader.setMat4("projection", projectionMatrix);
-    //    shader.setMat4("view", viewMatrix);
-    shader.setBool("userColor", false);
-    glStencilMask(0xFF);
-    glDisable(GL_STENCIL_TEST);
-    glLineWidth(1);
-    //        glEnable(GL_DEPTH_TEST);
-    glPolygonMode(GL_FRONT, polygonMode);
+
+    //    drawSpecificMode(view, shader);
+    //    drawContours(shader, polygonMode);
+    //    drawNormal(view, viewMatrix, projectionMatrix);
+    //    drawSkeleton(view, shader, viewMatrix, projectionMatrix, cameraPos);
+    //    drawOriginModel(view, shader, cameraPos);
+    //    drawAxisTransform(view, shader);
+    //    drawRectangleSelection(view, shader);
 
     // -------------------------------- DRAW CAMERA VIEWS
     //    for (const MainWindow3dView* otherViews : *m_views) {
@@ -763,227 +372,10 @@ void Scene::draw(const MainWindow3dView& view)
     //        Q_ASSERT(m_cameraModel != nullptr);
     //        m_cameraModel->draw(shader, view.dotCloud(), modelMatrix);
     //    }
-
-    //    modelMatrix = glm::mat4(1.0f);
-    //    glEnable(GL_DEPTH_TEST);
-    // -------------------------------- NORMAL VECTORS
-    if (view.normal()) {
-        normalShader->use();
-        //        glm::mat4 viewMatrix = view.viewMatrix();
-        //        glm::mat4 projectionMatrix = view.projectionMatrix();
-        normalShader->setMat4("view", viewMatrix);
-        normalShader->setMat4("projection", projectionMatrix);
-        //        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        //        glEnable(GL_CULL_FACE);
-        //        glEnable(GL_LIGHTING);
-        //        glDisable(GL_BLEND);
-        //        glCullFace(GL_BACK);
-        //        normalShader->setMat4("model", modelMatrix);
-        //        for (const Model& model : m_models) {
-        for (const Object* object : m_objects) {
-            //	    glm::mat4 model(1.0);
-            //        glm::mat4 modelMatrix(1.0);
-            //        modelMatrix = glm::scale(modelMatrix, glm::vec3(0.01));
-            //        modelMatrix = glm::rotate(modelMatrix, 1.57f, glm::vec3(1, 0, 0));
-            //        m_shader->setMat4("model", modelMatrix);
-
-            normalShader->m_shade = view.m_shade;
-            if (object->selected()) {
-
-                object->draw(*normalShader, view.dotCloud(), m_localTransform, m_worldTransform);
-            } else {
-                object->draw(*normalShader, view.dotCloud(), onesMatrix, onesMatrix);
-            }
-        }
-    }
-
-    // -------------------------------- SKELETON
-    if (view.skeleton()) {
-        //        modelMatrix = glm::mat4(1.0f);
-        //        for (const Model& model : m_models) {
-        for (Object& object : m_models) {
-            //	    glm::mat4 model(1.0);
-            //        glm::mat4 modelMatrix(1.0);
-            //        modelMatrix = glm::scale(modelMatrix, glm::vec3(0.01));
-            //        modelMatrix = glm::rotate(modelMatrix, 1.57f, glm::vec3(1, 0, 0));
-            //        m_shader->setMat4("model", modelMatrix);
-
-            if (object.modelType() == Model::MESH) {
-                if (object.selected()) {
-                    //                object.m_model.DrawHierarchy(viewLocalTransform, viewMatrix, projectionMatrix, cameraPos, m_worldTransform);
-                    static_cast<MeshModel*>(object.getModel())->DrawHierarchy(m_localTransform, viewMatrix, projectionMatrix, cameraPos, m_worldTransform);
-                    //                object.m_model->DrawHierarchy(m_localTransform, viewMatrix, projectionMatrix, cameraPos, m_worldTransform);
-                    //                object.m_model.DrawHierarchy()
-
-                    //                model.m_model.DrawHierarchy(m_localTransform, view, m_worldTransform);
-                } else {
-                    //                model.DrawHierarchy(onesMatrix, view);
-                    //                object.m_model.DrawHierarchy(onesMatrix, viewMatrix, projectionMatrix, cameraPos);
-                    static_cast<MeshModel*>(object.getModel())->DrawHierarchy(onesMatrix, viewMatrix, projectionMatrix, cameraPos);
-                    //                object.m_model.DrawHierarchy(onesMatrix, viewMatrix, projectionMatrix, cameraPos);
-                }
-            }
-        }
-    }
-
-    //    glViewport(5, 5, 55, 55);
-    //    m_axis->draw(viewMatrix);
-    // -------------------------------- DRAW ORIGINS MODELS
+    //    m_fun->glBindFramebuffer(GL_FRAMEBUFFER, 0);
     //    glClear(GL_DEPTH_BUFFER_BIT);
-    shader.use(); // skeleton use owner
-    shader.setBool("isSkeleton", false);
-    //    shader.setMat4("view", viewMatrix);
-    //    shader.setMat4("projection", projectionMatrix);
-    //    shader.setMat4("model", onesMatrix);
-    glDepthFunc(GL_ALWAYS);
-    glLineWidth(2);
-    //    glPolygonMode(GL_FRONT, GL_LINE);
-    //    for (const Model& model : m_models) {
-    if (view.m_mode == MainWindow3dView::Mode::EDIT) {
-
-    } else {
-        for (const Object* object : m_objects) {
-            if (object->selected()) {
-                //            model.Draw(modelMatrix, shader);
-                //            model.Draw(modelMatrix, shader, view.m_shade, view.dotCloud());
-
-                float dist = glm::length(glm::vec3(object->transform()[3]) - cameraPos);
-                // TODO
-                //            AxisGeometry::draw(m_worldTransform * object->m_model.m_transform * m_localTransform * glm::scale(glm::mat4(1.0f), glm::vec3(1.0f) * 0.5f * object->m_model.m_box.radius()), shader);
-                AxisGeometry::draw(m_worldTransform * object->transform() * glm::scale(m_localTransform, glm::vec3(1.0f) * dist), shader);
-                DotGeometry::draw(m_worldTransform * object->transform() * m_localTransform, shader);
-                //            object->drawOrigin(m_worldTransform, viewTransform, shader);
-            }
-
-            if (object == m_selectObject) {
-                DotGeometry::draw(m_worldTransform * object->transform() * m_localTransform, shader, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
-                //            DotGeometry::draw(m_worldTransform * object->m_model->m_transform * m_localTransform, shader, glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));
-            }
-        }
-    }
-    glDepthFunc(GL_LESS);
-    glLineWidth(1);
-
-    // -------------------------------- DRAW AXIS TRANSFORM
-    if (view.m_axisTransform) {
-        shader.setBool("userColor", true);
-        switch (view.m_axisFollow) {
-        case 0:
-            shader.setVec4("color", glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
-            break;
-
-        case 1:
-            shader.setVec4("color", glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
-            break;
-
-        case 2:
-            shader.setVec4("color", glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
-            break;
-        }
-
-        float lineSize = 10000.0f;
-
-        //        shader.setMat4("model", onesMatrix);
-        if (view.m_axisLocal) {
-            //            for (const Model& model : m_models) {
-            for (const Object* object : m_objects) {
-                if (object->selected()) {
-                    shader.setMat4("model", object->transform());
-
-                    switch (view.m_axisFollow) {
-                    case 0:
-                        LineGeometry::draw(glm::vec3(-lineSize, 0.0f, 0.0f), glm::vec3(lineSize, 0.0f, 0.0f));
-                        break;
-                    case 1:
-                        LineGeometry::draw(glm::vec3(0.0f, -lineSize, 0.0f), glm::vec3(0.0f, lineSize, 0.0f));
-                        break;
-                    case 2:
-                        LineGeometry::draw(glm::vec3(0.0f, 0.0f, -lineSize), glm::vec3(0.0f, 0.0f, lineSize));
-                        break;
-                    }
-                }
-            }
-
-        } else {
-            // ------------------------ GLOBAL AXIS
-
-            shader.setMat4("model", onesMatrix);
-            //            for (const Model& model : m_models) {
-            for (const Object* object : m_objects) {
-                if (object->selected()) {
-
-                    //                } else {
-                    // ---------------- GLOBAL AXIS
-                    glm::vec3 translate = object->transform()[3];
-                    switch (view.m_transform) {
-                    case MainWindow3dView::Transform::TRANSLATE:
-                    case MainWindow3dView::Transform::SCALE:
-                        switch (view.m_axisFollow) {
-                        case 0:
-                            LineGeometry::draw(glm::vec3(-lineSize, 0.0f, 0.0f) + translate, glm::vec3(lineSize, 0.0f, 0.0f) + translate);
-                            break;
-                        case 1:
-                            //                        LineGeometry::draw(m_worldTransform, shader, glm::vec3(0.0f, -lineSize, 0.0f), glm::vec3(0.0f, lineSize, 0.0f));
-                            LineGeometry::draw(glm::vec3(0.0f, -lineSize, 0.0f) + translate, glm::vec3(0.0f, lineSize, 0.0f) + translate);
-                            break;
-                        case 2:
-                            //                        LineGeometry::draw(m_worldTransform, shader, glm::vec3(0.0f, 0.0f, -lineSize), glm::vec3(0.0f, 0.0f, lineSize));
-                            LineGeometry::draw(glm::vec3(0.0f, 0.0f, -lineSize) + translate, glm::vec3(0.0f, 0.0f, lineSize) + translate);
-                            break;
-                        }
-                        break;
-
-                    case MainWindow3dView::Transform::ROTATE:
-                        switch (view.m_axisFollow) {
-                        case 0:
-                            LineGeometry::draw(glm::vec3(-lineSize, 0.0f, 0.0f), glm::vec3(lineSize, 0.0f, 0.0f));
-                            break;
-                        case 1:
-                            //                        LineGeometry::draw(m_worldTransform, shader, glm::vec3(0.0f, -lineSize, 0.0f), glm::vec3(0.0f, lineSize, 0.0f));
-                            LineGeometry::draw(glm::vec3(0.0f, -lineSize, 0.0f), glm::vec3(0.0f, lineSize, 0.0f));
-                            break;
-                        case 2:
-                            //                        LineGeometry::draw(m_worldTransform, shader, glm::vec3(0.0f, 0.0f, -lineSize), glm::vec3(0.0f, 0.0f, lineSize));
-                            LineGeometry::draw(glm::vec3(0.0f, 0.0f, -lineSize), glm::vec3(0.0f, 0.0f, lineSize));
-                            break;
-                        }
-                        break;
-                    }
-                }
-            }
-        }
-        shader.setBool("userColor", false);
-    } // -------------------------------- END DRAW AXIS TRANSFORM
-
-    // ----------------------------------- DRAW RECTANGLE SELECTION
-    //    view.drawRect();
-
-    if (view.m_rightClicked) {
-        const QPoint& p = view.m_posFirstRightClick;
-        const QPoint& p2 = view.m_posMouse;
-
-        int width = view.width();
-        int height = view.height();
-        float x = p.x() * 2.0f / width - 1.0f;
-        float y = -p.y() * 2.0f / height + 1.0f;
-        float x2 = p2.x() * 2.0f / width - 1.0f;
-        float y2 = -p2.y() * 2.0f / height + 1.0f;
-
-        shader.setMat4("model", onesMatrix);
-        shader.setMat4("view", onesMatrix);
-        shader.setMat4("projection", onesMatrix);
-        shader.setBool("userColor", true);
-        shader.setVec4("color", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-        //        LineGeometry::draw(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, -0.5f, 0.0f));
-        LineGeometry::draw(glm::vec3(x, y, 0.0f), glm::vec3(x2, y, 0.0f));
-        LineGeometry::draw(glm::vec3(x2, y, 0.0f), glm::vec3(x2, y2, 0.0f));
-        LineGeometry::draw(glm::vec3(x2, y2, 0.0f), glm::vec3(x, y2, 0.0f));
-        LineGeometry::draw(glm::vec3(x, y2, 0.0f), glm::vec3(x, y, 0.0f));
-        shader.setBool("userColor", false);
-    }
-
-    //    glPolygonMode(GL_FRONT, polygonMode);
-    //    shader.setMat4("projection", projectionMatrix);
+    //    glViewport(100, 100, 200, 200);
+    //    glClearColor(0.0f, 1.0f, 0.0f, 1.0f);
 }
 
 void Scene::objectSelectRay(const Ray& ray, bool additional)
@@ -1962,6 +1354,636 @@ BSplineSurface* Scene::getBsplineSurface()
     }
 
     return nullptr;
+}
+
+void Scene::prepareLightUniform(const MainWindow3dView& view, const Shader& shader)
+{
+    if (view.m_shade == Shader::Type::RENDERED) {
+        shader.setBool("shadow", m_computeShadow);
+
+        //                for (const DirLight & dirLight : m_dirLights) {
+        uint nbDirLight = m_dirLights.size();
+        shader.setInt("nbDirLight", nbDirLight);
+        for (uint i = 0; i < nbDirLight; ++i) {
+            const DirLight& dirLight = m_dirLights[i];
+
+            //                        dirLight.draw(shader);
+            //            shader.setInt("shadowMap", 5 + i);
+            shader.setInt("dirLight[" + QString::number(i).toStdString() + "].id", i);
+            shader.setInt("dirLight[" + QString::number(i).toStdString() + "].shadowMap", 5 + i);
+            glActiveTexture(GL_TEXTURE5 + i);
+            glBindTexture(GL_TEXTURE_2D, dirLight.depthMap());
+            if (dirLight.selected()) {
+                shader.setMat4("dirLight[" + QString::number(i).toStdString() + "].lightSpaceMatrix", dirLight.lightSpaceMatrix(m_localTransform));
+                shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].direction", glm::vec4(dirLight.direction(m_localTransform), 1.0f));
+            } else {
+                //                shader.setMat4("lightSpaceMatrix", dirLight.lightSpaceMatrix());
+                shader.setMat4("dirLight[" + QString::number(i).toStdString() + "].lightSpaceMatrix", dirLight.lightSpaceMatrix());
+                shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].direction", glm::vec4(dirLight.direction(), 1.0f));
+            }
+
+            //            shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].ambient", dirLight.m_ambient);
+            shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].ambient", glm::vec3(0.4f));
+            //            shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].diffuse", dirLight.m_diffuse);
+            shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].diffuse", glm::vec3(1.0f));
+            //            shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].specular", dirLight.m_specular);
+            shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].specular", glm::vec3(1.0f));
+
+            //            shader.setVec3("dirLight[" + QString::number(0).toStdString() + "].direction", -0.2f, -1.0f, -0.3f);
+            //            shader.setVec3("dirLight[" + QString::number(0).toStdString() + "].ambient", 0.05f, 0.05f, 0.05f);
+            //            shader.setVec3("dirLight[" + QString::number(0).toStdString() + "].diffuse", 0.4f, 0.4f, 0.4f);
+            //            shader.setVec3("dirLight[" + QString::number(0).toStdString() + "].specular", 0.5f, 0.5f, 0.5f);
+
+            //                    shader.setVec3("dirLight.ambient", dirLight.m_ambient);
+            //                    shader.setVec3("dirLight.diffuse", dirLight.m_diffuse);
+            //                    shader.setVec3("dirLight.specular", dirLight.m_specular);
+        }
+
+        uint nbPointLight = m_pointLights.size();
+        const uint MAX_POINT_LIGHT = 20;
+        shader.setInt("nbPointLight", nbPointLight);
+        for (uint i = 0; i < MAX_POINT_LIGHT; ++i) {
+            shader.setInt("pointLights[" + QString::number(i).toStdString() + "].shadowMap", 5 + i + nbDirLight);
+        }
+        for (uint i = 0; i < nbPointLight; ++i) {
+            const PointLight& pointLight = m_pointLights[i];
+            shader.setInt("pointLights[" + QString::number(i).toStdString() + "].id", i + nbDirLight);
+            glActiveTexture(GL_TEXTURE5 + i + nbDirLight);
+            glBindTexture(GL_TEXTURE_CUBE_MAP, pointLight.depthMap());
+            if (pointLight.selected()) {
+                shader.setVec3("pointLights[" + QString::number(i).toStdString() + "].position", pointLight.position(m_localTransform, m_worldTransform));
+            } else {
+                shader.setVec3("pointLights[" + QString::number(i).toStdString() + "].position", pointLight.position());
+            }
+            shader.setFloat("pointLights[" + QString::number(i).toStdString() + "].constant", 1.0f);
+            //            shader.setFloat("pointLights[" + QString::number(i).toStdString() + "].linear", 0.09f);
+            shader.setFloat("pointLights[" + QString::number(i).toStdString() + "].linear", 0.00f);
+            //            shader.setFloat("pointLights[" + QString::number(i).toStdString() + "].quadratic", 0.032f);
+            shader.setFloat("pointLights[" + QString::number(i).toStdString() + "].quadratic", 0.000005f);
+            //            shader.setVec3("pointLights[" + QString::number(i).toStdString() + "].ambient", pointLight.m_ambient);
+            shader.setVec3("pointLights[" + QString::number(i).toStdString() + "].ambient", glm::vec3(0.0f));
+            //            shader.setVec3("pointLights[" + QString::number(i).toStdString() + "].diffuse", pointLight.m_diffuse);
+            shader.setVec3("pointLights[" + QString::number(i).toStdString() + "].diffuse", glm::vec3(1.0f));
+            //            shader.setVec3("pointLights[" + QString::number(i).toStdString() + "].specular", pointLight.m_specular);
+            shader.setVec3("pointLights[" + QString::number(i).toStdString() + "].specular", glm::vec3(1.0f));
+        }
+
+        uint nbSpotLight = m_spotLights.size();
+        shader.setInt("nbSpotLight", nbSpotLight);
+        for (uint i = 0; i < nbSpotLight; ++i) {
+            const SpotLight& spotLight = m_spotLights[i];
+            shader.setFloat("spotLights[" + QString::number(i).toStdString() + "].cutOff", glm::cos(glm::radians(12.5f)));
+            shader.setFloat("spotLights[" + QString::number(i).toStdString() + "].outerCutOff", glm::cos(glm::radians(15.0f)));
+
+            shader.setInt("spotLights[" + QString::number(i).toStdString() + "].id", nbDirLight + i);
+            shader.setInt("spotLights[" + QString::number(i).toStdString() + "].shadowMap", nbDirLight + MAX_POINT_LIGHT + 5 + i);
+            glActiveTexture(GL_TEXTURE5 + nbDirLight + MAX_POINT_LIGHT + i);
+            glBindTexture(GL_TEXTURE_2D, spotLight.depthMap());
+
+            if (spotLight.selected()) {
+
+                shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].direction", spotLight.direction(m_localTransform));
+                shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].position", spotLight.position(m_localTransform, m_worldTransform));
+                shader.setMat4("spotLights[" + QString::number(i).toStdString() + "].lightSpaceMatrix", spotLight.lightSpaceMatrix(m_localTransform));
+            } else {
+                shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].direction", spotLight.direction());
+                shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].position", spotLight.position());
+                shader.setMat4("spotLights[" + QString::number(i).toStdString() + "].lightSpaceMatrix", spotLight.lightSpaceMatrix());
+            }
+            shader.setFloat("spotLights[" + QString::number(i).toStdString() + "].constant", 0.5f);
+            //            shader.setFloat("spotLights[" + QString::number(i).toStdString() + "].linear", 0.09f);
+            shader.setFloat("spotLights[" + QString::number(i).toStdString() + "].linear", 0.00f);
+            //            shader.setFloat("spotLights[" + QString::number(i).toStdString() + "].quadratic", 0.032f);
+            shader.setFloat("spotLights[" + QString::number(i).toStdString() + "].quadratic", 0.0000000f);
+
+            //            shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].ambient", spotLight.m_ambient);
+            shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].ambient", glm::vec3(0.0f));
+            //            shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].diffuse", spotLight.m_diffuse);
+            shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].diffuse", glm::vec3(1.0f));
+            //            shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].specular", spotLight.m_specular);
+            shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].specular", glm::vec3(1.0f));
+        }
+
+        uint cpt = 0;
+        for (const Camera* camera : m_cameras) {
+            if (camera->m_torchEnable) {
+                uint i = cpt++ + nbSpotLight;
+
+                shader.setFloat("spotLights[" + QString::number(i).toStdString() + "].cutOff", glm::cos(glm::radians(20.0f)));
+                shader.setFloat("spotLights[" + QString::number(i).toStdString() + "].outerCutOff", glm::cos(glm::radians(22.0f)));
+
+                shader.setInt("spotLights[" + QString::number(i).toStdString() + "].id", nbDirLight + i);
+                shader.setInt("spotLights[" + QString::number(i).toStdString() + "].shadowMap", nbDirLight + MAX_POINT_LIGHT + 5 + i);
+                glActiveTexture(GL_TEXTURE5 + nbDirLight + MAX_POINT_LIGHT + i);
+                glBindTexture(GL_TEXTURE_2D, camera->depthMap());
+
+                if (camera->selected()) {
+
+                    shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].direction", camera->direction(m_localTransform));
+                    shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].position", camera->position(m_localTransform, m_worldTransform));
+                    shader.setMat4("spotLights[" + QString::number(i).toStdString() + "].lightSpaceMatrix", camera->lightSpaceMatrix(m_localTransform));
+                } else {
+                    shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].direction", camera->direction());
+                    shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].position", camera->position());
+                    shader.setMat4("spotLights[" + QString::number(i).toStdString() + "].lightSpaceMatrix", camera->lightSpaceMatrix());
+                }
+                shader.setFloat("spotLights[" + QString::number(i).toStdString() + "].constant", 1.0f);
+                //            shader.setFloat("spotLights[" + QString::number(i).toStdString() + "].linear", 0.09f);
+                shader.setFloat("spotLights[" + QString::number(i).toStdString() + "].linear", 0.00f);
+                //            shader.setFloat("spotLights[" + QString::number(i).toStdString() + "].quadratic", 0.032f);
+                shader.setFloat("spotLights[" + QString::number(i).toStdString() + "].quadratic", 0.0000000f);
+
+                //            shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].ambient", spotLight.m_ambient);
+                shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].ambient", glm::vec3(0.0f));
+                //            shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].diffuse", spotLight.m_diffuse);
+                shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].diffuse", glm::vec3(1.0f));
+                //            shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].specular", spotLight.m_specular);
+                shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].specular", glm::vec3(1.0f));
+            }
+        }
+        shader.setInt("nbSpotLight", nbSpotLight + cpt);
+
+        //            shader.setVec3("dirLight[" + QString::number(0).toStdString() + "].direction", -0.2f, -1.0f, -0.3f);
+        //            shader.setVec3("dirLight[" + QString::number(0).toStdString() + "].ambient", 0.05f, 0.05f, 0.05f);
+        //            shader.setVec3("dirLight[" + QString::number(0).toStdString() + "].diffuse", 0.4f, 0.4f, 0.4f);
+        //            shader.setVec3("dirLight[" + QString::number(0).toStdString() + "].specular", 0.5f, 0.5f, 0.5f);
+    }
+}
+
+void Scene::zPrepass(const Shader& shader)
+{
+    if (m_zPrepass) {
+        //        m_minimalShader->use();
+        glClear(GL_DEPTH_BUFFER_BIT);
+        glDepthMask(1); // enable depth buffer writes
+        glColorMask(0, 0, 0, 0); // disable color buffer writes
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        glDepthFunc(GL_LEQUAL);
+        glEnable(GL_DEPTH_TEST);
+
+        renderScene(shader);
+        //        renderScene(*m_minimalShader);
+
+        glDepthMask(0); // don't write to the depth buffer
+        glColorMask(1, 1, 1, 1); // now set the color component
+        glDepthFunc(GL_EQUAL);
+
+        //        shader.use();
+    }
+}
+
+void Scene::drawBoundingBox(const MainWindow3dView& view, const Shader& shader, const Object* viewCameraObject, bool multiSample)
+{
+    // -------------------------------- DRAW BOUNDING BOXES
+    //    shader.setMat4("model", onesMatrix);
+    shader.setBool("userColor", true);
+    //    m_rootNode->drawBoundingBox(modelMatrix, shader);
+    glDisable(GL_MULTISAMPLE);
+    if (view.m_shade != Shader::Type::RENDERED) {
+        shader.setVec4("color", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+        m_box.draw(shader);
+    }
+    if (view.boundingBox()) {
+        //        for (const Model& model : m_models) {
+        for (const Object* object : m_objects) {
+            //            model.m_box.draw(modelMatrix, shader);
+            if (object != viewCameraObject) {
+
+                object->drawBoundingBox(shader);
+                //                if (object->selected()) {
+                //                    //                    shader.setMat4("model", m_localTransform, m_worldTransform);
+
+                //                } else {
+                //                    object->drawBoundingBox(shader);
+                //                    //                    shader.setMat4("model", onesMatrix);
+                //                }
+            }
+            //            if (object->m_selected) {
+
+            ////                object->drawBoundingBox(m_worldTransform, shader);
+            //            } else {
+            //                object->drawBoundingBox(onesMatrix, shader);
+            //            }
+        }
+    }
+    shader.setBool("userColor", false);
+    if (multiSample) {
+        glEnable(GL_MULTISAMPLE);
+    }
+}
+
+void Scene::drawRay(const MainWindow3dView& view, const Shader& shader, uint polygonMode)
+{
+    //     -------------------------------- DRAW RAYS
+    //    glPolygonMode(GL_FRONT, GL_FILL);
+    //    shader.use();
+    if (view.intersectRay()) {
+        glPolygonMode(GL_FRONT, GL_LINE);
+        shader.setMat4("model", glm::mat4(1.0f));
+        shader.setBool("userColor", true);
+        shader.setVec4("color", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+        for (const Ray& ray : m_rays) {
+            if (!ray.m_hit) {
+                LineGeometry::draw(ray.m_source, ray.m_source + ray.m_direction * ray.m_length);
+            }
+        }
+        shader.setVec4("color", glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+        //        std::vector<glm::vec3>
+        std::vector<glm::vec3> triangles;
+        for (const Ray& ray : m_rays) {
+            if (ray.m_hit) {
+                LineGeometry::draw(ray.m_source, ray.m_source + ray.m_direction * ray.m_length);
+                //                TriangleGeometry::draw(ray.m_vertices[0], ray.m_vertices[1], ray.m_vertices[2]);
+                //                for (const glm::vec3[3] & triangle : ray.m_triangles) {
+                //                TriangleGeometry::draw(ray.m_triangles);
+                triangles.insert(triangles.end(), ray.m_triangles.begin(), ray.m_triangles.end());
+                //                for (uint i = 0; i < ray.m_triangles.size() / 3; ++i) {
+                //                    const uint i3 = i * 3;
+                //                    const glm::vec3& v0 = ray.m_triangles[i3];
+                //                    const glm::vec3& v1 = ray.m_triangles[i3 + 1];
+                //                    const glm::vec3& v2 = ray.m_triangles[i3 + 2];
+
+                //                    TriangleGeometry::draw(v0, v1, v2);
+                //                }
+            }
+        }
+        Q_ASSERT(triangles.size() % 3 == 0);
+        TriangleGeometry::draw(triangles);
+        shader.setBool("userColor", false);
+        glPolygonMode(GL_FRONT, polygonMode);
+    }
+}
+
+void Scene::drawSkyBox(const MainWindow3dView& view, bool multiSample, const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix)
+{
+    // ------------------------- SKYBOX AND GRID
+    if (view.m_shade != Shader::Type::RENDERED) {
+        glDisable(GL_MULTISAMPLE);
+        m_grid->draw(glm::mat4(1.0f), viewMatrix, projectionMatrix);
+        if (multiSample) {
+            glEnable(GL_MULTISAMPLE);
+        }
+        //        glEnable(GL_MULTISAMPLE);
+        //        m_grid->draw(glm::scale(onesMatrix, glm::vec3(1.0f) * glm::length(glm::vec3(viewMatrix[3]))), viewMatrix, projectionMatrix);
+    } else {
+        if (!m_dirLights.empty()) {
+            if (m_dirLights[0].selected()) {
+                //                m_skyBox->draw(viewMatrix, projectionMatrix, m_dirLights[0].direction(m_localTransform));
+            } else {
+                //                m_skyBox->draw(viewMatrix, projectionMatrix, m_dirLights[0].direction());
+            }
+
+        } else {
+            //            m_skyBox->draw(viewMatrix, projectionMatrix);
+        }
+    }
+}
+
+void Scene::drawSpecificMode(const MainWindow3dView& view, const Shader& shader)
+{
+    switch (view.m_mode) {
+    case MainWindow3dView::Mode::OBJECT:
+        break;
+    case MainWindow3dView::Mode::EDIT:
+        if (m_selectObject != nullptr) {
+            shader.setBool("userColor", true);
+
+            glPolygonMode(GL_FRONT, GL_LINE);
+            shader.setVec4("color", glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));
+            //        glLineWidth(4);
+            //        glPolygonMode(GL_FRONT, GL_LINE);
+            glLineWidth(2);
+            m_selectObject->draw(shader, false, m_localTransform, m_worldTransform);
+
+            shader.setVec4("color", glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));
+            glPointSize(6.0f);
+            m_selectObject->draw(shader, true, m_localTransform, m_worldTransform);
+
+            //        for (uint i = 0; i < m_selected.size(); ++i) {
+            //            if (m_selected[i]) {
+            //                //                qDebug() << "draw " << i;
+            //                DotGeometry::draw(glm::translate(glm::mat4(1.0f), m_controlPoints[i]) * worldTransform * m_transform, shader, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), 8);
+            //            }
+            //        }
+            //        m_fun->glPointSize(5.0f);
+            //            shader.setVec4("color", glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+            //            glPointSize(6.0f);
+            //            m_selectObject->draw(shader, true, viewLocalTransform, m_worldTransform);
+            //            shader.setVec4("color", glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+            //            shader.setVec4("color", glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+            if (m_selectObject->modelType() == Model::PARAM_CURVE) {
+                //                const ParamModel& paramModel = static_cast<ParamModel&>(*m_selectObject->m_model);
+                const BSplineCurve& splineCurve = static_cast<BSplineCurve&>(*m_selectObject->getModel());
+
+                splineCurve.drawSelected(shader, m_localVertexTransform, m_worldVertexTransform);
+            } else if (m_selectObject->modelType() == Model::PARAM_SURFACE) {
+                const BSplineSurface& splineSurface = static_cast<BSplineSurface&>(*m_selectObject->getModel());
+                splineSurface.drawSelected(shader, m_localVertexTransform, m_worldVertexTransform);
+            }
+
+            shader.setBool("userColor", false);
+        }
+        break;
+    case MainWindow3dView::Mode::POSE:
+        break;
+    }
+}
+
+void Scene::drawContours(const Shader& shader, uint polygonMode)
+{
+    // -------------------------------- DRAW CONTOURS
+    //    shader.use();
+    glDepthFunc(GL_LESS);
+    //    glDisable(GL_MULTISAMPLE);
+    glClear(GL_DEPTH_BUFFER_BIT);
+    glClear(GL_STENCIL_BUFFER_BIT);
+    glEnable(GL_STENCIL_TEST);
+    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+
+    glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+
+    glPolygonMode(GL_FRONT, GL_FILL);
+    glStencilFunc(GL_ALWAYS, 1, 0xFF);
+    glStencilMask(0xFF);
+    //    for (const Model& model : m_models) {
+    for (const Object* object : m_objects) {
+        if (object->selected()) {
+            //            model.Draw(modelMatrix, shader);
+            //            if (object != m_selectObject) {
+            object->draw(shader, m_localTransform, m_worldTransform);
+            //            }
+            //            else {
+            //                object->draw(shader, viewLocalTransform, m_worldTransform);
+
+            //            }
+        }
+    }
+    //    glClear(GL_COLOR_BUFFER_BIT);
+
+    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+    glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+    glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+    glStencilMask(0x00);
+    //        glDisable(GL_DEPTH_TEST);
+    glLineWidth(4);
+    glPolygonMode(GL_FRONT, GL_LINE);
+    //    modelMatrix = glm::scale(modelMatrix, glm::vec3(1.1f, 1.1f, 1.1f));
+    shader.setBool("userColor", true);
+    shader.setVec4("color", glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));
+    //    for (const Model& model : m_models) {
+    for (const Object* object : m_objects) {
+        if (object->selected()) {
+            //            model.Draw(modelMatrix, shader);
+            //            if (object != m_selectObject) {
+            object->draw(shader, m_localTransform, m_worldTransform);
+            //            }
+            //            else {
+            //                object->draw(shader, viewLocalTransform, m_worldTransform);
+
+            //            }
+
+            //            DotGeometry::draw(modelMatrix, shader, model.m_rootNode->m_transformation[3]);
+        }
+    }
+    //    shader.setMat4("projection", projectionMatrix);
+    //    shader.setMat4("view", viewMatrix);
+    shader.setBool("userColor", false);
+    glStencilMask(0xFF);
+    glDisable(GL_STENCIL_TEST);
+    glLineWidth(1);
+    //        glEnable(GL_DEPTH_TEST);
+    glPolygonMode(GL_FRONT, polygonMode);
+}
+
+void Scene::drawNormal(const MainWindow3dView& view, const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix)
+{
+    // -------------------------------- NORMAL VECTORS
+    if (view.normal()) {
+        normalShader->use();
+        //        glm::mat4 viewMatrix = view.viewMatrix();
+        //        glm::mat4 projectionMatrix = view.projectionMatrix();
+        normalShader->setMat4("view", viewMatrix);
+        normalShader->setMat4("projection", projectionMatrix);
+        //        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        //        glEnable(GL_CULL_FACE);
+        //        glEnable(GL_LIGHTING);
+        //        glDisable(GL_BLEND);
+        //        glCullFace(GL_BACK);
+        //        normalShader->setMat4("model", modelMatrix);
+        //        for (const Model& model : m_models) {
+        for (const Object* object : m_objects) {
+            //	    glm::mat4 model(1.0);
+            //        glm::mat4 modelMatrix(1.0);
+            //        modelMatrix = glm::scale(modelMatrix, glm::vec3(0.01));
+            //        modelMatrix = glm::rotate(modelMatrix, 1.57f, glm::vec3(1, 0, 0));
+            //        m_shader->setMat4("model", modelMatrix);
+
+            normalShader->m_shade = view.m_shade;
+            if (object->selected()) {
+
+                object->draw(*normalShader, view.dotCloud(), m_localTransform, m_worldTransform);
+            } else {
+                object->draw(*normalShader, view.dotCloud(), glm::mat4(1.0f), glm::mat4(1.0f));
+            }
+        }
+    }
+}
+
+void Scene::drawSkeleton(const MainWindow3dView& view, const Shader& shader, const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix, glm::vec3& cameraPos)
+{
+    // -------------------------------- SKELETON
+    if (view.skeleton()) {
+        //        modelMatrix = glm::mat4(1.0f);
+        //        for (const Model& model : m_models) {
+        for (Object& object : m_models) {
+            //	    glm::mat4 model(1.0);
+            //        glm::mat4 modelMatrix(1.0);
+            //        modelMatrix = glm::scale(modelMatrix, glm::vec3(0.01));
+            //        modelMatrix = glm::rotate(modelMatrix, 1.57f, glm::vec3(1, 0, 0));
+            //        m_shader->setMat4("model", modelMatrix);
+
+            if (object.modelType() == Model::MESH) {
+                if (object.selected()) {
+                    //                object.m_model.DrawHierarchy(viewLocalTransform, viewMatrix, projectionMatrix, cameraPos, m_worldTransform);
+                    static_cast<MeshModel*>(object.getModel())->DrawHierarchy(m_localTransform, viewMatrix, projectionMatrix, cameraPos, m_worldTransform);
+                    //                object.m_model->DrawHierarchy(m_localTransform, viewMatrix, projectionMatrix, cameraPos, m_worldTransform);
+                    //                object.m_model.DrawHierarchy()
+
+                    //                model.m_model.DrawHierarchy(m_localTransform, view, m_worldTransform);
+                } else {
+                    //                model.DrawHierarchy(onesMatrix, view);
+                    //                object.m_model.DrawHierarchy(onesMatrix, viewMatrix, projectionMatrix, cameraPos);
+                    static_cast<MeshModel*>(object.getModel())->DrawHierarchy(glm::mat4(1.0f), viewMatrix, projectionMatrix, cameraPos);
+                    //                object.m_model.DrawHierarchy(onesMatrix, viewMatrix, projectionMatrix, cameraPos);
+                }
+            }
+        }
+    }
+}
+
+void Scene::drawOriginModel(const MainWindow3dView& view, const Shader& shader, const glm::vec3& cameraPos)
+{
+    //    glViewport(5, 5, 55, 55);
+    //    m_axis->draw(viewMatrix);
+    // -------------------------------- DRAW ORIGINS MODELS
+    //    glClear(GL_DEPTH_BUFFER_BIT);
+    shader.use(); // skeleton use owner
+    shader.setBool("isSkeleton", false);
+    //    shader.setMat4("view", viewMatrix);
+    //    shader.setMat4("projection", projectionMatrix);
+    //    shader.setMat4("model", onesMatrix);
+    glDepthFunc(GL_ALWAYS);
+    glLineWidth(2);
+    //    glPolygonMode(GL_FRONT, GL_LINE);
+    //    for (const Model& model : m_models) {
+    if (view.m_mode == MainWindow3dView::Mode::EDIT) {
+
+    } else {
+        for (const Object* object : m_objects) {
+            if (object->selected()) {
+                //            model.Draw(modelMatrix, shader);
+                //            model.Draw(modelMatrix, shader, view.m_shade, view.dotCloud());
+
+                float dist = glm::length(glm::vec3(object->transform()[3]) - cameraPos);
+                // TODO
+                //            AxisGeometry::draw(m_worldTransform * object->m_model.m_transform * m_localTransform * glm::scale(glm::mat4(1.0f), glm::vec3(1.0f) * 0.5f * object->m_model.m_box.radius()), shader);
+                AxisGeometry::draw(m_worldTransform * object->transform() * glm::scale(m_localTransform, glm::vec3(1.0f) * dist), shader);
+                DotGeometry::draw(m_worldTransform * object->transform() * m_localTransform, shader);
+                //            object->drawOrigin(m_worldTransform, viewTransform, shader);
+            }
+
+            if (object == m_selectObject) {
+                DotGeometry::draw(m_worldTransform * object->transform() * m_localTransform, shader, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+                //            DotGeometry::draw(m_worldTransform * object->m_model->m_transform * m_localTransform, shader, glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));
+            }
+        }
+    }
+    glDepthFunc(GL_LESS);
+    glLineWidth(1);
+}
+
+void Scene::drawAxisTransform(const MainWindow3dView& view, const Shader& shader)
+{
+    // -------------------------------- DRAW AXIS TRANSFORM
+    if (view.m_axisTransform) {
+        shader.setBool("userColor", true);
+        switch (view.m_axisFollow) {
+        case 0:
+            shader.setVec4("color", glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+            break;
+
+        case 1:
+            shader.setVec4("color", glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+            break;
+
+        case 2:
+            shader.setVec4("color", glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
+            break;
+        }
+
+        float lineSize = 10000.0f;
+
+        //        shader.setMat4("model", onesMatrix);
+        if (view.m_axisLocal) {
+            //            for (const Model& model : m_models) {
+            for (const Object* object : m_objects) {
+                if (object->selected()) {
+                    shader.setMat4("model", object->transform());
+
+                    switch (view.m_axisFollow) {
+                    case 0:
+                        LineGeometry::draw(glm::vec3(-lineSize, 0.0f, 0.0f), glm::vec3(lineSize, 0.0f, 0.0f));
+                        break;
+                    case 1:
+                        LineGeometry::draw(glm::vec3(0.0f, -lineSize, 0.0f), glm::vec3(0.0f, lineSize, 0.0f));
+                        break;
+                    case 2:
+                        LineGeometry::draw(glm::vec3(0.0f, 0.0f, -lineSize), glm::vec3(0.0f, 0.0f, lineSize));
+                        break;
+                    }
+                }
+            }
+
+        } else {
+            // ------------------------ GLOBAL AXIS
+
+            shader.setMat4("model", glm::mat4(1.0f));
+            //            for (const Model& model : m_models) {
+            for (const Object* object : m_objects) {
+                if (object->selected()) {
+
+                    //                } else {
+                    // ---------------- GLOBAL AXIS
+                    glm::vec3 translate = object->transform()[3];
+                    switch (view.m_transform) {
+                    case MainWindow3dView::Transform::TRANSLATE:
+                    case MainWindow3dView::Transform::SCALE:
+                        switch (view.m_axisFollow) {
+                        case 0:
+                            LineGeometry::draw(glm::vec3(-lineSize, 0.0f, 0.0f) + translate, glm::vec3(lineSize, 0.0f, 0.0f) + translate);
+                            break;
+                        case 1:
+                            //                        LineGeometry::draw(m_worldTransform, shader, glm::vec3(0.0f, -lineSize, 0.0f), glm::vec3(0.0f, lineSize, 0.0f));
+                            LineGeometry::draw(glm::vec3(0.0f, -lineSize, 0.0f) + translate, glm::vec3(0.0f, lineSize, 0.0f) + translate);
+                            break;
+                        case 2:
+                            //                        LineGeometry::draw(m_worldTransform, shader, glm::vec3(0.0f, 0.0f, -lineSize), glm::vec3(0.0f, 0.0f, lineSize));
+                            LineGeometry::draw(glm::vec3(0.0f, 0.0f, -lineSize) + translate, glm::vec3(0.0f, 0.0f, lineSize) + translate);
+                            break;
+                        }
+                        break;
+
+                    case MainWindow3dView::Transform::ROTATE:
+                        switch (view.m_axisFollow) {
+                        case 0:
+                            LineGeometry::draw(glm::vec3(-lineSize, 0.0f, 0.0f), glm::vec3(lineSize, 0.0f, 0.0f));
+                            break;
+                        case 1:
+                            //                        LineGeometry::draw(m_worldTransform, shader, glm::vec3(0.0f, -lineSize, 0.0f), glm::vec3(0.0f, lineSize, 0.0f));
+                            LineGeometry::draw(glm::vec3(0.0f, -lineSize, 0.0f), glm::vec3(0.0f, lineSize, 0.0f));
+                            break;
+                        case 2:
+                            //                        LineGeometry::draw(m_worldTransform, shader, glm::vec3(0.0f, 0.0f, -lineSize), glm::vec3(0.0f, 0.0f, lineSize));
+                            LineGeometry::draw(glm::vec3(0.0f, 0.0f, -lineSize), glm::vec3(0.0f, 0.0f, lineSize));
+                            break;
+                        }
+                        break;
+                    }
+                }
+            }
+        }
+        shader.setBool("userColor", false);
+    } // -------------------------------- END DRAW AXIS TRANSFORM
+}
+
+void Scene::drawRectangleSelection(const MainWindow3dView& view, const Shader& shader)
+{
+    // ----------------------------------- DRAW RECTANGLE SELECTION
+    //    view.drawRect();
+
+    if (view.m_rightClicked) {
+        const QPoint& p = view.m_posFirstRightClick;
+        const QPoint& p2 = view.m_posMouse;
+
+        int width = view.width();
+        int height = view.height();
+        float x = p.x() * 2.0f / width - 1.0f;
+        float y = -p.y() * 2.0f / height + 1.0f;
+        float x2 = p2.x() * 2.0f / width - 1.0f;
+        float y2 = -p2.y() * 2.0f / height + 1.0f;
+
+        shader.setMat4("model", glm::mat4(1.0f));
+        shader.setMat4("view", glm::mat4(1.0f));
+        shader.setMat4("projection", glm::mat4(1.0f));
+        shader.setBool("userColor", true);
+        shader.setVec4("color", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+        //        LineGeometry::draw(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1.0f, -0.5f, 0.0f));
+        LineGeometry::draw(glm::vec3(x, y, 0.0f), glm::vec3(x2, y, 0.0f));
+        LineGeometry::draw(glm::vec3(x2, y, 0.0f), glm::vec3(x2, y2, 0.0f));
+        LineGeometry::draw(glm::vec3(x2, y2, 0.0f), glm::vec3(x, y2, 0.0f));
+        LineGeometry::draw(glm::vec3(x, y2, 0.0f), glm::vec3(x, y, 0.0f));
+        shader.setBool("userColor", false);
+    }
 }
 
 //void Scene::removeCamera(Camera *camera)

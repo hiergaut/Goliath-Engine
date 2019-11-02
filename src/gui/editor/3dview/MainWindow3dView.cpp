@@ -418,6 +418,10 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
         Frustum::m_enable = !Frustum::m_enable;
         break;
 
+    case Qt::Key_F10:
+        qDebug() << width() << height();
+        break;
+
     case Qt::Key_C:
         //        if (size == 0) {
         //            ui->menuCameraId->setTitle("No Camera");
@@ -926,17 +930,19 @@ void MainWindow3dView::mouseReleaseEvent(QMouseEvent* event)
         //        QRect selectRect()
         switch (event->button()) {
         case Qt::RightButton:
-            //            glm::mat4 projectionMatrix = glm::perspective(glm::radians(m_camera->m_fov), (float)width() / height(), l_near, l_far);
-            //            Scene::m_scene->vertexSelectFrustum(projectionMatrix, viewMatrix(), m_shiftPressed);
-            //            Scene::m_scene->vertexSelectFrustum({viewMatrix() * m_projectionMatrix}, m_shiftPressed);
-            //            Scene::m_scene->vertexSelectFrustum({NiewMatrix() * m_projectionMatrix}, m_shiftPressed);
-            //            Scene::m_scene->vertexSelectFrustum(Frustum(viewMatrix() * m_projectionMatrix), m_shiftPressed);
-            //            Scene::m_scene->vertexSelectFrustum(Frustum(m_projectionMatrix * viewMatrix()), m_shiftPressed);
-            Scene::m_scene->vertexSelectFrustum(Frustum(m_camera->position(), m_camera->front(),
-                                                    m_camera->right(), m_camera->up(), l_near, l_far, m_camera->m_fov,
-                                                    static_cast<float>(width()) / height()),
-                m_shiftPressed);
-            m_rightClicked = false;
+            if (m_camera->m_cameraStrategy->m_type != CameraStrategy::FPS) {
+                //            glm::mat4 projectionMatrix = glm::perspective(glm::radians(m_camera->m_fov), (float)width() / height(), l_near, l_far);
+                //            Scene::m_scene->vertexSelectFrustum(projectionMatrix, viewMatrix(), m_shiftPressed);
+                //            Scene::m_scene->vertexSelectFrustum({viewMatrix() * m_projectionMatrix}, m_shiftPressed);
+                //            Scene::m_scene->vertexSelectFrustum({NiewMatrix() * m_projectionMatrix}, m_shiftPressed);
+                //            Scene::m_scene->vertexSelectFrustum(Frustum(viewMatrix() * m_projectionMatrix), m_shiftPressed);
+                //            Scene::m_scene->vertexSelectFrustum(Frustum(m_projectionMatrix * viewMatrix()), m_shiftPressed);
+                Scene::m_scene->vertexSelectFrustum(Frustum(m_camera->position(), m_camera->front(),
+                                                        m_camera->right(), m_camera->up(), l_near, l_far, m_camera->m_fov,
+                                                        static_cast<float>(width()) / height()),
+                    m_shiftPressed);
+                m_rightClicked = false;
+            }
 
             ////            Q_ASSERT(m_iCamera < Scene::m_cameras.size());
             ////            Camera* m_camera = Scene::m_cameras[m_iCamera];
@@ -1268,7 +1274,7 @@ Ray MainWindow3dView::clickRay(QMouseEvent* event)
 
 void MainWindow3dView::updateTransformMatrix(float dx, float dy)
 {
-//    Scene::m_scene->m_cptShadowMapDetail = 0;
+    //    Scene::m_scene->m_cptShadowMapDetail = 0;
     //    qDebug() << "updateTransformMatrix " << dx << dy;
     //    glm::mat4 & m_transformMatrix = Scene::m_scene->m_transformMatrix;
     //    glm::mat4 & m_worldTransform = Scene::m_scene->m_worldTransform;
@@ -1318,7 +1324,7 @@ void MainWindow3dView::updateTransformMatrix(float dx, float dy)
 
             *m_worldTransform = glm::translate(glm::mat4(1.0f), m_memRight * 1.0f * dx);
             *m_worldTransform = glm::translate(*m_worldTransform, m_memUp * 1.0f * dy);
-            *m_worldTransform = glm::translate(*m_worldTransform, m_memFront * 0.1f * m_WheelPos);
+            *m_worldTransform = glm::translate(*m_worldTransform, m_memFront * 0.5f * m_WheelPos);
         }
         break;
 
@@ -1475,13 +1481,13 @@ void MainWindow3dView::setTransformActive()
             }
         }
 
-//        Scene::m_scene->m_viewTransformActive = true;
+        //        Scene::m_scene->m_viewTransformActive = true;
     }
 }
 
 void MainWindow3dView::setTransformInactive()
 {
-//    Scene::m_scene->m_viewTransformActive = false;
+    //    Scene::m_scene->m_viewTransformActive = false;
 
     m_transformActive = false;
     *m_localTransform = glm::mat4(1.0f);
