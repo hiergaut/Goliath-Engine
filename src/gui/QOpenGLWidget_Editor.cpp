@@ -250,11 +250,11 @@ void QOpenGLWidget_Editor::paintGL()
             autoUpdate = true;
             //            break;
         }
-                m_fun->glBindFramebuffer(GL_FRAMEBUFFER, view->hdrFbo());
-                glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+//                m_fun->glBindFramebuffer(GL_FRAMEBUFFER, view->hdrFbo());
+//                glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     }
-    m_fun->glBindFramebuffer(GL_FRAMEBUFFER, 1);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+//    m_fun->glBindFramebuffer(GL_FRAMEBUFFER, 1);
+//    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
     m_scene.m_autoUpdateBoundingBox = autoUpdate;
     m_scene.prepareHierarchy(currentFrameTime);

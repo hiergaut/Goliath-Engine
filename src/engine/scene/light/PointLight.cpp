@@ -53,7 +53,8 @@ void PointLight::draw(const Shader& shader, bool dotCloud, const Frustum& frustu
     } else {
 
         shader.setBool("userColor", true);
-        shader.setVec4("color", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
+        float value = 2.0f;
+        shader.setVec4("color", glm::vec4(value, value, value, 1.0f));
         Object::draw(shader, dotCloud, frustum, localTransform, worldTransform);
         //    shader.setVec4("color", glm::vec4(1.0f, 0.5f, 0.5f, 1.0f));
         shader.setBool("userColor", false);

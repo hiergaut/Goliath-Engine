@@ -72,6 +72,7 @@ public:
 //    uint m_cptShadowMapDetail = 0;
 
     uint m_iLightDepthMap = 0;
+    bool m_bloomEnable = true;
 //    uint m_nbLight;
 
 
@@ -190,6 +191,8 @@ private:
     SkyBox * m_skyBox;
 
     Shader * m_bloomShader;
+    Shader * m_blurShader;
+
 
 
 

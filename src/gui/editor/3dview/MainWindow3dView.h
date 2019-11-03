@@ -104,6 +104,10 @@ public:
     float m_exposure = 2.0f;
     float m_gamma = 0.5f;
 
+    uint m_colorBuffers[2];
+    uint m_pingpongFbo[2];
+    uint m_pingpongColorBuffers[2];
+
 public:
     explicit MainWindow3dView(QWidget* parent = nullptr);
     ~MainWindow3dView() override;
@@ -218,7 +222,6 @@ private:
     uint m_hdrFbo;
     uint m_rboDepth;
 //    uint m_colorBuffers[2];
-    uint m_colorBuffer;
 
 public:
     glm::mat4 projectionMatrix() const;

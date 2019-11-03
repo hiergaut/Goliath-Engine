@@ -108,6 +108,11 @@ void Scene::initializeGL()
     m_bloomShader = new Shader("bloom.vsh", "bloom.fsh");
     m_bloomShader->use();
     m_bloomShader->setInt("scene", 0);
+    m_bloomShader->setInt("bloomBlur", 1);
+
+    m_blurShader = new Shader("blur.vsh", "blur.fsh");
+    m_blurShader->use();
+    m_blurShader->setInt("image", 0);
 
     //    m_skyBox = new SkyBox("ame", "iceflats");
     //    m_skyBox = new SkyBox("hw", "alps");
@@ -129,7 +134,8 @@ void Scene::initializeGL()
     //    m_skyBox = new SkyBox("hw", "craterlake");
     //    m_skyBox = new SkyBox("mp", "whirlpool");
     //    m_fun->glBindFramebuffer(GL_FRAMEBUFFER, SCR_FBO);
-
+    // ping-pong-framebuffer for blurring
+    //       unsigned int pingpongFBO[2];
     initialized = true;
     //    MainWindow3dView::glInitialize();
 
@@ -258,6 +264,7 @@ void Scene::draw(const MainWindow3dView& view, const int x, const int y, const i
     //    glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
     if (hdr) {
         m_fun->glBindFramebuffer(GL_FRAMEBUFFER, view.hdrFbo());
+        glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
         glViewport(0, 0, viewWidth, viewHeight);
     }
 
@@ -309,6 +316,20 @@ void Scene::draw(const MainWindow3dView& view, const int x, const int y, const i
 
     //    return;
     if (hdr) {
+        bool horizontal = true, first_iteration = true;
+        unsigned int amount = 10;
+        m_blurShader->use();
+        for (unsigned int i = 0; i < amount; i++) {
+            m_fun->glBindFramebuffer(GL_FRAMEBUFFER, view.m_pingpongFbo[horizontal]);
+            m_blurShader->setInt("horizontal", horizontal);
+            glBindTexture(GL_TEXTURE_2D, first_iteration ? view.m_colorBuffers[1] : view.m_pingpongColorBuffers[!horizontal]); // bind texture of other framebuffer (or scene if first iteration)
+//            renderQuad();
+            QuadGeometry::draw();
+            horizontal = !horizontal;
+            if (first_iteration)
+                first_iteration = false;
+        }
+
         m_fun->glBindFramebuffer(GL_FRAMEBUFFER, SCR_FBO);
         glViewport(x, y, viewWidth, viewHeight);
         //    glViewport(0, 0, 100, 100);
@@ -318,13 +339,15 @@ void Scene::draw(const MainWindow3dView& view, const int x, const int y, const i
         //    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         //    m_fun->glBindFramebuffer(GL_FRAMEBUFFER, 1);
         m_bloomShader->use();
-//        m_bloomShader->setInt("scene", 0);
+        //        m_bloomShader->setInt("scene", 0);
         glActiveTexture(GL_TEXTURE0);
         //    glBindTexture(GL_TEXTURE_2D, m_colorBuffer);
-        glBindTexture(GL_TEXTURE_2D, view.colorBuffer());
+        glBindTexture(GL_TEXTURE_2D, view.m_colorBuffers[0]);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, view.m_pingpongColorBuffers[!horizontal]);
         //    glActiveTexture(GL_TEXTURE1);
         //    glBindTexture(GL_TEXTURE_2D, pingpongColorbuffers[!horizontal]);
-        m_bloomShader->setInt("bloom", false);
+        m_bloomShader->setInt("bloom", m_bloomEnable);
         m_bloomShader->setFloat("exposure", view.m_exposure);
         m_bloomShader->setFloat("gamma", view.m_gamma);
         //    glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);

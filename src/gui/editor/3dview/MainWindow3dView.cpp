@@ -454,6 +454,10 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
         Frustum::m_enable = !Frustum::m_enable;
         break;
 
+    case Qt::Key_F10:
+        Scene::m_scene->m_bloomEnable = ! Scene::m_scene->m_bloomEnable;
+        break;
+
     case Qt::Key_H:
         m_hdr = !m_hdr;
         break;
@@ -479,7 +483,7 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
         break;
 
     case Qt::Key_Shift:
-        qDebug() << "shift pressed";
+//        qDebug() << "shift pressed";
         m_shiftPressed = true;
         break;
 
@@ -838,7 +842,7 @@ void MainWindow3dView::keyReleaseEvent(QKeyEvent* event)
 
     switch (event->key()) {
     case Qt::Key_Shift:
-        qDebug() << "shift released";
+//        qDebug() << "shift released";
         m_shiftPressed = false;
         break;
 
@@ -1479,7 +1483,7 @@ uint MainWindow3dView::hdrFbo() const
 
 uint MainWindow3dView::colorBuffer() const
 {
-    return m_colorBuffer;
+    return m_colorBuffers[0];
 }
 
 void MainWindow3dView::updateProjectionMatrix()
@@ -1592,25 +1596,25 @@ void MainWindow3dView::initializeGL()
     m_fun->glBindFramebuffer(GL_FRAMEBUFFER, m_hdrFbo);
 
     //    unsigned int colorBuffers[2];
-    glGenTextures(1, &m_colorBuffer);
-    //    for (unsigned int i = 0; i < 1; i++) {
-    glBindTexture(GL_TEXTURE_2D, m_colorBuffer);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width(), height(), 0, GL_RGB, GL_FLOAT, NULL);
-    //    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB,
-    //        SCR_WIDTH, SCR_HEIGHT, 0, GL_RGB, GL_FLOAT, NULL);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    //    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    //    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); // we clamp to the edge as the blur filter would otherwise sample repeated texture values!
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    //    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER); // we clamp to the edge as the blur filter would otherwise sample repeated texture values!
-    //    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-    //    float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-    //    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
-    // attach texture to framebuffer
-    m_fun->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_colorBuffer, 0);
-    //    }
+    glGenTextures(2, m_colorBuffers);
+    for (unsigned int i = 0; i < 2; i++) {
+        glBindTexture(GL_TEXTURE_2D, m_colorBuffers[i]);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width(), height(), 0, GL_RGB, GL_FLOAT, NULL);
+        //    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB,
+        //        SCR_WIDTH, SCR_HEIGHT, 0, GL_RGB, GL_FLOAT, NULL);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        //    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        //    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); // we clamp to the edge as the blur filter would otherwise sample repeated texture values!
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        //    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER); // we clamp to the edge as the blur filter would otherwise sample repeated texture values!
+        //    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+        //    float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+        //    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+        // attach texture to framebuffer
+        m_fun->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, m_colorBuffers[i], 0);
+    }
     //    glDrawBuffer(GL_NONE);
     //    glReadBuffer(GL_NONE);
 
@@ -1623,12 +1627,30 @@ void MainWindow3dView::initializeGL()
     m_fun->glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_rboDepth);
     //    // tell OpenGL which color attachments we'll use (of this framebuffer) for rendering
     //        unsigned int attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
-    unsigned int attachments[1] = { GL_COLOR_ATTACHMENT0 };
-    m_fun->glDrawBuffers(1, attachments);
+    unsigned int attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+    m_fun->glDrawBuffers(2, attachments);
     //    m_fun->glDrawBuffers(1, attachments);
     //    // finally check if framebuffer is complete
     if (m_fun->glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
         std::cout << "Framebuffer not complete!" << std::endl;
+
+    // ----------------------------------------- PING PONG BLUR
+//    unsigned int pingpongColorbuffers[2];
+    m_fun->glGenFramebuffers(2, m_pingpongFbo);
+    glGenTextures(2, m_pingpongColorBuffers);
+    for (unsigned int i = 0; i < 2; i++) {
+        m_fun->glBindFramebuffer(GL_FRAMEBUFFER, m_pingpongFbo[i]);
+        glBindTexture(GL_TEXTURE_2D, m_pingpongColorBuffers[i]);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width(), height(), 0, GL_RGB, GL_FLOAT, NULL);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); // we clamp to the edge as the blur filter would otherwise sample repeated texture values!
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        m_fun->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_pingpongColorBuffers[i], 0);
+        // also check if framebuffers are complete (no need for depth buffer)
+        if (m_fun->glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+            std::cout << "Framebuffer not complete!" << std::endl;
+    }
 }
 
 void MainWindow3dView::updateGL()
@@ -1637,10 +1659,18 @@ void MainWindow3dView::updateGL()
     m_fun->glBindFramebuffer(GL_FRAMEBUFFER, m_hdrFbo);
 
     //    unsigned int colorBuffers[2];
-    //    glGenTextures(1, &m_colorBuffer);
-    //    for (unsigned int i = 0; i < 1; i++) {
-    glBindTexture(GL_TEXTURE_2D, m_colorBuffer);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width(), height(), 0, GL_RGB, GL_FLOAT, NULL);
+    //    glGenTextures(1, &m_colorBuffers);
+    for (unsigned int i = 0; i < 2; i++) {
+        glBindTexture(GL_TEXTURE_2D, m_colorBuffers[i]);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width(), height(), 0, GL_RGB, GL_FLOAT, NULL);
+    }
+    for (unsigned int i = 0; i < 2; i++) {
+        m_fun->glBindFramebuffer(GL_FRAMEBUFFER, m_pingpongFbo[i]);
+        glBindTexture(GL_TEXTURE_2D, m_pingpongColorBuffers[i]);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width(), height(), 0, GL_RGB, GL_FLOAT, NULL);
+//        glBindTexture(GL_TEXTURE_2D, m_colorBuffers[i]);
+//        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width(), height(), 0, GL_RGB, GL_FLOAT, NULL);
+    }
     //    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB,
     //        SCR_WIDTH, SCR_HEIGHT, 0, GL_RGB, GL_FLOAT, NULL);
     //    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -1654,7 +1684,7 @@ void MainWindow3dView::updateGL()
     //    float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
     //    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
     // attach texture to framebuffer
-    //    m_fun->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_colorBuffer, 0);
+    //    m_fun->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_colorBuffers, 0);
     //    }
     //    glDrawBuffer(GL_NONE);
     //    glReadBuffer(GL_NONE);
