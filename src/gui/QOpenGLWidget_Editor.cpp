@@ -115,7 +115,9 @@ void QOpenGLWidget_Editor::save(std::ofstream& file)
 void QOpenGLWidget_Editor::initializeGL()
 {
     //    qDebug() << "[GL_CONTEXT]" << QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
-    Q_ASSERT(QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>());
+    //    Q_ASSERT(QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>());
+    m_fun = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
+    Q_ASSERT(m_fun != nullptr);
 
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
@@ -186,12 +188,12 @@ void QOpenGLWidget_Editor::initializeGL()
 
     m_initialized = true;
     //    m_renderTimer->start(100);
-//    for (const MainWindow3dView* view : *Scene::m_scene->m_views) {
-////        if (view->m_iCamera == m_id) {
-//            view->updateFrustum();
-////        }
-//        //        iCameras.push_back(view->m_iCamera);
-//    }
+    //    for (const MainWindow3dView* view : *Scene::m_scene->m_views) {
+    ////        if (view->m_iCamera == m_id) {
+    //            view->updateFrustum();
+    ////        }
+    //        //        iCameras.push_back(view->m_iCamera);
+    //    }
 }
 
 void drawRect(int x1, int y1, int x2, int y2, int windowHeight)
@@ -226,17 +228,10 @@ void QOpenGLWidget_Editor::paintGL()
         //        std::string str;
         //    m_stream << m_fps << "\n";
         //        std::cout << "fps : " << m_fps << std::endl;
-        m_statusBar->showMessage("fps:" + QString::number(m_fps) +
-                                 "  camera:" + QString::number(m_scene.m_cameras.size()) +
-                                 "  dirLight:" + QString::number(m_scene.m_dirLights.size()) +
-                                 "  pointLight:" + QString::number(m_scene.m_pointLights.size()) +
-                                 "  spotLight:" + QString::number(m_scene.m_spotLights.size()) +
-                                 "  shadow:" + QString::number(m_scene.m_computeShadow) +
-                                 "  zPrepass:" + QString::number(m_scene.m_zPrepass) +
-                                 "  multisample:" + QString::number(m_multiSample) +
-                                 "  frustumCulling:" + QString::number(Frustum::m_enable));
+        m_statusBar->showMessage("fps:" + QString::number(m_fps) + "  camera:" + QString::number(m_scene.m_cameras.size()) + "  dirLight:" + QString::number(m_scene.m_dirLights.size()) + "  pointLight:" + QString::number(m_scene.m_pointLights.size()) + "  spotLight:" + QString::number(m_scene.m_spotLights.size()) + "  shadow:" + QString::number(m_scene.m_computeShadow) + "  zPrepass:" + QString::number(m_scene.m_zPrepass) + "  multisample:" + QString::number(m_multiSample) + "  frustumCulling:" + QString::number(Frustum::m_enable));
     }
-    //        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    //    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
     //    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     //    glViewport(100, 100, 100, 100);
     //                glClearColor(0.0f, 1.0f, 0.0f, 0.5f);
@@ -253,9 +248,14 @@ void QOpenGLWidget_Editor::paintGL()
     for (const MainWindow3dView* view : *m_views) {
         if (view->boundingBox()) {
             autoUpdate = true;
-            break;
+            //            break;
         }
+                m_fun->glBindFramebuffer(GL_FRAMEBUFFER, view->hdrFbo());
+                glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     }
+    m_fun->glBindFramebuffer(GL_FRAMEBUFFER, 1);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
     m_scene.m_autoUpdateBoundingBox = autoUpdate;
     m_scene.prepareHierarchy(currentFrameTime);
     //    m_scene.prepareHierarchy(0);
@@ -272,16 +272,18 @@ void QOpenGLWidget_Editor::paintGL()
 
             QPoint point = view->mapTo(m_mainWindow, view->pos());
 
-            int x = point.x();
-            int y = m_mainWindow->height() - point.y() - view->height() + 5;
-            glViewport(x, y, view->width(), view->height());
+            const int viewWidth = view->width();
+            const int viewHeight = view->height();
+            const int x = point.x();
+            const int y = m_mainWindow->height() - point.y() - viewHeight + 5;
+            glViewport(x, y, viewWidth, viewHeight);
             //            glViewport(x, y - 3, view->width(), view->height());
 
             //        glm::mat4 projectionMatrix = view->projectionMatrix();
-            m_scene.draw(*view);
+            m_scene.draw(*view, x, y, viewWidth, viewHeight);
             //        RayTracer::draw(modelMatrix, viewMatrix, projectionMatrix);
 
-            int minSide = qMin(view->width(), view->height());
+            int minSide = qMin(viewWidth, viewHeight);
             glViewport(x + 5, y + 5, minSide / 10, minSide / 10);
             glm::mat4 viewMatrix = view->viewMatrix();
             m_axis->draw(viewMatrix);
@@ -299,7 +301,7 @@ void QOpenGLWidget_Editor::paintGL()
             //            glDepthFunc(GL_LESS);
             //            painter.end();
 
-            //        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+            //                    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
         }
     }
     //    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
@@ -361,6 +363,11 @@ void QOpenGLWidget_Editor::switchMultiSample()
     }
 
     m_multiSample = !m_multiSample;
+}
+
+void QOpenGLWidget_Editor::makeCurrent()
+{
+    QOpenGLWidget::makeCurrent();
 }
 
 //void QOpenGLWidget_Editor::addCameraWorld(float fov, glm::vec3&& position, glm::vec3&& target)

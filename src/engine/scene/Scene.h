@@ -74,8 +74,6 @@ public:
     uint m_iLightDepthMap = 0;
 //    uint m_nbLight;
 
-    float m_exposure = 2.0f;
-    float m_gamma = 0.5f;
 
 
 public:
@@ -101,7 +99,7 @@ public:
     //    }
     void prepareHierarchy(ulong frameTime);
     void updateLightsShadowMap();
-    void draw(const MainWindow3dView &view);
+    void draw(const MainWindow3dView &view, const int x, const int y, const int viewWidth, const int viewHeight);
 
     void objectSelectRay(const Ray & ray, bool additional = false);
     void vertexSelectRay(const Ray & ray, bool additional = false);
@@ -172,7 +170,7 @@ private:
 //    std::map<std::string, Model> m_models;
 
 //    Shader* m_shader;
-    GLint m_fbo;
+//    GLint m_fbo;
 
 
 
@@ -191,9 +189,6 @@ private:
 //    BoneGeometry * m_bone;
     SkyBox * m_skyBox;
 
-    uint m_hdrFbo;
-//    uint m_colorBuffers[2];
-    uint m_colorBuffer;;
     Shader * m_bloomShader;
 
 

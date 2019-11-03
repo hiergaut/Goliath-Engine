@@ -1,7 +1,6 @@
 #ifndef MAINWINDOW3DVIEW_H
 #define MAINWINDOW3DVIEW_H
 
-
 #include <QMainWindow>
 //#include <opengl/axis.h>
 //#include <engine/scene/Scene.h>
@@ -40,28 +39,27 @@ class MainWindow3dView;
 #include <engine/scene/camera/Camera.h>
 //#include <gui/editor/MainWindowEditor.h>
 //#include <gui/QOpenGLWidget_Editor.h>
-#include <opengl/rayTracer/Ray.h>
-#include <opengl/shader.h>
 #include <engine/scene/model/paramModel/curve/BSplineCurve.h>
 #include <engine/scene/model/paramModel/surface/BSplineSurface.h>
+#include <opengl/rayTracer/Ray.h>
+#include <opengl/shader.h>
 
 class MainWindow3dView : public QMainWindow, public TemplateMenuBar {
     Q_OBJECT
 
 public:
-//    enum Shading {
-//        //        WIRE_FRAME = 0,
-//        SOLID = 0,
-//        LOOK_DEV,
-//        RENDERED,
-//        NORMAL,
-//        DEPTH,
-//        VERTEX_GROUP,
-//        size
-//    } m_shade;
-//    Shader::
+    //    enum Shading {
+    //        //        WIRE_FRAME = 0,
+    //        SOLID = 0,
+    //        LOOK_DEV,
+    //        RENDERED,
+    //        NORMAL,
+    //        DEPTH,
+    //        VERTEX_GROUP,
+    //        size
+    //    } m_shade;
+    //    Shader::
     Shader::Type m_shade;
-
 
     enum Mode {
         OBJECT,
@@ -75,32 +73,36 @@ public:
         SCALE
     } m_transform;
 
-//    Mode m_mode;
-//    Shading m_shade;
-//    glm::mat4 m_transformMatrix = glm::mat4(1.0);
-    glm::mat4 * m_localTransform = nullptr;
-    glm::mat4 * m_worldTransform = nullptr;
-//    glm::vec3 m_translate = glm::vec3(0.0f);
-//    glm::mat4 m_worldTransform = glm::mat4(1.0);
+    //    Mode m_mode;
+    //    Shading m_shade;
+    //    glm::mat4 m_transformMatrix = glm::mat4(1.0);
+    glm::mat4* m_localTransform = nullptr;
+    glm::mat4* m_worldTransform = nullptr;
+    //    glm::vec3 m_translate = glm::vec3(0.0f);
+    //    glm::mat4 m_worldTransform = glm::mat4(1.0);
     bool m_axisTransform = false;
-    uint m_axisFollow =0;
+    uint m_axisFollow = 0;
     bool m_axisLocal = false;
 
-//    Camera* m_camera = nullptr;
+    //    Camera* m_camera = nullptr;
     mutable uint m_iCamera = 0;
-    QTimer * m_timer = nullptr;
-    QTimer * m_timerAutoUpdateCurve = nullptr;
-    QTimer * m_timerAutoUpdateSurface = nullptr;
+    QTimer* m_timer = nullptr;
+    QTimer* m_timerAutoUpdateCurve = nullptr;
+    QTimer* m_timerAutoUpdateSurface = nullptr;
 
-//    ParamModel * m_paramModelSelected = nullptr;
-    BSplineCurve * m_splineCurve = nullptr;
-    BSplineSurface * m_splineSurface = nullptr;
+    //    ParamModel * m_paramModelSelected = nullptr;
+    BSplineCurve* m_splineCurve = nullptr;
+    BSplineSurface* m_splineSurface = nullptr;
 
     bool m_rightClicked = false;
     QPoint m_posFirstRightClick;
     QPoint m_posMouse;
 
     mutable Frustum m_frustum;
+
+    bool m_hdr = true;
+    float m_exposure = 2.0f;
+    float m_gamma = 0.5f;
 
 public:
     explicit MainWindow3dView(QWidget* parent = nullptr);
@@ -114,7 +116,7 @@ public:
     void setMode(Mode mode);
     void setShading(Shader::Type shade);
 
-//    static void glInitialize();
+    //    static void glInitialize();
 
     void setCursorToCenter();
 
@@ -123,11 +125,13 @@ public:
     void setTransformActive();
     void setTransformInactive();
     void sendTransformToScene();
-//    void swapProjection();
+    //    void swapProjection();
     void updateCameraId() const;
+    void initializeGL();
+    void updateGL();
 
 signals:
-//    void launchRayTracing(glm::vec3 source, glm::vec3 direction);
+    //    void launchRayTracing(glm::vec3 source, glm::vec3 direction);
 
 public slots:
     void onUpdateCameraFps();
@@ -135,10 +139,9 @@ public slots:
     void onUpdateSurface();
 
 protected:
-    //    void initializeGL() override;
     //    void resizeGL(int w, int h) override;
-//        void paintGL() override;
-    void paintEvent(QPaintEvent * event) override;
+    //        void paintGL() override;
+    void paintEvent(QPaintEvent* event) override;
 
     void keyPressEvent(QKeyEvent* event) override;
     void keyReleaseEvent(QKeyEvent* event) override;
@@ -147,7 +150,7 @@ protected:
     void mouseMoveEvent(QMouseEvent* event) override;
     void wheelEvent(QWheelEvent* event) override;
 
-//    bool eventFilter(QObject * obj, QEvent * event);
+    //    bool eventFilter(QObject * obj, QEvent * event);
 
     void focusInEvent(QFocusEvent* event) override;
 
@@ -156,11 +159,10 @@ protected:
     void setFocusPolicy(Qt::FocusPolicy policy) override;
     QWidget* widget() override;
 
-
 private:
     void updateOrthoProjection();
     void updatePersepectiveProjection();
-    Ray clickRay(QMouseEvent * event);
+    Ray clickRay(QMouseEvent* event);
 
     void updateTransformMatrix(float dx, float dy);
 
@@ -168,16 +170,15 @@ private:
     //    void updateProjection();
 
 private:
+    QOpenGLFunctionsCore * m_fun = nullptr;
     Ui::MainWindow3dView* ui;
 
     bool m_middleClicked = false;
-
 
     bool m_ortho = false;
     float orthoSize = 10.0f;
 
     bool m_alignAxis = false;
-
 
     bool m_shiftPressed = false;
     bool m_ctrlPressed = false;
@@ -191,10 +192,10 @@ private:
     //    Shader* m_shader = nullptr;
     Mode m_previousMode;
 
-//    static Shader* m_shaders[Shading::size];
+    //    static Shader* m_shaders[Shading::size];
 
     bool m_transformActive = false;
-//    bool m_translateActive = false;
+    //    bool m_translateActive = false;
     bool m_firstTransform = false;
     QPoint m_memEventPos;
     float m_WheelPos;
@@ -205,9 +206,8 @@ private:
 
     float m_memAxisPos = 0.0f; //wheel
 
-
-//    QPoint m_posClickPress;
-//    QPoint m_posClickPress;
+    //    QPoint m_posClickPress;
+    //    QPoint m_posClickPress;
 
     //    Axis m_axis;
 
@@ -215,6 +215,10 @@ private:
 
     //    glm::mat4 m_viewMatrix;
     //private:
+    uint m_hdrFbo;
+    uint m_rboDepth;
+//    uint m_colorBuffers[2];
+    uint m_colorBuffer;
 
 public:
     glm::mat4 projectionMatrix() const;
@@ -239,6 +243,10 @@ public:
     void updateFrustum() const;
     static void updateAllFrutumViews();
 
+    uint colorBuffer() const;
+
+    uint hdrFbo() const;
+
 private slots:
     //    void on_actionWireFrame_triggered();
     void on_actionSolid_triggered();
@@ -262,9 +270,9 @@ private slots:
     void on_actionSpot_Light_triggered();
     void on_actionArea_Light_triggered();
     void on_actionIntersectRay_triggered();
-//    void on_actionB_Spline_triggered();
-//    void on_actionBSpline_curve_triggered();
-//    void on_actionBSpline_surface_triggered();
+    //    void on_actionB_Spline_triggered();
+    //    void on_actionBSpline_curve_triggered();
+    //    void on_actionBSpline_surface_triggered();
     void on_actionSpline_triggered();
     void on_actionCircle_triggered();
     void on_actionTomb_triggered();

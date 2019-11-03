@@ -22,11 +22,11 @@
 //#include <glm/matrix.hpp>
 //#include <glm/gtc/matrix_transform.hpp>
 //#include <glm/gtc/type_ptr.hpp>
-const uint SCR_WIDTH = 765;
+//const uint SCR_WIDTH = 765;
 //const uint SCR_WIDTH = 765 * 2;
-const uint SCR_HEIGHT = 1018 * 2;
 //const uint SCR_HEIGHT = 1018 * 2;
-const uint SCR_FBO = 2;
+//const uint SCR_HEIGHT = 1018 * 2;
+const uint SCR_FBO = 1;
 
 Scene* Scene::m_scene = nullptr;
 //QStandardItemModel Scene::m_sceneModel;
@@ -102,12 +102,12 @@ void Scene::initializeGL()
     //    m_minimalShader = new Shader("minimal.vsh", "empty.fsh");
     //    normalShader = new Shader("shading/normal.vsh", "shading/normal.fsh");
     //    m_bone = new BoneGeometry;
+
+    m_skyBox = new SkyBox("hw", "morning");
+
     m_bloomShader = new Shader("bloom.vsh", "bloom.fsh");
     m_bloomShader->use();
     m_bloomShader->setInt("scene", 0);
-    //    m_bloomShader->setInt("bloomBlur", 1);
-
-    m_skyBox = new SkyBox("hw", "morning");
 
     //    m_skyBox = new SkyBox("ame", "iceflats");
     //    m_skyBox = new SkyBox("hw", "alps");
@@ -128,48 +128,7 @@ void Scene::initializeGL()
     //    m_skyBox = new SkyBox("sor", "alien");
     //    m_skyBox = new SkyBox("hw", "craterlake");
     //    m_skyBox = new SkyBox("mp", "whirlpool");
-    m_fun->glGenFramebuffers(1, &m_hdrFbo);
-    m_fun->glBindFramebuffer(GL_FRAMEBUFFER, m_hdrFbo);
-
-    //    unsigned int colorBuffers[2];
-    glGenTextures(1, &m_colorBuffer);
-    //    for (unsigned int i = 0; i < 1; i++) {
-    glBindTexture(GL_TEXTURE_2D, m_colorBuffer);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, SCR_WIDTH, SCR_HEIGHT, 0, GL_RGB, GL_FLOAT, NULL);
-//    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB,
-//        SCR_WIDTH, SCR_HEIGHT, 0, GL_RGB, GL_FLOAT, NULL);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); // we clamp to the edge as the blur filter would otherwise sample repeated texture values!
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER); // we clamp to the edge as the blur filter would otherwise sample repeated texture values!
-//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-//    float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-//    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
-    // attach texture to framebuffer
-    m_fun->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_colorBuffer, 0);
-    //    }
-//    glDrawBuffer(GL_NONE);
-//    glReadBuffer(GL_NONE);
-
-//    m_fun->glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-        unsigned int rboDepth;
-        m_fun->glGenRenderbuffers(1, &rboDepth);
-        m_fun->glBindRenderbuffer(GL_RENDERBUFFER, rboDepth);
-        m_fun->glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, SCR_WIDTH, SCR_HEIGHT);
-        m_fun->glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, rboDepth);
-    //    // tell OpenGL which color attachments we'll use (of this framebuffer) for rendering
-//        unsigned int attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
-        unsigned int attachments[1] = { GL_COLOR_ATTACHMENT0};
-        m_fun->glDrawBuffers(1, attachments);
-    //    m_fun->glDrawBuffers(1, attachments);
-    //    // finally check if framebuffer is complete
-    if (m_fun->glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-        std::cout << "Framebuffer not complete!" << std::endl;
-    m_fun->glBindFramebuffer(GL_FRAMEBUFFER, SCR_FBO);
+    //    m_fun->glBindFramebuffer(GL_FRAMEBUFFER, SCR_FBO);
 
     initialized = true;
     //    MainWindow3dView::glInitialize();
@@ -280,7 +239,7 @@ void Scene::updateLightsShadowMap()
     //    }
 }
 
-void Scene::draw(const MainWindow3dView& view)
+void Scene::draw(const MainWindow3dView& view, const int x, const int y, const int viewWidth, const int viewHeight)
 {
     Q_ASSERT(initialized);
     Object* viewCameraObject = m_cameras[view.m_iCamera];
@@ -293,11 +252,18 @@ void Scene::draw(const MainWindow3dView& view)
     GLint polygonMode;
     glGetIntegerv(GL_POLYGON_MODE, &polygonMode);
     const Frustum& frustum = view.m_frustum;
+    bool hdr = view.m_hdr;
     // ----------------------------------- END INIT
-    //    m_fun->glBindFramebuffer(GL_FRAMEBUFFER, SCR_FBO);
-//    glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
-    m_fun->glBindFramebuffer(GL_FRAMEBUFFER, m_hdrFbo);
-    glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+    //        m_fun->glBindFramebuffer(GL_FRAMEBUFFER, SCR_FBO);
+    //    glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
+    if (hdr) {
+        m_fun->glBindFramebuffer(GL_FRAMEBUFFER, view.hdrFbo());
+        glViewport(0, 0, viewWidth, viewHeight);
+    }
+
+    //    glEnable(GL_DEPTH_TEST);
+    //    glDepthFunc(GL_LESS);
+    //    glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
     drawSkyBox(view, multiSample, viewMatrix, projectionMatrix);
     const Shader& shader = view.shader();
@@ -308,7 +274,7 @@ void Scene::draw(const MainWindow3dView& view)
     prepareLightUniform(view, shader);
     //    zPrepass(shader);
 
-    Q_ASSERT(m_hdrFbo == 1);
+    //    Q_ASSERT(m_hdrFbo == 1);
     for (const Object* object : m_objects) {
         if (object != viewCameraObject) {
             if (object->selected()) {
@@ -320,55 +286,57 @@ void Scene::draw(const MainWindow3dView& view)
             }
         }
     }
-//    return;
-    m_fun->glBindFramebuffer(GL_FRAMEBUFFER, SCR_FBO);
-//    glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-//    shader.use();
-//    shader.setBool("has_texture_diffuse", true);
-//    shader.setBool("has_texture_normal", false);
-//    shader.setBool("has_texture_specular", false);
-//    shader.setBool("has_texture_opacity", false);
-//    shader.setInt("texture_diffuse", 0);
-//    shader.setMat4("model", onesMatrix);
-////    shader.setMat4("model", glm::scale(onesMatrix, glm::vec3(1.0) * 0.5f));
-////    shader.setMat4("view", onesMatrix);
-//    shader.setMat4("view", viewMatrix);
-////    shader.setMat4("projection", onesMatrix);
-//    shader.setMat4("projection", projectionMatrix);
-//    shader.setBool("userColor", false);
-//    shader.setBool("shadow", false);
-//    glActiveTexture(GL_TEXTURE0);
-//    glBindTexture(GL_TEXTURE_2D, m_colorBuffer);
-//    QuadGeometry::draw();
-//    shader.setBool("has_texture_diffuse", false);
+    //    return;
+    //    glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+    //    shader.use();
+    //    shader.setBool("has_texture_diffuse", true);
+    //    shader.setBool("has_texture_normal", false);
+    //    shader.setBool("has_texture_specular", false);
+    //    shader.setBool("has_texture_opacity", false);
+    //    shader.setInt("texture_diffuse", 0);
+    //    shader.setMat4("model", onesMatrix);
+    ////    shader.setMat4("model", glm::scale(onesMatrix, glm::vec3(1.0) * 0.5f));
+    ////    shader.setMat4("view", onesMatrix);
+    //    shader.setMat4("view", viewMatrix);
+    ////    shader.setMat4("projection", onesMatrix);
+    //    shader.setMat4("projection", projectionMatrix);
+    //    shader.setBool("userColor", false);
+    //    shader.setBool("shadow", false);
+    //    glActiveTexture(GL_TEXTURE0);
+    //    glBindTexture(GL_TEXTURE_2D, m_colorBuffer);
+    //    QuadGeometry::draw();
+    //    shader.setBool("has_texture_diffuse", false);
 
+    //    return;
+    if (hdr) {
+        m_fun->glBindFramebuffer(GL_FRAMEBUFFER, SCR_FBO);
+        glViewport(x, y, viewWidth, viewHeight);
+        //    glViewport(0, 0, 100, 100);
+        //    glEnable(GL_DEPTH_TEST);
+        //    glDepthFunc(GL_ALWAYS);
 
+        //    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        //    m_fun->glBindFramebuffer(GL_FRAMEBUFFER, 1);
+        m_bloomShader->use();
+//        m_bloomShader->setInt("scene", 0);
+        glActiveTexture(GL_TEXTURE0);
+        //    glBindTexture(GL_TEXTURE_2D, m_colorBuffer);
+        glBindTexture(GL_TEXTURE_2D, view.colorBuffer());
+        //    glActiveTexture(GL_TEXTURE1);
+        //    glBindTexture(GL_TEXTURE_2D, pingpongColorbuffers[!horizontal]);
+        m_bloomShader->setInt("bloom", false);
+        m_bloomShader->setFloat("exposure", view.m_exposure);
+        m_bloomShader->setFloat("gamma", view.m_gamma);
+        //    glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
+        QuadGeometry::draw();
+    }
 
-//    return;
-    //    glViewport(0, 0, 100, 100);
+    //    glClear(GL_DEPTH_BUFFER_BIT);
+    //    glViewport(0, 600, 700, 700);
+    //    m_bloomShader->setBool("active", true);
+    //    QuadGeometry::draw();
 
-    //    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    //    m_fun->glBindFramebuffer(GL_FRAMEBUFFER, 1);
-    m_bloomShader->use();
-    m_bloomShader->setInt("scene", 0);
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, m_colorBuffer);
-    //    glActiveTexture(GL_TEXTURE1);
-    //    glBindTexture(GL_TEXTURE_2D, pingpongColorbuffers[!horizontal]);
-    m_bloomShader->setInt("bloom", false);
-    m_bloomShader->setFloat("exposure", m_exposure);
-    m_bloomShader->setFloat("gamma", m_gamma);
-    m_bloomShader->setBool("active", false);
-    //    glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
-    QuadGeometry::draw();
-
-    glClear(GL_DEPTH_BUFFER_BIT);
-    glViewport(0, 600, 700, 700);
-    m_bloomShader->setBool("active", true);
-    QuadGeometry::draw();
-
-
-//    m_fun->glBindFramebuffer(GL_FRAMEBUFFER, SCR_FBO);
+    //    m_fun->glBindFramebuffer(GL_FRAMEBUFFER, SCR_FBO);
     //    m_fun->glBindFramebuffer(GL_FRAMEBUFFER, 0);
     //    glPolygonMode(GL_FRONT, polygonMode);
     //    shader.setMat4("projection", projectionMatrix);
@@ -1644,13 +1612,13 @@ void Scene::drawSkyBox(const MainWindow3dView& view, bool multiSample, const glm
     } else {
         if (!m_dirLights.empty()) {
             if (m_dirLights[0].selected()) {
-                //                m_skyBox->draw(viewMatrix, projectionMatrix, m_dirLights[0].direction(m_localTransform));
+                m_skyBox->draw(viewMatrix, projectionMatrix, m_dirLights[0].direction(m_localTransform));
             } else {
-                //                m_skyBox->draw(viewMatrix, projectionMatrix, m_dirLights[0].direction());
+                m_skyBox->draw(viewMatrix, projectionMatrix, m_dirLights[0].direction());
             }
 
         } else {
-            //            m_skyBox->draw(viewMatrix, projectionMatrix);
+            m_skyBox->draw(viewMatrix, projectionMatrix);
         }
     }
 }

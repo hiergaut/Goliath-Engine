@@ -417,6 +417,7 @@ void CameraFps::keyPressEvent(QKeyEvent* event)
     //        //        std::thread t(autoRefreshMoving, m_modelTransform, m_front, m_right, frontDir, sideDir);
     ////        std::thread(&CameraFps::autoRefreshMoving, this);
     //    }
+//    event->ignore();
 }
 
 void CameraFps::keyReleaseEvent(QKeyEvent* event)

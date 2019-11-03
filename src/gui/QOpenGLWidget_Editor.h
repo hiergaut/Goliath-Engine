@@ -53,6 +53,7 @@ public:
     void addCurve(BSplineCurve::Type type);
     void addSurface(BSplineSurface::Type type);
     void switchMultiSample();
+    void makeCurrent();
 
 protected:
     void initializeGL() override;
@@ -73,6 +74,7 @@ private:
 //    void loadEnv(std::string filename);
 
 private:
+    QOpenGLFunctionsCore * m_fun = nullptr;
     std::list<const MainWindow3dView*> * m_views;
 //    std::vector<Model> m_models;
     QMainWindow * m_mainWindow;

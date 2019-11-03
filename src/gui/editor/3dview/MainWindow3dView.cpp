@@ -176,6 +176,8 @@ MainWindow3dView::MainWindow3dView(QWidget* parent)
     connect(m_timerAutoUpdateCurve, &QTimer::timeout, this, &MainWindow3dView::onUpdateCurve);
     m_timerAutoUpdateSurface = new QTimer(this);
     connect(m_timerAutoUpdateSurface, &QTimer::timeout, this, &MainWindow3dView::onUpdateSurface);
+
+    initializeGL();
 }
 
 MainWindow3dView::~MainWindow3dView()
@@ -378,30 +380,39 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
 
     switch (event->key()) {
 
-    case Qt::Key_M:
-        Scene::m_scene->m_exposure -= 0.1f;
-        qDebug() << "m_exposure" << Scene::m_scene->m_exposure;
+    case Qt::Key_O:
+        //        Scene::m_scene->m_exposure -= 0.1f;
+        if (m_shiftPressed) {
+            m_exposure -= 0.1f;
+        } else {
+            m_exposure += 0.1f;
+        }
+        qDebug() << "m_exposure" << m_exposure;
         break;
 
-    case Qt::Key_H:
-        Scene::m_scene->m_exposure += 0.1f;
-        qDebug() << "m_exposure" << Scene::m_scene->m_exposure;
-        break;
+        //    case Qt::Key_H:
+        //        m_exposure += 0.1f;
+        //        qDebug() << "m_exposure" << m_exposure;
+        //        break;
 
-    case Qt::Key_K:
+    case Qt::Key_A:
         //        if (m_shiftPressed) {
 
-        Scene::m_scene->m_gamma += 0.1f;
-        qDebug() << "m_gamma" << Scene::m_scene->m_gamma;
+        if (m_shiftPressed) {
+            m_gamma -= 0.1f;
+        } else {
+            m_gamma += 0.1f;
+        }
+        qDebug() << "m_gamma" << m_gamma;
         //        } else {
         //        }
         break;
 
-    case Qt::Key_J:
-        //            Scene::m_scene->m_exposure -= 0.1;
-        Scene::m_scene->m_gamma -= 0.1f;
-        qDebug() << "m_gamma" << Scene::m_scene->m_gamma;
-        break;
+        //    case Qt::Key_J:
+        //        //            Scene::m_scene->m_exposure -= 0.1;
+        //        m_gamma -= 0.1f;
+        //        qDebug() << "m_gamma" << m_gamma;
+        //        break;
 
     case Qt::Key_F1:
         Mesh::enableSwitchTexture(Texture::DIFFUSE);
@@ -443,8 +454,8 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
         Frustum::m_enable = !Frustum::m_enable;
         break;
 
-    case Qt::Key_F10:
-        qDebug() << width() << height();
+    case Qt::Key_H:
+        m_hdr = !m_hdr;
         break;
 
     case Qt::Key_C:
@@ -468,6 +479,7 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
         break;
 
     case Qt::Key_Shift:
+        qDebug() << "shift pressed";
         m_shiftPressed = true;
         break;
 
@@ -826,6 +838,7 @@ void MainWindow3dView::keyReleaseEvent(QKeyEvent* event)
 
     switch (event->key()) {
     case Qt::Key_Shift:
+        qDebug() << "shift released";
         m_shiftPressed = false;
         break;
 
@@ -1151,6 +1164,8 @@ void MainWindow3dView::resizeEvent(QResizeEvent* event)
         m_camera->m_cameraStrategy->resizeEvent(event);
 
         m_projectionMatrix = glm::perspective(glm::radians(m_camera->m_fov), (float)width() / height(), l_near, l_far);
+        //        initializeGL();
+        updateGL();
     }
 }
 
@@ -1457,6 +1472,16 @@ void MainWindow3dView::updateTransformMatrix(float dx, float dy)
     }
 }
 
+uint MainWindow3dView::hdrFbo() const
+{
+    return m_hdrFbo;
+}
+
+uint MainWindow3dView::colorBuffer() const
+{
+    return m_colorBuffer;
+}
+
 void MainWindow3dView::updateProjectionMatrix()
 {
     //    m_projectionMatrix = fov;
@@ -1555,6 +1580,100 @@ void MainWindow3dView::updateCameraId() const
         //        m_iCamera = (m_iCamera + 1) % size;
         ui->menuCameraId->setTitle(QString("Camera ") + QString::number(m_iCamera));
     }
+}
+
+void MainWindow3dView::initializeGL()
+{
+    QOpenGLWidget_Editor::m_editor->makeCurrent();
+    m_fun = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
+    Q_ASSERT(m_fun != nullptr);
+    //    m_bloomShader->setInt("bloomBlur", 1);
+    m_fun->glGenFramebuffers(1, &m_hdrFbo);
+    m_fun->glBindFramebuffer(GL_FRAMEBUFFER, m_hdrFbo);
+
+    //    unsigned int colorBuffers[2];
+    glGenTextures(1, &m_colorBuffer);
+    //    for (unsigned int i = 0; i < 1; i++) {
+    glBindTexture(GL_TEXTURE_2D, m_colorBuffer);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width(), height(), 0, GL_RGB, GL_FLOAT, NULL);
+    //    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB,
+    //        SCR_WIDTH, SCR_HEIGHT, 0, GL_RGB, GL_FLOAT, NULL);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    //    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    //    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); // we clamp to the edge as the blur filter would otherwise sample repeated texture values!
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    //    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER); // we clamp to the edge as the blur filter would otherwise sample repeated texture values!
+    //    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+    //    float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+    //    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+    // attach texture to framebuffer
+    m_fun->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_colorBuffer, 0);
+    //    }
+    //    glDrawBuffer(GL_NONE);
+    //    glReadBuffer(GL_NONE);
+
+    //    m_fun->glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    //    unsigned int rboDepth;
+    m_fun->glGenRenderbuffers(1, &m_rboDepth);
+    m_fun->glBindRenderbuffer(GL_RENDERBUFFER, m_rboDepth);
+    m_fun->glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width(), height());
+    m_fun->glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_rboDepth);
+    //    // tell OpenGL which color attachments we'll use (of this framebuffer) for rendering
+    //        unsigned int attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+    unsigned int attachments[1] = { GL_COLOR_ATTACHMENT0 };
+    m_fun->glDrawBuffers(1, attachments);
+    //    m_fun->glDrawBuffers(1, attachments);
+    //    // finally check if framebuffer is complete
+    if (m_fun->glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+        std::cout << "Framebuffer not complete!" << std::endl;
+}
+
+void MainWindow3dView::updateGL()
+{
+    //    m_fun->glGenFramebuffers(1, &m_hdrFbo);
+    m_fun->glBindFramebuffer(GL_FRAMEBUFFER, m_hdrFbo);
+
+    //    unsigned int colorBuffers[2];
+    //    glGenTextures(1, &m_colorBuffer);
+    //    for (unsigned int i = 0; i < 1; i++) {
+    glBindTexture(GL_TEXTURE_2D, m_colorBuffer);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width(), height(), 0, GL_RGB, GL_FLOAT, NULL);
+    //    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB,
+    //        SCR_WIDTH, SCR_HEIGHT, 0, GL_RGB, GL_FLOAT, NULL);
+    //    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    //    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    //    //    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    //    //    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    //    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); // we clamp to the edge as the blur filter would otherwise sample repeated texture values!
+    //    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    //    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER); // we clamp to the edge as the blur filter would otherwise sample repeated texture values!
+    //    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+    //    float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+    //    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+    // attach texture to framebuffer
+    //    m_fun->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_colorBuffer, 0);
+    //    }
+    //    glDrawBuffer(GL_NONE);
+    //    glReadBuffer(GL_NONE);
+
+    //    m_fun->glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    //    unsigned int rboDepth;
+    //    m_fun->glGenRenderbuffers(1, &m_rboDepth);
+    m_fun->glBindRenderbuffer(GL_RENDERBUFFER, m_rboDepth);
+    m_fun->glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, width(), height());
+    //    m_fun->glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, m_rboDepth);
+    //    // tell OpenGL which color attachments we'll use (of this framebuffer) for rendering
+    //        unsigned int attachments[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+    //    unsigned int attachments[1] = { GL_COLOR_ATTACHMENT0 };
+    //    m_fun->glDrawBuffers(1, attachments);
+    //    m_fun->glDrawBuffers(1, attachments);
+    //    // finally check if framebuffer is complete
+    //    if (m_fun->glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
+    //        std::cout << "Framebuffer not complete!" << std::endl;
 }
 
 void MainWindow3dView::onUpdateCameraFps()
