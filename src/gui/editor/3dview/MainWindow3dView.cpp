@@ -378,6 +378,31 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
 
     switch (event->key()) {
 
+    case Qt::Key_M:
+        Scene::m_scene->m_exposure -= 0.1f;
+        qDebug() << "m_exposure" << Scene::m_scene->m_exposure;
+        break;
+
+    case Qt::Key_H:
+        Scene::m_scene->m_exposure += 0.1f;
+        qDebug() << "m_exposure" << Scene::m_scene->m_exposure;
+        break;
+
+    case Qt::Key_K:
+        //        if (m_shiftPressed) {
+
+        Scene::m_scene->m_gamma += 0.1f;
+        qDebug() << "m_gamma" << Scene::m_scene->m_gamma;
+        //        } else {
+        //        }
+        break;
+
+    case Qt::Key_J:
+        //            Scene::m_scene->m_exposure -= 0.1;
+        Scene::m_scene->m_gamma -= 0.1f;
+        qDebug() << "m_gamma" << Scene::m_scene->m_gamma;
+        break;
+
     case Qt::Key_F1:
         Mesh::enableSwitchTexture(Texture::DIFFUSE);
         break;

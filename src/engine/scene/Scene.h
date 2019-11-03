@@ -74,6 +74,9 @@ public:
     uint m_iLightDepthMap = 0;
 //    uint m_nbLight;
 
+    float m_exposure = 2.0f;
+    float m_gamma = 0.5f;
+
 
 public:
     QOpenGLFunctionsCore * m_fun;

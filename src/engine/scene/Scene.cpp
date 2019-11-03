@@ -24,7 +24,7 @@
 //#include <glm/gtc/type_ptr.hpp>
 const uint SCR_WIDTH = 765;
 //const uint SCR_WIDTH = 765 * 2;
-const uint SCR_HEIGHT = 1018;
+const uint SCR_HEIGHT = 1018 * 2;
 //const uint SCR_HEIGHT = 1018 * 2;
 const uint SCR_FBO = 2;
 
@@ -136,10 +136,18 @@ void Scene::initializeGL()
     //    for (unsigned int i = 0; i < 1; i++) {
     glBindTexture(GL_TEXTURE_2D, m_colorBuffer);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, SCR_WIDTH, SCR_HEIGHT, 0, GL_RGB, GL_FLOAT, NULL);
+//    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB,
+//        SCR_WIDTH, SCR_HEIGHT, 0, GL_RGB, GL_FLOAT, NULL);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); // we clamp to the edge as the blur filter would otherwise sample repeated texture values!
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER); // we clamp to the edge as the blur filter would otherwise sample repeated texture values!
+//    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+//    float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+//    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
     // attach texture to framebuffer
     m_fun->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, m_colorBuffer, 0);
     //    }
@@ -288,8 +296,8 @@ void Scene::draw(const MainWindow3dView& view)
     // ----------------------------------- END INIT
     //    m_fun->glBindFramebuffer(GL_FRAMEBUFFER, SCR_FBO);
 //    glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
-//    m_fun->glBindFramebuffer(GL_FRAMEBUFFER, m_hdrFbo);
-//    glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+    m_fun->glBindFramebuffer(GL_FRAMEBUFFER, m_hdrFbo);
+    glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
     drawSkyBox(view, multiSample, viewMatrix, projectionMatrix);
     const Shader& shader = view.shader();
@@ -312,9 +320,9 @@ void Scene::draw(const MainWindow3dView& view)
             }
         }
     }
-    return;
+//    return;
     m_fun->glBindFramebuffer(GL_FRAMEBUFFER, SCR_FBO);
-    glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+//    glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 //    shader.use();
 //    shader.setBool("has_texture_diffuse", true);
 //    shader.setBool("has_texture_normal", false);
@@ -348,9 +356,17 @@ void Scene::draw(const MainWindow3dView& view)
     //    glActiveTexture(GL_TEXTURE1);
     //    glBindTexture(GL_TEXTURE_2D, pingpongColorbuffers[!horizontal]);
     m_bloomShader->setInt("bloom", false);
-    m_bloomShader->setFloat("exposure", 1.0f);
+    m_bloomShader->setFloat("exposure", m_exposure);
+    m_bloomShader->setFloat("gamma", m_gamma);
+    m_bloomShader->setBool("active", false);
     //    glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
     QuadGeometry::draw();
+
+    glClear(GL_DEPTH_BUFFER_BIT);
+    glViewport(0, 600, 700, 700);
+    m_bloomShader->setBool("active", true);
+    QuadGeometry::draw();
+
 
 //    m_fun->glBindFramebuffer(GL_FRAMEBUFFER, SCR_FBO);
     //    m_fun->glBindFramebuffer(GL_FRAMEBUFFER, 0);
