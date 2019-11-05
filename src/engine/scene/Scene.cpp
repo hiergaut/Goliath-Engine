@@ -50,7 +50,7 @@ Scene::Scene()
     //    m_dirLights.reserve(10);
 
     QTreeView_outliner::setModelScene(&m_sceneModel);
-    m_sceneModel.setHorizontalHeaderItem(0, new QStandardItem("Scene"));
+//    m_sceneModel.setHorizontalHeaderItem(0, new QStandardItem("Scene"));
     //    m_sceneModel.setHorizontalHeaderItem(1, new QStandardItem("Bonus"));
 
     //    m_itemModel = new QStandardItemModel;
@@ -120,6 +120,9 @@ void Scene::initializeGL()
     //    m_skyBox = new SkyBox("sb", "frozen");
     //    m_skyBox = new SkyBox("hw", "arctic");
     //    m_skyBox = new SkyBox("ame", "siege");
+//    for (const Camera * camera : m_cameras) {
+//        camera->m_cameraStrategy->updateNearestPointLights();
+//    }
 
     //    m_skyBox = new SkyBox("ely", "peaks");
     //    m_skyBox = new SkyBox("mp", "morningdew");
@@ -209,27 +212,71 @@ void Scene::prepareHierarchy(ulong frameTime)
 
 void Scene::updateLightsShadowMap()
 {
+    //    for (Light * light : m_lights) {
+    //        light->m_shadowComputed = false;
+    //    }
+    for (PointLight& pointLight : m_pointLights) {
+        pointLight.m_shadowComputed = false;
+    }
 
     glDisable(GL_CULL_FACE);
     glCullFace(GL_FRONT);
 
-    if (m_lights.size() > 0) {
-        m_iLightDepthMap = (m_iLightDepthMap + 1) % m_lights.size();
+    for (const DirLight& dirLight : m_dirLights) {
+        Shader& shader = (dirLight.selected()) ? (dirLight.depthShader(m_localTransform, m_worldTransform)) : (dirLight.depthShader());
+        renderScene(shader);
+    }
+    for (const SpotLight& spotLight : m_spotLights) {
+        Shader& shader = (spotLight.selected()) ? (spotLight.depthShader(m_localTransform, m_worldTransform)) : (spotLight.depthShader());
+        renderScene(shader);
+    }
+
+    //    uint distances[m_spotLights.size()];
+    //    for (uint i =0; i <m_spotLights.size(); ++i) {
+
+    //        distances[i] = m_spotLights[i].model()->box().center();
+    //    }
+    //    for (const PointLight & pointLight : m_pointLights) {
+    for (uint i = 0; i < m_pointLights.size(); ++i) {
+        const PointLight& pointLight = m_pointLights[i];
+        //        m_shadowComputedPointLights[i] = false;
+        //        m_positionPointLights[i] = pointLight.position(m_localTransform, m_worldTransform);
+
+        if (pointLight.selected()) {
+            Shader& shader = (pointLight.selected()) ? (pointLight.depthShader(m_localTransform, m_worldTransform)) : (pointLight.depthShader());
+            renderScene(shader);
+            //            pointLight.m_shadowComputed = true;
+            //            m_shadowComputedPointLights[i] = true;
+        }
+    }
+
+    //    if (m_lights.size() > 0) {
+    //    if (m_lights.size() > 0) {
+
+//    if (m_pointLights.size() > 0) {
+//        m_iLightDepthMap = (m_iLightDepthMap + 1) % m_pointLights.size();
+//        const PointLight& pointLight = m_pointLights[m_iLightDepthMap];
+
+//        if (!pointLight.m_shadowComputed) {
+//            Shader& shader = pointLight.depthShader();
+//            renderScene(shader);
+//        }
+//    }
+
         //        const Light* light = m_lights[m_iLightDepthMap];
         //    for (const Light* light : m_lights) {
         //        Shader& shader = (light->selected()) ? (light->depthShader(m_localTransform, m_worldTransform)) : (light->depthShader());
         //        renderScene(shader);
 
         //        for (const Light * light : m_lights) {
-        for (uint i = 0; i < m_lights.size(); ++i) {
-            const Light* light = m_lights[i];
+        //            for (uint i = 0; i < m_lights.size(); ++i) {
+        //                const Light* light = m_lights[i];
 
-            if (light->selected() || i == m_iLightDepthMap) {
-                Shader& shader = (light->selected()) ? (light->depthShader(m_localTransform, m_worldTransform)) : (light->depthShader());
-                renderScene(shader);
-            }
-        }
-    }
+        //                if (light->selected() || i == m_iLightDepthMap) {
+        //                    Shader& shader = (light->selected()) ? (light->depthShader(m_localTransform, m_worldTransform)) : (light->depthShader());
+        //                    renderScene(shader);
+        //                }
+        //            }
 
     for (Camera* camera : m_cameras) {
         if (camera->m_torchEnable) {
@@ -251,17 +298,36 @@ void Scene::draw(const MainWindow3dView& view, const int x, const int y, const i
     Object* viewCameraObject = m_cameras[view.m_iCamera];
     glm::mat4 viewMatrix = view.viewMatrix();
     glm::mat4 projectionMatrix = view.projectionMatrix();
-    glm::vec3 cameraPos = m_cameras[view.m_iCamera]->position();
+    const Camera* camera = m_cameras[view.m_iCamera];
+    //    glm::vec3 cameraPos = m_cameras[view.m_iCamera]->position();
+    glm::vec3 cameraPos = camera->position();
     GLboolean multiSample;
     glGetBooleanv(GL_MULTISAMPLE, &multiSample);
     const glm::mat4 onesMatrix(1.0);
     GLint polygonMode;
     glGetIntegerv(GL_POLYGON_MODE, &polygonMode);
     const Frustum& frustum = view.m_frustum;
-    bool hdr = view.m_hdr;
+    bool hdr = view.m_hdr && view.m_shade == Shader::Type::RENDERED;
     // ----------------------------------- END INIT
-    //        m_fun->glBindFramebuffer(GL_FRAMEBUFFER, SCR_FBO);
-    //    glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
+
+    if (view.m_shade == Shader::Type::RENDERED) {
+        for (uint i = 0; i < 1; ++i) {
+            for (uint iNear : camera->m_cameraStrategy->m_nearestPointLights) {
+                const PointLight& pointLight = m_pointLights[iNear];
+                if (!pointLight.m_shadowComputed) {
+                    Shader& shader = pointLight.depthShader();
+                    renderScene(shader);
+                }
+            }
+        }
+    }
+
+    // -------------------------------------------------
+
+    m_fun->glBindFramebuffer(GL_FRAMEBUFFER, SCR_FBO);
+    //    glViewport(0, 0, viewWidth, viewHeight);
+    glViewport(x, y, viewWidth, viewHeight);
+    //        glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
     if (hdr) {
         m_fun->glBindFramebuffer(GL_FRAMEBUFFER, view.hdrFbo());
         glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
@@ -275,11 +341,11 @@ void Scene::draw(const MainWindow3dView& view, const int x, const int y, const i
     drawSkyBox(view, multiSample, viewMatrix, projectionMatrix);
     const Shader& shader = view.shader();
 
-    //    drawRay(view, shader, polygonMode);
-    //    drawBoundingBox(view, shader, viewCameraObject, multiSample);
+    drawRay(view, shader, polygonMode);
+    drawBoundingBox(view, shader, viewCameraObject, multiSample);
 
     prepareLightUniform(view, shader);
-    //    zPrepass(shader);
+    zPrepass(shader);
 
     //    Q_ASSERT(m_hdrFbo == 1);
     for (const Object* object : m_objects) {
@@ -315,6 +381,17 @@ void Scene::draw(const MainWindow3dView& view, const int x, const int y, const i
     //    shader.setBool("has_texture_diffuse", false);
 
     //    return;
+
+    //    glClear(GL_DEPTH_BUFFER_BIT);
+    //    glViewport(0, 600, 700, 700);
+    //    m_bloomShader->setBool("active", true);
+    //    QuadGeometry::draw();
+
+    //    m_fun->glBindFramebuffer(GL_FRAMEBUFFER, SCR_FBO);
+    //    m_fun->glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    //    glPolygonMode(GL_FRONT, polygonMode);
+    //    shader.setMat4("projection", projectionMatrix);
+
     if (hdr) {
         bool horizontal = true, first_iteration = true;
         unsigned int amount = 10;
@@ -323,7 +400,7 @@ void Scene::draw(const MainWindow3dView& view, const int x, const int y, const i
             m_fun->glBindFramebuffer(GL_FRAMEBUFFER, view.m_pingpongFbo[horizontal]);
             m_blurShader->setInt("horizontal", horizontal);
             glBindTexture(GL_TEXTURE_2D, first_iteration ? view.m_colorBuffers[1] : view.m_pingpongColorBuffers[!horizontal]); // bind texture of other framebuffer (or scene if first iteration)
-//            renderQuad();
+            //            renderQuad();
             QuadGeometry::draw();
             horizontal = !horizontal;
             if (first_iteration)
@@ -354,23 +431,13 @@ void Scene::draw(const MainWindow3dView& view, const int x, const int y, const i
         QuadGeometry::draw();
     }
 
-    //    glClear(GL_DEPTH_BUFFER_BIT);
-    //    glViewport(0, 600, 700, 700);
-    //    m_bloomShader->setBool("active", true);
-    //    QuadGeometry::draw();
-
-    //    m_fun->glBindFramebuffer(GL_FRAMEBUFFER, SCR_FBO);
-    //    m_fun->glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    //    glPolygonMode(GL_FRONT, polygonMode);
-    //    shader.setMat4("projection", projectionMatrix);
-
-    //    drawSpecificMode(view, shader);
-    //    drawContours(shader, polygonMode);
-    //    drawNormal(view, viewMatrix, projectionMatrix);
-    //    drawSkeleton(view, shader, viewMatrix, projectionMatrix, cameraPos);
-    //    drawOriginModel(view, shader, cameraPos);
-    //    drawAxisTransform(view, shader);
-    //    drawRectangleSelection(view, shader);
+    //        drawSpecificMode(view, shader);
+    drawContours(shader, polygonMode);
+    //        drawNormal(view, viewMatrix, projectionMatrix);
+    //        drawSkeleton(view, shader, viewMatrix, projectionMatrix, cameraPos);
+    //        drawOriginModel(view, shader, cameraPos);
+    //        drawAxisTransform(view, shader);
+    //        drawRectangleSelection(view, shader);
 
     // -------------------------------- DRAW CAMERA VIEWS
     //    for (const MainWindow3dView* otherViews : *m_views) {

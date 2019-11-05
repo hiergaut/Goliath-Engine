@@ -16,6 +16,7 @@ public:
     glm::vec3 m_specular;
 
     //    BoundingBox m_box;
+    mutable bool m_shadowComputed;
 
 public:
     enum Type {

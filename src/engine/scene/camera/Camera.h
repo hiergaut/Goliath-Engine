@@ -41,6 +41,7 @@ public:
         void updateBoundingBox() const;
     void initGL();
     Shader& depthShader(const glm::mat4& localTransform = glm::mat4(1.0f), const glm::mat4& worldTransform = glm::mat4(1.0f)) const;
+//    void updateNearestPointLights();
 
 protected:
     void prepareHierarchy(ulong frameTime) const override;

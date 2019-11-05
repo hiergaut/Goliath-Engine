@@ -56,6 +56,8 @@ public:
 
     const BoundingBox &box() const;
 
+    glm::vec3 position() const;
+
 private:
 //    virtual void updateBoundingBox() { Q_ASSERT(false); }
 

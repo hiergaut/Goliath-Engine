@@ -276,7 +276,8 @@ void QOpenGLWidget_Editor::paintGL()
             const int viewHeight = view->height();
             const int x = point.x();
             const int y = m_mainWindow->height() - point.y() - viewHeight + 5;
-            glViewport(x, y, viewWidth, viewHeight);
+//            glViewport(x, y, viewWidth, viewHeight);
+
             //            glViewport(x, y - 3, view->width(), view->height());
 
             //        glm::mat4 projectionMatrix = view->projectionMatrix();

@@ -38,10 +38,10 @@ const float accuracyZoom = 0.05f;
 
 //CameraFps::CameraFps(std::ifstream &file, Model &model, float &fov)
 //CameraFps::CameraFps(std::ifstream &file, Model &model, uint & id, float &fov)
-CameraFps::CameraFps(std::ifstream& file, glm::mat4& modelMatrix, uint& id, float& fov)
+CameraFps::CameraFps(std::ifstream& file, glm::mat4& modelMatrix, uint& id, float& fov, Model & model)
     //CameraFps::CameraFps(std::ifstream& file, glm::mat4 & modelTransform, float& fov)
     //    : CameraStrategy(modelTransform)
-    : CameraStrategy(modelMatrix, id)
+    : CameraStrategy(modelMatrix, id, model)
     , m_fov(fov)
 {
     //    Session::load(m_view, file);
@@ -91,8 +91,8 @@ CameraFps::CameraFps(std::ifstream& file, glm::mat4& modelMatrix, uint& id, floa
 //CameraFps::CameraFps(const glm::vec3& position, float yaw, float pitch, MainWindow3dView* view, glm::mat4 & modelTransform, float& fov)
 //CameraFps::CameraFps(const glm::vec3 &position, float yaw, float pitch, MainWindow3dView *view, Model &model, float &fov)
 //CameraFps::CameraFps(const glm::vec3 &position, float yaw, float pitch, MainWindow3dView *view, Model &model, uint & id, float &fov)
-CameraFps::CameraFps(const glm::vec3& position, float yaw, float pitch, MainWindow3dView* view, glm::mat4& modelMatrix, uint& id, float& fov)
-    : CameraStrategy(modelMatrix, id)
+CameraFps::CameraFps(const glm::vec3& position, float yaw, float pitch, MainWindow3dView* view, glm::mat4& modelMatrix, uint& id, float& fov, Model & model)
+    : CameraStrategy(modelMatrix, id, model)
     , m_view(view)
     , m_fov(fov)
     , m_yaw(yaw)

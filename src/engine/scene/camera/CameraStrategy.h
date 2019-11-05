@@ -21,7 +21,9 @@ public:
     //    static Model * m_modelCamera;
 
     glm::mat4 & m_modelTransform;
-//    Model & m_model;
+
+    Model & m_model;
+    std::list<uint> m_nearestPointLights;
 
 //    Camera & m_camera;
 
@@ -32,7 +34,7 @@ public:
 //    protected:
 //    CameraStrategy() = delete ;
 public:
-    CameraStrategy(glm::mat4 & modelTransform, uint & id);
+    CameraStrategy(glm::mat4 & modelTransform, uint & id, Model & model);
 //    CameraStrategy(Model & model, uint &id);
 //    virtual CameraStrategy(std::ifstream & file);
     virtual ~CameraStrategy() = default;
@@ -62,10 +64,12 @@ public:
     virtual glm::vec3 up() const = 0;
 
     virtual glm::vec3 target() const = 0;
+//    virtual glm::vec3 position() const = 0;
 
 //    virtual void updateModelTransform(const glm::mat4 & modelTransform) = 0;
     void updateModelTransform(glm::mat4 && modelTransform);
     void updateAttachFrustumViews();
+    void updateNearestPointLights();
 
 
 protected:
@@ -74,6 +78,8 @@ protected:
 
     bool m_middleClicked = false;
     bool m_shiftPressed = false;
+
+    uint m_cptUpdateTransform =0;
 
 //    Frustum m_frustum;
 

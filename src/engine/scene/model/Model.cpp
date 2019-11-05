@@ -74,3 +74,8 @@ const BoundingBox &Model::box() const
 {
     return m_box;
 }
+
+glm::vec3 Model::position() const
+{
+    return m_transform[3];
+}

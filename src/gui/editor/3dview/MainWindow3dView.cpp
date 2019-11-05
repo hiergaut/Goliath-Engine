@@ -788,7 +788,7 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
                     //                    delete m_camera;
                     //                m_camera = new CameraWorld(fov, pos, camera->m_target);
                     delete m_camera->m_cameraStrategy;
-                    m_camera->m_cameraStrategy = new CameraWorld(position, target, m_camera->getTransform(), m_camera->m_id);
+                    m_camera->m_cameraStrategy = new CameraWorld(position, target, m_camera->getTransform(), m_camera->m_id, *m_camera->getModel());
                     //                    m_camera->m_cameraStrategy = new CameraWorld(position, target, *m_camera->getModel(), m_camera->m_id);
                     //        Scene::m_scene->m_objects.push_back(m_camera);
                     //            m_camera = new CameraWorld(static_cast<CameraFps*>(m_camera));
@@ -811,7 +811,7 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
                     //        Scene::m_scene->removeCamera(m_iCamera);
                     //                    delete m_camera;
                     delete m_camera->m_cameraStrategy;
-                    m_camera->m_cameraStrategy = new CameraFps(position, yaw, pitch, this, m_camera->getTransform(), m_camera->m_id, m_camera->m_fov);
+                    m_camera->m_cameraStrategy = new CameraFps(position, yaw, pitch, this, m_camera->getTransform(), m_camera->m_id, m_camera->m_fov, *m_camera->getModel());
                     //                    m_camera->m_cameraStrategy = new CameraFps(position, yaw, pitch, this, *m_camera->getModel(), m_camera->m_id, m_camera->m_fov);
                     //        Scene::m_scene->m_objects.push_back(m_camera);
 

@@ -54,6 +54,8 @@ public:
     std::vector<Light *> m_lights;
     std::vector<DirLight> m_dirLights;
     std::vector<PointLight> m_pointLights;
+//    std::vector<bool> m_shadowComputedPointLights;
+//    std::vector<glm::vec3> m_positionPointLights;
     std::vector<SpotLight> m_spotLights;
 
     Material m_solid = Material("solid", 2.0f, glm::vec3(0.5f), glm::vec3(0.0f), glm::vec3(0.5f, 0.5f, 1.0f));

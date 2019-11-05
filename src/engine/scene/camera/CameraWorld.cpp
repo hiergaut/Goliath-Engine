@@ -15,16 +15,17 @@ const float accuracySlide = 1.0f;
 //    m_type = WORLD;
 //}
 
-CameraWorld::CameraWorld(std::ifstream& file, glm::mat4 & modelTransform, uint & id)
-    : CameraStrategy(modelTransform, id)
+CameraWorld::CameraWorld(std::ifstream& file, glm::mat4 & modelTransform, uint & id, Model &model)
+    : CameraStrategy(modelTransform, id, model)
 //    : CameraStrategy(file)
 {
     Session::load(m_target, file);
     m_type = WORLD;
 }
 
-CameraWorld::CameraWorld(const glm::vec3& position, glm::vec3 target, glm::mat4 & modelTransform, uint & id)
-    : CameraStrategy(modelTransform, id)
+
+CameraWorld::CameraWorld(const glm::vec3 &position, glm::vec3 target, glm::mat4 &modelTransform, uint &id, Model &model)
+    : CameraStrategy(modelTransform, id, model)
     , m_target(target)
 //    : m_position { position }
 //    , m_target { target }

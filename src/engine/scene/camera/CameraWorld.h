@@ -18,8 +18,8 @@ public:
 public:
     //    CameraWorld();
     //    CameraWorld(std::ifstream & file);
-    CameraWorld(std::ifstream& file, glm::mat4 &modelTransform, uint & id);
-    CameraWorld(const glm::vec3& position, glm::vec3 target, glm::mat4 & modelTransform, uint & id);
+    CameraWorld(std::ifstream& file, glm::mat4 &modelTransform, uint & id, Model & model);
+    CameraWorld(const glm::vec3& position, glm::vec3 target, glm::mat4 & modelTransform, uint & id, Model & model);
 //    CameraWorld(std::ifstream& file, Model & model, uint & id);
 //    CameraWorld(const glm::vec3& position, glm::vec3 target, Model & model, uint & id);
     //    CameraWorld(float fov, glm::vec3 position, glm::vec3 target, Model &model);
@@ -46,6 +46,8 @@ protected:
 
     void mouseMoveEvent(QMouseEvent* event) override;
     void wheelEvent(QWheelEvent* event) override;
+
+//    glm::vec3 position() const override;
 
     //    void setDefault() override;
 //    void updateModelTransform(glm::mat4 &&modelTransform) override;

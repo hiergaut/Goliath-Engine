@@ -242,6 +242,7 @@ void PointLight::initViewMatrix()
 
 Shader& PointLight::depthShader(const glm::mat4& localTransform, const glm::mat4& worldTransform) const
 {
+    Q_ASSERT(! m_shadowComputed);
     //    glViewport(200, 200, 100, 100);
     //    m_fun->glBindFramebuffer(GL_FRAMEBUFFER, m_depthFbo);
     //    glClear(GL_DEPTH_BUFFER_BIT);
@@ -282,6 +283,9 @@ Shader& PointLight::depthShader(const glm::mat4& localTransform, const glm::mat4
         m_simpleDepthShader->setMat4("shadowMatrices[" + std::to_string(i) + "]", shadowTransforms[i]);
     m_simpleDepthShader->setFloat("far_plane", m_far_plane);
     m_simpleDepthShader->setVec3("lightPos", pos);
+
+
+    m_shadowComputed = true;
 
     return *m_simpleDepthShader;
 }

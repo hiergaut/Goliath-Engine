@@ -34,7 +34,7 @@ Camera::Camera(float fov, uint id)
 {
     m_type = Object::Type::CAMERA;
     //    m_model.m_transform = transform;
-    m_cameraStrategy = new CameraWorld(glm::vec3(200.0f, -200.0f, 200.0f), glm::vec3(0.0f), m_model->getTransform(), m_id);
+    m_cameraStrategy = new CameraWorld(glm::vec3(200.0f, -200.0f, 200.0f), glm::vec3(0.0f), m_model->getTransform(), m_id, *m_model);
 //    m_cameraStrategy = new CameraWorld(glm::vec3(200.0f, -200.0f, 200.0f), glm::vec3(0.0f), *m_model, m_id);
 
 //    updateBoundingBox();
@@ -61,12 +61,12 @@ Camera::Camera(std::ifstream& file, uint id)
     type = static_cast<CameraStrategy::Type>(Session::loadEnum(file));
     switch (type) {
     case CameraStrategy::WORLD:
-        m_cameraStrategy = new CameraWorld(file, m_model->getTransform(), m_id);
+        m_cameraStrategy = new CameraWorld(file, m_model->getTransform(), m_id, *m_model);
 //        m_cameraStrategy = new CameraWorld(file, *m_model, m_id);
         break;
 
     case CameraStrategy::FPS:
-        m_cameraStrategy = new CameraFps(file, m_model->getTransform(), m_id, m_fov);
+        m_cameraStrategy = new CameraFps(file, m_model->getTransform(), m_id, m_fov, *m_model);
 //        m_cameraStrategy = new CameraFps(file, *m_model, m_id, m_fov);
         break;
     }
@@ -116,7 +116,7 @@ void Camera::setDefault()
     //    m_cameraStrategy = new CameraWorld(glm::vec3(200.0f, -200.0f, 200.0f), glm::vec3(0.0f), m_model.m_transform);
     switch (m_cameraStrategy->m_type) {
     case CameraStrategy::WORLD:
-        m_cameraStrategy = new CameraWorld(glm::vec3(200.0f, -200.0f, 200.0f), glm::vec3(0.0f), m_model->getTransform(), m_id);
+        m_cameraStrategy = new CameraWorld(glm::vec3(200.0f, -200.0f, 200.0f), glm::vec3(0.0f), m_model->getTransform(), m_id, *m_model);
 //        m_cameraStrategy = new CameraWorld(glm::vec3(200.0f, -200.0f, 200.0f), glm::vec3(0.0f), *m_model, m_id);
         //        CameraWorld * cameraWorld = static_cast<CameraWorld*>(m_cameraStrategy);
         //        cameraWorld->m_target = glm::vec3(0.0f);
@@ -293,6 +293,11 @@ Shader& Camera::depthShader(const glm::mat4& localTransform, const glm::mat4& wo
 
     return *m_simpleDepthShader;
 }
+
+//void Camera::updateNearestPointLights()
+//{
+
+//}
 
 glm::mat4 Camera::lightSpaceMatrix(const glm::mat4& localTransform) const
 {

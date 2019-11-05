@@ -49,10 +49,10 @@ public:
 //    CameraFps(std::ifstream & file);
 //    CameraFps(MainWindow3dView *view);
 //    CameraFps(float fov, const glm::vec3 & position, float yaw, float pitch, MainWindow3dView *view);
-    CameraFps(std::ifstream &file, glm::mat4 & modelMatrix, uint & id, float & fov);
+    CameraFps(std::ifstream &file, glm::mat4 & modelMatrix, uint & id, float & fov, Model &model);
 //    CameraFps(std::ifstream &file, Model & model, uint & id, float & fov);
 //    CameraFps(const glm::vec3 &position, float yaw, float pitch, MainWindow3dView *view, Model & model, uint & id, float & fov);
-    CameraFps(const glm::vec3 &position, float yaw, float pitch, MainWindow3dView *view, glm::mat4 & modelMatrix, uint & id, float & fov);
+    CameraFps(const glm::vec3 &position, float yaw, float pitch, MainWindow3dView *view, glm::mat4 & modelMatrix, uint & id, float & fov, Model & model);
 //    CameraFps(MainWindow3dView *view, glm::mat4 &modelTransform);
 //    CameraFps(CameraWorld * camera, MainWindow3dView *view);
     ~CameraFps() override;
