@@ -59,8 +59,15 @@ void DirLight::draw(const Shader& shader, bool dotCloud, const Frustum& frustum,
 
 void DirLight::draw(const Shader& shader, const glm::mat4& localTransform, const glm::mat4& worldTransform) const
 {
-        Object::draw(shader, localTransform, worldTransform);
+    Object::draw(shader, localTransform, worldTransform);
 }
+
+//void DirLight::setSelected(bool selected)
+//{
+//    Object::setSelected(selected);
+//    Light::setSelected(selected);
+
+//}
 
 DirLight::DirLight(const glm::vec3 position, const glm::vec3 direction, const glm::vec3 ambient, const glm::vec3 diffuse,
     const glm::vec3 specular)
@@ -70,7 +77,9 @@ DirLight::DirLight(const glm::vec3 position, const glm::vec3 direction, const gl
 //    , m_direction(direction)
 //    , m_sphere(5000.0f)
 {
-    m_type = Object::Type::DIR_LIGHT;
+    Object::m_type = Object::Type::DIR_LIGHT;
+    Light::m_type = Light::Type::SUN;
+
     //    m_sphere = new UvSphereGeometry(100, 100);
     //    m_model = new Model(g_resourcesPath + "models/sun/sun.obj");
 
@@ -96,7 +105,9 @@ DirLight::DirLight(std::ifstream& file)
     //    : Object(g_resourcesPath + "models/sun/sun.obj")
     : Object(g_resourcesPath + "models/light/sun/sun.obj")
 {
-    m_type = Object::Type::DIR_LIGHT;
+    Object::m_type = Object::Type::DIR_LIGHT;
+    Light::m_type = Light::Type::SUN;
+
     Light::load(file);
     glm::mat4 transform;
     Session::load(transform, file);

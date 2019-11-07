@@ -50,13 +50,15 @@ public:
 //    virtual void updateBoundingBox();
     virtual void drawBoundingBox(const Shader& shader) const;
 
+    virtual void setLatestSelected();
+
 //    virtual void updateSelectedVertexPosition(const glm::mat4 & localTransform, const glm::mat4 & worldTransform);
     void buildItemModel(QStandardItem* parent) const;
     void updateSelectedVertexPosition(const glm::mat4 & localTransform, const glm::mat4 & worldTransform);
 
     bool selected() const;
 
-    void setSelected(bool selected);
+    virtual void setSelected(bool selected);
     const BoundingBox & box() const;
     const std::string & name() const;
     Model::Type modelType() const;

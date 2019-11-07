@@ -12,6 +12,7 @@
 #include "model/paramModel/surface/BSplineSurface.h"
 #include <gui/editor/properties/context/curve/FormContextCurve.h>
 #include <gui/editor/properties/context/surface/FormContextSurface.h>
+#include <gui/editor/properties/context/light/FormContextLight.h>
 #include <gui/editor/timeline/FormTimeline.h>
 #include <opengl/geometry/AxisGeometry.h>
 #include <opengl/geometry/DotGeometry.h>
@@ -316,9 +317,15 @@ void Scene::updateLightsShadowMap()
 
 void Scene::updateAllLightsShadowMap()
 {
+    for (PointLight& pointLight : m_pointLights) {
+        pointLight.m_shadowComputed = false;
+    }
+    m_nbComputePointLightShadow = 0;
+
     glDisable(GL_CULL_FACE);
     glCullFace(GL_FRONT);
 
+    //    qDebug() << m_lights.size();
     for (const Light* light : m_lights) {
         //        Shader& shader = (dirLight.selected()) ? (dirLight.depthShader(m_localTransform, m_worldTransform)) : (dirLight.depthShader());
         //        Shader& shader = (light->selected()) ? (dirLight.depthShader(m_localTransform, m_worldTransform)) : (dirLight.depthShader());
@@ -478,11 +485,11 @@ void Scene::draw(const MainWindow3dView& view, const int x, const int y, const i
         QuadGeometry::draw();
     }
 
-//    m_minimalShader->setMat4("projection", projectionMatrix);
-//    m_minimalShader->setMat4("view", viewMatrix);
+    //    m_minimalShader->setMat4("projection", projectionMatrix);
+    //    m_minimalShader->setMat4("view", viewMatrix);
     drawSpecificMode(view, shader);
     drawContours(shader, polygonMode);
-//    drawContours(*m_minimalShader, polygonMode);
+    //    drawContours(*m_minimalShader, polygonMode);
     drawNormal(view, viewMatrix, projectionMatrix);
     drawSkeleton(view, shader, viewMatrix, projectionMatrix, cameraPos);
     drawOriginModel(view, shader, cameraPos);
@@ -765,6 +772,8 @@ void Scene::objectSelectRay(const Ray& ray, bool additional)
 
         m_selectObject = m_objects[iObjectMin];
 
+        //        m_selectObject->setLatestSelected();
+
         switch (m_selectObject->modelType()) {
         case Model::PARAM_CURVE:
             //            Q_ASSERT(FormContextSurface::m_formContextSurface != nullptr);
@@ -788,6 +797,24 @@ void Scene::objectSelectRay(const Ray& ray, bool additional)
             //            Q_ASSERT(FormContextSurface::m_formContextSurface != nullptr);
             //            Q_ASSERT(FormContextCurve::m_formContextCurve != nullptr);
             //            FormContextCurve::m_formContextCurve->clear();
+            break;
+
+        case Model::MESH:
+            switch (m_selectObject->m_type) {
+            case Object::Type::DIR_LIGHT:
+                FormContextLight::setLight(static_cast<DirLight*>(m_selectObject));
+                break;
+            case Object::Type::SPOT_LIGHT:
+                FormContextLight::setLight(static_cast<SpotLight*>(m_selectObject));
+                break;
+            case Object::Type::POINT_LIGHT:
+                FormContextLight::setLight(static_cast<PointLight*>(m_selectObject));
+                break;
+
+            default:
+                FormContextLight::setLight(nullptr);
+                break;
+            }
             break;
         }
 
@@ -980,6 +1007,7 @@ void Scene::load(std::ifstream& file)
     //        m_objects.push_back(view->m_camera);
     //    }
 
+    m_lights.clear();
     m_dirLights.clear();
     Session::load(size, file);
     for (uint i = 0; i < size; ++i) {
@@ -1037,6 +1065,7 @@ void Scene::load(std::ifstream& file)
     //        view->updateCameraId();
     //    }
     //    updateSceneBox();
+    updateAllLightsShadowMap();
 }
 
 void Scene::save(std::ofstream& file)
@@ -1238,7 +1267,7 @@ void Scene::deleteSelected()
     m_dirLights = std::move(newDirLights);
 
     std::vector<PointLight> newPointLights;
-    newPointLights.reserve(10);
+    newPointLights.reserve(20);
     for (PointLight& pointLight : m_pointLights) {
         if (!pointLight.selected()) {
             newPointLights.emplace_back(std::move(pointLight));
@@ -1546,17 +1575,18 @@ void Scene::prepareLightUniform(const MainWindow3dView& view, const Shader& shad
             } else {
                 shader.setVec3("pointLights[" + QString::number(i).toStdString() + "].position", pointLight.position());
             }
-            shader.setFloat("pointLights[" + QString::number(i).toStdString() + "].constant", 1.0f);
-            //            shader.setFloat("pointLights[" + QString::number(i).toStdString() + "].linear", 0.09f);
-            shader.setFloat("pointLights[" + QString::number(i).toStdString() + "].linear", 0.00f);
-            //            shader.setFloat("pointLights[" + QString::number(i).toStdString() + "].quadratic", 0.032f);
-            shader.setFloat("pointLights[" + QString::number(i).toStdString() + "].quadratic", 0.000005f);
-            //            shader.setVec3("pointLights[" + QString::number(i).toStdString() + "].ambient", pointLight.m_ambient);
-            shader.setVec3("pointLights[" + QString::number(i).toStdString() + "].ambient", glm::vec3(0.0f));
-            //            shader.setVec3("pointLights[" + QString::number(i).toStdString() + "].diffuse", pointLight.m_diffuse);
-            shader.setVec3("pointLights[" + QString::number(i).toStdString() + "].diffuse", glm::vec3(1.0f));
-            //            shader.setVec3("pointLights[" + QString::number(i).toStdString() + "].specular", pointLight.m_specular);
-            shader.setVec3("pointLights[" + QString::number(i).toStdString() + "].specular", glm::vec3(1.0f));
+//            shader.setFloat("pointLights[" + QString::number(i).toStdString() + "].constant", 1.0f);
+//            shader.setFloat("pointLights[" + QString::number(i).toStdString() + "].linear", 0.00002f);
+//            shader.setFloat("pointLights[" + QString::number(i).toStdString() + "].quadratic", 0.000005f);
+//            shader.setVec3("pointLights[" + QString::number(i).toStdString() + "].ambient", glm::vec3(0.0f));
+//            shader.setVec3("pointLights[" + QString::number(i).toStdString() + "].diffuse", glm::vec3(1.0f));
+//            shader.setVec3("pointLights[" + QString::number(i).toStdString() + "].specular", glm::vec3(1.0f));
+            shader.setFloat("pointLights[" + QString::number(i).toStdString() + "].constant", pointLight.m_constant);
+            shader.setFloat("pointLights[" + QString::number(i).toStdString() + "].linear", pointLight.m_linear);
+            shader.setFloat("pointLights[" + QString::number(i).toStdString() + "].quadratic", pointLight.m_quadratic);
+            shader.setVec3("pointLights[" + QString::number(i).toStdString() + "].ambient", pointLight.m_ambient);
+            shader.setVec3("pointLights[" + QString::number(i).toStdString() + "].diffuse", pointLight.m_diffuse);
+            shader.setVec3("pointLights[" + QString::number(i).toStdString() + "].specular", pointLight.m_specular);
         }
 
         uint nbSpotLight = m_spotLights.size();
@@ -1838,7 +1868,7 @@ void Scene::drawContours(const Shader& shader, uint polygonMode)
     glStencilMask(0xFF);
     shader.setBool("userColor", true);
     shader.setVec4("color", glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));
-//    shader.setBool("userColor", true);
+    //    shader.setBool("userColor", true);
     //    for (const Model& model : m_models) {
     for (const Object* object : m_objects) {
         if (object->selected()) {
@@ -1862,8 +1892,8 @@ void Scene::drawContours(const Shader& shader, uint polygonMode)
     glLineWidth(4);
     glPolygonMode(GL_FRONT, GL_LINE);
     //    modelMatrix = glm::scale(modelMatrix, glm::vec3(1.1f, 1.1f, 1.1f));
-//    shader.setBool("userColor", true);
-//    shader.setVec4("color", glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));
+    //    shader.setBool("userColor", true);
+    //    shader.setVec4("color", glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));
     //    for (const Model& model : m_models) {
     for (const Object* object : m_objects) {
         if (object->selected()) {

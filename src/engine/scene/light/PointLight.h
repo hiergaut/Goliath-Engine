@@ -20,6 +20,11 @@ class PointLight : public Light, public Object
 {
 public:
 //    glm::vec3 m_direction;
+    float m_constant = 1.0f;
+    float m_linear = 0.0f;
+    float m_quadratic = 0.000005f;
+
+public:
 
 //    Model* m_model = nullptr;
     Shader& depthShader(const glm::mat4& localTransform = glm::mat4(1.0f), const glm::mat4& worldTransform = glm::mat4(1.0f)) const override;
@@ -31,9 +36,10 @@ protected:
     void draw(const Shader &shader, bool dotCloud, const Frustum & frustum, const glm::mat4 &localTransform = glm::mat4(1.0f), const glm::mat4 &worldTransform = glm::mat4(1.0f)) const override;
     void draw(const Shader &shader, const glm::mat4 &localTransform = glm::mat4(1.0f), const glm::mat4 &worldTransform = glm::mat4(1.0f)) const override;
 
+//    void setSelected(bool selected) override;
 
 public:
-    PointLight(const glm::vec3 position, const glm::vec3 ambient = glm::vec3(0.05f), const glm::vec3 diffuse = glm::vec3(0.8f), const glm::vec3 specular = glm::vec3(1.0f));
+    PointLight(const glm::vec3 position, const glm::vec3 ambient = glm::vec3(0.0f), const glm::vec3 diffuse = glm::vec3(1.0f), const glm::vec3 specular = glm::vec3(1.0f));
     PointLight(std::ifstream &file);
     PointLight(PointLight && dirLight) noexcept = default;
 //    ~PointLight();
@@ -69,9 +75,6 @@ private:
     float m_near_plane = 20.0f;
     float m_far_plane = 5000.0f;
 
-//    float m_constant;
-//    float m_linear;
-//    float m_quadratic;
 
 //    Shader* m_debugDepthQuad; //{"shadow/debug_quad.vsh", "shadow/debug_quad.fsh"};
 //    UvSphereGeometry m_sphere;

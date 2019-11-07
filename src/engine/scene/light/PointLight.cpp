@@ -22,7 +22,8 @@
 //const float FAR_PLANE = 5000.0f;
 //const uint shadow_size[2] = { 512, 4096 };
 //const uint shadow_size = 256;
-const uint shadow_size = 2048;
+const uint shadow_size = 1024;
+//const uint shadow_size = 2048;
 //const uint shadow_size = 4096;
 
 glm::vec3 PointLight::position(const glm::mat4& localTransform, const glm::mat4& worldTransform) const
@@ -110,6 +111,12 @@ void PointLight::draw(const Shader& shader, const glm::mat4& localTransform, con
     Object::draw(shader, localTransform, worldTransform);
 }
 
+//void PointLight::setSelected(bool selected)
+//{
+//    Object::setSelected(selected);
+//    Light::setSelected(selected);
+//}
+
 PointLight::PointLight(const glm::vec3 position, const glm::vec3 ambient, const glm::vec3 diffuse,
     const glm::vec3 specular)
     : Light(ambient, diffuse, specular)
@@ -118,7 +125,9 @@ PointLight::PointLight(const glm::vec3 position, const glm::vec3 ambient, const 
 //    , m_direction(direction)
 //    , m_sphere(5000.0f)
 {
-    m_type = Object::Type::POINT_LIGHT;
+    Object::m_type = Object::Type::POINT_LIGHT;
+    Light::m_type = Light::Type::POINT;
+
     //    m_sphere = new UvSphereGeometry(100, 100);
     //    m_model = new Model(g_resourcesPath + "models/sun/sun.obj");
 
@@ -153,7 +162,9 @@ PointLight::PointLight(std::ifstream& file)
     //    : Object(g_resourcesPath + "models/sun/sun.obj")
     : Object(g_resourcesPath + "models/light/point/cube.obj")
 {
-    m_type = Object::Type::POINT_LIGHT;
+    Object::m_type = Object::Type::POINT_LIGHT;
+    Light::m_type = Light::Type::POINT;
+
     Light::load(file);
     glm::mat4 transform;
     Session::load(transform, file);

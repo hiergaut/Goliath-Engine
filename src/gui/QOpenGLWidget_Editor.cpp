@@ -88,6 +88,7 @@ void QOpenGLWidget_Editor::loadNewModel(std::string filename)
 
 void QOpenGLWidget_Editor::clear()
 {
+    m_views->clear();
     m_scene.clear();
 }
 
@@ -95,11 +96,12 @@ void QOpenGLWidget_Editor::load(std::ifstream& file)
 {
     //    clear();
     Q_ASSERT(QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>());
+    clear();
     //    qDebug() << "[GL_CONTEXT]" << QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
 
     makeCurrent();
 
-    //    m_scene.clear();
+//    m_scene.clear();
     m_scene.load(file);
 }
 
@@ -163,7 +165,7 @@ void QOpenGLWidget_Editor::initializeGL()
     //    g_env.m_scene.initialize();
     m_scene.initializeGL();
 
-//    m_scene.updateAllLightsShadowMap();
+    //    m_scene.updateAllLightsShadowMap();
 
     //    RayTracer::setBone(new BoneGeometry);
 
@@ -178,7 +180,7 @@ void QOpenGLWidget_Editor::initializeGL()
     SkyBoxGeometry::initializeGL();
     CubeMapGeometry::initializeGL();
 
-//    m_scene.updateAllLightsShadowMap();
+    //    m_scene.updateAllLightsShadowMap();
     //    FormTimeline::setScene(&m_scene);
 
     //    m_textRender.initialize();
@@ -197,7 +199,7 @@ void QOpenGLWidget_Editor::initializeGL()
     ////        }
     //        //        iCameras.push_back(view->m_iCamera);
     //    }
-//    m_scene.updateAllLightsShadowMap();
+    //    m_scene.updateAllLightsShadowMap();
 }
 
 void drawRect(int x1, int y1, int x2, int y2, int windowHeight)
@@ -254,17 +256,17 @@ void QOpenGLWidget_Editor::paintGL()
             autoUpdate = true;
             //            break;
         }
-//                m_fun->glBindFramebuffer(GL_FRAMEBUFFER, view->hdrFbo());
-//                glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+        //                m_fun->glBindFramebuffer(GL_FRAMEBUFFER, view->hdrFbo());
+        //                glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
     }
-//    m_fun->glBindFramebuffer(GL_FRAMEBUFFER, 1);
-//    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    //    m_fun->glBindFramebuffer(GL_FRAMEBUFFER, 1);
+    //    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
     m_scene.m_autoUpdateBoundingBox = autoUpdate;
     m_scene.prepareHierarchy(currentFrameTime);
     //    m_scene.prepareHierarchy(0);
     m_scene.updateLightsShadowMap();
-//    m_scene.updateAllLightsShadowMap();
+    //    m_scene.updateAllLightsShadowMap();
 
     for (const MainWindow3dView* view : *m_views) {
         if (view->m_iCamera < Scene::m_cameras.size()) {
@@ -281,7 +283,7 @@ void QOpenGLWidget_Editor::paintGL()
             const int viewHeight = view->height();
             const int x = point.x();
             const int y = m_mainWindow->height() - point.y() - viewHeight + 5;
-//            glViewport(x, y, viewWidth, viewHeight);
+            //            glViewport(x, y, viewWidth, viewHeight);
 
             //            glViewport(x, y - 3, view->width(), view->height());
 

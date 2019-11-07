@@ -31,6 +31,7 @@
     <addaction name="actionCurve"/>
     <addaction name="actionSurface"/>
     <addaction name="actionDebug"/>
+    <addaction name="actionLight"/>
    </widget>
    <widget class="QMenu" name="menuCurrentContext">
     <property name="title">
@@ -55,10 +56,11 @@
    <addaction name="actionCurve"/>
    <addaction name="actionSurface"/>
    <addaction name="actionDebug"/>
+   <addaction name="actionLight"/>
   </widget>
   <action name="actionMaterial">
    <property name="icon">
-    <iconset>
+    <iconset resource="../../../../resources/resources.qrc">
      <normaloff>:/icons/material.png</normaloff>:/icons/material.png</iconset>
    </property>
    <property name="text">
@@ -67,7 +69,7 @@
   </action>
   <action name="actionCurve">
    <property name="icon">
-    <iconset>
+    <iconset resource="../../../../resources/resources.qrc">
      <normaloff>:/icons/curve.png</normaloff>:/icons/curve.png</iconset>
    </property>
    <property name="text">
@@ -76,7 +78,7 @@
   </action>
   <action name="actionSurface">
    <property name="icon">
-    <iconset>
+    <iconset resource="../../../../resources/resources.qrc">
      <normaloff>:/icons/surface.png</normaloff>:/icons/surface.png</iconset>
    </property>
    <property name="text">
@@ -85,14 +87,25 @@
   </action>
   <action name="actionDebug">
    <property name="icon">
-    <iconset>
+    <iconset resource="../../../../resources/resources.qrc">
      <normaloff>:/icons/debug.png</normaloff>:/icons/debug.png</iconset>
    </property>
    <property name="text">
     <string>Debug</string>
    </property>
   </action>
+  <action name="actionLight">
+   <property name="icon">
+    <iconset resource="../../../../resources/resources.qrc">
+     <normaloff>:/icons/light.png</normaloff>:/icons/light.png</iconset>
+   </property>
+   <property name="text">
+    <string>Light</string>
+   </property>
+  </action>
  </widget>
- <resources/>
+ <resources>
+  <include location="../../../../resources/resources.qrc"/>
+ </resources>
  <connections/>
 </ui>

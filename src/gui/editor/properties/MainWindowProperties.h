@@ -20,6 +20,7 @@ public:
         CURVE,
         SURFACE,
 //        DEBUG,
+        LIGHT,
     } m_context;
 
     explicit MainWindowProperties(QWidget* parent = nullptr);
@@ -39,6 +40,8 @@ private slots:
     void on_actionSurface_triggered();
 
     void on_actionDebug_triggered();
+
+    void on_actionLight_triggered();
 
 private:
     Ui::MainWindowProperties* ui;

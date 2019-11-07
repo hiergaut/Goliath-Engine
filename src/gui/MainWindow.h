@@ -43,6 +43,7 @@ public:
     void loadStartupFile();
 //    std::list<const MainWindow3dView *> views() const;
     void previousEnvAdd(std::string file);
+    void clearViews();
 
 protected:
     void keyPressEvent(QKeyEvent *);

@@ -43,8 +43,7 @@ MainWindow::MainWindow(QWidget* parent)
 {
     QFileInfo file(m_settings.fileName());
     m_startupPath = (file.path() + "/" + startupFilename).toStdString();
-//    qDebug() << "startup path " << m_startupPath.c_str();
-
+    //    qDebug() << "startup path " << m_startupPath.c_str();
 
     ui->setupUi(this);
 
@@ -60,9 +59,8 @@ MainWindow::MainWindow(QWidget* parent)
     editor->setViews(m_views);
     editor->setStatusBar(ui->statusBar);
 
-//    Scene::m_scene->setViews(m_views);
+    //    Scene::m_scene->setViews(m_views);
     //    QListView_FileOpenned::setModelFileOpenned(&m_fileOpennedModel);
-
 
     m_previousEnv = new QStringListModel(this);
     QStringList previous = m_settings.value(opennedGoliathFile).value<QStringList>();
@@ -85,12 +83,17 @@ MainWindow::~MainWindow()
 
 void MainWindow::createStartupSession()
 {
+    clearViews();
     //        ui->page_splitterRoot->load(file);
     MainWindowEditor* wView = new MainWindowEditor;
-    //    qDebug() << "[mainApplication] create mainWindowEditor" << w;
     wView->setEditor(Editor::id::VIEW);
     QSplitterNode* nodeView = new QSplitterNode;
     nodeView->addWidget(wView);
+
+    MainWindowEditor* wView2 = new MainWindowEditor;
+    wView2->setEditor(Editor::id::VIEW);
+    QSplitterNode* nodeView2 = new QSplitterNode;
+    nodeView2->addWidget(wView2);
 
     MainWindowEditor* wTimeline = new MainWindowEditor;
     wTimeline->setEditor(Editor::id::TIMELINE);
@@ -107,12 +110,15 @@ void MainWindow::createStartupSession()
     QSplitterNode* nodeProperties = new QSplitterNode;
     nodeProperties->addWidget(wProperties);
 
-
     QSplitterNode* nodeLeft = new QSplitterNode;
     nodeLeft->addWidget(nodeView);
+    nodeLeft->addWidget(nodeView2);
     nodeLeft->addWidget(nodeTimeline);
     nodeLeft->setOrientation(Qt::Vertical);
-    nodeLeft->setSizes(QList<int>({ height() - 90, 90 }));
+    int viewHeight = (1080 - 130) / 2;
+//    int viewHeight = (height() - 130) / 2;
+//    qDebug() << "viewHeight " << viewHeight;
+    nodeLeft->setSizes(QList<int>({ viewHeight, viewHeight, 140 }));
     //    sizes << 2 * width() / 3 << width() / 3;
     //    node->setSizes(sizes);
     //    node->addWidget(w);
@@ -120,11 +126,8 @@ void MainWindow::createStartupSession()
     nodeRight->addWidget(nodeOutliner);
     nodeRight->addWidget(nodeProperties);
     nodeRight->setOrientation(Qt::Vertical);
-    nodeRight->setSizes(QList<int>({ height() /2, height() / 2 }));
+    nodeRight->setSizes(QList<int>({ height() / 2, height() / 2 }));
     //    sizes << 2 * width() / 3 << width() / 3;
-
-
-
 
     //    QSplitterNode * node2 = new QSplitterNode;
     //    node2->addWidget(node);
@@ -138,16 +141,22 @@ void MainWindow::createStartupSession()
     //    ui->page_splitterRoot->addWidget(w);
 
     editor->addDefaultCamera();
+    editor->addDefaultCamera();
+
     //    on_actionLoad_Factory_Settings_triggered();
     //    loadLastSession();
     //    saveEnv("factory.dat");
     //    saveEnv(g_resourcesPath + "dat/factory.dat");
 
     //    loadNewSession();
+
+    ui->stackedWidget->addWidget(ui->page_splitterRoot);
+    ui->stackedWidget->setCurrentWidget(ui->page_splitterRoot);
+
     setFocus();
 
+    ui->menuCurrentEnvFile->setTitle(m_startupPath.c_str());
 }
-
 
 void MainWindow::loadEnv(std::string filename)
 {
@@ -162,13 +171,14 @@ void MainWindow::loadEnv(std::string filename)
         exit(1);
     } else {
 
+        //        editor->clear();
         editor->load(file);
 
-
-        ui->stackedWidget->removeWidget(ui->page_splitterRoot);
-        delete ui->page_splitterRoot;
+        clearViews();
+        //        ui->stackedWidget->removeWidget(ui->page_splitterRoot);
+        //        delete ui->page_splitterRoot;
         //        ui->page_splitterRoot = new QSplitterNode(ui->stackedWidget);
-        ui->page_splitterRoot = new QSplitterNode;
+        //        ui->page_splitterRoot = new QSplitterNode;
         //        QSplitterNode * node = new QSplitterNode;
         //        node->load(file);
         ui->page_splitterRoot->load(file);
@@ -213,7 +223,6 @@ void MainWindow::saveEnv(std::string filename)
     }
 
     editor->save(file);
-
 
     ui->page_splitterRoot->save(file);
 
@@ -265,7 +274,12 @@ void MainWindow::showEditors()
 void MainWindow::loadLastSession() // call by main
 {
     if (m_previousEnv->rowCount() > 0) {
-        loadEnv(m_previousEnv->index(0).data().toString().toStdString());
+        std::string path = m_previousEnv->index(0).data().toString().toStdString();
+        if (path == m_startupPath) {
+            loadStartupFile();
+        } else {
+            loadEnv(path);
+        }
 
     } else {
         loadStartupFile();
@@ -276,48 +290,56 @@ void MainWindow::loadLastSession() // call by main
 void MainWindow::loadStartupFile()
 {
 
-        QFileInfo file(m_settings.fileName());
-        QDir dir(file.path());
-//        m_startupPath = (file.path() + "/" + startupFilename).toStdString();
+    QFileInfo file(m_settings.fileName());
+    QDir dir(file.path());
+    //        m_startupPath = (file.path() + "/" + startupFilename).toStdString();
 
+    //    std::string startupFile = file.path().toStdString() + "/startup.dat";
+    QFile startupFile(m_startupPath.c_str());
 
-        //    std::string startupFile = file.path().toStdString() + "/startup.dat";
-        QFile startupFile(m_startupPath.c_str());
+    if (startupFile.exists()) {
+        //        QDir::mkpath(dir.path());
+        //        dir.mkpath(".");
+        loadEnv(startupFile.fileName().toStdString());
+    } else {
+        //            loadEnv(g_resourcesPath + "dat/factory.dat");
+        createStartupSession();
 
-        if (startupFile.exists()) {
-            //        QDir::mkpath(dir.path());
-            //        dir.mkpath(".");
-            loadEnv(startupFile.fileName().toStdString());
-        } else {
-            //            loadEnv(g_resourcesPath + "dat/factory.dat");
-            createStartupSession();
-
-            dir.mkpath(".");
-            saveEnv(startupFile.fileName().toStdString());
-        }
+        dir.mkpath(".");
+        saveEnv(startupFile.fileName().toStdString());
+    }
 }
 
 void MainWindow::previousEnvAdd(std::string file)
 {
     //    if (file != m_startupPath && file != std::string(g_resourcesPath + "dat/factory.dat")) {
-    if (file != m_startupPath) {
-        //        qDebug() << "same " << filename.c_str() << m_startupPath.c_str();
-        QStringList files = m_settings.value(opennedGoliathFile).value<QStringList>();
-        //    QString file = ui->lineEdit_currentPath->text();
-        if (!files.contains(file.c_str())) {
-            //            files += file.c_str();
-            files.insert(0, file.c_str());
 
-        } else {
-            int idx = files.indexOf(file.c_str());
-            files.move(idx, 0);
-        }
+    //    if (file != m_startupPath) {
+    //        qDebug() << "same " << filename.c_str() << m_startupPath.c_str();
+    QStringList files = m_settings.value(opennedGoliathFile).value<QStringList>();
+    //    QString file = ui->lineEdit_currentPath->text();
+    if (!files.contains(file.c_str())) {
+        //            files += file.c_str();
+        files.insert(0, file.c_str());
 
-        m_settings.setValue(::opennedGoliathFile, QVariant::fromValue(files));
-        //    pullSettingsRecentModel();
-        m_previousEnv->setStringList(files);
-        //    m_previousEnv->layoutChanged();
+    } else {
+        int idx = files.indexOf(file.c_str());
+        files.move(idx, 0);
     }
+
+    m_settings.setValue(::opennedGoliathFile, QVariant::fromValue(files));
+    //    pullSettingsRecentModel();
+    m_previousEnv->setStringList(files);
+    //    m_previousEnv->layoutChanged();
+    //    }
+}
+
+void MainWindow::clearViews()
+{
+    ui->stackedWidget->removeWidget(ui->page_splitterRoot);
+    delete ui->page_splitterRoot;
+    //        ui->page_splitterRoot = new QSplitterNode(ui->stackedWidget);
+    ui->page_splitterRoot = new QSplitterNode;
 }
 
 void MainWindow::keyPressEvent(QKeyEvent* ev)
@@ -384,6 +406,8 @@ void MainWindow::on_actionLoad_Factory_Settings_triggered()
 {
     //    loadEnv("factory.dat");
     //    loadEnv(g_resourcesPath + "dat/factory.dat");
+    editor->clear();
+    createStartupSession();
 }
 
 void MainWindow::on_actionSave_Startup_File_triggered()
@@ -406,13 +430,13 @@ void MainWindow::on_actionSave_Startup_File_triggered()
 void MainWindow::on_actionNew_triggered()
 {
     //    loadEnv("/home/gauthier/.config/Goliath-Engine/startup.dat");
-//    QFileInfo file(m_settings.fileName());
-//    loadEnv((file.path() + "/" + startupFilename).toStdString());
+    //    QFileInfo file(m_settings.fileName());
+    //    loadEnv((file.path() + "/" + startupFilename).toStdString());
 
+    editor->clear();
 
-//    editor->clear();
-
-    loadStartupFile();
+    //    loadStartupFile();
+    createStartupSession();
 }
 
 void MainWindow::on_actionImport_triggered()
@@ -456,9 +480,9 @@ void MainWindow::on_systemBrowserSaved(QString file)
 void MainWindow::on_systemBrowserImported(QString file)
 {
     showEditors();
-//    for (const MainWindow3dView * view : *m_views) {
+    //    for (const MainWindow3dView * view : *m_views) {
 
-//    }
+    //    }
     editor->loadNewModel(file.toStdString());
 }
 

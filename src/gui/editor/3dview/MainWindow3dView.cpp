@@ -228,6 +228,7 @@ void MainWindow3dView::load(std::ifstream& file)
     Session::load(m_iCamera, file);
     updateCameraId();
 
+    Q_ASSERT(m_iCamera < Scene::m_cameras.size());
     Camera* m_camera = Scene::m_cameras[m_iCamera];
     if (m_camera->m_cameraStrategy->m_type == CameraStrategy::FPS) {
         static_cast<CameraFps*>(m_camera->m_cameraStrategy)->m_view = this;

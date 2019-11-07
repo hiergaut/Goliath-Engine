@@ -139,6 +139,11 @@ void Object::drawBoundingBox(const Shader &shader) const
     m_model->drawBoundingBox(shader);
 }
 
+void Object::setLatestSelected()
+{
+
+}
+
 //void Object::updateBoundingBox()
 //{
 //    m_model->updateBoundingBox();

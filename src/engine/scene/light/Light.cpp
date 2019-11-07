@@ -1,6 +1,7 @@
 #include "Light.h"
 
 #include <session/Session.h>
+#include <QDebug>
 //#include <opengl/geometry/QuadGeometry.h>
 //#include <engine/scene/Scene.h>
 //Light::Light()
@@ -12,6 +13,7 @@
 //{
 
 //}
+#include <gui/editor/properties/context/light/FormContextLight.h>
 
 
 Light::Light(const glm::vec3 ambient, const glm::vec3 diffuse, const glm::vec3 specular)
@@ -43,6 +45,17 @@ void Light::save(std::ofstream& file) const
     Session::save(m_ambient, file);
     Session::save(m_diffuse, file);
     Session::save(m_specular, file);
+}
+
+void Light::setSelected(bool selected)
+{
+    if (selected) {
+//        FormContextLight::m_light = this;
+        FormContextLight::setLight(this);
+    }
+    else {
+
+    }
 }
 
 //Light::Light(const glm::vec3 position)

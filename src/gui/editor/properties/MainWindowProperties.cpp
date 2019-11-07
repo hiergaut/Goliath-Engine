@@ -5,6 +5,7 @@
 #include "context/curve/FormContextCurve.h"
 #include "context/surface/FormContextSurface.h"
 #include "context/debug/FormContextDebug.h"
+#include "context/light/FormContextLight.h"
 #include <session/Session.h>
 
 MainWindowProperties::MainWindowProperties(QWidget *parent) :
@@ -66,11 +67,16 @@ void MainWindowProperties::setContext(Type context)
         ui->menuCurrentContext->setTitle("Surface");
         break;
 
+
 //    case Type::DEBUG:
 //        setCentralWidget(new FormContextDebug);
 //        ui->menuCurrentContext->setTitle("Debug");
 //        break;
 
+    case Type::LIGHT:
+        setCentralWidget(new FormContextLight);
+        ui->menuCurrentContext->setTitle("Light");
+        break;
     }
 
     centralWidget()->setFocusPolicy(Qt::ClickFocus);
@@ -106,4 +112,9 @@ void MainWindowProperties::on_actionSurface_triggered()
 void MainWindowProperties::on_actionDebug_triggered()
 {
 //    setContext(Type::DEBUG);
+}
+
+void MainWindowProperties::on_actionLight_triggered()
+{
+    setContext(Type::LIGHT);
 }
