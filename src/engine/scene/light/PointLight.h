@@ -20,9 +20,12 @@ class PointLight : public Light, public Object
 {
 public:
 //    glm::vec3 m_direction;
-    float m_constant = 1.0f;
+    float m_constant = 0.5f;
+//    float m_linear = 0.005f;
     float m_linear = 0.0f;
-    float m_quadratic = 0.000005f;
+    float m_quadratic = 0.000001f;
+//    float m_quadratic = 0.0f;
+//    float m_quadratic = 0.00001f;
 
 public:
 
@@ -36,6 +39,7 @@ protected:
     void draw(const Shader &shader, bool dotCloud, const Frustum & frustum, const glm::mat4 &localTransform = glm::mat4(1.0f), const glm::mat4 &worldTransform = glm::mat4(1.0f)) const override;
     void draw(const Shader &shader, const glm::mat4 &localTransform = glm::mat4(1.0f), const glm::mat4 &worldTransform = glm::mat4(1.0f)) const override;
 
+    void prepareHierarchy(ulong frameTime) const override;
 //    void setSelected(bool selected) override;
 
 public:

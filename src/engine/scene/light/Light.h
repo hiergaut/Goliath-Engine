@@ -18,6 +18,9 @@ public:
     //    BoundingBox m_box;
     mutable bool m_shadowComputed;
 
+    mutable float m_coeffBlink = 1.0f;
+    bool m_blink = false;
+
 public:
     enum Type {
         SUN,

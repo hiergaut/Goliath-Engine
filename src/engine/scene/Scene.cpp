@@ -11,8 +11,8 @@
 #include "model/paramModel/ParamModel.h"
 #include "model/paramModel/surface/BSplineSurface.h"
 #include <gui/editor/properties/context/curve/FormContextCurve.h>
-#include <gui/editor/properties/context/surface/FormContextSurface.h>
 #include <gui/editor/properties/context/light/FormContextLight.h>
+#include <gui/editor/properties/context/surface/FormContextSurface.h>
 #include <gui/editor/timeline/FormTimeline.h>
 #include <opengl/geometry/AxisGeometry.h>
 #include <opengl/geometry/DotGeometry.h>
@@ -1519,14 +1519,11 @@ void Scene::prepareLightUniform(const MainWindow3dView& view, const Shader& shad
     if (view.m_shade == Shader::Type::RENDERED) {
         shader.setBool("shadow", m_computeShadow);
 
-        //                for (const DirLight & dirLight : m_dirLights) {
         uint nbDirLight = m_dirLights.size();
         shader.setInt("nbDirLight", nbDirLight);
         for (uint i = 0; i < nbDirLight; ++i) {
             const DirLight& dirLight = m_dirLights[i];
 
-            //                        dirLight.draw(shader);
-            //            shader.setInt("shadowMap", 5 + i);
             shader.setInt("dirLight[" + QString::number(i).toStdString() + "].id", i);
             shader.setInt("dirLight[" + QString::number(i).toStdString() + "].shadowMap", 5 + i);
             glActiveTexture(GL_TEXTURE5 + i);
@@ -1535,26 +1532,14 @@ void Scene::prepareLightUniform(const MainWindow3dView& view, const Shader& shad
                 shader.setMat4("dirLight[" + QString::number(i).toStdString() + "].lightSpaceMatrix", dirLight.lightSpaceMatrix(m_localTransform));
                 shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].direction", glm::vec4(dirLight.direction(m_localTransform), 1.0f));
             } else {
-                //                shader.setMat4("lightSpaceMatrix", dirLight.lightSpaceMatrix());
                 shader.setMat4("dirLight[" + QString::number(i).toStdString() + "].lightSpaceMatrix", dirLight.lightSpaceMatrix());
                 shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].direction", glm::vec4(dirLight.direction(), 1.0f));
             }
 
-            //            shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].ambient", dirLight.m_ambient);
             shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].ambient", glm::vec3(0.4f));
-            //            shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].diffuse", dirLight.m_diffuse);
             shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].diffuse", glm::vec3(1.0f));
-            //            shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].specular", dirLight.m_specular);
             shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].specular", glm::vec3(1.0f));
 
-            //            shader.setVec3("dirLight[" + QString::number(0).toStdString() + "].direction", -0.2f, -1.0f, -0.3f);
-            //            shader.setVec3("dirLight[" + QString::number(0).toStdString() + "].ambient", 0.05f, 0.05f, 0.05f);
-            //            shader.setVec3("dirLight[" + QString::number(0).toStdString() + "].diffuse", 0.4f, 0.4f, 0.4f);
-            //            shader.setVec3("dirLight[" + QString::number(0).toStdString() + "].specular", 0.5f, 0.5f, 0.5f);
-
-            //                    shader.setVec3("dirLight.ambient", dirLight.m_ambient);
-            //                    shader.setVec3("dirLight.diffuse", dirLight.m_diffuse);
-            //                    shader.setVec3("dirLight.specular", dirLight.m_specular);
         }
 
         uint nbPointLight = m_pointLights.size();
@@ -1575,13 +1560,14 @@ void Scene::prepareLightUniform(const MainWindow3dView& view, const Shader& shad
             } else {
                 shader.setVec3("pointLights[" + QString::number(i).toStdString() + "].position", pointLight.position());
             }
-//            shader.setFloat("pointLights[" + QString::number(i).toStdString() + "].constant", 1.0f);
-//            shader.setFloat("pointLights[" + QString::number(i).toStdString() + "].linear", 0.00002f);
-//            shader.setFloat("pointLights[" + QString::number(i).toStdString() + "].quadratic", 0.000005f);
-//            shader.setVec3("pointLights[" + QString::number(i).toStdString() + "].ambient", glm::vec3(0.0f));
-//            shader.setVec3("pointLights[" + QString::number(i).toStdString() + "].diffuse", glm::vec3(1.0f));
-//            shader.setVec3("pointLights[" + QString::number(i).toStdString() + "].specular", glm::vec3(1.0f));
-            shader.setFloat("pointLights[" + QString::number(i).toStdString() + "].constant", pointLight.m_constant);
+            //            shader.setFloat("pointLights[" + QString::number(i).toStdString() + "].constant", 1.0f);
+            //            shader.setFloat("pointLights[" + QString::number(i).toStdString() + "].linear", 0.00002f);
+            //            shader.setFloat("pointLights[" + QString::number(i).toStdString() + "].quadratic", 0.000005f);
+            //            shader.setVec3("pointLights[" + QString::number(i).toStdString() + "].ambient", glm::vec3(0.0f));
+            //            shader.setVec3("pointLights[" + QString::number(i).toStdString() + "].diffuse", glm::vec3(1.0f));
+            //            shader.setVec3("pointLights[" + QString::number(i).toStdString() + "].specular", glm::vec3(1.0f));
+            float coeffBlink = pointLight.m_coeffBlink;
+            shader.setFloat("pointLights[" + QString::number(i).toStdString() + "].constant", pointLight.m_constant + coeffBlink);
             shader.setFloat("pointLights[" + QString::number(i).toStdString() + "].linear", pointLight.m_linear);
             shader.setFloat("pointLights[" + QString::number(i).toStdString() + "].quadratic", pointLight.m_quadratic);
             shader.setVec3("pointLights[" + QString::number(i).toStdString() + "].ambient", pointLight.m_ambient);
@@ -1593,8 +1579,10 @@ void Scene::prepareLightUniform(const MainWindow3dView& view, const Shader& shad
         shader.setInt("nbSpotLight", nbSpotLight);
         for (uint i = 0; i < nbSpotLight; ++i) {
             const SpotLight& spotLight = m_spotLights[i];
-            shader.setFloat("spotLights[" + QString::number(i).toStdString() + "].cutOff", glm::cos(glm::radians(12.5f)));
-            shader.setFloat("spotLights[" + QString::number(i).toStdString() + "].outerCutOff", glm::cos(glm::radians(15.0f)));
+//            shader.setFloat("spotLights[" + QString::number(i).toStdString() + "].cutOff", glm::cos(glm::radians(12.5f)));
+            shader.setFloat("spotLights[" + QString::number(i).toStdString() + "].cutOff", spotLight.m_cutOff);
+//            shader.setFloat("spotLights[" + QString::number(i).toStdString() + "].outerCutOff", glm::cos(glm::radians(15.0f)));
+            shader.setFloat("spotLights[" + QString::number(i).toStdString() + "].outerCutOff", spotLight.m_outerCutOff);
 
             shader.setInt("spotLights[" + QString::number(i).toStdString() + "].id", nbDirLight + i);
             shader.setInt("spotLights[" + QString::number(i).toStdString() + "].shadowMap", nbDirLight + MAX_POINT_LIGHT + 5 + i);
@@ -1611,18 +1599,19 @@ void Scene::prepareLightUniform(const MainWindow3dView& view, const Shader& shad
                 shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].position", spotLight.position());
                 shader.setMat4("spotLights[" + QString::number(i).toStdString() + "].lightSpaceMatrix", spotLight.lightSpaceMatrix());
             }
-            shader.setFloat("spotLights[" + QString::number(i).toStdString() + "].constant", 0.5f);
-            //            shader.setFloat("spotLights[" + QString::number(i).toStdString() + "].linear", 0.09f);
-            shader.setFloat("spotLights[" + QString::number(i).toStdString() + "].linear", 0.00f);
-            //            shader.setFloat("spotLights[" + QString::number(i).toStdString() + "].quadratic", 0.032f);
-            shader.setFloat("spotLights[" + QString::number(i).toStdString() + "].quadratic", 0.0000000f);
+//            shader.setFloat("spotLights[" + QString::number(i).toStdString() + "].constant", 0.5f);
+//            shader.setFloat("spotLights[" + QString::number(i).toStdString() + "].linear", 0.00f);
+//            shader.setFloat("spotLights[" + QString::number(i).toStdString() + "].quadratic", 0.0000000f);
+//            shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].ambient", glm::vec3(0.0f));
+//            shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].diffuse", glm::vec3(1.0f));
+//            shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].specular", glm::vec3(1.0f));
 
-            //            shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].ambient", spotLight.m_ambient);
-            shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].ambient", glm::vec3(0.0f));
-            //            shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].diffuse", spotLight.m_diffuse);
-            shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].diffuse", glm::vec3(1.0f));
-            //            shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].specular", spotLight.m_specular);
-            shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].specular", glm::vec3(1.0f));
+            shader.setFloat("spotLights[" + QString::number(i).toStdString() + "].constant", spotLight.m_constant);
+            shader.setFloat("spotLights[" + QString::number(i).toStdString() + "].linear", spotLight.m_linear);
+            shader.setFloat("spotLights[" + QString::number(i).toStdString() + "].quadratic", spotLight.m_quadratic);
+            shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].ambient", spotLight.m_ambient);
+            shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].diffuse", spotLight.m_diffuse);
+            shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].specular", spotLight.m_specular);
         }
 
         uint cpt = 0;
@@ -1649,16 +1638,10 @@ void Scene::prepareLightUniform(const MainWindow3dView& view, const Shader& shad
                     shader.setMat4("spotLights[" + QString::number(i).toStdString() + "].lightSpaceMatrix", camera->lightSpaceMatrix());
                 }
                 shader.setFloat("spotLights[" + QString::number(i).toStdString() + "].constant", 1.0f);
-                //            shader.setFloat("spotLights[" + QString::number(i).toStdString() + "].linear", 0.09f);
                 shader.setFloat("spotLights[" + QString::number(i).toStdString() + "].linear", 0.00f);
-                //            shader.setFloat("spotLights[" + QString::number(i).toStdString() + "].quadratic", 0.032f);
                 shader.setFloat("spotLights[" + QString::number(i).toStdString() + "].quadratic", 0.0000000f);
-
-                //            shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].ambient", spotLight.m_ambient);
                 shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].ambient", glm::vec3(0.0f));
-                //            shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].diffuse", spotLight.m_diffuse);
                 shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].diffuse", glm::vec3(1.0f));
-                //            shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].specular", spotLight.m_specular);
                 shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].specular", glm::vec3(1.0f));
             }
         }
@@ -2017,7 +2000,8 @@ void Scene::drawOriginModel(const MainWindow3dView& view, const Shader& shader, 
             }
 
             if (object == m_selectObject) {
-                DotGeometry::draw(m_worldTransform * object->transform() * m_localTransform, shader, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+                if (shader.m_shade != Shader::Type::RENDERED)
+                    DotGeometry::draw(m_worldTransform * object->transform() * m_localTransform, shader, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
                 //            DotGeometry::draw(m_worldTransform * object->m_model->m_transform * m_localTransform, shader, glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));
             }
         }

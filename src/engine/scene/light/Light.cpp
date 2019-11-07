@@ -35,6 +35,7 @@ void Light::load(std::ifstream& file)
     Session::load(m_ambient, file);
     Session::load(m_diffuse, file);
     Session::load(m_specular, file);
+    Session::load(m_blink, file);
 
 //    initGL();
 }
@@ -45,6 +46,7 @@ void Light::save(std::ofstream& file) const
     Session::save(m_ambient, file);
     Session::save(m_diffuse, file);
     Session::save(m_specular, file);
+    Session::save(m_blink, file);
 }
 
 void Light::setSelected(bool selected)

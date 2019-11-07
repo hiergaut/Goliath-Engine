@@ -49,17 +49,47 @@ void FormContextLight::updateUi()
     ui->doubleSpinBox_ambient_red->setValue(m_light->m_ambient.r);
     ui->doubleSpinBox_ambient_green->setValue(m_light->m_ambient.g);
     ui->doubleSpinBox_ambient_blue->setValue(m_light->m_ambient.b);
-    ui->frame_ambient->setStyleSheet(QString("background-color: rgb(%1,%2,%3);").arg(m_light->m_ambient.r * 255).arg(m_light->m_ambient.g * 255).arg(m_light->m_ambient.b * 255));
+    bool inside = true;
+    for (uint i = 0; i < 3; ++i) {
+        float var = m_light->m_ambient[i];
+        inside = inside && var >= 0.0f && var <= 1.0f;
+    }
+    if (inside) {
+        ui->frame_ambient->setStyleSheet(QString("background-color: rgb(%1,%2,%3);").arg(m_light->m_ambient.r * 255).arg(m_light->m_ambient.g * 255).arg(m_light->m_ambient.b * 255));
+    } else {
+        ui->frame_ambient->setStyleSheet(QString("background-color: rgb(255,0,255);"));
+    }
 
     ui->doubleSpinBox_diffuse_red->setValue(m_light->m_diffuse.r);
     ui->doubleSpinBox_diffuse_green->setValue(m_light->m_diffuse.g);
     ui->doubleSpinBox_diffuse_blue->setValue(m_light->m_diffuse.b);
-    ui->frame_diffuse->setStyleSheet(QString("background-color: rgb(%1,%2,%3);").arg(m_light->m_diffuse.r * 255).arg(m_light->m_diffuse.g * 255).arg(m_light->m_diffuse.b * 255));
+    inside = true;
+    for (uint i = 0; i < 3; ++i) {
+        float var = m_light->m_diffuse[i];
+        inside = inside && var >= 0.0f && var <= 1.0f;
+    }
+    if (inside) {
+        ui->frame_diffuse->setStyleSheet(QString("background-color: rgb(%1,%2,%3);").arg(m_light->m_diffuse.r * 255).arg(m_light->m_diffuse.g * 255).arg(m_light->m_diffuse.b * 255));
+    } else {
+        ui->frame_diffuse->setStyleSheet(QString("background-color: rgb(255,0,255);"));
+    }
+//    ui->frame_diffuse->setStyleSheet(QString("background-color: rgb(%1,%2,%3);").arg(m_light->m_diffuse.r * 255).arg(m_light->m_diffuse.g * 255).arg(m_light->m_diffuse.b * 255));
+
 
     ui->doubleSpinBox_specular_red->setValue(m_light->m_specular.r);
     ui->doubleSpinBox_specular_green->setValue(m_light->m_specular.g);
     ui->doubleSpinBox_specular_blue->setValue(m_light->m_specular.b);
-    ui->frame_specular->setStyleSheet(QString("background-color: rgb(%1,%2,%3);").arg(m_light->m_specular.r * 255).arg(m_light->m_specular.g * 255).arg(m_light->m_specular.b * 255));
+    inside = true;
+    for (uint i = 0; i < 3; ++i) {
+        float var = m_light->m_specular[i];
+        inside = inside && var >= 0.0f && var <= 1.0f;
+    }
+    if (inside) {
+        ui->frame_specular->setStyleSheet(QString("background-color: rgb(%1,%2,%3);").arg(m_light->m_specular.r * 255).arg(m_light->m_specular.g * 255).arg(m_light->m_specular.b * 255));
+    } else {
+        ui->frame_specular->setStyleSheet(QString("background-color: rgb(255,0,255);"));
+    }
+//    ui->frame_specular->setStyleSheet(QString("background-color: rgb(%1,%2,%3);").arg(m_light->m_specular.r * 255).arg(m_light->m_specular.g * 255).arg(m_light->m_specular.b * 255));
 
     //    switch (m_light->m_type) {
     if (m_light->m_type == Light::Type::SPOT) {
@@ -81,12 +111,13 @@ void FormContextLight::updateUi()
 
         ui->groupBox_attenuation->setEnabled(true);
         ui->groupBox_spot->setEnabled(false);
-    }
-    else {
+    } else {
         ui->groupBox_attenuation->setEnabled(false);
         ui->groupBox_spot->setEnabled(false);
     }
     //    ui->doubleSpinBox_constant->setValue(m_light.m_)
+
+    ui->checkBox->setChecked(m_light->m_blink);
 
     setEnabled(true);
 }
@@ -96,12 +127,14 @@ void FormContextLight::on_doubleSpinBox_ambient_red_valueChanged(double arg1)
     //    qDebug() << "red";
     if (m_light != nullptr) {
         m_light->m_ambient[0] = arg1;
+        updateUi();
     }
 }
 void FormContextLight::on_doubleSpinBox_ambient_green_valueChanged(double arg1)
 {
     if (m_light != nullptr) {
         m_light->m_ambient[1] = arg1;
+        updateUi();
     }
 }
 
@@ -109,6 +142,7 @@ void FormContextLight::on_doubleSpinBox_ambient_blue_valueChanged(double arg1)
 {
     if (m_light != nullptr) {
         m_light->m_ambient[2] = arg1;
+        updateUi();
     }
 }
 
@@ -117,6 +151,7 @@ void FormContextLight::on_doubleSpinBox_diffuse_red_valueChanged(double arg1)
 
     if (m_light != nullptr) {
         m_light->m_diffuse[0] = arg1;
+        updateUi();
     }
 }
 void FormContextLight::on_doubleSpinBox_diffuse_green_valueChanged(double arg1)
@@ -124,6 +159,7 @@ void FormContextLight::on_doubleSpinBox_diffuse_green_valueChanged(double arg1)
 
     if (m_light != nullptr) {
         m_light->m_diffuse[1] = arg1;
+        updateUi();
     }
 }
 
@@ -131,6 +167,7 @@ void FormContextLight::on_doubleSpinBox_diffuse_blue_valueChanged(double arg1)
 {
     if (m_light != nullptr) {
         m_light->m_diffuse[2] = arg1;
+        updateUi();
     }
 }
 
@@ -139,6 +176,7 @@ void FormContextLight::on_doubleSpinBox_specular_red_valueChanged(double arg1)
 
     if (m_light != nullptr) {
         m_light->m_specular[0] = arg1;
+        updateUi();
     }
 }
 void FormContextLight::on_doubleSpinBox_specular_green_valueChanged(double arg1)
@@ -146,6 +184,7 @@ void FormContextLight::on_doubleSpinBox_specular_green_valueChanged(double arg1)
 
     if (m_light != nullptr) {
         m_light->m_specular[1] = arg1;
+        updateUi();
     }
 }
 
@@ -155,6 +194,7 @@ void FormContextLight::on_doubleSpinBox_specular_blue_valueChanged(double arg1)
 
     if (m_light != nullptr) {
         m_light->m_specular[2] = arg1;
+        updateUi();
     }
 }
 
@@ -254,5 +294,12 @@ void FormContextLight::on_doubleSpinBox_quadratic_valueChanged(double arg1)
             light->m_quadratic = arg1;
         }
         updateUi();
+    }
+}
+
+void FormContextLight::on_checkBox_stateChanged(int arg1)
+{
+    if (m_light != nullptr) {
+        m_light->m_blink = arg1;
     }
 }

@@ -41,12 +41,13 @@ void DirLight::draw(const Shader& shader, bool dotCloud, const Frustum& frustum,
         //    shader.use();
         shader.setMat4("model", worldTransform * m_model->transform() * local);
 
-        //    shader.setBool("userColor", false);
-        //    shader.setVec4("color", glm::vec4(1.0f, 0, 0, 1));
+//            shader.setBool("userColor", true);
+//            shader.setVec4("color", glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
         //        shader.setBool("hasTexture", true);
         shader.setBool("has_texture_diffuse", true);
-        shader.setInt("texture_diffuse", 5);
-        glActiveTexture(GL_TEXTURE5);
+        shader.setBool("hasCubeMap", false);
+        shader.setInt("texture_diffuse", 25);
+        glActiveTexture(GL_TEXTURE25);
         glBindTexture(GL_TEXTURE_2D, m_depthMap);
         QuadGeometry::draw();
         shader.setBool("has_texture_diffuse", false);
@@ -60,6 +61,20 @@ void DirLight::draw(const Shader& shader, bool dotCloud, const Frustum& frustum,
 void DirLight::draw(const Shader& shader, const glm::mat4& localTransform, const glm::mat4& worldTransform) const
 {
     Object::draw(shader, localTransform, worldTransform);
+}
+
+void DirLight::prepareHierarchy(ulong frameTime) const
+{
+    if (m_blink) {
+        //    m_coeffBlink = std::fmax(std::cos((std::fabs(frameTime) * 0.01f)) * 10.0f, 0.0f);
+        const ulong period = 1000;
+        m_coeffBlink = std::fmax(frameTime & period - period / 2, 0.0f) * 0.1f;
+    }
+    else {
+        m_coeffBlink = 0.0f;
+    }
+    //    qDebug() << m_coeffBlink;
+
 }
 
 //void DirLight::setSelected(bool selected)
@@ -220,6 +235,7 @@ glm::mat4 DirLight::lightSpaceMatrix(const glm::mat4& localTransform) const
 
     ///
 
+//    qDebug() << "radius " << radius;
     lightProjection = glm::ortho(-radius, radius, -radius, radius, 10.0f, 2.0f * radius);
     //        lightView = glm::lookAt(pos(localTransform), center, glm::vec3(0.0, 1.0, 0.0));
     //    lightView = viewMatrix();

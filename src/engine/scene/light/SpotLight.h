@@ -12,9 +12,12 @@ class SpotLight : public Light, public Object
 {
 public:
 //    glm::vec3 m_direction;
-    float m_constant = 1.0f;
+    float m_constant = 0.5f;
     float m_linear = 0.0f;
-    float m_quadratic = 0.000005f;
+    float m_quadratic = 0.00000f;
+
+    float m_cutOff = glm::cos(glm::radians(12.5f));
+    float m_outerCutOff = glm::cos(glm::radians(15.0f));
 
 public:
 
@@ -27,6 +30,7 @@ protected:
     void draw(const Shader &shader, const glm::mat4 &localTransform = glm::mat4(1.0f), const glm::mat4 &worldTransform = glm::mat4(1.0f)) const override;
 
 //    void setSelected(bool selected) override;
+    void prepareHierarchy(ulong frameTime) const override;
 
 public:
     SpotLight(const glm::vec3 position, const glm::vec3 direction, const glm::vec3 ambient = glm::vec3(0.0f), const glm::vec3 diffuse = glm::vec3(1.0f), const glm::vec3 specular = glm::vec3(1.0f));

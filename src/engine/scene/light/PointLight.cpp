@@ -43,7 +43,7 @@ void PointLight::draw(const Shader& shader, bool dotCloud, const Frustum& frustu
         shader.setBool("hasCubeMap", true);
         shader.setVec3("cubeCenter", position(localTransform, worldTransform));
 
-//        glBindTexture(GL_TEXTURE_CUBE_MAP, m_depthMap[0]);
+        //        glBindTexture(GL_TEXTURE_CUBE_MAP, m_depthMap[0]);
         glBindTexture(GL_TEXTURE_CUBE_MAP, m_depthMap);
         shader.setMat4("model", glm::scale(worldTransform * m_model->transform() * localTransform, glm::vec3(1.0f) * 15.4f));
         CubeMapGeometry::draw();
@@ -54,8 +54,13 @@ void PointLight::draw(const Shader& shader, bool dotCloud, const Frustum& frustu
     } else {
 
         shader.setBool("userColor", true);
-        float value = 2.0f;
-        shader.setVec4("color", glm::vec4(value, value, value, 1.0f));
+        //        float value = 2.0f;
+        //        shader.setVec4("color", glm::vec4(value, value, value, 1.0f));
+        if (m_coeffBlink < 2.0f) {
+            shader.setVec4("color", glm::vec4(m_diffuse * 2.0f, 1.0f));
+        } else {
+            shader.setVec4("color", glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+        }
         Object::draw(shader, dotCloud, frustum, localTransform, worldTransform);
         //    shader.setVec4("color", glm::vec4(1.0f, 0.5f, 0.5f, 1.0f));
         shader.setBool("userColor", false);
@@ -109,6 +114,19 @@ void PointLight::draw(const Shader& shader, bool dotCloud, const Frustum& frustu
 void PointLight::draw(const Shader& shader, const glm::mat4& localTransform, const glm::mat4& worldTransform) const
 {
     Object::draw(shader, localTransform, worldTransform);
+}
+
+void PointLight::prepareHierarchy(ulong frameTime) const
+{
+    if (m_blink) {
+        //    m_coeffBlink = std::fmax(std::cos((std::fabs(frameTime) * 0.01f)) * 10.0f, 0.0f);
+        const ulong period = 1000;
+        m_coeffBlink = std::fmax(frameTime & period - period / 2, 0.0f) * 0.1f;
+    }
+    else {
+        m_coeffBlink = 0.0f;
+    }
+    //    qDebug() << m_coeffBlink;
 }
 
 //void PointLight::setSelected(bool selected)
@@ -201,37 +219,37 @@ void PointLight::initGL()
 {
     m_fun = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
 
-//    for (uint i = 0; i < 1; ++i) {
-        m_fun->glGenFramebuffers(1, &m_depthFbo);
+    //    for (uint i = 0; i < 1; ++i) {
+    m_fun->glGenFramebuffers(1, &m_depthFbo);
 
-        glGenTextures(1, &m_depthMap);
-        glBindTexture(GL_TEXTURE_CUBE_MAP, m_depthMap);
-        for (unsigned int j = 0; j < 6; ++j)
-            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + j, 0, GL_DEPTH_COMPONENT, shadow_size, shadow_size, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
-        //    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT,
-        //        SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-        //    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        //    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        //    //    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        //    //    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        //    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-        //    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-        //    float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
-        //    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+    glGenTextures(1, &m_depthMap);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, m_depthMap);
+    for (unsigned int j = 0; j < 6; ++j)
+        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + j, 0, GL_DEPTH_COMPONENT, shadow_size, shadow_size, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+    //    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT,
+    //        SHADOW_WIDTH, SHADOW_HEIGHT, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+    //    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    //    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    //    //    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    //    //    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    //    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+    //    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+    //    float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+    //    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
 
-        m_fun->glBindFramebuffer(GL_FRAMEBUFFER, m_depthFbo);
-        m_fun->glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, m_depthMap, 0);
-        glDrawBuffer(GL_NONE);
-        glReadBuffer(GL_NONE);
-        //        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-        //    glEnable(GL_CULL_FACE);
-        m_fun->glBindFramebuffer(GL_FRAMEBUFFER, 0);
-//    }
+    m_fun->glBindFramebuffer(GL_FRAMEBUFFER, m_depthFbo);
+    m_fun->glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, m_depthMap, 0);
+    glDrawBuffer(GL_NONE);
+    glReadBuffer(GL_NONE);
+    //        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    //    glEnable(GL_CULL_FACE);
+    m_fun->glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    //    }
 
     //    m_simpleDepthShader = new Shader("shadow/dirlight_shadow_depth.vsh", "shadow/dirlight_shadow_depth.fsh");
     m_simpleDepthShader = new Shader("shadow/pointLight_shadows_depth.vsh", "shadow/pointLight_shadows_depth.fsh", "shadow/pointLight_shadows_depth.gsh");
@@ -253,7 +271,7 @@ void PointLight::initViewMatrix()
 
 Shader& PointLight::depthShader(const glm::mat4& localTransform, const glm::mat4& worldTransform) const
 {
-    Q_ASSERT(! m_shadowComputed);
+    Q_ASSERT(!m_shadowComputed);
     //    glViewport(200, 200, 100, 100);
     //    m_fun->glBindFramebuffer(GL_FRAMEBUFFER, m_depthFbo);
     //    glClear(GL_DEPTH_BUFFER_BIT);
@@ -295,7 +313,6 @@ Shader& PointLight::depthShader(const glm::mat4& localTransform, const glm::mat4
         m_simpleDepthShader->setMat4("shadowMatrices[" + std::to_string(i) + "]", shadowTransforms[i]);
     m_simpleDepthShader->setFloat("far_plane", m_far_plane);
     m_simpleDepthShader->setVec3("lightPos", pos);
-
 
     m_shadowComputed = true;
 

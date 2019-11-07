@@ -45,7 +45,7 @@ void SpotLight::draw(const Shader& shader, bool dotCloud, const Frustum &frustum
         shader.setMat4("model", worldTransform * m_model->transform() * local);
 
         glActiveTexture(GL_TEXTURE5);
-        //    shader.setBool("userColor", false);
+            shader.setBool("userColor", false);
         //    shader.setVec4("color", glm::vec4(1.0f, 0, 0, 1));
         shader.setBool("has_texture_diffuse", true);
         shader.setInt("texture_diffuse", 5);
@@ -62,6 +62,20 @@ void SpotLight::draw(const Shader& shader, bool dotCloud, const Frustum &frustum
 void SpotLight::draw(const Shader& shader, const glm::mat4& localTransform, const glm::mat4& worldTransform) const
 {
     Object::draw(shader, localTransform, worldTransform);
+}
+
+void SpotLight::prepareHierarchy(ulong frameTime) const
+{
+    if (m_blink) {
+        //    m_coeffBlink = std::fmax(std::cos((std::fabs(frameTime) * 0.01f)) * 10.0f, 0.0f);
+        const ulong period = 1000;
+        m_coeffBlink = std::fmax(frameTime & period - period / 2, 0.0f) * 0.1f;
+    }
+    else {
+        m_coeffBlink = 0.0f;
+    }
+    //    qDebug() << m_coeffBlink;
+
 }
 
 //void SpotLight::setSelected(bool selected)
