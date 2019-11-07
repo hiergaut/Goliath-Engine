@@ -145,6 +145,8 @@ void CameraWorld::processMouseMovement(float xoffset, float yoffset)
     updateModelTransform(glm::inverse(glm::lookAt(newPosition, m_target, m_up)));
     //    m_model. = front * dist + m_target;
 
+//    ++m_cptMovingStep;
+
     //    }
 
     //    qDebug() << "[CameraWorld]" << this << "processMouseMovement" << m_position.x << m_position.y << m_position.z;
@@ -168,6 +170,7 @@ void CameraWorld::processMouseScroll(float yoffset)
 
 //    m_model.setTransform(std::move(model));
     updateModelTransform(std::move(model));
+//    ++m_cptMovingStep;
 }
 
 void CameraWorld::processSliding(float dx, float dy)

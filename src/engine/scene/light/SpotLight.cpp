@@ -7,8 +7,9 @@
 #include <opengl/geometry/QuadGeometry.h>
 #include <session/Session.h>
 
-//const uint SHADOW_SIZE = 1024;
-const uint SHADOW_SIZE = 2048;
+//const uint SHADOW_SIZE = 512;
+const uint SHADOW_SIZE = 1024;
+//const uint SHADOW_SIZE = 2048;
 //const uint SHADOW_SIZE = 8192;
 //const uint SHADOW_SIZE = 16384;
 const uint SHADOW_WIDTH = SHADOW_SIZE;

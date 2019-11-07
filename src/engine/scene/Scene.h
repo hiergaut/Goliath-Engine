@@ -63,11 +63,12 @@ public:
     BoundingBox m_box;
 
     bool m_computeShadow = true;
+    uint m_nbComputePointLightShadow;
     bool m_zPrepass = false;
 //    bool m_multiSampling = true;
     std::list<const MainWindow3dView *> * m_views; // cameras
 
-//    Shader * m_minimalShader;
+    Shader * m_minimalShader;
 //    bool m_oneModelTransformChanged = false;
 //    bool m_viewTransformActive = false;
 //    uint m_shadowMapDetail = 0;
@@ -76,6 +77,7 @@ public:
     uint m_iLightDepthMap = 0;
     bool m_bloomEnable = true;
 //    uint m_nbLight;
+    bool m_firstDraw = true;
 
 
 
@@ -95,6 +97,7 @@ public:
     //    };
     void initializeGL();
     void renderScene(const Shader &shader);
+//    void renderNoColorScene();
 
     //    const_it begin() const {
     ////        return iterator(*this);
@@ -102,6 +105,7 @@ public:
     //    }
     void prepareHierarchy(ulong frameTime);
     void updateLightsShadowMap();
+    void updateAllLightsShadowMap();
     void draw(const MainWindow3dView &view, const int x, const int y, const int viewWidth, const int viewHeight);
 
     void objectSelectRay(const Ray & ray, bool additional = false);

@@ -444,6 +444,7 @@ void MeshModel::draw(const Shader& shader, bool dotCloud, const Frustum& frustum
 //void MeshModel::draw(const glm::mat4 &modelMatrix, const Shader &shader, const glm::mat4 & worldTransform) const
 void MeshModel::draw(const Shader& shader, const glm::mat4& modelMatrix, const glm::mat4& worldTransform) const
 {
+//    shader.setBool("disableFragmentShader", true);
     for (const Mesh& mesh : m_meshes) {
         //        const Mesh& mesh = m_meshes[i];
 
@@ -452,6 +453,7 @@ void MeshModel::draw(const Shader& shader, const glm::mat4& modelMatrix, const g
         mesh.draw(shader);
     }
     //        shader.setBool("userColor", false);
+//    shader.setBool("disableFragmentShader", false);
 }
 
 void MeshModel::updateBoundingBox()

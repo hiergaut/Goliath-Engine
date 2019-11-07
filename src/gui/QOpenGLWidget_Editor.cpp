@@ -163,6 +163,8 @@ void QOpenGLWidget_Editor::initializeGL()
     //    g_env.m_scene.initialize();
     m_scene.initializeGL();
 
+//    m_scene.updateAllLightsShadowMap();
+
     //    RayTracer::setBone(new BoneGeometry);
 
     LineGeometry::initializeGL();
@@ -176,6 +178,7 @@ void QOpenGLWidget_Editor::initializeGL()
     SkyBoxGeometry::initializeGL();
     CubeMapGeometry::initializeGL();
 
+//    m_scene.updateAllLightsShadowMap();
     //    FormTimeline::setScene(&m_scene);
 
     //    m_textRender.initialize();
@@ -194,6 +197,7 @@ void QOpenGLWidget_Editor::initializeGL()
     ////        }
     //        //        iCameras.push_back(view->m_iCamera);
     //    }
+//    m_scene.updateAllLightsShadowMap();
 }
 
 void drawRect(int x1, int y1, int x2, int y2, int windowHeight)
@@ -228,7 +232,7 @@ void QOpenGLWidget_Editor::paintGL()
         //        std::string str;
         //    m_stream << m_fps << "\n";
         //        std::cout << "fps : " << m_fps << std::endl;
-        m_statusBar->showMessage("fps:" + QString::number(m_fps) + "  camera:" + QString::number(m_scene.m_cameras.size()) + "  dirLight:" + QString::number(m_scene.m_dirLights.size()) + "  pointLight:" + QString::number(m_scene.m_pointLights.size()) + "  spotLight:" + QString::number(m_scene.m_spotLights.size()) + "  shadow:" + QString::number(m_scene.m_computeShadow) + "  zPrepass:" + QString::number(m_scene.m_zPrepass) + "  multisample:" + QString::number(m_multiSample) + "  frustumCulling:" + QString::number(Frustum::m_enable));
+        m_statusBar->showMessage("fps:" + QString::number(m_fps) + "  camera:" + QString::number(m_scene.m_cameras.size()) + "  dirLight:" + QString::number(m_scene.m_dirLights.size()) + "  pointLight:" + QString::number(m_scene.m_pointLights.size()) + "  spotLight:" + QString::number(m_scene.m_spotLights.size()) + "  shadow:" + QString::number(m_scene.m_computeShadow) + "  zPrepass:" + QString::number(m_scene.m_zPrepass) + "  multisample:" + QString::number(m_multiSample) + "  frustumCulling:" + QString::number(Frustum::m_enable) + "  pointLightsShadow:" + QString::number(Scene::m_scene->m_nbComputePointLightShadow));
     }
     //    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
@@ -260,6 +264,7 @@ void QOpenGLWidget_Editor::paintGL()
     m_scene.prepareHierarchy(currentFrameTime);
     //    m_scene.prepareHierarchy(0);
     m_scene.updateLightsShadowMap();
+//    m_scene.updateAllLightsShadowMap();
 
     for (const MainWindow3dView* view : *m_views) {
         if (view->m_iCamera < Scene::m_cameras.size()) {

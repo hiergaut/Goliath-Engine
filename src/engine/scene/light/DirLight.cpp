@@ -8,8 +8,8 @@
 #include <session/Session.h>
 
 //const uint SHADOW_SIZE = 1024;
-//const uint SHADOW_SIZE = 8192;
-const uint SHADOW_SIZE = 16384;
+const uint SHADOW_SIZE = 8192;
+//const uint SHADOW_SIZE = 16384;
 const uint SHADOW_WIDTH = SHADOW_SIZE;
 const uint SHADOW_HEIGHT = SHADOW_SIZE;
 //const float NEAR_PLANE = 100.0f;

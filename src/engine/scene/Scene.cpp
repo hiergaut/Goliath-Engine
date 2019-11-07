@@ -50,7 +50,7 @@ Scene::Scene()
     //    m_dirLights.reserve(10);
 
     QTreeView_outliner::setModelScene(&m_sceneModel);
-//    m_sceneModel.setHorizontalHeaderItem(0, new QStandardItem("Scene"));
+    //    m_sceneModel.setHorizontalHeaderItem(0, new QStandardItem("Scene"));
     //    m_sceneModel.setHorizontalHeaderItem(1, new QStandardItem("Bonus"));
 
     //    m_itemModel = new QStandardItemModel;
@@ -99,7 +99,7 @@ void Scene::initializeGL()
 
     m_grid = new Grid;
     normalShader = new Shader("normalVector.vsh", "normalVector.fsh", "normalVector.gsh");
-    //    m_minimalShader = new Shader("minimal.vsh", "empty.fsh");
+    m_minimalShader = new Shader("minimal.vsh", "empty.fsh");
     //    normalShader = new Shader("shading/normal.vsh", "shading/normal.fsh");
     //    m_bone = new BoneGeometry;
 
@@ -120,9 +120,9 @@ void Scene::initializeGL()
     //    m_skyBox = new SkyBox("sb", "frozen");
     //    m_skyBox = new SkyBox("hw", "arctic");
     //    m_skyBox = new SkyBox("ame", "siege");
-//    for (const Camera * camera : m_cameras) {
-//        camera->m_cameraStrategy->updateNearestPointLights();
-//    }
+    //    for (const Camera * camera : m_cameras) {
+    //        camera->m_cameraStrategy->updateNearestPointLights();
+    //    }
 
     //    m_skyBox = new SkyBox("ely", "peaks");
     //    m_skyBox = new SkyBox("mp", "morningdew");
@@ -218,6 +218,13 @@ void Scene::updateLightsShadowMap()
     for (PointLight& pointLight : m_pointLights) {
         pointLight.m_shadowComputed = false;
     }
+    m_nbComputePointLightShadow = 0;
+
+    //    if (m_firstDraw) {
+    //        m_firstDraw = false;
+    //        updateAllLightsShadowMap();
+    //        return;
+    //    }
 
     glDisable(GL_CULL_FACE);
     glCullFace(GL_FRONT);
@@ -247,36 +254,51 @@ void Scene::updateLightsShadowMap()
             renderScene(shader);
             //            pointLight.m_shadowComputed = true;
             //            m_shadowComputedPointLights[i] = true;
+            ++m_nbComputePointLightShadow;
         }
     }
 
     //    if (m_lights.size() > 0) {
     //    if (m_lights.size() > 0) {
 
-//    if (m_pointLights.size() > 0) {
-//        m_iLightDepthMap = (m_iLightDepthMap + 1) % m_pointLights.size();
-//        const PointLight& pointLight = m_pointLights[m_iLightDepthMap];
+    //    if (m_firstDraw) {
+    //        for (const PointLight& pointLight : m_pointLights) {
+    //            if (!pointLight.m_shadowComputed) {
+    //                Shader& shader = pointLight.depthShader();
+    //                renderScene(shader);
+    //            }
+    //        }
 
-//        if (!pointLight.m_shadowComputed) {
-//            Shader& shader = pointLight.depthShader();
-//            renderScene(shader);
-//        }
-//    }
+    //        m_firstDraw = false;
+    //    } else {
+    // ---------------------------- RANDOM POINT LIGHT
+    //        if (m_pointLights.size() > 0) {
+    //            m_iLightDepthMap = (m_iLightDepthMap + 1) % m_pointLights.size();
+    //            const PointLight& pointLight = m_pointLights[m_iLightDepthMap];
 
-        //        const Light* light = m_lights[m_iLightDepthMap];
-        //    for (const Light* light : m_lights) {
-        //        Shader& shader = (light->selected()) ? (light->depthShader(m_localTransform, m_worldTransform)) : (light->depthShader());
-        //        renderScene(shader);
+    //            if (!pointLight.m_shadowComputed) {
+    //                Shader& shader = pointLight.depthShader();
+    //                renderScene(shader);
+    //                ++m_nbComputePointLightShadow;
+    //            }
+    //        }
 
-        //        for (const Light * light : m_lights) {
-        //            for (uint i = 0; i < m_lights.size(); ++i) {
-        //                const Light* light = m_lights[i];
+    //    }
 
-        //                if (light->selected() || i == m_iLightDepthMap) {
-        //                    Shader& shader = (light->selected()) ? (light->depthShader(m_localTransform, m_worldTransform)) : (light->depthShader());
-        //                    renderScene(shader);
-        //                }
-        //            }
+    //        const Light* light = m_lights[m_iLightDepthMap];
+    //    for (const Light* light : m_lights) {
+    //        Shader& shader = (light->selected()) ? (light->depthShader(m_localTransform, m_worldTransform)) : (light->depthShader());
+    //        renderScene(shader);
+
+    //        for (const Light * light : m_lights) {
+    //            for (uint i = 0; i < m_lights.size(); ++i) {
+    //                const Light* light = m_lights[i];
+
+    //                if (light->selected() || i == m_iLightDepthMap) {
+    //                    Shader& shader = (light->selected()) ? (light->depthShader(m_localTransform, m_worldTransform)) : (light->depthShader());
+    //                    renderScene(shader);
+    //                }
+    //            }
 
     for (Camera* camera : m_cameras) {
         if (camera->m_torchEnable) {
@@ -290,6 +312,25 @@ void Scene::updateLightsShadowMap()
     m_fun->glBindFramebuffer(GL_FRAMEBUFFER, SCR_FBO);
     //    m_fun->glBindFramebuffer(GL_FRAMEBUFFER, m_hdrFbo);
     //    }
+}
+
+void Scene::updateAllLightsShadowMap()
+{
+    glDisable(GL_CULL_FACE);
+    glCullFace(GL_FRONT);
+
+    for (const Light* light : m_lights) {
+        //        Shader& shader = (dirLight.selected()) ? (dirLight.depthShader(m_localTransform, m_worldTransform)) : (dirLight.depthShader());
+        //        Shader& shader = (light->selected()) ? (dirLight.depthShader(m_localTransform, m_worldTransform)) : (dirLight.depthShader());
+        //        if (! light->m_shadowComputed) {
+        Shader& shader = light->depthShader();
+        renderScene(shader);
+    }
+    //    }
+
+    glCullFace(GL_BACK);
+    glDisable(GL_CULL_FACE);
+    m_fun->glBindFramebuffer(GL_FRAMEBUFFER, SCR_FBO);
 }
 
 void Scene::draw(const MainWindow3dView& view, const int x, const int y, const int viewWidth, const int viewHeight)
@@ -311,15 +352,21 @@ void Scene::draw(const MainWindow3dView& view, const int x, const int y, const i
     // ----------------------------------- END INIT
 
     if (view.m_shade == Shader::Type::RENDERED) {
-        for (uint i = 0; i < 1; ++i) {
-            for (uint iNear : camera->m_cameraStrategy->m_nearestPointLights) {
-                const PointLight& pointLight = m_pointLights[iNear];
-                if (!pointLight.m_shadowComputed) {
-                    Shader& shader = pointLight.depthShader();
-                    renderScene(shader);
-                }
+        //        for (uint i = 0; i < 1; ++i) {
+        uint cpt = 0;
+        for (uint iNear : camera->m_cameraStrategy->m_nearestPointLights) {
+            if (++cpt > 1)
+                break;
+
+            const PointLight& pointLight = m_pointLights[iNear];
+            if (!pointLight.m_shadowComputed) {
+                Shader& shader = pointLight.depthShader();
+                renderScene(shader);
+                ++m_nbComputePointLightShadow;
             }
         }
+        //        }
+        //        qDebug() << "nb compute pointLight shadow: " << m_nbComputePointLightShadow;
     }
 
     // -------------------------------------------------
@@ -431,13 +478,16 @@ void Scene::draw(const MainWindow3dView& view, const int x, const int y, const i
         QuadGeometry::draw();
     }
 
-    //        drawSpecificMode(view, shader);
+//    m_minimalShader->setMat4("projection", projectionMatrix);
+//    m_minimalShader->setMat4("view", viewMatrix);
+    drawSpecificMode(view, shader);
     drawContours(shader, polygonMode);
-    //        drawNormal(view, viewMatrix, projectionMatrix);
-    //        drawSkeleton(view, shader, viewMatrix, projectionMatrix, cameraPos);
-    //        drawOriginModel(view, shader, cameraPos);
-    //        drawAxisTransform(view, shader);
-    //        drawRectangleSelection(view, shader);
+//    drawContours(*m_minimalShader, polygonMode);
+    drawNormal(view, viewMatrix, projectionMatrix);
+    drawSkeleton(view, shader, viewMatrix, projectionMatrix, cameraPos);
+    drawOriginModel(view, shader, cameraPos);
+    drawAxisTransform(view, shader);
+    drawRectangleSelection(view, shader);
 
     // -------------------------------- DRAW CAMERA VIEWS
     //    for (const MainWindow3dView* otherViews : *m_views) {
@@ -929,30 +979,6 @@ void Scene::load(std::ifstream& file)
     //    for (const MainWindow3dView* view : *m_views) {
     //        m_objects.push_back(view->m_camera);
     //    }
-    m_cameras.clear();
-    Session::load(size, file);
-    for (uint i = 0; i < size; ++i) {
-        //        Camera::Type type;
-        //        type = static_cast<Camera::Type>(Session::loadEnum(file));
-
-        //        Camera * camera = new Camera();
-        Camera* camera = new Camera(file, m_cameras.size());
-        //        camera->m_model->updateBoundingBox();
-
-        //        switch (type) {
-        //        case Camera::WORLD:
-        //            camera = new CameraWorld(file);
-        //            //            m_objects.push_back(camera);
-        //            break;
-
-        //        case Camera::FPS:
-        //            camera = new CameraFps(file);
-        //            //            m_objects.push_back(camera);
-        //            break;
-        //        }
-        m_cameras.push_back(camera);
-        m_objects.push_back(camera);
-    }
 
     m_dirLights.clear();
     Session::load(size, file);
@@ -977,6 +1003,31 @@ void Scene::load(std::ifstream& file)
         m_objects.push_back(&m_spotLights.back());
         m_lights.push_back(&m_spotLights.back());
     }
+
+    m_cameras.clear();
+    Session::load(size, file);
+    for (uint i = 0; i < size; ++i) {
+        //        Camera::Type type;
+        //        type = static_cast<Camera::Type>(Session::loadEnum(file));
+
+        //        Camera * camera = new Camera();
+        Camera* camera = new Camera(file, m_cameras.size());
+        //        camera->m_model->updateBoundingBox();
+
+        //        switch (type) {
+        //        case Camera::WORLD:
+        //            camera = new CameraWorld(file);
+        //            //            m_objects.push_back(camera);
+        //            break;
+
+        //        case Camera::FPS:
+        //            camera = new CameraFps(file);
+        //            //            m_objects.push_back(camera);
+        //            break;
+        //        }
+        m_cameras.push_back(camera);
+        m_objects.push_back(camera);
+    }
     //    updateNbLight();
 
     FormTimeline::load(file);
@@ -998,12 +1049,6 @@ void Scene::save(std::ofstream& file)
         object.save(file);
     }
 
-    size = m_cameras.size();
-    Session::save(size, file);
-    for (Camera* camera : m_cameras) {
-        camera->save(file);
-    }
-
     size = m_dirLights.size();
     Session::save(size, file);
     for (const DirLight& dirLight : m_dirLights) {
@@ -1020,6 +1065,12 @@ void Scene::save(std::ofstream& file)
     Session::save(size, file);
     for (const SpotLight& spotLight : m_spotLights) {
         spotLight.save(file);
+    }
+
+    size = m_cameras.size();
+    Session::save(size, file);
+    for (Camera* camera : m_cameras) {
+        camera->save(file);
     }
 
     FormTimeline::save(file);
@@ -1252,6 +1303,10 @@ void Scene::addLight(Light::Type lightType, const glm::vec3 position)
         m_pointLights.emplace_back(position);
         m_objects.push_back(&m_pointLights.back());
         m_lights.push_back(&m_pointLights.back());
+
+        for (Camera* camera : m_cameras) {
+            camera->m_cameraStrategy->updateNearestPointLights();
+        }
         break;
     }
 
@@ -1481,6 +1536,8 @@ void Scene::prepareLightUniform(const MainWindow3dView& view, const Shader& shad
         }
         for (uint i = 0; i < nbPointLight; ++i) {
             const PointLight& pointLight = m_pointLights[i];
+            //            shader.setBool("pointLights[" + QString::number(i).toStdString() + "].computed", pointLight.m_shadowComputed);
+            //                        shader.setBool("pointLights[" + QString::number(i).toStdString() + "].computed", true);
             shader.setInt("pointLights[" + QString::number(i).toStdString() + "].id", i + nbDirLight);
             glActiveTexture(GL_TEXTURE5 + i + nbDirLight);
             glBindTexture(GL_TEXTURE_CUBE_MAP, pointLight.depthMap());
@@ -1779,6 +1836,9 @@ void Scene::drawContours(const Shader& shader, uint polygonMode)
     glPolygonMode(GL_FRONT, GL_FILL);
     glStencilFunc(GL_ALWAYS, 1, 0xFF);
     glStencilMask(0xFF);
+    shader.setBool("userColor", true);
+    shader.setVec4("color", glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));
+//    shader.setBool("userColor", true);
     //    for (const Model& model : m_models) {
     for (const Object* object : m_objects) {
         if (object->selected()) {
@@ -1802,8 +1862,8 @@ void Scene::drawContours(const Shader& shader, uint polygonMode)
     glLineWidth(4);
     glPolygonMode(GL_FRONT, GL_LINE);
     //    modelMatrix = glm::scale(modelMatrix, glm::vec3(1.1f, 1.1f, 1.1f));
-    shader.setBool("userColor", true);
-    shader.setVec4("color", glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));
+//    shader.setBool("userColor", true);
+//    shader.setVec4("color", glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));
     //    for (const Model& model : m_models) {
     for (const Object* object : m_objects) {
         if (object->selected()) {

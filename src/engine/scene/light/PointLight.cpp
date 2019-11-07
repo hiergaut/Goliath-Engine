@@ -260,6 +260,7 @@ Shader& PointLight::depthShader(const glm::mat4& localTransform, const glm::mat4
     //            //        shadowTransforms.push_back(shadowProj * glm::translate(m_viewMatrix[i], pos));
     //            shadowTransforms.push_back(m_shadowProj * m_viewMatrix[i]* glm::translate(glm::mat4(1.0f), pos));
     //        }
+    // question optim ?
     shadowTransforms.emplace_back(m_shadowProj * glm::lookAt(pos, pos + glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
     shadowTransforms.emplace_back(m_shadowProj * glm::lookAt(pos, pos + glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
     shadowTransforms.emplace_back(m_shadowProj * glm::lookAt(pos, pos + glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)));

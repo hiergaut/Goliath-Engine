@@ -38,7 +38,7 @@ const float accuracyZoom = 0.05f;
 
 //CameraFps::CameraFps(std::ifstream &file, Model &model, float &fov)
 //CameraFps::CameraFps(std::ifstream &file, Model &model, uint & id, float &fov)
-CameraFps::CameraFps(std::ifstream& file, glm::mat4& modelMatrix, uint& id, float& fov, Model & model)
+CameraFps::CameraFps(std::ifstream& file, glm::mat4& modelMatrix, uint& id, float& fov, Model& model)
     //CameraFps::CameraFps(std::ifstream& file, glm::mat4 & modelTransform, float& fov)
     //    : CameraStrategy(modelTransform)
     : CameraStrategy(modelMatrix, id, model)
@@ -91,7 +91,7 @@ CameraFps::CameraFps(std::ifstream& file, glm::mat4& modelMatrix, uint& id, floa
 //CameraFps::CameraFps(const glm::vec3& position, float yaw, float pitch, MainWindow3dView* view, glm::mat4 & modelTransform, float& fov)
 //CameraFps::CameraFps(const glm::vec3 &position, float yaw, float pitch, MainWindow3dView *view, Model &model, float &fov)
 //CameraFps::CameraFps(const glm::vec3 &position, float yaw, float pitch, MainWindow3dView *view, Model &model, uint & id, float &fov)
-CameraFps::CameraFps(const glm::vec3& position, float yaw, float pitch, MainWindow3dView* view, glm::mat4& modelMatrix, uint& id, float& fov, Model & model)
+CameraFps::CameraFps(const glm::vec3& position, float yaw, float pitch, MainWindow3dView* view, glm::mat4& modelMatrix, uint& id, float& fov, Model& model)
     : CameraStrategy(modelMatrix, id, model)
     , m_view(view)
     , m_fov(fov)
@@ -233,6 +233,10 @@ void CameraFps::ProcessKeyboard()
 
     //    m_model.setTransform(model);
     updateModelTransform(std::move(model));
+
+    if (glm::length(position - newPosition) > 1.0f) {
+        ++m_cptMovingStep;
+    }
     //    m_modelTransform = std::move(model);
     //    Scene::m_scene->m_oneModelTransformChanged = true;
     //    Scene::m_scene->m_cptShadowMapDetail = 0;
@@ -347,7 +351,7 @@ void CameraFps::startFpsView()
 
 void CameraFps::keyPressEvent(QKeyEvent* event)
 {
-//    qDebug() << "keyPressEvent";
+    //    qDebug() << "keyPressEvent";
     CameraStrategy::keyPressEvent(event);
     //    Scene::m_scene->m_viewTransformActive = true;
 
@@ -417,12 +421,12 @@ void CameraFps::keyPressEvent(QKeyEvent* event)
     //        //        std::thread t(autoRefreshMoving, m_modelTransform, m_front, m_right, frontDir, sideDir);
     ////        std::thread(&CameraFps::autoRefreshMoving, this);
     //    }
-//    event->ignore();
+    //    event->ignore();
 }
 
 void CameraFps::keyReleaseEvent(QKeyEvent* event)
 {
-//    qDebug() << "keyReleaseEvent";
+    //    qDebug() << "keyReleaseEvent";
     CameraStrategy::keyReleaseEvent(event);
 
     switch (event->key()) {
