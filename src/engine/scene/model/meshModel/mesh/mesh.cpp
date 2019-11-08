@@ -96,7 +96,7 @@ Mesh::Mesh(const aiMesh* ai_mesh, Materials* materials, Textures* textures)
         //        v.TexCoords = aiVec2ToGlm(ai_mesh->mTextureCoords[i]);
 
         if (ai_mesh->mTextureCoords[0]) // does the mesh contain texture coordinates?
-//        if (ai_mesh->HasTextureCoords()) // does the mesh contain texture coordinates?
+        //        if (ai_mesh->HasTextureCoords()) // does the mesh contain texture coordinates?
         {
             glm::vec2 vec;
             // a vertex can contain up to 8 different texture coordinates. We thus make the assumption that we won't
@@ -112,8 +112,7 @@ Mesh::Mesh(const aiMesh* ai_mesh, Materials* materials, Textures* textures)
         if (ai_mesh->HasTangentsAndBitangents()) {
             v.Tangent = aiVec3ToGlm(ai_mesh->mTangents[i]);
             v.Bitangent = aiVec3ToGlm(ai_mesh->mBitangents[i]);
-        }
-        else {
+        } else {
             v.Tangent = glm::vec3(0.0f);
             v.Bitangent = glm::vec3(0.0f);
         }
@@ -154,10 +153,10 @@ Mesh::Mesh(std::ifstream& file, Materials* materials, Textures* textures)
     Session::load(m_name, file);
 
     //    std::cout << "m_vertices" << std::endl;
-//    Session::load(size, file);
-//    for (uint i = 0; i < size; ++i) {
-//        m_vertices.emplace_back(file);
-//    }
+    //    Session::load(size, file);
+    //    for (uint i = 0; i < size; ++i) {
+    //        m_vertices.emplace_back(file);
+    //    }
     Session::load(m_vertices, file);
 
     //    std::cout << "m_bonesData" << std::endl;
@@ -312,11 +311,11 @@ void Mesh::setupMesh()
     m_fun->glEnableVertexAttribArray(2);
     m_fun->glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, TexCoords));
     // vertex tangent
-        m_fun->glEnableVertexAttribArray(3);
-        m_fun->glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Tangent));
+    m_fun->glEnableVertexAttribArray(3);
+    m_fun->glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Tangent));
     //    // vertex bitangent
-        m_fun->glEnableVertexAttribArray(4);
-        m_fun->glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Bitangent));
+    m_fun->glEnableVertexAttribArray(4);
+    m_fun->glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, Bitangent));
 
     m_fun->glBindBuffer(GL_ARRAY_BUFFER, m_bbo);
     m_fun->glBufferData(GL_ARRAY_BUFFER, m_bonesData.size() * sizeof(VertexBoneData), &m_bonesData[0], GL_STATIC_DRAW);
@@ -340,6 +339,15 @@ void Mesh::draw(const Shader& shader) const
         m_fun->glBindTexture(GL_TEXTURE_2D, (*m_textures)[material.m_iTextures[Texture::OPACITY][0]].m_id);
     } else {
         shader.setBool("has_texture_opacity", false);
+    }
+
+    if (!material.m_iTextures[Texture::DIFFUSE].empty() && m_enableTexture[Texture::DIFFUSE]) {
+        shader.setBool("has_texture_diffuse", true);
+        m_fun->glActiveTexture(GL_TEXTURE0);
+        shader.setInt("texture_diffuse", 0);
+        m_fun->glBindTexture(GL_TEXTURE_2D, (*m_textures)[material.m_iTextures[Texture::DIFFUSE][0]].m_id);
+    } else {
+        shader.setBool("has_texture_diffuse", false);
     }
 
     // ----------------------------------------------------- DEBUG
@@ -545,6 +553,18 @@ void Mesh::draw(const Shader& shader, bool dotCloud, const Frustum& frustum) con
         } else {
             shader.setBool("has_texture_normal", false);
         }
+
+    } else if (shader.m_shade == Shader::Type::DEPTH) {
+
+        if (!material.m_iTextures[Texture::DIFFUSE].empty() && m_enableTexture[Texture::DIFFUSE]) {
+            shader.setBool("has_texture_diffuse", true);
+            m_fun->glActiveTexture(GL_TEXTURE0);
+            shader.setInt("texture_diffuse", 0);
+            m_fun->glBindTexture(GL_TEXTURE_2D, (*m_textures)[material.m_iTextures[Texture::DIFFUSE][0]].m_id);
+        } else {
+            shader.setBool("has_texture_diffuse", false);
+        }
+
     }
     //    }
 
@@ -628,12 +648,12 @@ void Mesh::save(std::ofstream& file) const
     Session::save(m_name, file);
 
     //    std::cout << "m_vertices" << std::endl;
-//    size = m_vertices.size();
-//    Session::save(size, file);
-//    for (uint i = 0; i < size; ++i) {
-//        //        m_vertices.emplace_back(file);
-//        m_vertices[i].save(file);
-//    }
+    //    size = m_vertices.size();
+    //    Session::save(size, file);
+    //    for (uint i = 0; i < size; ++i) {
+    //        //        m_vertices.emplace_back(file);
+    //        m_vertices[i].save(file);
+    //    }
     Session::save(m_vertices, file);
 
     //    std::cout << "m_bonesData" << std::endl;

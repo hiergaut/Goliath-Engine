@@ -32,6 +32,7 @@ void DirLight::draw(const Shader& shader, bool dotCloud, const Frustum& frustum,
     //    if (dotCloud) {
     //    if (m_selected) {
     //        if (shader.m_shade != Shader::Type::RENDERED) {
+
     if (shader.m_shade == Shader::Type::DEPTH) {
         //        shader.setBool("userColor", false);
         //        glPolygonMode(GL_FRONT, GL_FILL);
@@ -41,19 +42,24 @@ void DirLight::draw(const Shader& shader, bool dotCloud, const Frustum& frustum,
         //    shader.use();
         shader.setMat4("model", worldTransform * m_model->transform() * local);
 
-//            shader.setBool("userColor", true);
-//            shader.setVec4("color", glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+        //            shader.setBool("userColor", true);
+        //            shader.setVec4("color", glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
         //        shader.setBool("hasTexture", true);
-        shader.setBool("has_texture_diffuse", true);
-        shader.setBool("hasCubeMap", false);
-        shader.setInt("texture_diffuse", 25);
-        glActiveTexture(GL_TEXTURE25);
+//        shader.setBool("hasCubeMap", false);
+
+//        shader.setBool("has_texture_diffuse", true);
+//        shader.setInt("texture_diffuse", 5);
+        shader.setBool("hasDepthMap", true);
+        shader.setInt("depthMap", 20);
+        glActiveTexture(GL_TEXTURE20);
         glBindTexture(GL_TEXTURE_2D, m_depthMap);
         QuadGeometry::draw();
-        shader.setBool("has_texture_diffuse", false);
+//        shader.setBool("has_texture_diffuse", false);
+        shader.setBool("hasDepthMap", false);
         //        shader.setBool("hasTexture", false);
         //    glActiveTexture(GL_TEXTURE0);
     }
+
     //    }
     //    shader.setBool("userColor", false);
 }
@@ -69,12 +75,10 @@ void DirLight::prepareHierarchy(ulong frameTime) const
         //    m_coeffBlink = std::fmax(std::cos((std::fabs(frameTime) * 0.01f)) * 10.0f, 0.0f);
         const ulong period = 1000;
         m_coeffBlink = std::fmax(frameTime & period - period / 2, 0.0f) * 0.1f;
-    }
-    else {
+    } else {
         m_coeffBlink = 0.0f;
     }
     //    qDebug() << m_coeffBlink;
-
 }
 
 //void DirLight::setSelected(bool selected)
@@ -233,10 +237,25 @@ glm::mat4 DirLight::lightSpaceMatrix(const glm::mat4& localTransform) const
 
     //        float dist = glm::length(pos(localTransform) - center);
 
+//    const glm::vec3 & right = glm::normalize(glm::cross(dir, glm::vec3(0.0f, 1.0f, 0.0f)));
+//    const glm::vec3 & up = glm::normalize(glm::cross(right, dir));
+
+//    const glm::vec3 & min = box.m_bounds[0];
+//    const glm::vec3 & max = box.m_bounds[1];
+
+//    float yMax = std::max(glm::dot(up, min), glm::dot(up, max)) * 1.5f;
+//    float yMin = std::min(glm::dot(up, min), glm::dot(up, max)) * 1.5f;
+//    float xMax = std::max(glm::dot(right, min), glm::dot(right, max)) * 1.5f;
+//    float xMin = std::min(glm::dot(right, min), glm::dot(right, max)) * 1.5f;
+//    lightProjection = glm::ortho(xMin, xMax, yMin, yMax, 10.0f, 2.0f * radius);
+
+
     ///
 
-//    qDebug() << "radius " << radius;
+    //    qDebug() << "radius " << radius;
     lightProjection = glm::ortho(-radius, radius, -radius, radius, 10.0f, 2.0f * radius);
+
+    //    lightProjection = glm::ortho(-radius, radius, -radius, radius, 10.0f, 2.0f * radius);
     //        lightView = glm::lookAt(pos(localTransform), center, glm::vec3(0.0, 1.0, 0.0));
     //    lightView = viewMatrix();
     //    lightView = glm::lookAt(center -dir * dist, center, glm::vec3(0.0f, 1.0f, 0.0f));

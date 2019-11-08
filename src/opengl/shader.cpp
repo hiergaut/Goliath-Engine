@@ -9,7 +9,11 @@ void Shader::glInitialize()
     m_shaders[Shader::Type::LOOK_DEV] = new Shader("shading/lookDev.vsh", "shading/lookDev.fsh", "", Shader::Type::LOOK_DEV);
     m_shaders[Shader::Type::RENDERED] = new Shader("shading/rendered.vsh", "shading/rendered.fsh", "", Shader::Type::RENDERED);
     m_shaders[Shader::Type::NORMAL] = new Shader("shading/normal.vsh", "shading/normal.fsh", "", Shader::Type::NORMAL);
-    m_shaders[Shader::Type::DEPTH] = new Shader("shading/depth.vsh", "shading/depth.fsh", "", Shader::Type::DEPTH);
+
+    Shader * depthShader = new Shader("shading/depth.vsh", "shading/depth.fsh", "", Shader::Type::DEPTH);
+    depthShader->setInt("skybox", 19);
+    m_shaders[Shader::Type::DEPTH] = depthShader;
+
     m_shaders[Shader::Type::VERTEX_GROUP] = new Shader("shading/vertexGroup.vsh", "shading/vertexGroup.fsh", "", Shader::Type::VERTEX_GROUP);
 }
 

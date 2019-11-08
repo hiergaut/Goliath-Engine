@@ -71,6 +71,8 @@ Camera::Camera(std::ifstream& file, uint id)
         break;
     }
 
+    Session::load(m_torchEnable, file);
+
     initGL();
 //    updateBoundingBox();
 }
@@ -93,6 +95,7 @@ void Camera::save(std::ofstream& file)
     //    Session::save(m_cameraStrategy, file);
     m_cameraStrategy->save(file);
     //    Session::save(m_target, file);
+    Session::save(m_torchEnable, file);
 }
 
 //void Camera::load(std::ifstream &file)
@@ -198,14 +201,17 @@ void Camera::draw(const Shader& shader, bool dotCloud, const Frustum &frustum, c
         //    shader.use();
         shader.setMat4("model", worldTransform * m_model->transform() * local);
 
-        glActiveTexture(GL_TEXTURE5);
         //    shader.setBool("userColor", false);
         //    shader.setVec4("color", glm::vec4(1.0f, 0, 0, 1));
-        shader.setBool("has_texture_diffuse", true);
-        shader.setInt("texture_diffuse", 5);
+//        shader.setBool("has_texture_diffuse", true);
+//        shader.setInt("texture_diffuse", 5);
+        shader.setBool("hasDepthMap", true);
+        shader.setInt("depthMap", 20);
+        glActiveTexture(GL_TEXTURE20);
         glBindTexture(GL_TEXTURE_2D, m_depthMap);
         QuadGeometry::draw();
-        shader.setBool("has_texture_diffuse", false);
+//        shader.setBool("has_texture_diffuse", false);
+        shader.setBool("hasDepthMap", false);
 //        shader.setBool("hasTexture", false);
         //    glActiveTexture(GL_TEXTURE0);
     }

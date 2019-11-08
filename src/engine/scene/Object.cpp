@@ -22,6 +22,7 @@ Object::Object(std::ifstream& file)
 //    : m_model(file)
 //    : m_model(file)
 //    : m_model(new Model(file))
+    : m_type(MODEL)
 {
     Model::Type type = static_cast<Model::Type>(Session::loadEnum(file));
     //    qDebug() << "type" << type;
@@ -52,6 +53,7 @@ Object::Object(const std::string& path)
     //    : m_model(path)
     //    : m_mod
     : m_model(new MeshModel(path))
+    , m_type(MODEL)
 {
 //    updateBoundingBox();
 }
@@ -60,6 +62,7 @@ Object::Object(Object&& object) noexcept
     : m_selected(std::move(object.m_selected))
     //    , *m_model(std::move(*object.m_model))
     , m_model(object.m_model)
+    , m_type(object.m_type)
 {
     object.m_model = nullptr;
 
@@ -70,6 +73,7 @@ Object::Object(Object&& object) noexcept
 
 Object::Object(Model* model)
     : m_model(model)
+    , m_type(MODEL)
 {
 }
 

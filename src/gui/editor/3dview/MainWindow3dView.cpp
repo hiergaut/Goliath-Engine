@@ -1841,6 +1841,7 @@ const Shader& MainWindow3dView::shader() const
         break;
 
     case Shader::Type::DEPTH:
+        shader.setInt("cubeMap", 19);
         break;
 
     case Shader::Type::VERTEX_GROUP:

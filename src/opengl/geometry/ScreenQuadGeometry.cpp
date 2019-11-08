@@ -1,14 +1,14 @@
-#include "QuadGeometry.h"
+#include "ScreenQuadGeometry.h"
 
-//QuadGeometry::QuadGeometry()
+//ScreenQuadGeometry::ScreenQuadGeometry()
 //{
 
 //}
 
-QOpenGLFunctionsCore* QuadGeometry::m_fun = nullptr;
-uint QuadGeometry::m_vao;
+QOpenGLFunctionsCore* ScreenQuadGeometry::m_fun = nullptr;
+uint ScreenQuadGeometry::m_vao;
 
-void QuadGeometry::initializeGL()
+void ScreenQuadGeometry::initializeGL()
 {
 
     uint vbo;
@@ -31,11 +31,11 @@ void QuadGeometry::initializeGL()
     m_fun->glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
 //    m_fun->glEnableVertexAttribArray(1);
 
-    m_fun->glEnableVertexAttribArray(2);
-    m_fun->glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+//    m_fun->glEnableVertexAttribArray(2);
+//    m_fun->glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
 
-//    m_fun->glEnableVertexAttribArray(1);
-//   m_fun->glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+    m_fun->glEnableVertexAttribArray(1);
+   m_fun->glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
 
     //    }
     m_fun->glBindVertexArray(0);
@@ -114,7 +114,7 @@ void QuadGeometry::initializeGL()
     //    m_fun->glBindVertexArray(0);
 }
 
-void QuadGeometry::draw()
+void ScreenQuadGeometry::draw()
 {
     Q_ASSERT(m_fun != nullptr);
 

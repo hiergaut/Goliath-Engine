@@ -38,7 +38,7 @@ void PointLight::draw(const Shader& shader, bool dotCloud, const Frustum& frustu
     //        glDepthMask(GL_FALSE);
     if (shader.m_shade == Shader::Type::DEPTH) {
         glDisable(GL_CULL_FACE);
-        shader.setInt("skybox", 19);
+//        shader.setInt("skybox", 19);
         glActiveTexture(GL_TEXTURE19);
         shader.setBool("hasCubeMap", true);
         shader.setVec3("cubeCenter", position(localTransform, worldTransform));
@@ -289,7 +289,7 @@ Shader& PointLight::depthShader(const glm::mat4& localTransform, const glm::mat4
     //            //        shadowTransforms.push_back(shadowProj * glm::translate(m_viewMatrix[i], pos));
     //            shadowTransforms.push_back(m_shadowProj * m_viewMatrix[i]* glm::translate(glm::mat4(1.0f), pos));
     //        }
-    // question optim ?
+    // TODO: optimize ?
     shadowTransforms.emplace_back(m_shadowProj * glm::lookAt(pos, pos + glm::vec3(1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
     shadowTransforms.emplace_back(m_shadowProj * glm::lookAt(pos, pos + glm::vec3(-1.0f, 0.0f, 0.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
     shadowTransforms.emplace_back(m_shadowProj * glm::lookAt(pos, pos + glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)));
@@ -313,6 +313,7 @@ Shader& PointLight::depthShader(const glm::mat4& localTransform, const glm::mat4
         m_simpleDepthShader->setMat4("shadowMatrices[" + std::to_string(i) + "]", shadowTransforms[i]);
     m_simpleDepthShader->setFloat("far_plane", m_far_plane);
     m_simpleDepthShader->setVec3("lightPos", pos);
+
 
     m_shadowComputed = true;
 

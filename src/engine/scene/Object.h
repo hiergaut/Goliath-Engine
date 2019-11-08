@@ -22,6 +22,7 @@ public:
         DIR_LIGHT,
         POINT_LIGHT,
         SPOT_LIGHT,
+        MODEL,
     } m_type;
 
 public:

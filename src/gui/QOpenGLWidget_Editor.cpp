@@ -27,6 +27,7 @@
 #include <opengl/geometry/DotGeometry.h>
 #include <opengl/geometry/LineGeometry.h>
 #include <opengl/geometry/QuadGeometry.h>
+#include <opengl/geometry/ScreenQuadGeometry.h>
 #include <opengl/geometry/SkyBoxGeometry.h>
 #include <opengl/geometry/TriangleGeometry.h>
 #include <opengl/geometry/boneGeometry.h>
@@ -177,8 +178,10 @@ void QOpenGLWidget_Editor::initializeGL()
     UvSphereGeometry::initializeGL();
     BoneGeometry::initializeGL();
     QuadGeometry::initializeGL();
+    ScreenQuadGeometry::initializeGL();
     SkyBoxGeometry::initializeGL();
     CubeMapGeometry::initializeGL();
+
 
     //    m_scene.updateAllLightsShadowMap();
     //    FormTimeline::setScene(&m_scene);
