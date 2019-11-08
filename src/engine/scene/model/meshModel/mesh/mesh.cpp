@@ -553,7 +553,6 @@ void Mesh::draw(const Shader& shader, bool dotCloud, const Frustum& frustum) con
         } else {
             shader.setBool("has_texture_normal", false);
         }
-
     } else if (shader.m_shade == Shader::Type::DEPTH) {
 
         if (!material.m_iTextures[Texture::DIFFUSE].empty() && m_enableTexture[Texture::DIFFUSE]) {

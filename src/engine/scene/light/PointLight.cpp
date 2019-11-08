@@ -22,8 +22,8 @@
 //const float FAR_PLANE = 5000.0f;
 //const uint shadow_size[2] = { 512, 4096 };
 //const uint shadow_size = 256;
-//const uint shadow_size = 1024;
-const uint shadow_size = 2048;
+const uint shadow_size = 1024;
+//const uint shadow_size = 2048;
 //const uint shadow_size = 4096;
 
 glm::vec3 PointLight::position(const glm::mat4& localTransform, const glm::mat4& worldTransform) const
@@ -189,6 +189,10 @@ PointLight::PointLight(std::ifstream& file)
 
     setTransform(std::move(transform));
     //    Session::load(m_direction, file);
+
+    Session::load(m_constant, file);
+    Session::load(m_linear, file);
+    Session::load(m_quadratic, file);
 
     //    m_model = new Model(g_resourcesPath + "models/sun/sun.obj");
 
@@ -357,6 +361,9 @@ void PointLight::save(std::ofstream& file) const
     Light::save(file);
     Session::save(transform(), file);
 
+    Session::save(m_constant, file);
+    Session::save(m_linear, file);
+    Session::save(m_quadratic, file);
     //    Session::save(m_direction, file);
 }
 

@@ -373,9 +373,11 @@ void Scene::draw(const MainWindow3dView& view, const int x, const int y, const i
 
     if (view.m_shade == Shader::Type::RENDERED) {
         //        for (uint i = 0; i < 1; ++i) {
+        glDisable(GL_CULL_FACE);
+        glCullFace(GL_FRONT);
         uint cpt = 0;
         for (uint iNear : camera->m_cameraStrategy->m_nearestPointLights) {
-            if (++cpt > 1)
+            if (++cpt > 2)
                 break;
 
             const PointLight& pointLight = m_pointLights[iNear];
@@ -385,6 +387,8 @@ void Scene::draw(const MainWindow3dView& view, const int x, const int y, const i
                 ++m_nbComputePointLightShadow;
             }
         }
+        glCullFace(GL_BACK);
+        glDisable(GL_CULL_FACE);
         //        }
         //        qDebug() << "nb compute pointLight shadow: " << m_nbComputePointLightShadow;
     }
@@ -407,9 +411,8 @@ void Scene::draw(const MainWindow3dView& view, const int x, const int y, const i
 
     drawSkyBox(view, multiSample, viewMatrix, projectionMatrix);
     const Shader& shader = view.shader();
-//        shader.setInt("skybox", 19);
-//        glActiveTexture(GL_TEXTURE19);
-
+    //        shader.setInt("skybox", 19);
+    //        glActiveTexture(GL_TEXTURE19);
 
     drawRay(view, shader, polygonMode);
     drawBoundingBox(view, shader, viewCameraObject, multiSample);
@@ -1566,9 +1569,9 @@ void Scene::prepareLightUniform(const MainWindow3dView& view, const Shader& shad
                 shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].direction", glm::vec4(dirLight.direction(), 1.0f));
             }
 
-//            shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].ambient", glm::vec3(0.4f));
-//            shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].diffuse", glm::vec3(1.0f));
-//            shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].specular", glm::vec3(1.0f));
+            //            shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].ambient", glm::vec3(0.4f));
+            //            shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].diffuse", glm::vec3(1.0f));
+            //            shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].specular", glm::vec3(1.0f));
             shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].ambient", dirLight.m_ambient * dirLight.m_coeffSunrise);
             shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].diffuse", dirLight.m_diffuse * dirLight.m_coeffSunrise);
             shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].specular", dirLight.m_specular * dirLight.m_coeffSunrise);
@@ -2014,7 +2017,7 @@ void Scene::drawOriginModel(const MainWindow3dView& view, const Shader& shader, 
     glDepthFunc(GL_ALWAYS);
     glLineWidth(2);
 
-//    shader.setBool("userColor", true);
+    //    shader.setBool("userColor", true);
     shader.setBool("has_texture_diffuse", false);
     //    glPolygonMode(GL_FRONT, GL_LINE);
     //    for (const Model& model : m_models) {
@@ -2041,7 +2044,7 @@ void Scene::drawOriginModel(const MainWindow3dView& view, const Shader& shader, 
             }
         }
     }
-//    shader.setBool("userColor", false);
+    //    shader.setBool("userColor", false);
     glDepthFunc(GL_LESS);
     glLineWidth(1);
 }
