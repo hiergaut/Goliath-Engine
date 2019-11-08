@@ -1566,9 +1566,12 @@ void Scene::prepareLightUniform(const MainWindow3dView& view, const Shader& shad
                 shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].direction", glm::vec4(dirLight.direction(), 1.0f));
             }
 
-            shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].ambient", glm::vec3(0.4f));
-            shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].diffuse", glm::vec3(1.0f));
-            shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].specular", glm::vec3(1.0f));
+//            shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].ambient", glm::vec3(0.4f));
+//            shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].diffuse", glm::vec3(1.0f));
+//            shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].specular", glm::vec3(1.0f));
+            shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].ambient", dirLight.m_ambient * dirLight.m_coeffSunrise);
+            shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].diffuse", dirLight.m_diffuse * dirLight.m_coeffSunrise);
+            shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].specular", dirLight.m_specular * dirLight.m_coeffSunrise);
         }
 
         uint nbPointLight = m_pointLights.size();
@@ -2010,6 +2013,9 @@ void Scene::drawOriginModel(const MainWindow3dView& view, const Shader& shader, 
     //    shader.setMat4("model", onesMatrix);
     glDepthFunc(GL_ALWAYS);
     glLineWidth(2);
+
+//    shader.setBool("userColor", true);
+    shader.setBool("has_texture_diffuse", false);
     //    glPolygonMode(GL_FRONT, GL_LINE);
     //    for (const Model& model : m_models) {
     if (view.m_mode == MainWindow3dView::Mode::EDIT) {
@@ -2035,6 +2041,7 @@ void Scene::drawOriginModel(const MainWindow3dView& view, const Shader& shader, 
             }
         }
     }
+//    shader.setBool("userColor", false);
     glDepthFunc(GL_LESS);
     glLineWidth(1);
 }

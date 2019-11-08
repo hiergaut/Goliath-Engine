@@ -44,6 +44,10 @@ private slots:
 
     void on_checkBox_stateChanged(int arg1);
 
+    void on_doubleSpinBox_cutOff_valueChanged(double arg1);
+
+    void on_doubleSpinBox_outerCutOff_valueChanged(double arg1);
+
 private:
     Ui::FormContextLight* ui;
     static Light * m_light;

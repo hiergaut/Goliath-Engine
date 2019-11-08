@@ -73,8 +73,7 @@ void FormContextLight::updateUi()
     } else {
         ui->frame_diffuse->setStyleSheet(QString("background-color: rgb(255,0,255);"));
     }
-//    ui->frame_diffuse->setStyleSheet(QString("background-color: rgb(%1,%2,%3);").arg(m_light->m_diffuse.r * 255).arg(m_light->m_diffuse.g * 255).arg(m_light->m_diffuse.b * 255));
-
+    //    ui->frame_diffuse->setStyleSheet(QString("background-color: rgb(%1,%2,%3);").arg(m_light->m_diffuse.r * 255).arg(m_light->m_diffuse.g * 255).arg(m_light->m_diffuse.b * 255));
 
     ui->doubleSpinBox_specular_red->setValue(m_light->m_specular.r);
     ui->doubleSpinBox_specular_green->setValue(m_light->m_specular.g);
@@ -89,7 +88,7 @@ void FormContextLight::updateUi()
     } else {
         ui->frame_specular->setStyleSheet(QString("background-color: rgb(255,0,255);"));
     }
-//    ui->frame_specular->setStyleSheet(QString("background-color: rgb(%1,%2,%3);").arg(m_light->m_specular.r * 255).arg(m_light->m_specular.g * 255).arg(m_light->m_specular.b * 255));
+    //    ui->frame_specular->setStyleSheet(QString("background-color: rgb(%1,%2,%3);").arg(m_light->m_specular.r * 255).arg(m_light->m_specular.g * 255).arg(m_light->m_specular.b * 255));
 
     //    switch (m_light->m_type) {
     if (m_light->m_type == Light::Type::SPOT) {
@@ -301,5 +300,33 @@ void FormContextLight::on_checkBox_stateChanged(int arg1)
 {
     if (m_light != nullptr) {
         m_light->m_blink = arg1;
+    }
+}
+
+void FormContextLight::on_doubleSpinBox_cutOff_valueChanged(double arg1)
+{
+    if (m_light != nullptr) {
+        if (m_light->m_type == Light::Type::SPOT) {
+            SpotLight* light = static_cast<SpotLight*>(m_light);
+
+            //            light->m_quadratic = arg1;
+            light->m_cutOff = arg1;
+
+            updateUi();
+        }
+    }
+}
+
+void FormContextLight::on_doubleSpinBox_outerCutOff_valueChanged(double arg1)
+{
+    if (m_light != nullptr) {
+        if (m_light->m_type == Light::Type::SPOT) {
+            SpotLight* light = static_cast<SpotLight*>(m_light);
+
+            //            light->m_quadratic = arg1;
+            light->m_outerCutOff = arg1;
+
+            updateUi();
+        }
     }
 }

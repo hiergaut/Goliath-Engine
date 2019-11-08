@@ -11,6 +11,8 @@
 class DirLight : public Light, public Object
 {
 public:
+    mutable float m_coeffSunrise = 1.0f;
+
 //    glm::vec3 m_direction;
 
 //    Model* m_model = nullptr;
@@ -28,7 +30,7 @@ protected:
 //    void setSelected(bool selected) override;
 
 public:
-    DirLight(const glm::vec3 position, const glm::vec3 direction, const glm::vec3 ambient = glm::vec3(0.05f), const glm::vec3 diffuse = glm::vec3(0.4f), const glm::vec3 specular = glm::vec3(0.5f));
+    DirLight(const glm::vec3 position, const glm::vec3 direction, const glm::vec3 ambient = glm::vec3(0.4f), const glm::vec3 diffuse = glm::vec3(2.0f), const glm::vec3 specular = glm::vec3(2.0f));
     DirLight(std::ifstream &file);
     DirLight(DirLight && dirLight) noexcept = default;
 //    ~DirLight();

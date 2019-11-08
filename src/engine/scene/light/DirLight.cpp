@@ -275,8 +275,9 @@ void DirLight::save(std::ofstream& file) const
 glm::vec3 DirLight::direction(const glm::mat4& localTransform) const
 {
     //    glm::vec3 dir = glm::normalize(m_model.m_transform[0] + m_model.m_transform[1] + m_model.m_transform[2]);
-    glm::vec3 sunUp = glm::vec3(transform() * localTransform * -glm::vec4(0.0f, 0.0f, 1.0f, 0.0f));
+    glm::vec3 sunUp = glm::normalize(glm::vec3(transform() * localTransform * -glm::vec4(0.0f, 0.0f, 1.0f, 0.0f)));
     //    return glm::normalize(sunUp);
+    m_coeffSunrise = glm::dot(sunUp, glm::vec3(0.0f, 0.0f, -1.0f));
     return sunUp;
     //    glm::vec3 up = glm::vec3(0.0f, 0.0f, 1.0f);
 
