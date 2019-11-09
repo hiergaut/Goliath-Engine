@@ -1,7 +1,5 @@
 
-
 resources/
 build/
 *.user
-src/gui/editor/AnimTimeline/
 
