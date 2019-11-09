@@ -1834,11 +1834,11 @@ void Scene::drawSpecificMode(const MainWindow3dView& view, const Shader& shader)
             //        glLineWidth(4);
             //        glPolygonMode(GL_FRONT, GL_LINE);
             glLineWidth(2);
-            m_selectObject->draw(shader, false, m_localTransform, m_worldTransform);
+            m_selectObject->draw(shader, false, view.m_frustum, m_localTransform, m_worldTransform);
 
             shader.setVec4("color", glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));
             glPointSize(6.0f);
-            m_selectObject->draw(shader, true, m_localTransform, m_worldTransform);
+            m_selectObject->draw(shader, true,  view.m_frustum, m_localTransform, m_worldTransform);
 
             //        for (uint i = 0; i < m_selected.size(); ++i) {
             //            if (m_selected[i]) {
@@ -1965,9 +1965,9 @@ void Scene::drawNormal(const MainWindow3dView& view, const glm::mat4& viewMatrix
             normalShader->m_shade = view.m_shade;
             if (object->selected()) {
 
-                object->draw(*normalShader, view.dotCloud(), m_localTransform, m_worldTransform);
+                object->draw(*normalShader, view.dotCloud(), view.m_frustum, m_localTransform, m_worldTransform);
             } else {
-                object->draw(*normalShader, view.dotCloud(), glm::mat4(1.0f), glm::mat4(1.0f));
+                object->draw(*normalShader, view.dotCloud(), view.m_frustum, glm::mat4(1.0f), glm::mat4(1.0f));
             }
         }
     }

@@ -231,25 +231,23 @@ void BSplineCurve::draw(const Shader& shader, bool dotCloud, const Frustum &frus
         return;
     }
     Q_ASSERT(m_fun != nullptr);
-    m_fun->glLineWidth(2.0f);
+    m_fun->glLineWidth(1.5f);
 
     //    shader.setBool("userColor", true);
     //    shader.setVec4("color", glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
 
-    if (dotCloud) {
+    if (dotCloud) { // draw dot, line and curve
+//        if (false) {
         //        for (uint i = 0; i < m_selected.size(); ++i) {
         //            if (m_selected[i]) {
         //                //                qDebug() << "draw " << i;
         //                DotGeometry::draw(glm::translate(glm::mat4(1.0f), m_controlPoints[i]) * worldTransform * m_transform, shader, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f), 8);
         //            }
         //        }
-        m_fun->glPointSize(5.0f);
+        m_fun->glPointSize(6.0f);
         shader.setBool("userColor", true);
 
         shader.setMat4("model", worldTransform * m_transform * localTransform);
-        m_fun->glBindVertexArray(m_vao);
-        shader.setVec4("color", glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
-        m_fun->glDrawArrays(GL_POINTS, 0, m_controlPoints.size());
 
         shader.setVec4("color", glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));
         m_fun->glBindVertexArray(m_vao2);
@@ -258,16 +256,20 @@ void BSplineCurve::draw(const Shader& shader, bool dotCloud, const Frustum &frus
         //        shader.setVec4("color", glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
         //        shader.setMat4("model", worldTransform * m_transform * localTransform);
         m_fun->glBindVertexArray(m_vao);
-        m_fun->glLineWidth(0.5f);
-        shader.setBool("userColor", true);
+//        m_fun->glLineWidth(2.0f);
+//        shader.setBool("userColor", true);
         shader.setVec4("color", glm::vec4(1.0f, 1.0f, 1.0f, 0.5f));
         m_fun->glDrawElements(GL_LINES, m_indices.size() * 2, GL_UNSIGNED_INT, nullptr);
 
-    } else {
+        m_fun->glBindVertexArray(m_vao);
+        shader.setVec4("color", glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
+        m_fun->glDrawArrays(GL_POINTS, 0, m_controlPoints.size());
 
-        //    m_fun->glDrawArrays(GL_LINES, 0, 4);
+    } else { // draw only curve
+
+//            m_fun->glDrawArrays(GL_LINES, 0, 4);
         //    m_fun->glEnable(GL_POINT_SMOOTH);
-        //    m_fun->glLineWidth(1.0f);
+//            m_fun->glLineWidth(2.0f);
         //    m_fun->glBindVertexArray(0);
 
         shader.setMat4("model", worldTransform * m_transform * localTransform);
