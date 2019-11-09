@@ -49,7 +49,7 @@ public:
     static glm::vec3 deBoor(float u, uint m, const uint k, const float knots[], const std::vector<glm::vec3>& controlPoints);
     static std::vector<glm::vec3> calcCurve(const std::vector<glm::vec3>& ptsCtrl, const uint k, const uint dotPerEdge, const float knots[]);
 
-    const std::string & name() const override;
+    const std::string  name() const override;
 
     void setUk(uint k);
     void setVk(uint k);

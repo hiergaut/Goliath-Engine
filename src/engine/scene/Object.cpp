@@ -19,9 +19,9 @@
 #include <engine/scene/model/paramModel/surface/BSplineSurface.h>
 
 Object::Object(std::ifstream& file)
-//    : m_model(file)
-//    : m_model(file)
-//    : m_model(new Model(file))
+    //    : m_model(file)
+    //    : m_model(file)
+    //    : m_model(new Model(file))
     : m_type(MODEL)
 {
     Model::Type type = static_cast<Model::Type>(Session::loadEnum(file));
@@ -46,7 +46,7 @@ Object::Object(std::ifstream& file)
         break;
     }
 
-//    updateBoundingBox();
+    //    updateBoundingBox();
 }
 
 Object::Object(const std::string& path)
@@ -55,7 +55,7 @@ Object::Object(const std::string& path)
     : m_model(new MeshModel(path))
     , m_type(MODEL)
 {
-//    updateBoundingBox();
+    //    updateBoundingBox();
 }
 
 Object::Object(Object&& object) noexcept
@@ -66,9 +66,9 @@ Object::Object(Object&& object) noexcept
 {
     object.m_model = nullptr;
 
-//    std::cout << "\033[33m";
-//    std::cout << "[Object] " << &object << "  '" << m_model->name() << "' moved to " << this << std::endl;
-//    std::cout << "\033[0m";
+    //    std::cout << "\033[33m";
+    //    std::cout << "[Object] " << &object << "  '" << m_model->name() << "' moved to " << this << std::endl;
+    //    std::cout << "\033[0m";
 }
 
 Object::Object(Model* model)
@@ -79,15 +79,15 @@ Object::Object(Model* model)
 
 void Object::save(std::ofstream& file) const
 {
-    //    Session::saveEnum(m_model->m_type, file);
+//    Session::saveEnum(m_model->m_type, file);
     m_model->save(file);
 }
 
 Object::~Object()
 {
-//    std::cout << "\033[35m";
-//    std::cout << "[Object] '" << this << "' deleted " << std::endl;
-//    std::cout << "\033[0m";
+    //    std::cout << "\033[35m";
+    //    std::cout << "[Object] '" << this << "' deleted " << std::endl;
+    //    std::cout << "\033[0m";
     //    Q_ASSERT(m_model != nullptr);
     if (m_model != nullptr) {
         delete m_model;
@@ -128,7 +128,7 @@ void Object::prepareHierarchy(ulong frameTime) const
     m_model->prepareHierarchy(frameTime);
 }
 
-void Object::draw(const Shader& shader, bool dotCloud, const Frustum &frustum, const glm::mat4& localTransform, const glm::mat4& worldTransform) const
+void Object::draw(const Shader& shader, bool dotCloud, const Frustum& frustum, const glm::mat4& localTransform, const glm::mat4& worldTransform) const
 {
     m_model->draw(shader, dotCloud, frustum, localTransform, worldTransform);
 }
@@ -138,14 +138,13 @@ void Object::draw(const Shader& shader, const glm::mat4& localTransform, const g
     m_model->draw(shader, localTransform, worldTransform);
 }
 
-void Object::drawBoundingBox(const Shader &shader) const
+void Object::drawBoundingBox(const Shader& shader) const
 {
     m_model->drawBoundingBox(shader);
 }
 
 void Object::setLatestSelected()
 {
-
 }
 
 //void Object::updateBoundingBox()
@@ -157,12 +156,12 @@ void Object::setLatestSelected()
 //{
 //}
 
-void Object::buildItemModel(QStandardItem *parent) const
+void Object::buildItemModel(QStandardItem* parent) const
 {
     m_model->buildItemModel(parent);
 }
 
-void Object::updateSelectedVertexPosition(const glm::mat4 &localTransform, const glm::mat4 &worldTransform)
+void Object::updateSelectedVertexPosition(const glm::mat4& localTransform, const glm::mat4& worldTransform)
 {
     m_model->updateSelectedVertexPosition(localTransform, worldTransform);
 }
@@ -177,7 +176,7 @@ void Object::setSelected(bool selected)
     m_selected = selected;
 }
 
-const std::string &Object::name() const
+const std::string Object::name() const
 {
     return m_model->name();
 }
@@ -187,32 +186,32 @@ Model::Type Object::modelType() const
     return m_model->m_type;
 }
 
-const glm::mat4 &Object::transform() const
+const glm::mat4& Object::transform() const
 {
     return m_model->transform();
 }
 
-glm::mat4 &Object::getTransform()
+glm::mat4& Object::getTransform()
 {
     return m_model->getTransform();
 }
 
-void Object::setTransform(const glm::mat4 & transform)
+void Object::setTransform(const glm::mat4& transform)
 {
     m_model->setTransform(transform);
 }
 
-const Model *Object::model() const
+const Model* Object::model() const
 {
     return m_model;
 }
 
-Model *Object::getModel()
+Model* Object::getModel()
 {
     return m_model;
 }
 
-const BoundingBox &Object::box() const
+const BoundingBox& Object::box() const
 {
     return m_model->box();
 }

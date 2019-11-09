@@ -22,12 +22,14 @@ Model::Model(const glm::mat4 &transform, Model::Type type)
     , m_transform(transform)
 //    , m_noBox(noBox)
 {
+    Q_ASSERT(1 <= m_type && m_type <= 3);
 
 }
 
 Model::Model(std::ifstream& file)
 //    : m_noBox(noBox)
 {
+//    Q_ASSERT(1 <= m_type && m_type <= 3);
 //    m_type = static_cast<Type>(Session::loadEnum(file));
     Session::load(m_transform, file);
 
@@ -51,7 +53,9 @@ void Model::setTransform(const glm::mat4 &transform)
 
 void Model::save(std::ofstream& file) const
 {
-    Session::save(m_type, file);
+    Q_ASSERT(1 <= m_type && m_type <= 3);
+    Session::saveEnum(m_type, file);
+//    Session::save(m_type, file);
     Session::save(m_transform, file);
 }
 

@@ -163,7 +163,8 @@ BSplineCurve::BSplineCurve(std::ifstream& file)
 BSplineCurve::~BSplineCurve()
 {
     std::cout << "\033[35m";
-    std::cout << "[BSplinCurve] '" << name() << "' deleted " << this << std::endl;
+//    std::cout << "[BSplinCurve] '" << name() << "' deleted " << this << std::endl;
+    std::cout << "[BSplinCurve] 'BSplineCurve' deleted " << this << std::endl;
     std::cout << "\033[0m";
 }
 
@@ -420,7 +421,7 @@ void BSplineCurve::vertexSelectFrustum(const Frustum& frustum, bool additional)
     qDebug() << "--------------------------------";
 }
 
-const std::string & BSplineCurve::name() const
+const std::string BSplineCurve::name() const
 {
     return "BSplineCurve";
 }

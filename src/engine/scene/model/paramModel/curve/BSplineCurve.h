@@ -37,7 +37,7 @@ public:
 
     void setupGL();
 
-    const std::string & name() const override;
+    const std::string name() const override;
 
     void setK(uint k);
     void setDotPerEdge(uint dotPerEdge);

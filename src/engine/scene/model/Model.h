@@ -11,7 +11,7 @@ class Model {
 public:
 
     enum Type {
-        MESH,
+        MESH = 1,
         PARAM_CURVE,
         PARAM_SURFACE,
     } m_type;
@@ -47,7 +47,7 @@ public:
 
     virtual void updateSelectedVertexPosition(const glm::mat4 & localTransform, const glm::mat4 & worldTransform) = 0;
 
-    virtual const std::string & name() const = 0;
+    virtual const std::string name() const = 0;
     virtual void buildItemModel(QStandardItem* parent) const = 0;
 
 //    glm::mat4 && transform();

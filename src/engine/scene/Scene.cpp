@@ -963,6 +963,7 @@ void Scene::delModel(std::string file)
 
 void Scene::updateSceneItemModel()
 {
+//    return;
     m_sceneModel.clear();
 
     //    QStandardItemModel model;
@@ -1015,7 +1016,8 @@ void Scene::load(std::ifstream& file)
         //        model.load(file);
         //        m_models.emplace_back(file);
         //        m_models.emplace_back(file);
-        m_models.emplace_back(file);
+//        m_models.emplace_back(file);
+        m_models.emplace_back(Object(file));
         //        m_models.back().updateBoundingBox();
 
         m_objects.push_back(&m_models.back());

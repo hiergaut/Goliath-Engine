@@ -61,7 +61,7 @@ public:
 
     virtual void setSelected(bool selected);
     const BoundingBox & box() const;
-    const std::string & name() const;
+    const std::string name() const;
     Model::Type modelType() const;
 
     const glm::mat4 & transform() const;

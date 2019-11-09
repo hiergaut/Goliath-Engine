@@ -703,7 +703,7 @@ void MeshModel::save(std::ofstream& file) const
 //    parent->appendRow(item);
 //}
 
-const std::string& MeshModel::name() const
+const std::string MeshModel::name() const
 {
     return m_filename;
 }

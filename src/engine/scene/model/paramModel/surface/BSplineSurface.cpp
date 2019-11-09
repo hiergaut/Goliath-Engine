@@ -661,7 +661,7 @@ void BSplineSurface::vClampEnd()
     clamp(1, false);
 }
 
-const std::string &BSplineSurface::name() const
+const std::string BSplineSurface::name() const
 {
     return "BSplineSurface";
 }

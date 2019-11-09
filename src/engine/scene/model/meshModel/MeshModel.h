@@ -157,7 +157,7 @@ private:
 //    mutable std::vector<glm::vec3> m_triangles;
 
 public:
-    const std::string & name() const override;
+    const std::string name() const override;
 };
 
 //    Assimp::Importer MeshModel::m_importer;
