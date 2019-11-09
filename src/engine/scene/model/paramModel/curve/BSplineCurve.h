@@ -17,6 +17,7 @@ public:
     uint m_dotPerEdge = 10;
 //    std::vector<float> m_knots;
     float m_knots[g_maxLenKnots];
+    float m_weights[g_maxLenKnots];
     std::vector<glm::vec3> m_controlPoints;
     std::vector<bool> m_selected;
     bool m_periodic = false;

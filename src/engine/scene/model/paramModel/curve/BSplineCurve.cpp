@@ -22,6 +22,11 @@ BSplineCurve::BSplineCurve(Type type)
 //    m_dotPerEdge = 10;
 //    m_knots.resize(g_maxLenKnots);
 
+    setUniform();
+    for (uint i =0; i <g_maxLenKnots; ++i) {
+        m_weights[i] = 1.0f;
+    }
+
     switch (type) {
     case Type::SPLINE:
         m_controlPoints.emplace_back(-400.0f, -400.0f, 0.0f);
@@ -29,7 +34,7 @@ BSplineCurve::BSplineCurve(Type type)
         m_controlPoints.emplace_back(200.0f, -400.0f, 0.0f);
         m_controlPoints.emplace_back(400.0f, 400.0f, 0.0f);
 //        m_periodic = false;
-        setUniform();
+//        setUniform();
         break;
 
     case Type::CIRCLE:
@@ -38,7 +43,7 @@ BSplineCurve::BSplineCurve(Type type)
         m_controlPoints.emplace_back(400.0f, 400.0f, 0.0f);
         m_controlPoints.emplace_back(400.0f, -400.0f, 0.0f);
 //        m_periodic = false;
-        setUniform();
+//        setUniform();
         break;
 
     case Type::CIRCLE8:
@@ -66,12 +71,22 @@ BSplineCurve::BSplineCurve(Type type)
         m_knots[9] = 1.0f;
         m_knots[10] = 1.0f;
         m_knots[11] = 1.0f;
+
+        for (uint i =0; i <9; ++i) {
+            if (i % 2 == 0) {
+                m_weights[i] = 1.0f;
+            }
+            else {
+                m_weights[i] = 0.707; // sqrt(2) / 2
+            }
+        }
         break;
 
     default:
         Q_ASSERT(false);
         break;
     }
+
 
     //    m_controlPoints.emplace_back(-200.0f, 0.0f, 0.0f);
     //    m_controlPoints.emplace_back(-150.0f, 0.0f, 0.0f);
@@ -114,6 +129,8 @@ BSplineCurve::BSplineCurve(std::ifstream& file)
     Session::load(m_controlPoints, file);
     Session::load(m_k, file);
 //    Session::load(&m_knots[0], g_maxLenKnots, file);
+    Session::load(m_knots, g_maxLenKnots, file);
+    Session::load(m_weights, g_maxLenKnots, file);
 
     //    Session::load(m_indices, file);
     //    qDebug() << "BSplineCurve";
@@ -126,6 +143,10 @@ BSplineCurve::BSplineCurve(std::ifstream& file)
     //    m_controlPoints.emplace_back(100.0f, 100.0f, 0.0f);
     //    m_controlPoints.emplace_back(150.0f, 0.0f, 0.0f);
     //    m_controlPoints.emplace_back(200.0f, 0.0f, 0.0f);
+//    for (uint i =0; i <g_maxLenKnots; ++i) {
+//        m_weights[i] = 1.0f;
+//    }
+
 
     m_selected.resize(m_controlPoints.size());
     for (uint i = 0; i < m_selected.size(); ++i) {
@@ -154,7 +175,7 @@ BSplineCurve::BSplineCurve(std::ifstream& file)
 //        //        knots[i] = i;
 //        m_knots[i] = i;
 //    }
-    setUniform();
+//    setUniform();
 
     updateCurve();
     updateBoundingBox();
@@ -217,6 +238,9 @@ void BSplineCurve::save(std::ofstream& file) const
 
     Session::save(m_controlPoints, file);
     Session::save(m_k, file);
+    Session::save(m_knots, g_maxLenKnots, file);
+    Session::save(m_weights, g_maxLenKnots, file);
+
 //    Session::save(&m_knots[0], g_maxLenKnots, file);
     //    Session::save(m_indices, file);
 }
@@ -507,7 +531,7 @@ void BSplineCurve::updateCurve(const glm::mat4& localTransform, const glm::mat4&
 //    uint m = m_k + n + 1;
     //    float knots[m];
     //    float u = 2.5f;
-    m_curve = BSplineSurface::calcCurve(controlPoints, m_k, m_dotPerEdge, m_knots);
+    m_curve = BSplineSurface::calcCurve(controlPoints, m_k, m_dotPerEdge, m_knots, m_weights);
 //    m_curve.clear();
 //    //        uint nbPtCtl = ((n + 1) * m_dotPerEdge);
 //    uint nbPtCtl = n + 2 - m_k;

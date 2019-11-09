@@ -26,6 +26,16 @@ FormContextCurve::FormContextCurve(QWidget* parent)
     m_spinKnots[11] = ui->doubleSpinBox_11;
     m_spinKnots[12] = ui->doubleSpinBox_12;
 
+    m_weights[0] = ui->doubleSpinBox_p0;
+    m_weights[1] = ui->doubleSpinBox_p1;
+    m_weights[2] = ui->doubleSpinBox_p2;
+    m_weights[3] = ui->doubleSpinBox_p3;
+    m_weights[4] = ui->doubleSpinBox_p4;
+    m_weights[5] = ui->doubleSpinBox_p5;
+    m_weights[6] = ui->doubleSpinBox_p6;
+    m_weights[7] = ui->doubleSpinBox_p7;
+    m_weights[8] = ui->doubleSpinBox_p8;
+
     //    m_model = Scene::m_scene->getParamModel();
     //    m_model = Scene::m_scene->getBsplineCurve();
 
@@ -76,6 +86,15 @@ void FormContextCurve::updateSpinKnots()
     ////            ui->dou
 }
 
+void FormContextCurve::updateWeights()
+{
+    if (m_model != nullptr) {
+        for (uint i =0; i <9; ++i) {
+            m_weights[i]->setValue(m_model->m_weights[i]);
+        }
+    }
+}
+
 void FormContextCurve::initNewSpline(BSplineCurve* spline)
 {
     //    Q_ASSERT(spline != nullptr);
@@ -101,6 +120,7 @@ void FormContextCurve::initNewSpline(BSplineCurve* spline)
         //        }
         //        //        ui->groupBox_knots->
         updateSpinKnots();
+        updateWeights();
     }
 
     setEnabled(true);
@@ -296,5 +316,78 @@ void FormContextCurve::on_checkBox_periodic_stateChanged(int arg1)
         m_model->m_periodic = arg1 > 0;
         m_model->updateCurve();
         updateSpinKnots();
+    }
+}
+
+void FormContextCurve::on_doubleSpinBox_p0_valueChanged(double arg1)
+{
+    if (m_model != nullptr) {
+        m_model->m_weights[0] = arg1;
+        m_model->updateCurve();
+    }
+}
+
+void FormContextCurve::on_doubleSpinBox_p1_valueChanged(double arg1)
+{
+    if (m_model != nullptr) {
+        m_model->m_weights[1] = arg1;
+        m_model->updateCurve();
+    }
+}
+
+void FormContextCurve::on_doubleSpinBox_p2_valueChanged(double arg1)
+{
+    if (m_model != nullptr) {
+        m_model->m_weights[2] = arg1;
+        m_model->updateCurve();
+    }
+}
+
+void FormContextCurve::on_doubleSpinBox_p3_valueChanged(double arg1)
+{
+    if (m_model != nullptr) {
+        m_model->m_weights[3] = arg1;
+        m_model->updateCurve();
+    }
+}
+
+void FormContextCurve::on_doubleSpinBox_p4_valueChanged(double arg1)
+{
+    if (m_model != nullptr) {
+        m_model->m_weights[4] = arg1;
+        m_model->updateCurve();
+    }
+}
+
+void FormContextCurve::on_doubleSpinBox_p5_valueChanged(double arg1)
+{
+    if (m_model != nullptr) {
+        m_model->m_weights[5] = arg1;
+        m_model->updateCurve();
+    }
+}
+
+void FormContextCurve::on_doubleSpinBox_p6_valueChanged(double arg1)
+{
+    if (m_model != nullptr) {
+        m_model->m_weights[6] = arg1;
+        m_model->updateCurve();
+    }
+}
+
+
+void FormContextCurve::on_doubleSpinBox_p7_valueChanged(double arg1)
+{
+    if (m_model != nullptr) {
+        m_model->m_weights[7] = arg1;
+        m_model->updateCurve();
+    }
+}
+
+void FormContextCurve::on_doubleSpinBox_p8_valueChanged(double arg1)
+{
+    if (m_model != nullptr) {
+        m_model->m_weights[8] = arg1;
+        m_model->updateCurve();
     }
 }

@@ -963,7 +963,7 @@ void Scene::delModel(std::string file)
 
 void Scene::updateSceneItemModel()
 {
-//    return;
+    //    return;
     m_sceneModel.clear();
 
     //    QStandardItemModel model;
@@ -1016,7 +1016,7 @@ void Scene::load(std::ifstream& file)
         //        model.load(file);
         //        m_models.emplace_back(file);
         //        m_models.emplace_back(file);
-//        m_models.emplace_back(file);
+        //        m_models.emplace_back(file);
         m_models.emplace_back(Object(file));
         //        m_models.back().updateBoundingBox();
 
@@ -1799,6 +1799,7 @@ void Scene::drawSkyBox(const MainWindow3dView& view, bool multiSample, const glm
 {
     // ------------------------- SKYBOX AND GRID
     if (view.m_shade != Shader::Type::RENDERED) {
+        glLineWidth(1);
         glDisable(GL_MULTISAMPLE);
         m_grid->draw(glm::mat4(1.0f), viewMatrix, projectionMatrix);
         if (multiSample) {
@@ -1838,7 +1839,7 @@ void Scene::drawSpecificMode(const MainWindow3dView& view, const Shader& shader)
 
             shader.setVec4("color", glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));
             glPointSize(6.0f);
-            m_selectObject->draw(shader, true,  view.m_frustum, m_localTransform, m_worldTransform);
+            m_selectObject->draw(shader, true, view.m_frustum, m_localTransform, m_worldTransform);
 
             //        for (uint i = 0; i < m_selected.size(); ++i) {
             //            if (m_selected[i]) {
@@ -2055,6 +2056,7 @@ void Scene::drawAxisTransform(const MainWindow3dView& view, const Shader& shader
 {
     // -------------------------------- DRAW AXIS TRANSFORM
     if (view.m_axisTransform) {
+        glLineWidth(2);
         shader.setBool("userColor", true);
         switch (view.m_axisFollow) {
         case 0:

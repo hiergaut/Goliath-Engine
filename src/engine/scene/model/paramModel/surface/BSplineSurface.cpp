@@ -37,6 +37,13 @@ BSplineSurface::BSplineSurface(BSplineSurface::Type type)
     float pick;
     float pickDown;
 
+    setUniform(0);
+    setUniform(1);
+    for (uint i = 0; i < g_maxLenKnots; ++i) {
+        m_weights[0][i] = 1.0f;
+        m_weights[1][i] = 1.0f;
+    }
+
     switch (type) {
 
     case Type::TOMB:
@@ -186,9 +193,6 @@ BSplineSurface::BSplineSurface(BSplineSurface::Type type)
         break;
     }
 
-    setUniform(0);
-    setUniform(1);
-
     for (uint i = 0; i < g_maxSize; ++i) {
         for (uint j = 0; j < g_maxSize; ++j) {
             m_selected[i][j] = false;
@@ -211,15 +215,15 @@ BSplineSurface::BSplineSurface(BSplineSurface::Type type)
 
     setupGL();
 
-    for (uint i = 0; i < 2; ++i) {
-        //        m_k[i] = 2;
-        //        m_dotPerEdge[i] = 5;
-        //        m_knots[i].resize(g_maxLenKnots);
-        for (uint j = 0; j < g_maxLenKnots; ++j) {
-            //        knots[i] = i;
-            m_knots[i][j] = j;
-        }
-    }
+    //    for (uint i = 0; i < 2; ++i) {
+    //        //        m_k[i] = 2;
+    //        //        m_dotPerEdge[i] = 5;
+    //        //        m_knots[i].resize(g_maxLenKnots);
+    //        for (uint j = 0; j < g_maxLenKnots; ++j) {
+    //            //        knots[i] = i;
+    //            m_knots[i][j] = j;
+    //        }
+    //    }
 
     updateSurface();
     updateBoundingBox();
@@ -227,9 +231,9 @@ BSplineSurface::BSplineSurface(BSplineSurface::Type type)
 
 BSplineSurface::BSplineSurface(std::ifstream& file)
     : Model(file)
-//    , m_texture(g_resourcesPath + "textures/", "checkerboard.png", Texture::Type::DIFFUSE)
-//    , m_texture(g_resourcesPath + "textures/", "checker3.jpg", Texture::Type::DIFFUSE)
-    , m_texture(g_resourcesPath + "textures/", "de_aztec_material_1.tga", Texture::Type::DIFFUSE)
+        , m_texture(g_resourcesPath + "textures/", "checkerboard.png", Texture::Type::DIFFUSE)
+    //    , m_texture(g_resourcesPath + "textures/", "checker3.jpg", Texture::Type::DIFFUSE)
+//    , m_texture(g_resourcesPath + "textures/", "de_aztec_material_1.tga", Texture::Type::DIFFUSE)
 //    : ParamModel(file)
 //    , m_type(Model::BSplineSurface)
 //    , m_type = Model::PARAM_CURVE
@@ -243,6 +247,7 @@ BSplineSurface::BSplineSurface(std::ifstream& file)
 
     Session::load(m_k, 2, file);
     Session::load(&m_knots[0][0], 2 * g_maxLenKnots, file);
+    Session::load(&m_weights[0][0], 2 * g_maxLenKnots, file);
 
     Session::load(&m_periodic[0], 2, file);
 
@@ -395,6 +400,7 @@ void BSplineSurface::save(std::ofstream& file) const
 
     Session::save(m_k, 2, file);
     Session::save(&m_knots[0][0], 2 * g_maxLenKnots, file);
+    Session::save(&m_weights[0][0], 2 * g_maxLenKnots, file);
 
     Session::save(&m_periodic[0], 2, file);
 
@@ -407,9 +413,9 @@ void BSplineSurface::prepareHierarchy(ulong frameTime) const
 {
 }
 
-void BSplineSurface::draw(const Shader& shader, bool dotCloud, const Frustum &frustum, const glm::mat4& localTransform, const glm::mat4& worldTransform) const
+void BSplineSurface::draw(const Shader& shader, bool dotCloud, const Frustum& frustum, const glm::mat4& localTransform, const glm::mat4& worldTransform) const
 {
-    if (! frustum.contains(m_box)) {
+    if (!frustum.contains(m_box)) {
         return;
     }
     Q_ASSERT(m_fun != nullptr);
@@ -468,18 +474,22 @@ void BSplineSurface::draw(const Shader& shader, bool dotCloud, const Frustum &fr
         //    m_fun->glEnable(GL_POINT_SMOOTH);
         //    m_fun->glPointSize(5.0f);
         //        m_fun->glDrawElements(GL_LINES, m_indiceTriangles.size() * 2, GL_UNSIGNED_INT, nullptr);
-//        m_fun->glActiveTexture(GL_TEXTURE0);
-//        std::string number = std::to_string(0);
-//        std::string name = std::string(m_texture);
-//        m_fun->glUniform1i(m_fun->glGetUniformLocation(shader.ID, (name + number).c_str()), 0);
-//        m_fun->glBindTexture(GL_TEXTURE_2D, m_texture.m_id);
-//        shader.setBool("hasTexture", true);
-//        shader.setVec3("material.specular", glm::vec3(1.0f, 1.0f, 1.0f));
-//        //        shader.setVec3("material.specular", material.m_colors[Color::DIFFUSE]);
-//        shader.setFloat("material.shininess", 0.5f);
+        //        m_fun->glActiveTexture(GL_TEXTURE0);
+        //        std::string number = std::to_string(0);
+        //        std::string name = std::string(m_texture);
+        //        m_fun->glUniform1i(m_fun->glGetUniformLocation(shader.ID, (name + number).c_str()), 0);
+        //        m_fun->glBindTexture(GL_TEXTURE_2D, m_texture.m_id);
+        //        shader.setBool("hasTexture", true);
+        //        shader.setVec3("material.specular", glm::vec3(1.0f, 1.0f, 1.0f));
+        //        //        shader.setVec3("material.specular", material.m_colors[Color::DIFFUSE]);
+        //        shader.setFloat("material.shininess", 0.5f);
+        shader.setBool("has_texture_diffuse", true);
+        m_fun->glActiveTexture(GL_TEXTURE0);
+        shader.setInt("texture_diffuse", 0);
+        m_fun->glBindTexture(GL_TEXTURE_2D, m_texture.m_id);
 
         m_fun->glDrawElements(GL_TRIANGLES, m_indiceTriangles.size() * 3, GL_UNSIGNED_INT, nullptr);
-//        shader.setBool("hasTexture", false);
+        //        shader.setBool("hasTexture", false);
 
         //    m_fun->glLineWidth(2.0f);
         //        m_fun->glDrawArrays(GL_POINTS, 0, m_vertices.size());
@@ -495,7 +505,7 @@ void BSplineSurface::draw(const Shader& shader, bool dotCloud, const Frustum &fr
     }
 
     m_fun->glBindVertexArray(0);
-//    m_fun->glActiveTexture(GL_TEXTURE0);
+    //    m_fun->glActiveTexture(GL_TEXTURE0);
     shader.setBool("userColor", false);
     m_fun->glPointSize(1.0f);
     m_fun->glLineWidth(1.0f);
@@ -694,7 +704,7 @@ void BSplineSurface::setVDotPerEdge(uint dotPerEdge)
     updateSurface();
 }
 
-glm::vec3 BSplineSurface::deBoor(float u, uint m, const uint k, const float knots[], const std::vector<glm::vec3>& controlPoints)
+glm::vec3 BSplineSurface::deBoor(float u, uint m, const uint k, const float knots[], const float weights[], const std::vector<glm::vec3>& controlPoints)
 {
     // search shift
     int dec = 0;
@@ -719,7 +729,11 @@ glm::vec3 BSplineSurface::deBoor(float u, uint m, const uint k, const float knot
     for (uint j = 0; j < l - 1; ++j) {
         for (uint i = 0; i < k2 - 1; ++i) {
             float a = (knots[dec + k2 + i] - u) / (knots[dec + k2 + i] - knots[dec + 1 + i]);
-            pts[i] = a * pts[i] + (1 - a) * pts[i + 1];
+            float rationalWeight = weights[i + dec] * a + weights[i + 1 + dec] * (1 - a);
+            float w1 = weights[i + dec] / rationalWeight;
+            float w2 = weights[i + 1 + dec] / rationalWeight;
+            //            pts[i] = a * pts[i] + (1 - a) * pts[i + 1];
+            pts[i] = a * pts[i] * w1 + (1 - a) * pts[i + 1] * w2;
         }
         --k2;
         ++dec;
@@ -728,7 +742,7 @@ glm::vec3 BSplineSurface::deBoor(float u, uint m, const uint k, const float knot
     return pts[0];
 }
 
-std::vector<glm::vec3> BSplineSurface::calcCurve(const std::vector<glm::vec3>& ptsCtrl, const uint k, const uint dotPerEdge, const float knots[])
+std::vector<glm::vec3> BSplineSurface::calcCurve(const std::vector<glm::vec3>& ptsCtrl, const uint k, const uint dotPerEdge, const float knots[], const float weights[])
 {
 
     std::vector<glm::vec3> curve;
@@ -749,7 +763,7 @@ std::vector<glm::vec3> BSplineSurface::calcCurve(const std::vector<glm::vec3>& p
             if (iPtCtl == nbPtCtl) {
                 u = knots[n + 1];
             }
-            curve.emplace_back(BSplineSurface::deBoor(u, m, k, knots, ptsCtrl));
+            curve.emplace_back(BSplineSurface::deBoor(u, m, k, knots, weights, ptsCtrl));
 
             if (iPtCtl == nbPtCtl) {
                 break;
@@ -815,7 +829,6 @@ void BSplineSurface::updateSurface(const glm::mat4& localTransform, const glm::m
     m_fun->glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, nbCtrlPoints[0] * (nbCtrlPoints[1] - 1) * sizeof(glm::uvec2), &m_indices[0]);
     m_fun->glEnableVertexAttribArray(0);
 
-
     uint nbLine = (nbCtrlPoints[0] - (m_k[0] - 1)) * m_dotPerEdge[0] + 1;
     uint nbCol = (nbCtrlPoints[1] - (m_k[1] - 1)) * m_dotPerEdge[1] + 1;
     glm::vec3 surfaces[nbLine][nbCol];
@@ -825,7 +838,7 @@ void BSplineSurface::updateSurface(const glm::mat4& localTransform, const glm::m
         for (uint j = 0; j < nbCtrlPoints[1]; ++j) {
             linePtCtrl.emplace_back(controlPoints[i][j]);
         }
-        std::vector<glm::vec3> curveLine(calcCurve(linePtCtrl, m_k[1], m_dotPerEdge[1], m_knots[1]));
+        std::vector<glm::vec3> curveLine(calcCurve(linePtCtrl, m_k[1], m_dotPerEdge[1], m_knots[1], m_weights[1]));
         Q_ASSERT(curveLine.size() == nbCol);
         for (uint k = 0; k < nbCol; ++k) {
             surfaces[i][k] = curveLine[k];
@@ -837,7 +850,7 @@ void BSplineSurface::updateSurface(const glm::mat4& localTransform, const glm::m
         for (uint i = 0; i < nbCtrlPoints[0]; ++i) {
             colPtCtrl.emplace_back(surfaces[i][j]);
         }
-        std::vector<glm::vec3> curveCol(calcCurve(colPtCtrl, m_k[0], m_dotPerEdge[0], m_knots[0]));
+        std::vector<glm::vec3> curveCol(calcCurve(colPtCtrl, m_k[0], m_dotPerEdge[0], m_knots[0], m_weights[0]));
 
         Q_ASSERT(curveCol.size() == nbLine);
         for (uint k = 0; k < nbLine; ++k) {
@@ -874,7 +887,7 @@ void BSplineSurface::updateSurface(const glm::mat4& localTransform, const glm::m
                 m_normals.emplace_back(std::move(normal));
 
                 m_textures.emplace_back(textureSize * i / (float)nbLine, textureSize * j / (float)nbCol);
-//                m_textures.emplace_back(i, j);
+                //                m_textures.emplace_back(i, j);
 
             } else if (i == nbLine - 1 && j != nbCol - 1) {
                 //                uint topLeft = (i - 1) * nbCol + j;
@@ -893,7 +906,7 @@ void BSplineSurface::updateSurface(const glm::mat4& localTransform, const glm::m
                 glm::vec3 normal = glm::normalize(glm::cross(topRighttopLeft, topRightBottomRight));
                 m_normals.emplace_back(std::move(normal));
                 m_textures.emplace_back(textureSize * i / (float)nbLine, textureSize * j / (float)nbCol);
-//                m_textures.emplace_back(i, j);
+                //                m_textures.emplace_back(i, j);
 
             } else {
                 Q_ASSERT(j == nbCol - 1 && i == nbLine - 1);
@@ -903,7 +916,7 @@ void BSplineSurface::updateSurface(const glm::mat4& localTransform, const glm::m
                 glm::vec3 normal = glm::normalize(glm::cross(bottomRightTopRight, bottomRightBottomLeft));
                 m_normals.emplace_back(std::move(normal));
                 m_textures.emplace_back(textureSize * i / (float)nbLine, textureSize * j / (float)nbCol);
-//                m_textures.emplace_back(i, j);
+                //                m_textures.emplace_back(i, j);
             }
         }
     }

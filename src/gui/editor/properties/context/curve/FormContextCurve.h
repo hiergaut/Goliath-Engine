@@ -24,6 +24,7 @@ public:
     ~FormContextCurve();
 
    void updateSpinKnots();
+   void updateWeights();
 //    void setK(uint k);
    void initNewSpline(BSplineCurve * spline);
    void clear();
@@ -56,6 +57,16 @@ private slots:
 
     void on_checkBox_periodic_stateChanged(int arg1);
 
+    void on_doubleSpinBox_p0_valueChanged(double arg1);
+    void on_doubleSpinBox_p1_valueChanged(double arg1);
+    void on_doubleSpinBox_p2_valueChanged(double arg1);
+    void on_doubleSpinBox_p3_valueChanged(double arg1);
+    void on_doubleSpinBox_p4_valueChanged(double arg1);
+    void on_doubleSpinBox_p5_valueChanged(double arg1);
+    void on_doubleSpinBox_p6_valueChanged(double arg1);
+    void on_doubleSpinBox_p7_valueChanged(double arg1);
+    void on_doubleSpinBox_p8_valueChanged(double arg1);
+
 private:
     Ui::FormContextCurve *ui;
 
@@ -64,6 +75,7 @@ private:
 
 
     QDoubleSpinBox * m_spinKnots[13];
+    QDoubleSpinBox * m_weights[9];
 
 //    bool m_initialized = false;
 

@@ -21,6 +21,7 @@ public:
     uint m_dotPerEdge[2] = { 10, 10 };
     //    std::vector<float> m_knots[2];
     float m_knots[2][g_maxLenKnots];
+    float m_weights[2][g_maxLenKnots];
     //    std::vector<glm::vec3> m_controlPoints;
     glm::vec3 m_controlPoints[g_maxSize][g_maxSize];
     //    std::vector<bool> m_selected;
@@ -46,8 +47,8 @@ public:
 
     void setupGL();
     void setUniform(uint uv);
-    static glm::vec3 deBoor(float u, uint m, const uint k, const float knots[], const std::vector<glm::vec3>& controlPoints);
-    static std::vector<glm::vec3> calcCurve(const std::vector<glm::vec3>& ptsCtrl, const uint k, const uint dotPerEdge, const float knots[]);
+    static glm::vec3 deBoor(float u, uint m, const uint k, const float knots[], const float weights[], const std::vector<glm::vec3>& controlPoints);
+    static std::vector<glm::vec3> calcCurve(const std::vector<glm::vec3>& ptsCtrl, const uint k, const uint dotPerEdge, const float knots[], const float weights[]);
 
     const std::string  name() const override;
 
