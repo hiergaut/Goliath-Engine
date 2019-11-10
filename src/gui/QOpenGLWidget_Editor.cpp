@@ -128,6 +128,11 @@ void QOpenGLWidget_Editor::initializeGL()
     glEnable(GL_MULTISAMPLE);
     //        glDisable(GL_MULTISAMPLE);
 
+    GLint MaxPatchVertices = 0;
+    glGetIntegerv(GL_MAX_PATCH_VERTICES, &MaxPatchVertices);
+    printf("Max supported patch vertices %d\n", MaxPatchVertices);
+    m_fun->glPatchParameteri(GL_PATCH_VERTICES, 3);
+
     //        glEnable(GL_SAMPLE_COVERAGE);
     //        glDisable(GL_MULTISAMPLE);
 

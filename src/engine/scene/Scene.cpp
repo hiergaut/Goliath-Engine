@@ -421,6 +421,7 @@ void Scene::draw(const MainWindow3dView& view, const int x, const int y, const i
     zPrepass(shader);
 
     //    Q_ASSERT(m_hdrFbo == 1);
+//        glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
     for (const Object* object : m_objects) {
         if (object != viewCameraObject) {
             if (object->selected()) {

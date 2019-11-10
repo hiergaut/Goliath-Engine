@@ -33,6 +33,7 @@
     <addaction name="actionNormal"/>
     <addaction name="actionDepth"/>
     <addaction name="actionVertexGroup"/>
+    <addaction name="actionPnTriangle"/>
     <addaction name="separator"/>
     <addaction name="actionWireFrame"/>
     <addaction name="actionX_Rays"/>
@@ -385,6 +386,11 @@
   <action name="actionPot">
    <property name="text">
     <string>Pot</string>
+   </property>
+  </action>
+  <action name="actionPnTriangle">
+   <property name="text">
+    <string>PnTriangle</string>
    </property>
   </action>
  </widget>

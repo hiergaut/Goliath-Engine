@@ -27,6 +27,7 @@ public:
         NORMAL,
         DEPTH,
         VERTEX_GROUP,
+        PN_TRIANGLE,
         size
     } m_shade;
 
@@ -35,7 +36,7 @@ public:
     static void glInitialize();
 
     //    Shader(const char* vertexPath, const char* fragmentPath, const char* geometryPath = nullptr)
-    Shader(const std::string vertexPath, const std::string fragmentPath, const std::string geometryPath = "", Shader::Type shade = Shader::Type::size);
+    Shader(const std::string vertexPath, const std::string fragmentPath, const std::string geometryPath = "", Shader::Type shade = Shader::Type::size, const std::string controlPath = "", const std::string evaluationPath = "");
 
     ~Shader();
     // activate the shader
@@ -61,6 +62,8 @@ private:
     std::string m_vertexPath;
     std::string m_fragmentPath;
     std::string m_geometryPath;
+    std::string m_controlPath;
+    std::string m_evaluationPath;
     // utility function for checking shader compilation/linking errors.
     // ------------------------------------------------------------------------
     void checkCompileErrors(GLuint shader, std::string type);

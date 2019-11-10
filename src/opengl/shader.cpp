@@ -7,7 +7,12 @@ void Shader::glInitialize()
 {
     m_shaders[Shader::Type::SOLID] = new Shader("shading/solid.vsh", "shading/solid.fsh", "", Shader::Type::SOLID);
     m_shaders[Shader::Type::LOOK_DEV] = new Shader("shading/lookDev.vsh", "shading/lookDev.fsh", "", Shader::Type::LOOK_DEV);
-    m_shaders[Shader::Type::RENDERED] = new Shader("shading/rendered.vsh", "shading/rendered.fsh", "", Shader::Type::RENDERED);
+    m_shaders[Shader::Type::RENDERED] = new Shader("shading/rendered.vsh", "shading/rendered.fsh", "", Shader::Type::RENDERED, "", "");
+//    m_shaders[Shader::Type::RENDERED] = new Shader("shading/pnTriangle.vsh", "shading/pnTriangle.fsh", "", Shader::Type::RENDERED, "shading/pnTriangle.tcs.glsl", "shading/pnTriangle.tes.glsl");
+//    Shader * renderedShader = new Shader("shading/pnTriangle.vsh", "shading/pnTriangle.fsh", "", Shader::Type::RENDERED, "shading/pnTriangle.tcs.glsl", "shading/pnTriangle.tes.glsl");
+//    renderedShader->setFloat("gTessellationLevel", 1.0f);
+//    m_shaders[Shader::Type::RENDERED] = renderedShader;
+
     m_shaders[Shader::Type::NORMAL] = new Shader("shading/normal.vsh", "shading/normal.fsh", "", Shader::Type::NORMAL);
 
     Shader * depthShader = new Shader("shading/depth.vsh", "shading/depth.fsh", "", Shader::Type::DEPTH);
@@ -15,14 +20,20 @@ void Shader::glInitialize()
     m_shaders[Shader::Type::DEPTH] = depthShader;
 
     m_shaders[Shader::Type::VERTEX_GROUP] = new Shader("shading/vertexGroup.vsh", "shading/vertexGroup.fsh", "", Shader::Type::VERTEX_GROUP);
+
+    m_shaders[Shader::Type::PN_TRIANGLE] = new Shader("shading/pnTriangle.vsh", "shading/pnTriangle.fsh", "", Shader::Type::PN_TRIANGLE, "shading/pnTriangle.tcs.glsl", "shading/pnTriangle.tes.glsl");
 }
 
+
 //Shader::Shader(const std::string vertexPath, const std::string fragmentPath, Shader::Type shade, const std::string geometryPath)
-Shader::Shader(const std::string vertexPath, const std::string fragmentPath, const std::string geometryPath, Shader::Type shade)
+//Shader::Shader(const std::string vertexPath, const std::string fragmentPath, const std::string geometryPath, Shader::Type shade)
+Shader::Shader(const std::string vertexPath, const std::string fragmentPath, const std::string geometryPath, Shader::Type shade, const std::string controlPath, const std::string evaluationPath)
     : m_shade(shade)
     , m_vertexPath(vertexPath)
     , m_fragmentPath(fragmentPath)
     , m_geometryPath(geometryPath)
+    , m_controlPath(controlPath)
+    , m_evaluationPath(evaluationPath)
 {
     //        vertexPath = shaderPath + vertexPath;
     m_fun = QOpenGLContext::currentContext()->versionFunctions<QOpenGLFunctionsCore>();
@@ -37,13 +48,21 @@ Shader::Shader(const std::string vertexPath, const std::string fragmentPath, con
     std::string vertexCode;
     std::string fragmentCode;
     std::string geometryCode;
+    std::string controlCode;
+    std::string evaluationCode;
+
     std::ifstream vShaderFile;
     std::ifstream fShaderFile;
     std::ifstream gShaderFile;
+    std::ifstream cShaderFile;
+    std::ifstream eShaderFile;
     // ensure ifstream objects can throw exceptions:
     vShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
     fShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
     gShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+    cShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+    eShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+
     try {
         // open files
         vShaderFile.open(g_shaderPath + vertexPath);
@@ -88,6 +107,30 @@ Shader::Shader(const std::string vertexPath, const std::string fragmentPath, con
             exit(0);
         }
     }
+    if (!controlPath.empty()) {
+        try {
+            cShaderFile.open(g_shaderPath + controlPath);
+            std::stringstream cShaderStream;
+            cShaderStream << cShaderFile.rdbuf();
+            cShaderFile.close();
+            controlCode = cShaderStream.str();
+        } catch (std::ifstream::failure e) {
+            std::cout << "ERROR::SHADER::GEOMETRY::FILE_NOT_SUCCESFULLY_READ " << geometryPath << std::endl;
+            exit(0);
+        }
+    }
+    if (!evaluationPath.empty()) {
+        try {
+            eShaderFile.open(g_shaderPath + evaluationPath);
+            std::stringstream eShaderStream;
+            eShaderStream << eShaderFile.rdbuf();
+            eShaderFile.close();
+            evaluationCode = eShaderStream.str();
+        } catch (std::ifstream::failure e) {
+            std::cout << "ERROR::SHADER::GEOMETRY::FILE_NOT_SUCCESFULLY_READ " << geometryPath << std::endl;
+            exit(0);
+        }
+    }
 
     const char* vShaderCode = vertexCode.c_str();
     const char* fShaderCode = fragmentCode.c_str();
@@ -113,6 +156,25 @@ Shader::Shader(const std::string vertexPath, const std::string fragmentPath, con
         m_fun->glCompileShader(geometry);
         checkCompileErrors(geometry, "GEOMETRY");
     }
+    unsigned int control;
+    if (!controlPath.empty()) {
+        const char* cShaderCode = controlCode.c_str();
+        control = m_fun->glCreateShader(GL_TESS_CONTROL_SHADER);
+        m_fun->glShaderSource(control, 1, &cShaderCode, NULL);
+        m_fun->glCompileShader(control);
+        checkCompileErrors(control, "CONTROL");
+    }
+
+    unsigned int evaluation;
+    if (!evaluationPath.empty()) {
+        const char* eShaderCode = evaluationCode.c_str();
+        evaluation = m_fun->glCreateShader(GL_TESS_EVALUATION_SHADER);
+        m_fun->glShaderSource(evaluation, 1, &eShaderCode, NULL);
+        m_fun->glCompileShader(evaluation);
+        checkCompileErrors(evaluation, "EVALUATION");
+    }
+
+
     // shader Program
     ID = m_fun->glCreateProgram();
     m_fun->glAttachShader(ID, vertex);
@@ -120,6 +182,11 @@ Shader::Shader(const std::string vertexPath, const std::string fragmentPath, con
     //        if (geometryPath != nullptr)
     if (!geometryPath.empty())
         m_fun->glAttachShader(ID, geometry);
+    if (!controlPath.empty())
+        m_fun->glAttachShader(ID, control);
+    if (!evaluationPath.empty())
+        m_fun->glAttachShader(ID, evaluation);
+
     m_fun->glLinkProgram(ID);
     checkCompileErrors(ID, "PROGRAM");
     // delete the shaders as they're linked into our program now and no longer necessery
@@ -128,6 +195,10 @@ Shader::Shader(const std::string vertexPath, const std::string fragmentPath, con
     //        if (geometryPath != nullptr)
     if (!geometryPath.empty())
         m_fun->glDeleteShader(geometry);
+    if (!controlPath.empty())
+        m_fun->glDeleteShader(control);
+    if (!evaluationPath.empty())
+        m_fun->glDeleteShader(evaluation);
 
     //        std::cout << "[SHADER] load : " << vertexPath << std::endl;
 }

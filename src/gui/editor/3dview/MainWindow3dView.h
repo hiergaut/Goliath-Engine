@@ -257,6 +257,7 @@ private slots:
     void on_actionRendered_triggered();
     void on_actionNormal_triggered();
     void on_actionDepth_triggered();
+    void on_actionPnTriangle_triggered();
 
     void on_actionWireFrame_triggered();
     void on_actionX_Rays_triggered();

@@ -232,7 +232,7 @@ void Material::buildItemModel(QStandardItem* parent) const
                 QStandardItem* item3 = new QStandardItem(QIcon(texture.m_pixmap), texture.m_filename.c_str());
                 itemAmbient->appendRow(item3);
             } else {
-                QStandardItem* item3 = new QStandardItem(QIcon(texture.m_pixmap), QString(texture) + texture.m_filename.c_str());
+                QStandardItem* item3 = new QStandardItem(QIcon(texture.m_pixmap), QString(texture) + ": " + texture.m_filename.c_str());
                 item2->appendRow(item3);
             }
         }

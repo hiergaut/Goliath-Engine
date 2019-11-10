@@ -357,6 +357,11 @@ void MainWindow3dView::setShading(Shader::Type shade)
         ui->menuShading->setIcon(ui->actionVertexGroup->icon());
         ui->menuShading_2->setTitle("Vertex_Group");
         break;
+
+    case Shader::Type::PN_TRIANGLE:
+        //        ui->menuShading->setIcon(ui->actionPnTriangle->icon();
+        ui->menuShading_2->setTitle("PnTriangle");
+        break;
     }
 
     m_shade = shade;
@@ -456,7 +461,7 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
         break;
 
     case Qt::Key_F10:
-        Scene::m_scene->m_bloomEnable = ! Scene::m_scene->m_bloomEnable;
+        Scene::m_scene->m_bloomEnable = !Scene::m_scene->m_bloomEnable;
         break;
 
     case Qt::Key_H:
@@ -484,7 +489,7 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
         break;
 
     case Qt::Key_Shift:
-//        qDebug() << "shift pressed";
+        //        qDebug() << "shift pressed";
         m_shiftPressed = true;
         break;
 
@@ -515,6 +520,12 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
         if (m_shiftPressed) {
 
             ui->actionSolid->trigger();
+        }
+        break;
+
+    case Qt::Key_T:
+        if (m_shiftPressed) {
+            ui->actionPnTriangle->trigger();
         }
         break;
 
@@ -576,7 +587,9 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
         switch (event->key()) {
 
         case Qt::Key_T:
-            m_camera->m_torchEnable = !m_camera->m_torchEnable;
+            if (!m_shiftPressed) {
+                m_camera->m_torchEnable = !m_camera->m_torchEnable;
+            }
             break;
 
             //        case Qt::Key_PageUp:
@@ -843,7 +856,7 @@ void MainWindow3dView::keyReleaseEvent(QKeyEvent* event)
 
     switch (event->key()) {
     case Qt::Key_Shift:
-//        qDebug() << "shift released";
+        //        qDebug() << "shift released";
         m_shiftPressed = false;
         break;
 
@@ -1636,7 +1649,7 @@ void MainWindow3dView::initializeGL()
         std::cout << "Framebuffer not complete!" << std::endl;
 
     // ----------------------------------------- PING PONG BLUR
-//    unsigned int pingpongColorbuffers[2];
+    //    unsigned int pingpongColorbuffers[2];
     m_fun->glGenFramebuffers(2, m_pingpongFbo);
     glGenTextures(2, m_pingpongColorBuffers);
     for (unsigned int i = 0; i < 2; i++) {
@@ -1669,8 +1682,8 @@ void MainWindow3dView::updateGL()
         m_fun->glBindFramebuffer(GL_FRAMEBUFFER, m_pingpongFbo[i]);
         glBindTexture(GL_TEXTURE_2D, m_pingpongColorBuffers[i]);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width(), height(), 0, GL_RGB, GL_FLOAT, NULL);
-//        glBindTexture(GL_TEXTURE_2D, m_colorBuffers[i]);
-//        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width(), height(), 0, GL_RGB, GL_FLOAT, NULL);
+        //        glBindTexture(GL_TEXTURE_2D, m_colorBuffers[i]);
+        //        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB16F, width(), height(), 0, GL_RGB, GL_FLOAT, NULL);
     }
     //    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB,
     //        SCR_WIDTH, SCR_HEIGHT, 0, GL_RGB, GL_FLOAT, NULL);
@@ -1846,6 +1859,10 @@ const Shader& MainWindow3dView::shader() const
 
     case Shader::Type::VERTEX_GROUP:
         break;
+
+    case Shader::Type::PN_TRIANGLE:
+        shader.setFloat("gTessellationLevel", 1.0f);
+        break;
     }
 
     if (ui->actionWireFrame->isChecked()) {
@@ -1969,6 +1986,11 @@ void MainWindow3dView::on_actionDepth_triggered()
 void MainWindow3dView::on_actionVertexGroup_triggered()
 {
     setShading(Shader::Type::VERTEX_GROUP);
+}
+
+void MainWindow3dView::on_actionPnTriangle_triggered()
+{
+    setShading(Shader::Type::PN_TRIANGLE);
 }
 
 void MainWindow3dView::on_actionWireFrame_triggered()

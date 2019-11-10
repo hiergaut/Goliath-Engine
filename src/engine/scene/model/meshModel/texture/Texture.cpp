@@ -25,9 +25,9 @@ Texture::Texture(std::string path, std::string filename, Texture::Type type)
     //            Texture texture;
     m_type = type;
     m_id = TextureFromFile(filename.c_str(), m_directory);
-    if (m_type == Texture::Type::NORMAL) {
-        qDebug() << m_filename.c_str() << "normal";
-    }
+//    if (m_type == Texture::Type::NORMAL) {
+//        qDebug() << m_filename.c_str() << "normal";
+//    }
     //            m_directory = m_directory + "/" + str.C_Str();
     //            texture.m_filename = str.C_Str();
     bool success;
