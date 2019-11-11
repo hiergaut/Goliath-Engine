@@ -108,6 +108,8 @@ public:
     uint m_pingpongFbo[2];
     uint m_pingpongColorBuffers[2];
 
+    float m_parallaxHeightScale = 0.05f;
+
 public:
     explicit MainWindow3dView(QWidget* parent = nullptr);
     ~MainWindow3dView() override;

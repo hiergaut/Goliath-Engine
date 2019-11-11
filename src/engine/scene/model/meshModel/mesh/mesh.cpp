@@ -3,7 +3,7 @@
 #include <assimp/Assimp.h>
 #include <gui/editor/timeline/FormTimeline.h>
 
-bool Mesh::m_enableTexture[Texture::size] = { true, true, true, true, true };
+bool Mesh::m_enableTexture[Texture::size] = { true, true, true, false, true };
 
 Mesh::Mesh(const aiMesh* ai_mesh, Materials* materials, Textures* textures)
     : m_materials(materials)
@@ -462,12 +462,22 @@ void Mesh::draw(const Shader& shader, bool dotCloud, const Frustum& frustum) con
 
         if (!material.m_iTextures[Texture::OPACITY].empty() && m_enableTexture[Texture::OPACITY]) {
             shader.setBool("has_texture_opacity", true);
-            m_fun->glActiveTexture(GL_TEXTURE2);
-            shader.setInt("texture_opacity", 2);
+            m_fun->glActiveTexture(GL_TEXTURE3);
+            shader.setInt("texture_opacity", 3);
             m_fun->glBindTexture(GL_TEXTURE_2D, (*m_textures)[material.m_iTextures[Texture::OPACITY][0]].m_id);
         } else {
             shader.setBool("has_texture_opacity", false);
         }
+
+        if (!material.m_iTextures[Texture::HEIGHT].empty() && m_enableTexture[Texture::HEIGHT]) {
+            shader.setBool("has_texture_height", true);
+            m_fun->glActiveTexture(GL_TEXTURE4);
+            shader.setInt("texture_height", 4);
+            m_fun->glBindTexture(GL_TEXTURE_2D, (*m_textures)[material.m_iTextures[Texture::HEIGHT][0]].m_id);
+        } else {
+            shader.setBool("has_texture_height", false);
+        }
+
 
         // ----------------------------------------------------- DEBUG
         //        if (!material.m_iTextures[Texture::SPECULAR].empty() && m_enableTexture[Texture::SPECULAR]) {

@@ -386,6 +386,16 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
 
     switch (event->key()) {
 
+    case Qt::Key_P:
+        if (m_shiftPressed) {
+            m_parallaxHeightScale -= 0.001f;
+        }
+        else {
+            m_parallaxHeightScale += 0.001f;
+        }
+        qDebug() << "parallaxHeightScale: " << m_parallaxHeightScale;
+        break;
+
     case Qt::Key_O:
         //        Scene::m_scene->m_exposure -= 0.1f;
         if (m_shiftPressed) {
@@ -1848,6 +1858,7 @@ const Shader& MainWindow3dView::shader() const
 
     case Shader::Type::RENDERED:
         shader.setVec3("viewPos", m_camera->position());
+        shader.setFloat("heightScale", m_parallaxHeightScale);
         break;
 
     case Shader::Type::NORMAL:
