@@ -20,14 +20,14 @@ class PointLight : public Light, public Object
 {
 public:
 //    glm::vec3 m_direction;
-//    float m_constant = 0.5f;
-    float m_constant = 0.0f;
+    float m_constant = 0.5f;
+//    float m_constant = 0.0f;
 //    float m_linear = 0.005f;
-    float m_linear = 0.004f;
-//    float m_linear = 0.00002f;
+//    float m_linear = 0.004f;
+    float m_linear = 0.0f;
 //    float m_quadratic = 0.00002f;
-    float m_quadratic = 0.0f;
-//    float m_quadratic = 0.00001f;
+//    float m_quadratic = 0.0f;
+    float m_quadratic = 0.00001f;
 
 public:
 

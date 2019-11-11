@@ -30,7 +30,7 @@ protected:
 //    void setSelected(bool selected) override;
 
 public:
-    DirLight(const glm::vec3 position, const glm::vec3 direction, const glm::vec3 ambient = glm::vec3(0.4f), const glm::vec3 diffuse = glm::vec3(2.0f), const glm::vec3 specular = glm::vec3(2.0f));
+    DirLight(const glm::vec3 position, const glm::vec3 direction, const glm::vec3 ambient = glm::vec3(0.4f), const glm::vec3 diffuse = glm::vec3(1.0f), const glm::vec3 specular = glm::vec3(1.0f));
     DirLight(std::ifstream &file);
     DirLight(DirLight && dirLight) noexcept = default;
 //    ~DirLight();

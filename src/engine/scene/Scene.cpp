@@ -1657,8 +1657,8 @@ void Scene::prepareLightUniform(const MainWindow3dView& view, const Shader& shad
             if (camera->m_torchEnable) {
                 uint i = cpt++ + nbSpotLight;
 
-                shader.setFloat("spotLights[" + QString::number(i).toStdString() + "].cutOff", glm::cos(glm::radians(20.0f)));
-                shader.setFloat("spotLights[" + QString::number(i).toStdString() + "].outerCutOff", glm::cos(glm::radians(22.0f)));
+                shader.setFloat("spotLights[" + QString::number(i).toStdString() + "].cutOff", glm::cos(glm::radians(30.0f)));
+                shader.setFloat("spotLights[" + QString::number(i).toStdString() + "].outerCutOff", glm::cos(glm::radians(35.0f)));
 
                 shader.setInt("spotLights[" + QString::number(i).toStdString() + "].id", nbDirLight + i);
                 shader.setInt("spotLights[" + QString::number(i).toStdString() + "].shadowMap", nbDirLight + MAX_POINT_LIGHT + 5 + i);
