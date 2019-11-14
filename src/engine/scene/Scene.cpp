@@ -377,7 +377,7 @@ void Scene::draw(const MainWindow3dView& view, const int x, const int y, const i
         glCullFace(GL_FRONT);
         uint cpt = 0;
         for (uint iNear : camera->m_cameraStrategy->m_nearestPointLights) {
-            if (++cpt > 2)
+            if (++cpt > 1)
                 break;
 
             const PointLight& pointLight = m_pointLights[iNear];

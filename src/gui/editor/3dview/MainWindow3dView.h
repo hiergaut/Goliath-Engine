@@ -101,8 +101,8 @@ public:
     mutable Frustum m_frustum;
 
     bool m_hdr = true;
-    float m_exposure = 2.0f;
-    float m_gamma = 0.5f;
+    float m_exposure = 2.5f;
+    float m_gamma = 0.3f;
 
     uint m_colorBuffers[2];
     uint m_pingpongFbo[2];

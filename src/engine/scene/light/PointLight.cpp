@@ -22,8 +22,8 @@
 //const float FAR_PLANE = 5000.0f;
 //const uint shadow_size[2] = { 512, 4096 };
 //const uint shadow_size = 256;
-//const uint shadow_size = 512;
-const uint shadow_size = 1024;
+const uint shadow_size = 512;
+//const uint shadow_size = 1024;
 //const uint shadow_size = 2048;
 //const uint shadow_size = 4096;
 

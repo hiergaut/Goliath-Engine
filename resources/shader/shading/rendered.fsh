@@ -94,13 +94,13 @@ in VS_OUT {
         in vec3 FragPos;
         in vec3 Normal;
         in vec2 TexCoords;
-        in vec4 FragPosLightSpace[10];
+        in vec4 FragPosLightSpace[2];
         //} fs_in;
         //        in mat3 TBN;
-        in vec3 TangentLightPos[10];
+        in vec3 TangentLightPos[20];
         in vec3 TangentViewPos;
         in vec3 TangentFragPos;
-        vec3 TangentLightDir[5];
+        vec3 TangentLightDir[2];
 } fs_in;
 
 
