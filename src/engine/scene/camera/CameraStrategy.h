@@ -79,7 +79,7 @@ protected:
     bool m_middleClicked = false;
     bool m_shiftPressed = false;
 
-    uint m_cptMovingStep =0;
+    float m_cptMovingStep =0;
 
 //    Frustum m_frustum;
 

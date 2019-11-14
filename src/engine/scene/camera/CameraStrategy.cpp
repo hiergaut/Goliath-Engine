@@ -107,8 +107,8 @@ void CameraStrategy::resizeEvent(QResizeEvent* event)
 
 void CameraStrategy::updateModelTransform(glm::mat4&& modelTransform)
 {
-    if (m_cptMovingStep > 10) {
-        m_cptMovingStep = 0;
+    if (m_cptMovingStep > 10.0f) {
+        m_cptMovingStep = 0.0f;
         m_model.setTransform(std::move(modelTransform));
 //        qDebug() << "updateModelTransform";
         updateNearestPointLights();

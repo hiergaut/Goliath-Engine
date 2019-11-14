@@ -8,7 +8,7 @@ void Shader::glInitialize()
     m_shaders[Shader::Type::SOLID] = new Shader("shading/solid.vsh", "shading/solid.fsh", "", Shader::Type::SOLID);
     m_shaders[Shader::Type::LOOK_DEV] = new Shader("shading/lookDev.vsh", "shading/lookDev.fsh", "", Shader::Type::LOOK_DEV);
     m_shaders[Shader::Type::RENDERED] = new Shader("shading/rendered.vsh", "shading/rendered.fsh", "", Shader::Type::RENDERED, "", "");
-//    m_shaders[Shader::Type::RENDERED] = new Shader("shading/pnTriangle.vsh", "shading/pnTriangle.fsh", "", Shader::Type::RENDERED, "shading/pnTriangle.tcs.glsl", "shading/pnTriangle.tes.glsl");
+//    m_shaders[Shader::Type::RENDERED] = new Shader("shading/rendered.vsh", "shading/rendered.fsh", "", Shader::Type::RENDERED, "shading/pnTriangle.tcs.glsl", "shading/pnTriangle.tes.glsl");
 //    Shader * renderedShader = new Shader("shading/pnTriangle.vsh", "shading/pnTriangle.fsh", "", Shader::Type::RENDERED, "shading/pnTriangle.tcs.glsl", "shading/pnTriangle.tes.glsl");
 //    renderedShader->setFloat("gTessellationLevel", 1.0f);
 //    m_shaders[Shader::Type::RENDERED] = renderedShader;

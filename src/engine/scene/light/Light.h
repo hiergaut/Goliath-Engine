@@ -21,6 +21,8 @@ public:
     mutable float m_coeffBlink = 1.0f;
     bool m_blink = false;
 
+    float m_bias = 0.1;
+
 public:
     enum Type {
         SUN,

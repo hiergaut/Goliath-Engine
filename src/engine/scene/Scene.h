@@ -75,10 +75,11 @@ public:
 //    uint m_cptShadowMapDetail = 0;
 
     uint m_iLightDepthMap = 0;
-    bool m_bloomEnable = true;
+    bool m_bloomEnable = false;
 //    uint m_nbLight;
     bool m_firstDraw = true;
 
+    int m_tessellationLevel = 1;
 
 
 public:

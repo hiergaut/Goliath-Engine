@@ -386,6 +386,16 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
 
     switch (event->key()) {
 
+    case Qt::Key_U:
+        if (m_shiftPressed) {
+            Scene::m_scene->m_tessellationLevel = std::max(1, Scene::m_scene->m_tessellationLevel - 1);
+        }
+        else {
+            Scene::m_scene->m_tessellationLevel += 1;
+        }
+        qDebug() << "telleationLevel: " << Scene::m_scene->m_tessellationLevel;
+        break;
+
     case Qt::Key_P:
         if (m_shiftPressed) {
             m_parallaxHeightScale -= 0.001f;
@@ -1636,6 +1646,7 @@ void MainWindow3dView::initializeGL()
         //    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
         //    float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
         //    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+//        m_fun->glGenerateMipmap(GL_TEXTURE_2D);
         // attach texture to framebuffer
         m_fun->glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + i, GL_TEXTURE_2D, m_colorBuffers[i], 0);
     }
@@ -1872,7 +1883,9 @@ const Shader& MainWindow3dView::shader() const
         break;
 
     case Shader::Type::PN_TRIANGLE:
-        shader.setFloat("gTessellationLevel", 1.0f);
+        shader.setVec3("viewPos", m_camera->position());
+//        shader.setFloat("gTessellationLevel", 1.0f);
+        shader.setFloat("gTessellationLevel", Scene::m_scene->m_tessellationLevel);
         break;
     }
 

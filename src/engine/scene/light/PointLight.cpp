@@ -22,6 +22,7 @@
 //const float FAR_PLANE = 5000.0f;
 //const uint shadow_size[2] = { 512, 4096 };
 //const uint shadow_size = 256;
+//const uint shadow_size = 512;
 const uint shadow_size = 1024;
 //const uint shadow_size = 2048;
 //const uint shadow_size = 4096;
@@ -145,6 +146,9 @@ PointLight::PointLight(const glm::vec3 position, const glm::vec3 ambient, const 
 {
     Object::m_type = Object::Type::POINT_LIGHT;
     Light::m_type = Light::Type::POINT;
+
+//    m_bias = 6.5f;
+    m_bias = 10.0f;
 
     //    m_sphere = new UvSphereGeometry(100, 100);
     //    m_model = new Model(g_resourcesPath + "models/sun/sun.obj");

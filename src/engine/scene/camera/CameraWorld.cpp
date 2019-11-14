@@ -65,6 +65,7 @@ void CameraWorld::processMouseMovement(float xoffset, float yoffset)
     float dist = glm::length(front);
     front = glm::normalize(front);
 
+    glm::vec3 curPosition = front * dist + m_target;
     //        glm::vec3 up = glm::vec3(0.0f, 0.0f, 1.0f);
     //    glm::vec3 up;
     glm::vec3 right;
@@ -145,6 +146,9 @@ void CameraWorld::processMouseMovement(float xoffset, float yoffset)
     updateModelTransform(glm::inverse(glm::lookAt(newPosition, m_target, m_up)));
     //    m_model. = front * dist + m_target;
 
+    if (glm::length(curPosition - newPosition) > 1.0f) {
+        m_cptMovingStep += 0.5f;
+    }
 //    ++m_cptMovingStep;
 
     //    }
@@ -161,7 +165,7 @@ void CameraWorld::processMouseScroll(float yoffset)
     glm::vec3 position = glm::vec3(translate);
     glm::vec3 front = m_target - position;
     //    m_position += accuracyMove * front * yoffset;
-    glm::vec3 newPosition = position += accuracyMove * front * yoffset;
+    glm::vec3 newPosition = position + accuracyMove * front * yoffset;
 
     // question : optim
     translate.x = newPosition.x;
@@ -171,6 +175,9 @@ void CameraWorld::processMouseScroll(float yoffset)
 //    m_model.setTransform(std::move(model));
     updateModelTransform(std::move(model));
 //    ++m_cptMovingStep;
+    if (glm::length(position - newPosition) > 1.0f) {
+        m_cptMovingStep += 2.0f;
+    }
 }
 
 void CameraWorld::processSliding(float dx, float dy)
@@ -187,15 +194,19 @@ void CameraWorld::processSliding(float dx, float dy)
     glm::vec3 up = glm::normalize(glm::cross(front, right));
 
     glm::vec3 slide = accuracySlide * (right * -dx + up * -dy);
-    position += slide;
+    glm::vec3 newPosition = position + slide;
     m_target += slide;
 
-    translate.x = position.x;
-    translate.y = position.y;
-    translate.z = position.z;
+    translate.x = newPosition.x;
+    translate.y = newPosition.y;
+    translate.z = newPosition.z;
 
 //    m_model.setTransform(std::move(model));
     updateModelTransform(std::move(model));
+
+    if (glm::length(position - newPosition) > 1.0f) {
+        m_cptMovingStep += 0.5f;
+    }
 }
 
 void CameraWorld::updateUpAfterReverse()

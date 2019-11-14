@@ -25,6 +25,7 @@ public:
     static QOpenGLWidget_Editor * m_editor;
     bool m_initialized = false;
 
+
 public:
     explicit QOpenGLWidget_Editor(QWidget *parent = nullptr, QMainWindow * mainWindow = nullptr);
 

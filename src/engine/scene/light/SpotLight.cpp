@@ -100,6 +100,7 @@ SpotLight::SpotLight(const glm::vec3 position, const glm::vec3 direction, const 
     Object::m_type = Object::Type::SPOT_LIGHT;
     Light::m_type = Light::Type::SPOT;
 
+    m_bias = 0.002f;
     //    m_sphere = new UvSphereGeometry(100, 100);
     //    m_model = new Model(g_resourcesPath + "models/sun/sun.obj");
 

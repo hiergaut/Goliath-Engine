@@ -8,6 +8,7 @@
 #include <session/Session.h>
 
 //const uint SHADOW_SIZE = 1024;
+//const uint SHADOW_SIZE = 4096;
 const uint SHADOW_SIZE = 8192;
 //const uint SHADOW_SIZE = 16384;
 const uint SHADOW_WIDTH = SHADOW_SIZE;
@@ -98,6 +99,8 @@ DirLight::DirLight(const glm::vec3 position, const glm::vec3 direction, const gl
 {
     Object::m_type = Object::Type::DIR_LIGHT;
     Light::m_type = Light::Type::SUN;
+
+    m_bias = 0.001f;
 
     //    m_sphere = new UvSphereGeometry(100, 100);
     //    m_model = new Model(g_resourcesPath + "models/sun/sun.obj");

@@ -48,6 +48,8 @@ private slots:
 
     void on_doubleSpinBox_outerCutOff_valueChanged(double arg1);
 
+    void on_doubleSpinBox_bias_valueChanged(double arg1);
+
 private:
     Ui::FormContextLight* ui;
     static Light * m_light;

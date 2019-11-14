@@ -117,6 +117,7 @@ void FormContextLight::updateUi()
     //    ui->doubleSpinBox_constant->setValue(m_light.m_)
 
     ui->checkBox->setChecked(m_light->m_blink);
+    ui->doubleSpinBox_bias->setValue(m_light->m_bias);
 
     setEnabled(true);
 }
@@ -329,4 +330,20 @@ void FormContextLight::on_doubleSpinBox_outerCutOff_valueChanged(double arg1)
             updateUi();
         }
     }
+}
+
+void FormContextLight::on_doubleSpinBox_bias_valueChanged(double arg1)
+{
+    if (m_light != nullptr) {
+//        if (m_light->m_type == Light::Type::SPOT) {
+//            SpotLight* light = static_cast<SpotLight*>(m_light);
+
+            //            light->m_quadratic = arg1;
+//            light->m_outerCutOff = arg1;
+            m_light->m_bias = arg1;
+            qDebug() << "m_bias = " << arg1;
+            updateUi();
+//        }
+    }
+
 }

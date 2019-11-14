@@ -495,8 +495,37 @@ void Scene::draw(const MainWindow3dView& view, const int x, const int y, const i
         glActiveTexture(GL_TEXTURE0);
         //    glBindTexture(GL_TEXTURE_2D, m_colorBuffer);
         glBindTexture(GL_TEXTURE_2D, view.m_colorBuffers[0]);
+
+//        const uint width = view.width();
+//        const uint height = view.height();
+//        const uint sampleCount = width * height;
+//        float samples[sampleCount][3];
+//        for (uint i =0; i <sampleCount; ++i) {
+//        glm::vec3 averageBrightness = glm::vec3(0.0f);
+//        float averageBrightness = 0.0f;
+//        m_fun->glGetTexImage(view.m_colorBuffers[0], 0, GL_RGB16F, GL_FLOAT, samples);
+//        for (uint i =0; i <height; ++i) {
+//            for (uint j =0; j <width; ++j) {
+//        for (uint i =0; i <sampleCount; ++i) {
+
+//                uint ind = i * width + j;
+//                glReadPixels(j, i, width, height, GL_RGB16F, GL_FLOAT, &samples[ind][0]);
+//                glGetTex
+//                averageBrightness += glm::vec3(samples[i][0], samples[i][1], samples[i][2]);
+//                averageBrightness += samples[i][0] + samples[i][1] +samples[i][2];
+//            averageBrightness +=
+//            }
+//        }
+//        qDebug() << samples[0][0];
+
+//        averageBrightness /= sampleCount;
+//        qDebug() << "averageBrightness: " << glm::length(averageBrightness);
+//        averageBrightness = 0.0f;
+//        qDebug() << "averageBrightness: " << glm::length(averageBrightness);
+
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, view.m_pingpongColorBuffers[!horizontal]);
+
         //    glActiveTexture(GL_TEXTURE1);
         //    glBindTexture(GL_TEXTURE_2D, pingpongColorbuffers[!horizontal]);
         m_bloomShader->setInt("bloom", m_bloomEnable);
@@ -1552,7 +1581,7 @@ BSplineSurface* Scene::getBsplineSurface()
 
 void Scene::prepareLightUniform(const MainWindow3dView& view, const Shader& shader)
 {
-    if (view.m_shade == Shader::Type::RENDERED) {
+    if (view.m_shade == Shader::Type::RENDERED || view.m_shade == Shader::Type::PN_TRIANGLE) {
         shader.setBool("shadow", m_computeShadow);
 
         uint nbDirLight = m_dirLights.size();
@@ -1578,6 +1607,7 @@ void Scene::prepareLightUniform(const MainWindow3dView& view, const Shader& shad
             shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].ambient", dirLight.m_ambient * dirLight.m_coeffSunrise);
             shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].diffuse", dirLight.m_diffuse * dirLight.m_coeffSunrise);
             shader.setVec3("dirLight[" + QString::number(i).toStdString() + "].specular", dirLight.m_specular * dirLight.m_coeffSunrise);
+            shader.setFloat("dirLight[" + QString::number(i).toStdString() + "].bias", dirLight.m_bias);
         }
 
         uint nbPointLight = m_pointLights.size();
@@ -1611,6 +1641,7 @@ void Scene::prepareLightUniform(const MainWindow3dView& view, const Shader& shad
             shader.setVec3("pointLights[" + QString::number(i).toStdString() + "].ambient", pointLight.m_ambient);
             shader.setVec3("pointLights[" + QString::number(i).toStdString() + "].diffuse", pointLight.m_diffuse);
             shader.setVec3("pointLights[" + QString::number(i).toStdString() + "].specular", pointLight.m_specular);
+            shader.setFloat("pointLights[" + QString::number(i).toStdString() + "].bias", pointLight.m_bias);
         }
 
         uint nbSpotLight = m_spotLights.size();
@@ -1650,6 +1681,7 @@ void Scene::prepareLightUniform(const MainWindow3dView& view, const Shader& shad
             shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].ambient", spotLight.m_ambient);
             shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].diffuse", spotLight.m_diffuse);
             shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].specular", spotLight.m_specular);
+            shader.setFloat("spotLights[" + QString::number(i).toStdString() + "].bias", spotLight.m_bias);
         }
 
         uint cpt = 0;
@@ -1681,6 +1713,7 @@ void Scene::prepareLightUniform(const MainWindow3dView& view, const Shader& shad
                 shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].ambient", glm::vec3(0.0f));
                 shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].diffuse", glm::vec3(1.0f));
                 shader.setVec3("spotLights[" + QString::number(i).toStdString() + "].specular", glm::vec3(1.0f));
+                shader.setFloat("spotLights[" + QString::number(i).toStdString() + "].bias", 0.01f);
             }
         }
         shader.setInt("nbSpotLight", nbSpotLight + cpt);
@@ -1799,7 +1832,7 @@ void Scene::drawRay(const MainWindow3dView& view, const Shader& shader, uint pol
 void Scene::drawSkyBox(const MainWindow3dView& view, bool multiSample, const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix)
 {
     // ------------------------- SKYBOX AND GRID
-    if (view.m_shade != Shader::Type::RENDERED) {
+    if (view.m_shade != Shader::Type::RENDERED && view.m_shade != Shader::Type::PN_TRIANGLE) {
         glLineWidth(1);
         glDisable(GL_MULTISAMPLE);
         m_grid->draw(glm::mat4(1.0f), viewMatrix, projectionMatrix);
@@ -2042,7 +2075,7 @@ void Scene::drawOriginModel(const MainWindow3dView& view, const Shader& shader, 
             }
 
             if (object == m_selectObject) {
-                if (shader.m_shade != Shader::Type::RENDERED)
+                if (shader.m_shade != Shader::Type::RENDERED && shader.m_shade != Shader::Type::PN_TRIANGLE)
                     DotGeometry::draw(m_worldTransform * object->transform() * m_localTransform, shader, glm::vec4(0.0f, 1.0f, 0.0f, 1.0f));
                 //            DotGeometry::draw(m_worldTransform * object->m_model->m_transform * m_localTransform, shader, glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));
             }

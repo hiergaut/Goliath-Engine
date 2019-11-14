@@ -370,7 +370,11 @@ void Mesh::draw(const Shader& shader) const
     m_fun->glBindVertexArray(m_vao);
 
     //    glPointSize(5.0f);
-    m_fun->glDrawElements(GL_TRIANGLES, m_indices.size(), GL_UNSIGNED_INT, 0);
+    if (shader.m_shade == Shader::Type::PN_TRIANGLE) {
+        m_fun->glDrawElements(GL_PATCHES, m_indices.size(), GL_UNSIGNED_INT, 0);
+    } else {
+        m_fun->glDrawElements(GL_TRIANGLES, m_indices.size(), GL_UNSIGNED_INT, 0);
+    }
 
     m_fun->glBindVertexArray(0);
     // always good practice to set everything back to defaults once configured.
@@ -390,7 +394,7 @@ void Mesh::draw(const Shader& shader, bool dotCloud, const Frustum& frustum) con
     //    shader.setMat4("model", glm::mat4(1));
 
     const Material& material = (*m_materials)[m_iMaterial];
-    if (shader.m_shade == Shader::Type::RENDERED) {
+    if (shader.m_shade == Shader::Type::RENDERED || shader.m_shade == Shader::Type::PN_TRIANGLE) {
         //        const Material& material = mesh.m_material;
         //        const Material& material = mesh.m_material;
 
@@ -477,7 +481,6 @@ void Mesh::draw(const Shader& shader, bool dotCloud, const Frustum& frustum) con
         } else {
             shader.setBool("has_texture_height", false);
         }
-
 
         // ----------------------------------------------------- DEBUG
         //        if (!material.m_iTextures[Texture::SPECULAR].empty() && m_enableTexture[Texture::SPECULAR]) {
@@ -573,7 +576,6 @@ void Mesh::draw(const Shader& shader, bool dotCloud, const Frustum& frustum) con
         } else {
             shader.setBool("has_texture_diffuse", false);
         }
-
     }
     //    }
 
@@ -608,7 +610,12 @@ void Mesh::draw(const Shader& shader, bool dotCloud, const Frustum& frustum) con
     //        m_fun->glDrawElements(GL_POINTS, m_vertices.size(), GL_UNSIGNED_INT, 0);
 
     else {
-        m_fun->glDrawElements(GL_TRIANGLES, m_indices.size(), GL_UNSIGNED_INT, 0);
+        if (shader.m_shade == Shader::Type::PN_TRIANGLE) {
+            m_fun->glDrawElements(GL_PATCHES, m_indices.size(), GL_UNSIGNED_INT, 0);
+        } else {
+            m_fun->glDrawElements(GL_TRIANGLES, m_indices.size(), GL_UNSIGNED_INT, 0);
+        }
+        //                glDrawElements(GL_PATCHES, m_Entries[i].NumIndices, GL_UNSIGNED_INT, 0);
     }
 
     m_fun->glBindVertexArray(0);

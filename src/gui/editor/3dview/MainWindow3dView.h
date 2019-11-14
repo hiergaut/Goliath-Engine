@@ -100,7 +100,7 @@ public:
 
     mutable Frustum m_frustum;
 
-    bool m_hdr = false;
+    bool m_hdr = true;
     float m_exposure = 2.0f;
     float m_gamma = 0.5f;
 
