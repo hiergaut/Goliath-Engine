@@ -1,7 +1,13 @@
 #include "mesh.h"
 
 #include <assimp/Assimp.h>
+#include <glm/glm.hpp>
+#include <glm/gtx/dual_quaternion.hpp>
+#include <glm/gtx/matrix_decompose.hpp>
+#include <gui/editor/properties/context/animation/FormContextAnimation.h>
 #include <gui/editor/timeline/FormTimeline.h>
+#include <glm/gtx/quaternion.hpp>
+
 
 bool Mesh::m_enableTexture[Texture::size] = { true, true, true, false, true };
 
@@ -353,12 +359,13 @@ void Mesh::draw(const Shader& shader) const
     // ----------------------------------------------------- DEBUG
     if (FormTimeline::animation() != nullptr) {
         if (m_bones.size() > 0) {
-            for (uint i = 0; i < m_bones.size(); ++i) {
-                const Bone& bone = m_bones[i];
+            bindBones(shader);
+            //            for (uint i = 0; i < m_bones.size(); ++i) {
+            //                const Bone& bone = m_bones[i];
 
-                shader.setMat4("gBones[" + std::to_string(i) + "]", bone.m_transform);
-                //        shader.setMat4("gBones[" + std::to_string(i) +"]", bone.m_transform * bone.m_offsetMatrix);
-            }
+            //                shader.setMat4("gBones[" + std::to_string(i) + "]", bone.m_transform);
+            //                //        shader.setMat4("gBones[" + std::to_string(i) +"]", bone.m_transform * bone.m_offsetMatrix);
+            //            }
             shader.setBool("isSkeleton", true);
         } else {
             shader.setBool("isSkeleton", false);
@@ -581,12 +588,13 @@ void Mesh::draw(const Shader& shader, bool dotCloud, const Frustum& frustum) con
 
     if (FormTimeline::animation() != nullptr) {
         if (m_bones.size() > 0) {
-            for (uint i = 0; i < m_bones.size(); ++i) {
-                const Bone& bone = m_bones[i];
+            bindBones(shader);
+            //            for (uint i = 0; i < m_bones.size(); ++i) {
+            //                const Bone& bone = m_bones[i];
 
-                shader.setMat4("gBones[" + std::to_string(i) + "]", bone.m_transform);
-                //        shader.setMat4("gBones[" + std::to_string(i) +"]", bone.m_transform * bone.m_offsetMatrix);
-            }
+            //                shader.setMat4("gBones[" + std::to_string(i) + "]", bone.m_transform);
+            //                //        shader.setMat4("gBones[" + std::to_string(i) +"]", bone.m_transform * bone.m_offsetMatrix);
+            //            }
             shader.setBool("isSkeleton", true);
         } else {
             shader.setBool("isSkeleton", false);
@@ -773,4 +781,48 @@ void Mesh::updateBoundingBox(const glm::mat4& modelTransform) const
 void Mesh::enableSwitchTexture(Texture::Type typeTexture)
 {
     m_enableTexture[typeTexture] = !m_enableTexture[typeTexture];
+}
+
+void Mesh::bindBones(const Shader& shader) const
+{
+    if (FormContextAnimation::m_dqsEnable) {
+        std::vector<glm::fdualquat> dual_quats(std::min<int>(m_bones.size(), 64));
+        glm::quat r;
+        glm::vec3 t, s, sk;
+        glm::vec4 pr;
+        glm::fdualquat dq;
+
+//        for (uint i = 0; i < dual_quats.size(); ++i) {
+//            glm::decompose(m_bones[i].m_transform, s, r, t, sk, pr);
+
+//            dq[0] = r;
+//            dq[1] = glm::quat(t.x, t.y, t.z, 0) * r * 0.5f;
+
+//            dual_quats[i] = dq;
+//        }
+        for(size_t i = 0; i < dual_quats.size(); ++i)
+        {
+            r = glm::quat_cast(m_bones[i].m_transform);
+            t = glm::vec3(m_bones[i].m_transform[3]);
+
+            dq[0] = r;
+            dq[1] = glm::quat(0, t.x, t.y, t.z) * r * .5f;
+
+            dual_quats[i] = dq;
+        }
+        //    m_fun->glUniformMatrix2x4fv(u_)
+        //    shader.setMat24("dq_bones", dual)
+        m_fun->glUniformMatrix2x4fv(m_fun->glGetUniformLocation(shader.ID, "u_bones"), dual_quats.size(), GL_FALSE, (float*)&dual_quats[0]);
+        shader.setBool("hasDualQuat", true);
+
+    } else {
+        for (uint i = 0; i < m_bones.size(); ++i) {
+            const Bone& bone = m_bones[i];
+
+            shader.setMat4("gBones[" + std::to_string(i) + "]", bone.m_transform);
+
+            //        shader.setMat4("gBones[" + std::to_string(i) +"]", bone.m_transform * bone.m_offsetMatrix);
+        }
+        shader.setBool("hasDualQuat", false);
+    }
 }

@@ -29,8 +29,10 @@
 //#include <engine/scene/camera/CameraStrategy.h>
 #include <engine/scene/model/paramModel/curve/BSplineCurve.h>
 #include <session/Session.h>
+#include <gui/editor/properties/context/animation/FormContextAnimation.h>
 
 std::list<const MainWindow3dView*>* MainWindow3dView::m_views;
+
 //Shader MainWindow3dView::m_shaders;
 //Shader* MainWindow3dView::m_shaders[Shading::size];
 
@@ -385,6 +387,12 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
     //    bool& multiSampling = Scene::m_scene->m_multiSampling;
 
     switch (event->key()) {
+
+    case Qt::Key_Q:
+//        qDebug() << "q pressed";
+        FormContextAnimation::toggle();
+        break;
+
 
     case Qt::Key_U:
         if (m_shiftPressed) {
@@ -1772,6 +1780,11 @@ void MainWindow3dView::paintEvent(QPaintEvent* event)
 bool MainWindow3dView::xRays() const
 {
     return ui->actionX_Rays->isChecked();
+}
+
+bool MainWindow3dView::wireframe() const
+{
+    return ui->actionWireFrame->isChecked();
 }
 
 bool MainWindow3dView::skeleton() const

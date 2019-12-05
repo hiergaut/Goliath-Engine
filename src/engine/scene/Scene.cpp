@@ -422,6 +422,9 @@ void Scene::draw(const MainWindow3dView& view, const int x, const int y, const i
 
     //    Q_ASSERT(m_hdrFbo == 1);
 //        glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+    if (view.wireframe()) {
+        glDisable(GL_MULTISAMPLE);
+    }
     for (const Object* object : m_objects) {
         if (object != viewCameraObject) {
             if (object->selected()) {
@@ -432,6 +435,9 @@ void Scene::draw(const MainWindow3dView& view, const int x, const int y, const i
                 object->draw(shader, view.dotCloud(), frustum, onesMatrix, onesMatrix);
             }
         }
+    }
+    if (multiSample) {
+        glEnable(GL_MULTISAMPLE);
     }
     //    return;
     //    glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);

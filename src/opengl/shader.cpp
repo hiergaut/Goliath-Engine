@@ -283,6 +283,11 @@ void Shader::setMat4(const std::string& name, const glm::mat4& mat) const
     m_fun->glUniformMatrix4fv(m_fun->glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, &mat[0][0]);
 }
 
+void Shader::setMat24(const std::string &name, const glm::dualquat & dquat) const
+{
+    m_fun->glUniformMatrix2x4fv(m_fun->glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, &dquat[0][0]);
+}
+
 void Shader::checkCompileErrors(GLuint shader, std::string type)
 {
     GLint success;

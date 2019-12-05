@@ -21,6 +21,7 @@ public:
         SURFACE,
 //        DEBUG,
         LIGHT,
+        ANIMATION,
     } m_context;
 
     explicit MainWindowProperties(QWidget* parent = nullptr);
@@ -42,6 +43,8 @@ private slots:
     void on_actionDebug_triggered();
 
     void on_actionLight_triggered();
+
+    void on_actionAnimation_triggered();
 
 private:
     Ui::MainWindowProperties* ui;

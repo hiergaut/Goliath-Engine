@@ -236,6 +236,7 @@ public:
     //    std::list<QMenu> menus() const;
     const Shader& shader() const;
     bool xRays() const;
+    bool wireframe() const;
     bool skeleton() const;
     bool normal() const;
     bool boundingBox() const;

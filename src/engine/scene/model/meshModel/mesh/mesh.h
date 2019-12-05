@@ -83,6 +83,8 @@ public:
 
     static void enableSwitchTexture(Texture::Type typeTexture);
 
+    void bindBones(const Shader & shader) const;
+
 private:
 //    std::vector<BoundingBox> m_box;
     /*  Render data  */

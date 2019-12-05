@@ -11,6 +11,7 @@
 #include <sstream>
 #include <string>
 #include <engine/scene/model/meshModel/material/Material.h>
+#include <glm/gtx/dual_quaternion.hpp>
 
 class Shader {
 public:
@@ -58,6 +59,7 @@ public:
     void setMat3(const std::string& name, const glm::mat3& mat) const;
     void setMat4(const std::string& name, const glm::mat4& mat) const;
 
+    void setMat24(const std::string &name, const glm::dualquat &dquat) const;
 private:
     std::string m_vertexPath;
     std::string m_fragmentPath;

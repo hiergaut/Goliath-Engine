@@ -6,6 +6,7 @@
 #include "context/surface/FormContextSurface.h"
 #include "context/debug/FormContextDebug.h"
 #include "context/light/FormContextLight.h"
+#include "context/animation/FormContextAnimation.h"
 #include <session/Session.h>
 
 MainWindowProperties::MainWindowProperties(QWidget *parent) :
@@ -77,6 +78,11 @@ void MainWindowProperties::setContext(Type context)
         setCentralWidget(new FormContextLight);
         ui->menuCurrentContext->setTitle("Light");
         break;
+
+    case Type::ANIMATION:
+        setCentralWidget(new FormContextAnimation);
+        ui->menuCurrentContext->setTitle("Animation");
+        break;
     }
 
     centralWidget()->setFocusPolicy(Qt::ClickFocus);
@@ -117,4 +123,9 @@ void MainWindowProperties::on_actionDebug_triggered()
 void MainWindowProperties::on_actionLight_triggered()
 {
     setContext(Type::LIGHT);
+}
+
+void MainWindowProperties::on_actionAnimation_triggered()
+{
+    setContext(Type::ANIMATION);
 }

@@ -32,6 +32,7 @@
     <addaction name="actionSurface"/>
     <addaction name="actionDebug"/>
     <addaction name="actionLight"/>
+    <addaction name="actionAnimation"/>
    </widget>
    <widget class="QMenu" name="menuCurrentContext">
     <property name="title">
@@ -57,6 +58,7 @@
    <addaction name="actionSurface"/>
    <addaction name="actionDebug"/>
    <addaction name="actionLight"/>
+   <addaction name="actionAnimation"/>
   </widget>
   <action name="actionMaterial">
    <property name="icon">
@@ -101,6 +103,15 @@
    </property>
    <property name="text">
     <string>Light</string>
+   </property>
+  </action>
+  <action name="actionAnimation">
+   <property name="icon">
+    <iconset resource="../../../../resources/resources.qrc">
+     <normaloff>:/icons/pose.png</normaloff>:/icons/pose.png</iconset>
+   </property>
+   <property name="text">
+    <string>Animation</string>
    </property>
   </action>
  </widget>
