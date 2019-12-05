@@ -81,7 +81,7 @@ out VS_OUT {
         //out vec3 TangentLightPos[10];
         //out vec3 TangentViewPos;
         //out vec3 TangentFragPos;
-//        mat3 TBN;
+        //        mat3 TBN;
 
         vec3 TangentLightPos[20];
         vec3 TangentViewPos;
@@ -105,7 +105,7 @@ uniform bool has_texture_height = false;
 void main()
 {
         vs_out.TexCoords = aTexCoords;
-//        vs_out.TexCoords.y = 1.0 - vs_out.TexCoords.y;
+        //        vs_out.TexCoords.y = 1.0 - vs_out.TexCoords.y;
         //    vec3 normal;
         //    if (has_texture_normal) {
         //        normal = vec3(texture2D(texture_normal, vs_out.TexCoords));
@@ -113,7 +113,7 @@ void main()
         //    else {
         //        normal = aNormal;
         //    }
-//        mat3 normalMatrix = transpose(inverse(mat3(model)));
+        //        mat3 normalMatrix = transpose(inverse(mat3(model)));
 
         if (isSkeleton) {
                 mat4 BoneTransform = gBones[BoneIDs[0]] * Weights[0];
@@ -123,15 +123,15 @@ void main()
 
                 vs_out.FragPos = vec3(model * BoneTransform * vec4(aPos, 1.0));
 
-//                            vs_out.Normal = model * BoneTransform * vec4(aNormal, 1.0);
+                //                            vs_out.Normal = model * BoneTransform * vec4(aNormal, 1.0);
                 vs_out.Normal = transpose(inverse(mat3(model * BoneTransform))) *  aNormal;
-//                vs_out.Normal = mat3(transpose(inverse(model * BoneTransform))) *  aNormal;
+                //                vs_out.Normal = mat3(transpose(inverse(model * BoneTransform))) *  aNormal;
         }
         else {
                 vs_out.FragPos = vec3(model * vec4(aPos, 1.0));
-                                vs_out.Normal = transpose(inverse(mat3(model))) *  aNormal;
-//                                vs_out.Normal = mat3(transpose(inverse(model))) *  aNormal;
-//                vs_out.Normal = normalMatrix *  aNormal;
+                vs_out.Normal = transpose(inverse(mat3(model))) *  aNormal;
+                //                                vs_out.Normal = mat3(transpose(inverse(model))) *  aNormal;
+                //                vs_out.Normal = normalMatrix *  aNormal;
 
         }
 
@@ -142,20 +142,20 @@ void main()
 
         mat3 TBN = mat3(model);
         if (has_texture_normal || has_texture_height) {
-//                mat3 normalMatrix = transpose(inverse(mat3(model)));
-//                vec3 T = normalize(normalMatrix * aTangent);
-//                vec3 N = normalize(normalMatrix * aNormal);
-//                T = normalize(T - dot(T, N) * N);
-//                vec3 B = cross(N, T);
+                //                mat3 normalMatrix = transpose(inverse(mat3(model)));
+                //                vec3 T = normalize(normalMatrix * aTangent);
+                //                vec3 N = normalize(normalMatrix * aNormal);
+                //                T = normalize(T - dot(T, N) * N);
+                //                vec3 B = cross(N, T);
 
                 vec3 T   = normalize(mat3(model) * aTangent);
-                    vec3 B   = normalize(mat3(model) * aBitangent);
-                    vec3 N   = normalize(mat3(model) * aNormal);
-                    TBN = transpose(mat3(T, B, N));
+                vec3 B   = normalize(mat3(model) * aBitangent);
+                vec3 N   = normalize(mat3(model) * aNormal);
+                TBN = transpose(mat3(T, B, N));
 
 
-//                TBN = transpose(mat3(T, B, N));
-        //	vs_out.TangentLightPos = TBN * lightPos;
+                //                TBN = transpose(mat3(T, B, N));
+                //	vs_out.TangentLightPos = TBN * lightPos;
                 vs_out.TangentViewPos  = TBN * viewPos;
                 vs_out.TangentFragPos  = TBN * vs_out.FragPos;
         }
@@ -172,7 +172,7 @@ void main()
                 //	    vs_out.FragPosLightSpace = lightSpaceMatrix * vec4(vs_out.FragPos, 1.0);
                 vs_out.FragPosLightSpace[dirLight[i].id] = dirLight[i].lightSpaceMatrix * vec4(vs_out.FragPos, 1.0);
                 //        TangentLightPos[dirLight[i].id] = vs_out.TBN * dir;
-//		vs_out.TangentLightPos[dirLight[i].id] = TBN * dirLight[i].position;
+                //		vs_out.TangentLightPos[dirLight[i].id] = TBN * dirLight[i].position;
         }
         for (int i =0; i <nbPointLight; ++i) {
                 vs_out.TangentLightPos[i] = TBN * pointLights[i].position;
@@ -180,18 +180,18 @@ void main()
         }
         for (int i =0; i <nbSpotLight; ++i) {
                 vs_out.FragPosLightSpace[spotLights[i].id] = spotLights[i].lightSpaceMatrix * vec4(vs_out.FragPos, 1.0);
-//                spotLights[i].tangentPos = vs_out.TBN * spotLights[i].position;
+                //                spotLights[i].tangentPos = vs_out.TBN * spotLights[i].position;
 
                 vs_out.TangentLightPos[i + nbPointLight] = TBN * spotLights[i].position;
                 vs_out.TangentLightDir[i] = TBN * -spotLights[i].direction;
         }
-//        //    gl_Position = projection * view * vec4(vs_out.vs_out.FragPos, 1.0);
+        //        //    gl_Position = projection * view * vec4(vs_out.vs_out.FragPos, 1.0);
 
         //        TangentLightPos = vs_out.TBN * lightPos;
-//        TangentViewPos  = vs_out.TBN * viewPos;
-//        TangentFragPos  = vs_out.TBN * vs_out.FragPos;
+        //        TangentViewPos  = vs_out.TBN * viewPos;
+        //        TangentFragPos  = vs_out.TBN * vs_out.FragPos;
 
 
-//        gl_Position = projection * view * model * vec4(aPos, 1.0);
+        //        gl_Position = projection * view * model * vec4(aPos, 1.0);
         gl_Position = projection * view * vec4(vs_out.FragPos, 1.0);
 }

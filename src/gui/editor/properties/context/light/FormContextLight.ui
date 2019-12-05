@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>307</width>
-    <height>558</height>
+    <height>584</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -465,7 +465,7 @@
          <number>9</number>
         </property>
         <property name="singleStep">
-         <double>0.100000000000000</double>
+         <double>0.000100000000000</double>
         </property>
        </widget>
       </item>

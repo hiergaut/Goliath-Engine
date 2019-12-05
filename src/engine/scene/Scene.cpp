@@ -737,7 +737,7 @@ void Scene::objectSelectRay(const Ray& ray, bool additional)
                                             //                            const Vertex & v0 = mesh.m_vertices[i3];
                                             //                            const Vertex & v1 = mesh.m_vertices[i3 + 1];
                                             //                            const Vertex & v2 = mesh.m_vertices[i3 + 2];
-                                            Q_ASSERT(mesh.m_vertices.size() > i3 + 2);
+//                                            Q_ASSERT(mesh.m_vertices.size() > i3 + 2);
                                             glm::mat4 transform = object->transform() * bone.m_recurseModel * bone.m_offsetMatrix;
                                             const glm::vec3& v0 = transform * glm::vec4(mesh.m_vertices[i3].Position, 1.0f);
                                             const glm::vec3& v1 = transform * glm::vec4(mesh.m_vertices[i3 + 1].Position, 1.0f);
