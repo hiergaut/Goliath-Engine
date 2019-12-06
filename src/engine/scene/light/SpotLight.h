@@ -30,7 +30,8 @@ protected:
     void draw(const Shader &shader, const glm::mat4 &localTransform = glm::mat4(1.0f), const glm::mat4 &worldTransform = glm::mat4(1.0f)) const override;
 
 //    void setSelected(bool selected) override;
-    void prepareHierarchy(ulong frameTime) const override;
+//    void prepareHierarchy(ulong frameTime) const override;
+    void prepareHierarchy(ulong frameTime, const glm::mat4 &localPoseTransform, const glm::mat4 &worldPoseTransform) const override;
 
 public:
     SpotLight(const glm::vec3 position, const glm::vec3 direction, const glm::vec3 ambient = glm::vec3(0.0f), const glm::vec3 diffuse = glm::vec3(1.0f), const glm::vec3 specular = glm::vec3(1.0f));

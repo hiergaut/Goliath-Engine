@@ -409,9 +409,14 @@ void BSplineSurface::save(std::ofstream& file) const
     //    Session::save(m_indices, file);
 }
 
-void BSplineSurface::prepareHierarchy(ulong frameTime) const
+void BSplineSurface::prepareHierarchy(ulong frameTime, const glm::mat4 &localPoseTransform, const glm::mat4 &worldPoseTransform) const
 {
+
 }
+
+//void BSplineSurface::prepareHierarchy(ulong frameTime) const
+//{
+//}
 
 void BSplineSurface::draw(const Shader& shader, bool dotCloud, const Frustum& frustum, const glm::mat4& localTransform, const glm::mat4& worldTransform) const
 {

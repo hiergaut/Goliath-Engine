@@ -123,9 +123,9 @@ Object::~Object()
 
 //}
 
-void Object::prepareHierarchy(ulong frameTime) const
+void Object::prepareHierarchy(ulong frameTime, const glm::mat4 &localPoseTransform, const glm::mat4 &worldPoseTransform) const
 {
-    m_model->prepareHierarchy(frameTime);
+    m_model->prepareHierarchy(frameTime, localPoseTransform, worldPoseTransform);
 }
 
 void Object::draw(const Shader& shader, bool dotCloud, const Frustum& frustum, const glm::mat4& localTransform, const glm::mat4& worldTransform) const
@@ -164,6 +164,11 @@ void Object::buildItemModel(QStandardItem* parent) const
 void Object::updateSelectedVertexPosition(const glm::mat4& localTransform, const glm::mat4& worldTransform)
 {
     m_model->updateSelectedVertexPosition(localTransform, worldTransform);
+}
+
+void Object::updateSelectedBonesTransform(const glm::mat4 &localPoseTransform, const glm::mat4 &worldPoseTransform)
+{
+    m_model->updateSelectedBonesTransform(localPoseTransform, worldPoseTransform);
 }
 
 bool Object::selected() const

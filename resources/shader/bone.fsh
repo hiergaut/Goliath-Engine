@@ -18,8 +18,15 @@ struct Material {
 uniform Material material;
 uniform vec3 viewPos;
 
+uniform bool userColor = false;
+uniform vec4 color;
+
 void main()
 {    
+    if (userColor) {
+            FragColor = color;
+            return;
+    }
 //    FragColor = vec4(1.0, 0, 0, 1.0);
 //    return;
 

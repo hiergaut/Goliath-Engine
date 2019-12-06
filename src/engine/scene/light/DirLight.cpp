@@ -70,7 +70,9 @@ void DirLight::draw(const Shader& shader, const glm::mat4& localTransform, const
     Object::draw(shader, localTransform, worldTransform);
 }
 
-void DirLight::prepareHierarchy(ulong frameTime) const
+
+//void DirLight::prepareHierarchy(ulong frameTime) const
+void DirLight::prepareHierarchy(ulong frameTime, const glm::mat4 &localPoseTransform, const glm::mat4 &worldPoseTransform) const
 {
     if (m_blink) {
         //    m_coeffBlink = std::fmax(std::cos((std::fabs(frameTime) * 0.01f)) * 10.0f, 0.0f);

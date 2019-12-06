@@ -293,7 +293,8 @@ void MeshModel::assimpLoadModel(std::string const& path)
 //    //    }
 //}
 
-void MeshModel::prepareHierarchy(ulong frameTime) const
+//void MeshModel::prepareHierarchy(ulong frameTime) const
+void MeshModel::prepareHierarchy(ulong frameTime, const glm::mat4& localPoseTransform, const glm::mat4& worldPoseTransform) const
 {
     if (m_rootNode == nullptr)
         return;
@@ -333,20 +334,29 @@ void MeshModel::prepareHierarchy(ulong frameTime) const
             //            FormTimeline::animationTime = animationTime;
             FormTimeline::setAnimationTime(animationTime);
         }
+//        else {
+//            m_rootNode->prepareHierarchy(glm::mat4(1.0f), localPoseTransform, worldPoseTransform);
+//            return;
+//        }
+
         //        else {
 
         ////            std::cout << "animationTime " << animationTime << std::endl;
         //        }
 
         double animationTime = FormTimeline::animationTime();
+//        if (std::abs(animationTime - m_previousAnimTime) > 1e-5) {
 
-        //        m_rootNode->draw(shader, modelMatrix, animation, animationTime);
-        m_rootNode->prepareHierarchy(glm::mat4(1.0f), animation, animationTime);
+            //        m_rootNode->draw(shader, modelMatrix, animation, animationTime);
+            m_rootNode->prepareHierarchy(glm::mat4(1.0f), localPoseTransform, worldPoseTransform, animation, animationTime);
+//        } else {
+//            m_currentAnimation = -1;
+//        }
 
         //        shader.setMat4("model", glm::mat4(1));
         //        shader.setBool("isSkeleton", true);
     } else {
-        m_rootNode->prepareHierarchy(glm::mat4(1.0f));
+        m_rootNode->prepareHierarchy(glm::mat4(1.0f), localPoseTransform, worldPoseTransform);
         m_currentAnimation = -1;
         //        m_rootNode->draw(shader, modelMatrix);
 
@@ -444,7 +454,7 @@ void MeshModel::draw(const Shader& shader, bool dotCloud, const Frustum& frustum
 //void MeshModel::draw(const glm::mat4 &modelMatrix, const Shader &shader, const glm::mat4 & worldTransform) const
 void MeshModel::draw(const Shader& shader, const glm::mat4& modelMatrix, const glm::mat4& worldTransform) const
 {
-//    shader.setBool("disableFragmentShader", true);
+    //    shader.setBool("disableFragmentShader", true);
     for (const Mesh& mesh : m_meshes) {
         //        const Mesh& mesh = m_meshes[i];
 
@@ -453,23 +463,23 @@ void MeshModel::draw(const Shader& shader, const glm::mat4& modelMatrix, const g
         mesh.draw(shader);
     }
     //        shader.setBool("userColor", false);
-//    shader.setBool("disableFragmentShader", false);
+    //    shader.setBool("disableFragmentShader", false);
 }
 
 void MeshModel::updateBoundingBox()
 {
-//    if (!m_noBox) {
-        m_box.clear();
-        for (const Mesh& mesh : m_meshes) {
-            mesh.updateBoundingBox(m_transform);
-            m_box << mesh.m_box;
-        }
-        //    for (uint i = 0; i < m_meshes.size(); ++i) {
-        //        const Mesh& mesh = m_meshes[i];
+    //    if (!m_noBox) {
+    m_box.clear();
+    for (const Mesh& mesh : m_meshes) {
+        mesh.updateBoundingBox(m_transform);
+        m_box << mesh.m_box;
+    }
+    //    for (uint i = 0; i < m_meshes.size(); ++i) {
+    //        const Mesh& mesh = m_meshes[i];
 
-        //    }
-        Scene::m_scene->updateSceneBox();
-//    }
+    //    }
+    Scene::m_scene->updateSceneBox();
+    //    }
 }
 
 //{
@@ -527,6 +537,20 @@ void MeshModel::updateSelectedVertexPosition(const glm::mat4& localTransform, co
     //TODO
 }
 
+void MeshModel::updateSelectedBonesTransform(const glm::mat4& localBoneTransform, const glm::mat4& worldPoseTransform)
+{
+        m_rootNode->updateBonesTransform(localBoneTransform, worldPoseTransform);
+
+//    for (const Mesh& mesh : m_meshes) {
+//        for (const Bone& bone : mesh.m_bones) {
+//            //            bone.setSelected(false);
+//            if (bone.selected()) {
+//                bone.m_transform = worldPoseTransform * bone.m_transform * localBoneTransform;
+//            }
+//        }
+//    }
+}
+
 //void MeshModel::selectRay(const Ray& ray) const
 //void MeshModel::selectObject(const Ray& ray, float& depthMin, bool& find, uint& iModelMin, uint& iMeshMin, uint& iBoneMin, uint& iTriangleMin, bool unselect /* = false */) const
 //{
@@ -565,12 +589,12 @@ void MeshModel::updateSelectedVertexPosition(const glm::mat4& localTransform, co
 
 //}
 
-void MeshModel::DrawHierarchy(const glm::mat4& modelMatrix, const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix, const glm::vec3& cameraPos, const glm::mat4& worldTransform) const
+void MeshModel::DrawHierarchy(const glm::mat4& localTransform, const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix, const glm::vec3& cameraPos, bool poseMode, const glm::mat4& worldTransform) const
 {
     //    const Shader& shader = view.shader();
     //    shader.use();
 
-    //    m_rootNode->drawBoundingBox(modelMatrix, shader);
+    //    m_rootNode->drawBoundingBox(localTransform, shader);
     //    m_rootNode.draw(m_boneGeometry);
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     //        glDepthFunc(GL_ALWAYS);
@@ -580,7 +604,7 @@ void MeshModel::DrawHierarchy(const glm::mat4& modelMatrix, const glm::mat4& vie
     //    m_boneGeometry.setVP(viewMatrix, projectionMatrix);
     //    m_boneGeometry.updateShader(view);
     BoneGeometry::updateShader(viewMatrix, projectionMatrix, cameraPos);
-    m_rootNode->drawHierarchy(worldTransform * m_transform * modelMatrix);
+    m_rootNode->drawHierarchy(worldTransform * m_transform * localTransform, poseMode);
     //        glDepthFunc(GL_LESS);
 }
 
@@ -591,7 +615,7 @@ void MeshModel::buildItemModel(QStandardItem* parent) const
     if (m_rootNode == nullptr)
         return;
 
-        m_rootNode->buildItemModel(parent);
+    m_rootNode->buildItemModel(parent);
 
     //    QStandardItem* item = new QStandardItem(QIcon(":/icons/animations.png"), "animations  " + QString::number(m_animations.size()));
     //    parent->appendRow(item);
@@ -666,6 +690,15 @@ void MeshModel::save(std::ofstream& file) const
     Session::save(directory, file);
 
     //    Session::save(m_transform, file);
+}
+
+void MeshModel::unselectBones() const
+{
+    for (const Mesh& mesh : m_meshes) {
+        for (const Bone& bone : mesh.m_bones) {
+            bone.setSelected(false);
+        }
+    }
 }
 
 //glm::mat4 MeshModel::scaleCenter(float scale) const

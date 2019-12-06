@@ -272,7 +272,7 @@ void QOpenGLWidget_Editor::paintGL()
     //    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
     m_scene.m_autoUpdateBoundingBox = autoUpdate;
-    m_scene.prepareHierarchy(currentFrameTime);
+    m_scene.prepareHierarchy(currentFrameTime, Scene::m_scene->m_localPoseTransform, Scene::m_scene->m_worldPoseTransform);
     //    m_scene.prepareHierarchy(0);
     m_scene.updateLightsShadowMap();
     //    m_scene.updateAllLightsShadowMap();

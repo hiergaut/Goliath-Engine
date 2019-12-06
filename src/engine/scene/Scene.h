@@ -41,6 +41,9 @@ public:
     glm::mat4 m_localVertexTransform = glm::mat4(1.0f);
     glm::mat4 m_worldVertexTransform= glm::mat4(1.0f);
 
+    glm::mat4 m_localPoseTransform = glm::mat4(1.0);
+    glm::mat4 m_worldPoseTransform = glm::mat4(1.0);
+
 //    static Model* m_cameraModel;
 //    static Model* m_lightDirModel;
 
@@ -104,13 +107,14 @@ public:
     ////        return iterator(*this);
     //        return m_models.begin();
     //    }
-    void prepareHierarchy(ulong frameTime);
+    void prepareHierarchy(ulong frameTime, const glm::mat4 & localPoseTransform = glm::mat4(1.0f), const glm::mat4 & worldPoseTransform = glm::mat4(1.0f));
     void updateLightsShadowMap();
     void updateAllLightsShadowMap();
     void draw(const MainWindow3dView &view, const int x, const int y, const int viewWidth, const int viewHeight);
 
     void objectSelectRay(const Ray & ray, bool additional = false);
     void vertexSelectRay(const Ray & ray, bool additional = false);
+    void boneSelectRay(const Ray & ray, bool additional = false);
 //    void vertexSelectFrustum(const glm::mat4 & projectionMatrix, const glm::mat4 & viewMatrix, bool additional = false);
     void vertexSelectFrustum(const Frustum & frustum, bool additional = false);
 
@@ -162,10 +166,10 @@ private:
     void drawRay(const MainWindow3dView &view, const Shader &shader, uint polygonMode);
     void drawSkyBox(const MainWindow3dView &view, bool multiSample, const glm::mat4 &viewMatrix, const glm::mat4 &projectionMatrix);
 
-    void drawSpecificMode(const MainWindow3dView & view, const Shader & shader);
+    void drawSpecificMode(const MainWindow3dView & view, const Shader & shader, const glm::mat4 &viewMatrix, const glm::mat4 &projectionMatrix, glm::vec3 &cameraPos);
     void drawContours(const Shader &shader, uint polygonMode);
     void drawNormal(const MainWindow3dView & view, const glm::mat4 &viewMatrix, const glm::mat4 &projectionMatrix);
-    void drawSkeleton(const MainWindow3dView &view, const Shader &shader, const glm::mat4 &viewMatrix, const glm::mat4 &projectionMatrix, glm::vec3 &cameraPos);
+    void drawSkeleton(const MainWindow3dView &view, const Shader &shader, const glm::mat4 &viewMatrix, const glm::mat4 &projectionMatrix, glm::vec3 &cameraPos, bool poseMode = false);
     void drawOriginModel(const MainWindow3dView & view, const Shader & shader, const glm::vec3 &cameraPos);
     void drawAxisTransform(const MainWindow3dView & view, const Shader & shader);
     void drawRectangleSelection(const MainWindow3dView & view, const Shader & shader);

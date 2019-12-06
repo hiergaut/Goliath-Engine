@@ -26,7 +26,7 @@ private:
     static uint m_vao;
     static uint m_vbo;
 
-    static const uint MAX_TRIANGLES = 1000;
+    static const uint MAX_TRIANGLES = 100000;
     //    uint m_vao2;
 };
 

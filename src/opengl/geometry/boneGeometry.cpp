@@ -1,6 +1,7 @@
 #include "boneGeometry.h"
 #include <assert.h>
 #include <glm/gtc/matrix_transform.hpp>
+#include <opengl/geometry/AxisGeometry.h>
 
 //BoneGeometry::BoneGeometry()
 ////    : m_sphere(0.05)
@@ -10,10 +11,9 @@
 //void BoneGeometry::setup()
 //{
 //}
-QOpenGLFunctionsCore * BoneGeometry::m_fun = nullptr;
+QOpenGLFunctionsCore* BoneGeometry::m_fun = nullptr;
 uint BoneGeometry::m_vao;
-Shader * BoneGeometry::m_shader = nullptr;
-
+Shader* BoneGeometry::m_shader = nullptr;
 
 void BoneGeometry::initializeGL()
 {
@@ -24,19 +24,18 @@ void BoneGeometry::initializeGL()
 
     uint m_vbo;
     uint m_ebo;
-//    uint m_ebo2;
+    //    uint m_ebo2;
     uint m_nbo;
 
-//    static Shader * m_shader;
-
+    //    static Shader * m_shader;
 
     std::vector<glm::vec3> m_vertices;
     std::vector<glm::vec3> m_normals;
 
-//    std::vector<uint> m_indices;
+    //    std::vector<uint> m_indices;
 
     static std::vector<glm::uvec3> m_indices;
-//    std::vector<glm::uvec2> m_indicesLine;
+    //    std::vector<glm::uvec2> m_indicesLine;
 
     m_vertices.push_back(glm::vec3(0, 0, 0));
     m_vertices.push_back(glm::vec3(1, 0, 0));
@@ -68,15 +67,14 @@ void BoneGeometry::initializeGL()
 
     //        assert(m_indices.size() == 8);
 
-//    setup();
+    //    setup();
 
     m_shader = new Shader("bone.vsh", "bone.fsh");
     m_shader->use();
     m_shader->setVec3("material.ambient", 0.5f, 0.5f, 0.5f);
-//    m_shader->setVec3("material.diffuse", 0.3f, 0.3f, 0.3f);
+    //    m_shader->setVec3("material.diffuse", 0.3f, 0.3f, 0.3f);
     m_shader->setVec3("material.specular", 1.0f, 1.0f, 0.5f);
     m_shader->setFloat("material.shininess", 1.0f);
-
 
     m_fun->glGenVertexArrays(1, &m_vao);
     //    uint vbo;
@@ -114,14 +112,62 @@ void BoneGeometry::initializeGL()
 
 void BoneGeometry::draw(glm::mat4 model, glm::vec3 source, glm::vec3 destination)
 {
+    drawBone(model, source, destination);
+}
+
+void BoneGeometry::draw(glm::mat4 model, glm::vec3 source, glm::vec3 destination, bool selected)
+{
+
+    if (selected) {
+        glDepthFunc(GL_LESS);
+        glClear(GL_DEPTH_BUFFER_BIT);
+        glClear(GL_STENCIL_BUFFER_BIT);
+        glEnable(GL_STENCIL_TEST);
+        glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+
+        glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+
+        glPolygonMode(GL_FRONT, GL_FILL);
+        glStencilFunc(GL_ALWAYS, 1, 0xFF);
+        glStencilMask(0xFF);
+        m_shader->setBool("userColor", true);
+        m_shader->setVec4("color", glm::vec4(0.5f, 0.5f, 1.0f, 1.0f));
+        drawBone(model, source, destination);
+
+        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+        glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+        glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+        glStencilMask(0x00);
+        glLineWidth(4);
+        glPolygonMode(GL_FRONT, GL_LINE);
+        drawBone(model, source, destination);
+
+        m_shader->setBool("userColor", false);
+        glStencilMask(0xFF);
+        glDisable(GL_STENCIL_TEST);
+        glLineWidth(1);
+        glPolygonMode(GL_FRONT, GL_FILL);
+    } else {
+
+        drawBone(model, source, destination);
+    }
+
+    float dist = glm::length(destination - source);
+    glLineWidth(2);
+    AxisGeometry::draw(glm::scale(model, glm::vec3(1.0f) * dist * 10.0f), *m_shader);
+    glLineWidth(1);
+}
+
+void BoneGeometry::drawBone(glm::mat4 model, glm::vec3 source, glm::vec3 destination)
+{
     Q_ASSERT(m_fun != nullptr);
     //    m_shader->use();
-//    m_shader->setBool("isSkeleton", false);
+    //    m_shader->setBool("isSkeleton", false);
     //    shader.use();
     //    m_shader->use();
     //    shader.use();
 
-//    glm::mat4 identity(1.0);
+    //    glm::mat4 identity(1.0);
     glm::vec3 vDir = destination - source;
     glm::vec3 vX = glm::vec3(1, 0, 0);
 
@@ -143,7 +189,7 @@ void BoneGeometry::draw(glm::mat4 model, glm::vec3 source, glm::vec3 destination
 
     m = glm::scale(m, glm::vec3(dirLength));
 
-//    model = model * m;
+    //    model = model * m;
 
     m_shader->setMat4("model", model * m);
 
@@ -153,27 +199,27 @@ void BoneGeometry::draw(glm::mat4 model, glm::vec3 source, glm::vec3 destination
     m_fun->glBindVertexArray(0);
 
     //    glm::translate(m, source);
-//        m_shader.setMat4("model", glm::translate(m, source));
-//    m_sphere.draw();
-//    model = glm::scale(model, glm::vec3(0.05f));
+    //        m_shader.setMat4("model", glm::translate(m, source));
+    //    m_sphere.draw();
+    //    model = glm::scale(model, glm::vec3(0.05f));
     m_shader->setMat4("model", glm::scale(model * m, glm::vec3(0.05f)));
 
-//    UvSphereGeometry::draw(*m_shader, glm::vec3(0.0f, 0.0f, 0.0f), 0.05f);
+    //    UvSphereGeometry::draw(*m_shader, glm::vec3(0.0f, 0.0f, 0.0f), 0.05f);
     UvSphereGeometry::draw();
 
     //    shader.setMat4("model", m * glm::translate(glm::mat4(1), glm::vec3(1, 0, 0)));
     m_shader->setMat4("model", glm::scale(model * glm::translate(m, glm::vec3(1, 0, 0)), glm::vec3(0.05f)));
-//    m_sphere.draw();
-//    UvSphereGeometry::draw();
-//    UvSphereGeometry::draw(*m_shader, glm::vec3(1.0f, 0.0f, 0.0f), 10.0f);
-//    UvSphereGeometry::draw(*m_shader, glm::vec3(0.0f), 0.05f);
+    //    m_sphere.draw();
+    //    UvSphereGeometry::draw();
+    //    UvSphereGeometry::draw(*m_shader, glm::vec3(1.0f, 0.0f, 0.0f), 10.0f);
+    //    UvSphereGeometry::draw(*m_shader, glm::vec3(0.0f), 0.05f);
     UvSphereGeometry::draw();
 }
 
 void BoneGeometry::drawLine(glm::mat4 model, glm::vec3 source, glm::vec3 destination)
 {
     Q_ASSERT(m_fun != nullptr);
-//    m_shader->setBool("isSkeleton", false);
+    //    m_shader->setBool("isSkeleton", false);
 
     glm::mat4 identity(1.0);
     glm::vec3 vDir = destination - source;
@@ -201,7 +247,7 @@ void BoneGeometry::drawLine(glm::mat4 model, glm::vec3 source, glm::vec3 destina
     m_shader->setMat4("model", model * m);
 
     m_fun->glBindVertexArray(m_vao);
-//    m_fun->glDrawElements(GL_TRIANGLES, 8 * 3, GL_UNSIGNED_INT, nullptr);
+    //    m_fun->glDrawElements(GL_TRIANGLES, 8 * 3, GL_UNSIGNED_INT, nullptr);
     m_fun->glDrawElements(GL_LINES, 2, GL_UNSIGNED_INT, (void*)(8 * sizeof(glm::vec3)));
     m_fun->glBindVertexArray(0);
 
@@ -219,13 +265,13 @@ void BoneGeometry::drawLine(glm::mat4 model, glm::vec3 source, glm::vec3 destina
 //    m_shader->setMat4("projection", projectionMatrix);
 //}
 
-void BoneGeometry::updateShader(const glm::mat4 & viewMatrix, const glm::mat4 & projectionMatrix, const glm::vec3 & cameraPos)
+void BoneGeometry::updateShader(const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix, const glm::vec3& cameraPos)
 {
     m_shader->use();
-//    m_shader->setMat4("view", view.viewMatrix());
-//    m_shader->setMat4("projection", view.projectionMatrix());
+    //    m_shader->setMat4("view", view.viewMatrix());
+    //    m_shader->setMat4("projection", view.projectionMatrix());
 
-//    m_shader->setVec3("viewPos", view.camera()->position());
+    //    m_shader->setVec3("viewPos", view.camera()->position());
     m_shader->setMat4("view", viewMatrix);
     m_shader->setMat4("projection", projectionMatrix);
 

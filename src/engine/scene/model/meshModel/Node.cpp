@@ -8,6 +8,7 @@
 #include <gui/editor/outliner/ItemModelPackage.h>
 
 #include <gui/editor/timeline/FormTimeline.h>
+#include <opengl/geometry/AxisGeometry.h>
 
 Node::Node(const aiNode* ai_node, Meshes* meshes, Animations* animations)
     : m_meshes(meshes)
@@ -171,7 +172,7 @@ void Node::buildItemModel(QStandardItem* parent) const
         const Bone& bone = (*m_meshes)[m_iBone.first].m_bones[m_iBone.second];
         item = new QStandardItem(QIcon(":/icons/boneVertex.png"), "'" + QString(m_name.c_str()) + "'  " + QString::number(m_children.size()) + "  " + QString::number(m_nodeAnims.size()) + "  nbVertex:" + QString::number(bone.m_weights.size()));
 
-//        Q_ASSERT(m_nodeAnims.size() > 0);
+        //        Q_ASSERT(m_nodeAnims.size() > 0);
         parent->appendRow(item);
         //        item->appendRow(item2);
     } else if (m_nodeAnims.size() > 0) {
@@ -187,12 +188,11 @@ void Node::buildItemModel(QStandardItem* parent) const
 
     //        m_itemTransformation = mat4BuildItemModel(m_transformation, item);
 
-//    QStandardItem* item2 = new QStandardItem("transformation");
-//    m_itemTransformation = new QStandardItem;
-//    mat4BuildItemModel(m_transformation, m_itemTransformation);
-//    item2->appendRow(m_itemTransformation);
-//    item->appendRow(item2);
-
+    //    QStandardItem* item2 = new QStandardItem("transformation");
+    //    m_itemTransformation = new QStandardItem;
+    //    mat4BuildItemModel(m_transformation, m_itemTransformation);
+    //    item2->appendRow(m_itemTransformation);
+    //    item->appendRow(item2);
 
     //    if (m_nodeAnims.size() > 0) {
     //        QStandardItem* item2 = new QStandardItem("nodeAnim  " + QString::number(m_nodeAnims.size()));
@@ -335,7 +335,7 @@ glm::vec3 interpolatedScale(const std::vector<std::pair<double, glm::vec3>>& sca
     //            return glm::mat4_cast(quatInterpolate);
 }
 
-void Node::prepareHierarchy(glm::mat4 model, const Animation* animation, double animationTime) const
+void Node::prepareHierarchy(glm::mat4 model, const glm::mat4 &localPoseTransform, const glm::mat4 &worldPoseTransform, const Animation* animation, double animationTime) const
 {
     if (animation == nullptr) {
         m_recurseModel = model * m_transformation;
@@ -389,6 +389,10 @@ void Node::prepareHierarchy(glm::mat4 model, const Animation* animation, double 
     if (m_isBone) {
         //        m_bone->m_transform = model * m_bone->m_offsetMatrix;
         const Bone& bone = (*m_meshes)[m_iBone.first].m_bones[m_iBone.second];
+        if (bone.selected()) {
+            m_recurseModel = worldPoseTransform * m_recurseModel * localPoseTransform;
+        }
+
         bone.m_transform = m_recurseModel * bone.m_offsetMatrix;
 
         bone.m_recurseModel = m_recurseModel;
@@ -397,10 +401,9 @@ void Node::prepareHierarchy(glm::mat4 model, const Animation* animation, double 
         //                m_bone->m_transform = m_bone->m_offsetMatrix;
     }
 
-
     //    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     for (const Node& node : m_children) {
-        node.prepareHierarchy(m_recurseModel, animation, animationTime);
+        node.prepareHierarchy(m_recurseModel, localPoseTransform, worldPoseTransform, animation, animationTime);
     }
 
     for (uint iMesh : m_iMeshes) {
@@ -408,11 +411,11 @@ void Node::prepareHierarchy(glm::mat4 model, const Animation* animation, double 
 
         mesh.m_transform = m_recurseModel;
 
-//        mesh.updateBoundingBox(); // bad performance : for live bounding boxing
+        //        mesh.updateBoundingBox(); // bad performance : for live bounding boxing
     }
 }
 
-void Node::drawHierarchy(const glm::mat4& modelMatrix) const
+void Node::drawHierarchy(const glm::mat4& modelMatrix, bool poseMode) const
 {
     glm::mat4 model = modelMatrix * m_recurseModel;
     for (const Node& node : m_children) {
@@ -420,7 +423,20 @@ void Node::drawHierarchy(const glm::mat4& modelMatrix) const
         glm::vec3 childPos = glm::vec3(node.m_transformation[3]);
 
         if (m_isBone) {
-            BoneGeometry::draw(model, glm::vec3(0), childPos);
+            if (poseMode) {
+                const Bone& bone = (*m_meshes)[m_iBone.first].m_bones[m_iBone.second];
+//                if (bone.selected()) {
+//                    model = worldPoseTransform * model * localPoseTransform;
+//                }
+                BoneGeometry::draw(model, glm::vec3(0), childPos, bone.selected());
+
+            } else {
+                BoneGeometry::draw(model, glm::vec3(0), childPos);
+            }
+
+            //            if (bone.selected()) {
+            //                AxisGeometry::draw(model, shader);
+            //            }
 
             //            const Bone& bone = (*m_meshes)[m_iBone.first].m_bones[m_iBone.second];
             //            bone.m_box.draw(model, shader);
@@ -430,7 +446,7 @@ void Node::drawHierarchy(const glm::mat4& modelMatrix) const
             BoneGeometry::drawLine(model, glm::vec3(0), childPos);
         }
 
-        node.drawHierarchy(modelMatrix);
+        node.drawHierarchy(modelMatrix, poseMode);
     }
 }
 
@@ -458,7 +474,6 @@ void Node::drawHierarchy(const glm::mat4& modelMatrix) const
 //            bone.m_box.draw(modelMatrix * bone.m_transform, shader);
 //        }
 //    }
-
 
 //    for (const Node& node : m_children) {
 //        node.drawBoundingBox(modelMatrix, shader);
@@ -497,6 +512,46 @@ uint Node::recurseNbBonesVertex() const
         nbBones += children.recurseNbBonesVertex();
     }
     return nbBones;
+}
+
+void Node::updateBonesTransform(const glm::mat4 &localPoseTransform, const glm::mat4 &worldPoseTransform) const
+{
+        qDebug() << "updateBonesTransform " << m_name.c_str();
+    for (const Node& node : m_children) {
+        //        node.draw(shader, m_transformation * model);
+//        glm::vec3 childPos = glm::vec3(node.m_transformation[3]);
+
+        if (m_isBone) {
+//            if (poseMode) {
+                const Bone& bone = (*m_meshes)[m_iBone.first].m_bones[m_iBone.second];
+                if (bone.selected()) {
+                    m_transformation = worldPoseTransform * m_transformation * localPoseTransform;
+//                    m_transformation = m_transformation * localPoseTransform;
+                }
+//                    model = worldPoseTransform * model * localPoseTransform;
+//                }
+//                BoneGeometry::draw(model, glm::vec3(0), childPos, bone.selected());
+
+//            } else {
+//                BoneGeometry::draw(model, glm::vec3(0), childPos);
+//            }
+
+            //            if (bone.selected()) {
+            //                AxisGeometry::draw(model, shader);
+            //            }
+
+            //            const Bone& bone = (*m_meshes)[m_iBone.first].m_bones[m_iBone.second];
+            //            bone.m_box.draw(model, shader);
+
+//        } else {
+            //            m_boneGeometry.draw(model, shader, glm::vec3(0), childPos);
+//            BoneGeometry::drawLine(model, glm::vec3(0), childPos);
+        }
+
+//        node.drawHierarchy(modelMatrix, poseMode);
+        node.updateBonesTransform(localPoseTransform, worldPoseTransform);
+    }
+
 }
 
 void Node::onClick() const

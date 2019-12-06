@@ -66,6 +66,16 @@ void Bone::save(std::ofstream& file) const
     Session::save(m_transform, file);
 }
 
+void Bone::setSelected(bool selected) const
+{
+    m_selected = selected;
+}
+
+bool Bone::selected() const
+{
+    return m_selected;
+}
+
 //void Bone::setupTriangles() // performance : bad
 //{
 //    Q_ASSERT(m_indices.size() % 3 == 0);

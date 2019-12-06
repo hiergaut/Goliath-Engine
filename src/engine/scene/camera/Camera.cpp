@@ -169,10 +169,11 @@ glm::vec3 Camera::position(const glm::mat4 &localTransform, const glm::mat4 &wor
 
 //}
 
-void Camera::prepareHierarchy(ulong frameTime) const
+//void Camera::prepareHierarchy(ulong frameTime) const
+void Camera::prepareHierarchy(ulong frameTime, const glm::mat4 &localPoseTransform, const glm::mat4 &worldPoseTransform) const
 {
     //    m_model.m_transform = glm::inverse(viewMatrix());
-    m_model->prepareHierarchy(frameTime);
+    m_model->prepareHierarchy(frameTime, localPoseTransform, worldPoseTransform);
 }
 
 void Camera::draw(const Shader& shader, bool dotCloud, const Frustum &frustum, const glm::mat4& localTransform, const glm::mat4& worldTransform) const
@@ -299,6 +300,7 @@ Shader& Camera::depthShader(const glm::mat4& localTransform, const glm::mat4& wo
 
     return *m_simpleDepthShader;
 }
+
 
 //void Camera::updateNearestPointLights()
 //{

@@ -88,7 +88,7 @@ public:
     //    MeshModel(MeshModel & model);
     ~MeshModel() override;
 
-    void prepareHierarchy(ulong frameTime) const override;
+    void prepareHierarchy(ulong frameTime, const glm::mat4 & localPoseTransform = glm::mat4(1.0f), const glm::mat4 & worldPoseTransform = glm::mat4(1.0f)) const override;
 
     void draw(const Shader &shader, bool dotCloud, const Frustum & frustum, const glm::mat4 &modelMatrix = glm::mat4(1.0f),
               const glm::mat4 & worldTransform = glm::mat4(1.0f)) const override;
@@ -100,6 +100,7 @@ public:
     void drawBoundingBox(const Shader & shader) const override;
 
     void updateSelectedVertexPosition(const glm::mat4 &localTransform, const glm::mat4 &worldTransform) override;
+    void updateSelectedBonesTransform(const glm::mat4 &localBoneTransform, const glm::mat4 &worldPoseTransform) override;
 
 //    void selectObject(const Ray & ray, float &depthMin, bool &find, uint &iModelMin, uint &iMeshMin, uint &iBoneMin, uint &iTriangleMin, bool unselect = false) const;
 //    void unselectRay(const Ray & ray) const;
@@ -107,12 +108,13 @@ public:
 //    void
 
 
-    void DrawHierarchy(const glm::mat4 &modelMatrix, const glm::mat4 & viewMatrix, const glm::mat4 & projectionMatrix, const glm::vec3 & cameraPos, const glm::mat4 &worldTransform = glm::mat4(1.0f)) const;
+    void DrawHierarchy(const glm::mat4 &modelMatrix, const glm::mat4 & viewMatrix, const glm::mat4 & projectionMatrix, const glm::vec3 & cameraPos, bool poseMode, const glm::mat4 &worldTransform = glm::mat4(1.0f)) const;
     void buildItemModel(QStandardItem* parent) const override;
 
 //    void load(std::ifstream & file) const;
     void save(std::ofstream & file) const override;
 //    glm::mat4 scaleCenter(float scale) const;
+    void unselectBones() const;
 
 private:
 //    void modelRecurseNode(const Node& node, QStandardItem* parent) const;
@@ -153,6 +155,8 @@ private:
 
 //    BoneGeometry m_boneGeometry;
     std::unique_ptr<Node> m_rootNode;
+
+    float m_previousAnimTime = 0.0f;
 
 //    mutable std::vector<glm::vec3> m_triangles;
 

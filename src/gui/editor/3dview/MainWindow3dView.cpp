@@ -294,6 +294,9 @@ void MainWindow3dView::save(std::ofstream& file) const
 
 void MainWindow3dView::setMode(MainWindow3dView::Mode mode)
 {
+    if (mode == m_mode) {
+        mode = Mode::OBJECT;
+    }
     switch (mode) {
     case OBJECT:
         ui->menuInteraction_Mode->setIcon(ui->actionObject_Mode->icon());
@@ -312,6 +315,8 @@ void MainWindow3dView::setMode(MainWindow3dView::Mode mode)
     case POSE:
         ui->menuInteraction_Mode->setIcon(ui->actionPose_Mode->icon());
         ui->menuCurent_Mode->setTitle("Pose Mode");
+        m_localTransform = &Scene::m_scene->m_localPoseTransform;
+        m_worldTransform = &Scene::m_scene->m_worldPoseTransform;
         break;
     }
 
@@ -382,11 +387,23 @@ void MainWindow3dView::setShading(Shader::Type shade)
 
 void MainWindow3dView::keyPressEvent(QKeyEvent* event)
 {
-    //                qDebug() << this << ": keyPressEvent" << event;
+//                    qDebug() << this << ": keyPressEvent" << event;
     uint size = Scene::m_cameras.size();
     //    bool& multiSampling = Scene::m_scene->m_multiSampling;
 
     switch (event->key()) {
+
+    case Qt::Key_O:
+        setMode(Mode::OBJECT);
+        break;
+
+    case Qt::Key_E:
+        setMode(Mode::EDIT);
+        break;
+
+    case Qt::Key_P:
+        setMode(Mode::POSE);
+        break;
 
     case Qt::Key_Q:
 //        qDebug() << "q pressed";
@@ -404,7 +421,8 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
         qDebug() << "telleationLevel: " << Scene::m_scene->m_tessellationLevel;
         break;
 
-    case Qt::Key_P:
+    case Qt::Key_Semicolon:
+    case Qt::Key_Colon:
         if (m_shiftPressed) {
             m_parallaxHeightScale -= 0.001f;
         }
@@ -414,7 +432,9 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
         qDebug() << "parallaxHeightScale: " << m_parallaxHeightScale;
         break;
 
-    case Qt::Key_O:
+//    case Qt::Key_QuoteLeft:
+    case Qt::Key_Apostrophe:
+    case Qt::Key_QuoteDbl:
         //        Scene::m_scene->m_exposure -= 0.1f;
         if (m_shiftPressed) {
             m_exposure -= 0.1f;
@@ -509,8 +529,16 @@ void MainWindow3dView::keyPressEvent(QKeyEvent* event)
         //    }
         break;
 
+    case Qt::Key_AsciiTilde:
+            setMode(Mode::POSE);
+        break;
+
     case Qt::Key_Dollar:
-        setMode(m_previousMode);
+        if (! m_shiftPressed) {
+//        }
+//        else {
+            setMode(m_previousMode);
+        }
         //        std::swap(m_mode, m_previousMode);
         //        Mode temp = m_mode;
         //        m_mode = m_previousMode;
@@ -957,6 +985,10 @@ void MainWindow3dView::mousePressEvent(QMouseEvent* event)
 
                 case Mode::EDIT:
                     Scene::m_scene->vertexSelectRay(clickRay(event), m_shiftPressed);
+                    break;
+
+                case Mode::POSE:
+                    Scene::m_scene->boneSelectRay(clickRay(event), m_shiftPressed);
                     break;
                 }
                 //                Scene::m_scene->selectRay(clickRay(event), m_shiftPressed);

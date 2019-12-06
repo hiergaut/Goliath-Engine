@@ -16,6 +16,8 @@ public:
     static void initializeGL();
 
     static void draw(glm::mat4 model, glm::vec3 source, glm::vec3 destination);
+    static void draw(glm::mat4 model, glm::vec3 source, glm::vec3 destination, bool selected);
+    static void drawBone(glm::mat4 model, glm::vec3 source, glm::vec3 destination);
     static void drawLine(glm::mat4 model, glm::vec3 source, glm::vec3 destination);
 
 //    void setVP(const glm::mat4 & viewMatrix, const glm::mat4 &projectionMatrix) const;

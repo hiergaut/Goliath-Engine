@@ -30,7 +30,7 @@ public:
 
     virtual void save(std::ofstream & file) const;
 
-    virtual void prepareHierarchy(ulong frameTime) const = 0;
+    virtual void prepareHierarchy(ulong frameTime, const glm::mat4 & localPoseTransform, const glm::mat4 & worldPoseTransform) const = 0;
     virtual void draw(const Shader& shader, bool dotCloud, const Frustum & frustum,
         const glm::mat4& localTransform = glm::mat4(1.0f),
         const glm::mat4& worldTransform = glm::mat4(1.0f))
@@ -46,6 +46,7 @@ public:
     virtual void drawBoundingBox(const Shader& shader) const = 0;
 
     virtual void updateSelectedVertexPosition(const glm::mat4 & localTransform, const glm::mat4 & worldTransform) = 0;
+    virtual void updateSelectedBonesTransform(const glm::mat4 & localBoneTransform, const glm::mat4 & worldPoseTransform) {}
 
     virtual const std::string name() const = 0;
     virtual void buildItemModel(QStandardItem* parent) const = 0;

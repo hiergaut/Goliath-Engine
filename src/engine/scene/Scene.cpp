@@ -181,7 +181,8 @@ void Scene::renderScene(const Shader& shader)
     }
 }
 
-void Scene::prepareHierarchy(ulong frameTime)
+
+void Scene::prepareHierarchy(ulong frameTime, const glm::mat4 &localPoseTransform, const glm::mat4 &worldPoseTransform)
 {
     //    for (const Object& object : m_models) {
     for (const Object* object : m_objects) {
@@ -192,7 +193,7 @@ void Scene::prepareHierarchy(ulong frameTime)
         //        m_shader->setMat4("model", modelMatrix);
 
         //        model.Draw(modelMatrix, shader, frameTime);
-        object->prepareHierarchy(frameTime);
+        object->prepareHierarchy(frameTime, localPoseTransform, worldPoseTransform);
         //        object->updateBoundingBox();
         //        model.prepareHierarchy(frameTime);
     }
@@ -421,7 +422,7 @@ void Scene::draw(const MainWindow3dView& view, const int x, const int y, const i
     zPrepass(shader);
 
     //    Q_ASSERT(m_hdrFbo == 1);
-//        glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+    //        glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
     if (view.wireframe()) {
         glDisable(GL_MULTISAMPLE);
     }
@@ -439,6 +440,7 @@ void Scene::draw(const MainWindow3dView& view, const int x, const int y, const i
     if (multiSample) {
         glEnable(GL_MULTISAMPLE);
     }
+
     //    return;
     //    glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
     //    shader.use();
@@ -502,32 +504,32 @@ void Scene::draw(const MainWindow3dView& view, const int x, const int y, const i
         //    glBindTexture(GL_TEXTURE_2D, m_colorBuffer);
         glBindTexture(GL_TEXTURE_2D, view.m_colorBuffers[0]);
 
-//        const uint width = view.width();
-//        const uint height = view.height();
-//        const uint sampleCount = width * height;
-//        float samples[sampleCount][3];
-//        for (uint i =0; i <sampleCount; ++i) {
-//        glm::vec3 averageBrightness = glm::vec3(0.0f);
-//        float averageBrightness = 0.0f;
-//        m_fun->glGetTexImage(view.m_colorBuffers[0], 0, GL_RGB16F, GL_FLOAT, samples);
-//        for (uint i =0; i <height; ++i) {
-//            for (uint j =0; j <width; ++j) {
-//        for (uint i =0; i <sampleCount; ++i) {
+        //        const uint width = view.width();
+        //        const uint height = view.height();
+        //        const uint sampleCount = width * height;
+        //        float samples[sampleCount][3];
+        //        for (uint i =0; i <sampleCount; ++i) {
+        //        glm::vec3 averageBrightness = glm::vec3(0.0f);
+        //        float averageBrightness = 0.0f;
+        //        m_fun->glGetTexImage(view.m_colorBuffers[0], 0, GL_RGB16F, GL_FLOAT, samples);
+        //        for (uint i =0; i <height; ++i) {
+        //            for (uint j =0; j <width; ++j) {
+        //        for (uint i =0; i <sampleCount; ++i) {
 
-//                uint ind = i * width + j;
-//                glReadPixels(j, i, width, height, GL_RGB16F, GL_FLOAT, &samples[ind][0]);
-//                glGetTex
-//                averageBrightness += glm::vec3(samples[i][0], samples[i][1], samples[i][2]);
-//                averageBrightness += samples[i][0] + samples[i][1] +samples[i][2];
-//            averageBrightness +=
-//            }
-//        }
-//        qDebug() << samples[0][0];
+        //                uint ind = i * width + j;
+        //                glReadPixels(j, i, width, height, GL_RGB16F, GL_FLOAT, &samples[ind][0]);
+        //                glGetTex
+        //                averageBrightness += glm::vec3(samples[i][0], samples[i][1], samples[i][2]);
+        //                averageBrightness += samples[i][0] + samples[i][1] +samples[i][2];
+        //            averageBrightness +=
+        //            }
+        //        }
+        //        qDebug() << samples[0][0];
 
-//        averageBrightness /= sampleCount;
-//        qDebug() << "averageBrightness: " << glm::length(averageBrightness);
-//        averageBrightness = 0.0f;
-//        qDebug() << "averageBrightness: " << glm::length(averageBrightness);
+        //        averageBrightness /= sampleCount;
+        //        qDebug() << "averageBrightness: " << glm::length(averageBrightness);
+        //        averageBrightness = 0.0f;
+        //        qDebug() << "averageBrightness: " << glm::length(averageBrightness);
 
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, view.m_pingpongColorBuffers[!horizontal]);
@@ -539,15 +541,21 @@ void Scene::draw(const MainWindow3dView& view, const int x, const int y, const i
         m_bloomShader->setFloat("gamma", view.m_gamma);
         //    glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
         QuadGeometry::draw();
+
+        //        glClear(GL_DEPTH_BUFFER_BIT);
     }
 
     //    m_minimalShader->setMat4("projection", projectionMatrix);
     //    m_minimalShader->setMat4("view", viewMatrix);
-    drawSpecificMode(view, shader);
+    drawSpecificMode(view, shader, viewMatrix, projectionMatrix, cameraPos);
     drawContours(shader, polygonMode);
     //    drawContours(*m_minimalShader, polygonMode);
     drawNormal(view, viewMatrix, projectionMatrix);
-    drawSkeleton(view, shader, viewMatrix, projectionMatrix, cameraPos);
+    if (view.skeleton()) {
+        drawSkeleton(view, shader, viewMatrix, projectionMatrix, cameraPos);
+    }
+    glPolygonMode(GL_FRONT, polygonMode);
+
     drawOriginModel(view, shader, cameraPos);
     drawAxisTransform(view, shader);
     drawRectangleSelection(view, shader);
@@ -743,7 +751,7 @@ void Scene::objectSelectRay(const Ray& ray, bool additional)
                                             //                            const Vertex & v0 = mesh.m_vertices[i3];
                                             //                            const Vertex & v1 = mesh.m_vertices[i3 + 1];
                                             //                            const Vertex & v2 = mesh.m_vertices[i3 + 2];
-//                                            Q_ASSERT(mesh.m_vertices.size() > i3 + 2);
+                                            //                                            Q_ASSERT(mesh.m_vertices.size() > i3 + 2);
                                             glm::mat4 transform = object->transform() * bone.m_recurseModel * bone.m_offsetMatrix;
                                             const glm::vec3& v0 = transform * glm::vec4(mesh.m_vertices[i3].Position, 1.0f);
                                             const glm::vec3& v1 = transform * glm::vec4(mesh.m_vertices[i3 + 1].Position, 1.0f);
@@ -904,6 +912,155 @@ void Scene::vertexSelectRay(const Ray& ray, bool additional)
         } else if (m_selectObject->modelType() == Model::PARAM_SURFACE) {
             BSplineSurface& splineSurface = static_cast<BSplineSurface&>(*m_selectObject->getModel());
             splineSurface.vertexSelectRay(ray, additional);
+        }
+    }
+}
+
+void Scene::boneSelectRay(const Ray& ray, bool additional)
+{
+    if (m_selectObject != nullptr) {
+        for (auto& camera : m_cameras) {
+            camera->updateBoundingBox();
+        }
+
+        uint iObjectMin = 0;
+        uint iBoneMin = 0;
+        uint iMeshMin = 0;
+        Bone* boneMin = nullptr;
+
+        float depthMin = Ray::MAX_RAY_LENGTH;
+        std::vector<glm::vec3> triangles;
+
+        std::vector<float> distances(m_objects.size());
+        std::list<uint> nearestModel;
+        uint iObject = 0;
+        for (Object* object : m_objects) {
+            if (!additional) {
+
+                object->setSelected(false);
+
+                static_cast<const MeshModel&>(*object->model()).unselectBones();
+            }
+
+            distances[iObject] = std::abs(glm::length(object->box().center() - ray.m_source) - object->box().radius());
+            auto it = nearestModel.begin();
+            while (it != nearestModel.end() && distances[iObject] >= distances[*it])
+                ++it;
+            nearestModel.insert(it, iObject);
+            ++iObject;
+        }
+        Q_ASSERT(nearestModel.size() == distances.size());
+
+        for (uint iObject : nearestModel) {
+            const Object* object = m_objects[iObject];
+
+            float dist = distances[iObject];
+
+            if (depthMin < dist) {
+                break;
+            }
+            float depth;
+
+            if (object->box().intersect(ray, depth)) {
+
+                //                if (object->modelType() == Model::PARAM_CURVE || object->modelType() == Model::PARAM_SURFACE) {
+                //                    if (depth < depthMin) {
+                //                        iObjectMin = iObject;
+                //                        depthMin = depth;
+                //                    }
+
+                if (object->modelType() == Model::MESH) {
+                    const MeshModel& meshModel = static_cast<const MeshModel&>(*object->model());
+
+                    for (uint iMesh = 0; iMesh < meshModel.m_meshes.size(); ++iMesh) {
+                        const Mesh& mesh = meshModel.m_meshes[iMesh];
+
+                        if (mesh.m_box.intersect(ray, depth)) {
+                            // ----------------------------------------- FIXED MESH
+                            //                            if (mesh.m_bones.size() == 0) {
+                            //                                for (uint iTriangle = 0; iTriangle < mesh.m_indices.size() / 3; ++iTriangle) {
+                            //                                    uint i3 = iTriangle * 3;
+
+                            //                                    glm::mat4 transform = object->transform() * mesh.m_transform;
+                            //                                    const glm::vec3& v0 = transform * glm::vec4(mesh.m_vertices[mesh.m_indices[i3]].Position, 1.0f);
+                            //                                    const glm::vec3& v1 = transform * glm::vec4(mesh.m_vertices[mesh.m_indices[i3 + 1]].Position, 1.0f);
+                            //                                    const glm::vec3& v2 = transform * glm::vec4(mesh.m_vertices[mesh.m_indices[i3 + 2]].Position, 1.0f);
+                            //                                    if (ray.intersect(v0, v1, v2, depth)) {
+                            //                                        triangles.emplace_back(v0);
+                            //                                        triangles.emplace_back(v1);
+                            //                                        triangles.emplace_back(v2);
+                            //                                        if (depth < depthMin) {
+
+                            //                                            iObjectMin = iObject;
+                            //                                            depthMin = depth;
+                            //                                        }
+                            //                                    }
+                            //                                }
+
+                            //                            } else {
+
+                            // ------------------------------------------------ ANIMATE
+                            for (uint iBone = 0; iBone < mesh.m_bones.size(); ++iBone) {
+                                const Bone& bone = mesh.m_bones[iBone];
+
+                                if (bone.m_box.intersect(ray, depth)) {
+                                    for (const auto& pair : bone.m_weights) {
+                                        const uint& iVertex = pair.first;
+
+                                        for (const uint& iTriangle : mesh.m_triangles[iVertex]) {
+
+                                            uint i3 = iTriangle * 3;
+                                            glm::mat4 transform = object->transform() * bone.m_recurseModel * bone.m_offsetMatrix;
+                                            const glm::vec3& v0 = transform * glm::vec4(mesh.m_vertices[i3].Position, 1.0f);
+                                            const glm::vec3& v1 = transform * glm::vec4(mesh.m_vertices[i3 + 1].Position, 1.0f);
+                                            const glm::vec3& v2 = transform * glm::vec4(mesh.m_vertices[i3 + 2].Position, 1.0f);
+
+                                            if (ray.intersect(v0, v1, v2, depth)) {
+                                                triangles.emplace_back(v0);
+                                                triangles.emplace_back(v1);
+                                                triangles.emplace_back(v2);
+                                                if (depth < depthMin) {
+                                                    iObjectMin = iObject;
+                                                    iBoneMin = iBone;
+                                                    iMeshMin = iMesh;
+                                                    depthMin = depth;
+
+                                                    //                                                    boneMin = &bone;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                //                                }
+                            }
+                        }
+                    }
+                    // end for iMesh
+                }
+            } // if insersect
+        } // end loop m_objects
+
+        if (depthMin < Ray::MAX_RAY_LENGTH) {
+
+            const Bone& bone = static_cast<const MeshModel&>(*m_objects[iObjectMin]->model()).m_meshes[iMeshMin].m_bones[iBoneMin];
+            qDebug() << "select bone : " << bone.m_name.c_str();
+
+            if (additional) {
+                //                m_objects[iObjectMin]->setSelected(!m_objects[iObjectMin]->selected());
+                //                m_objects[iObjectMin]
+                bone.setSelected(!bone.selected());
+            } else {
+
+                //                m_objects[iObjectMin]->setSelected(true);
+                //                const Bone & bone = static_cast<const MeshModel&>(*m_objects[iObjectMin]->model()).m_meshes[iMeshMin].m_bones[iBoneMin];
+                bone.setSelected(true);
+            }
+
+            //            m_selectObject = m_objects[iObjectMin];
+
+            m_rays.emplace_back(ray.m_source, ray.m_direction, depthMin, std::move(triangles));
+        } else {
+            m_rays.emplace_back(ray.m_source, ray.m_direction);
         }
     }
 }
@@ -1211,6 +1368,12 @@ void Scene::setSelectRootTransform(const glm::mat4& transformMatrix, const glm::
             //            switch (m_selectObject->m_model->m_type) {
 
             //            }
+        }
+        break;
+
+    case MainWindow3dView::Mode::POSE:
+        if (m_selectObject != nullptr) {
+            m_selectObject->updateSelectedBonesTransform(transformMatrix, worldTransform);
         }
         break;
     }
@@ -1861,7 +2024,7 @@ void Scene::drawSkyBox(const MainWindow3dView& view, bool multiSample, const glm
     }
 }
 
-void Scene::drawSpecificMode(const MainWindow3dView& view, const Shader& shader)
+void Scene::drawSpecificMode(const MainWindow3dView& view, const Shader& shader, const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix, glm::vec3& cameraPos)
 {
     switch (view.m_mode) {
     case MainWindow3dView::Mode::OBJECT:
@@ -1907,6 +2070,7 @@ void Scene::drawSpecificMode(const MainWindow3dView& view, const Shader& shader)
         }
         break;
     case MainWindow3dView::Mode::POSE:
+        drawSkeleton(view, shader, viewMatrix, projectionMatrix, cameraPos, true);
         break;
     }
 }
@@ -2014,23 +2178,23 @@ void Scene::drawNormal(const MainWindow3dView& view, const glm::mat4& viewMatrix
     }
 }
 
-void Scene::drawSkeleton(const MainWindow3dView& view, const Shader& shader, const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix, glm::vec3& cameraPos)
+void Scene::drawSkeleton(const MainWindow3dView& view, const Shader& shader, const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix, glm::vec3& cameraPos, bool poseMode)
 {
     // -------------------------------- SKELETON
-    if (view.skeleton()) {
-        //        modelMatrix = glm::mat4(1.0f);
-        //        for (const Model& model : m_models) {
-        for (Object& object : m_models) {
-            //	    glm::mat4 model(1.0);
-            //        glm::mat4 modelMatrix(1.0);
-            //        modelMatrix = glm::scale(modelMatrix, glm::vec3(0.01));
-            //        modelMatrix = glm::rotate(modelMatrix, 1.57f, glm::vec3(1, 0, 0));
-            //        m_shader->setMat4("model", modelMatrix);
+    //        modelMatrix = glm::mat4(1.0f);
+    //        for (const Model& model : m_models) {
+    for (Object& object : m_models) {
+        //	    glm::mat4 model(1.0);
+        //        glm::mat4 modelMatrix(1.0);
+        //        modelMatrix = glm::scale(modelMatrix, glm::vec3(0.01));
+        //        modelMatrix = glm::rotate(modelMatrix, 1.57f, glm::vec3(1, 0, 0));
+        //        m_shader->setMat4("model", modelMatrix);
+        if (!poseMode || &object == m_selectObject) {
 
             if (object.modelType() == Model::MESH) {
                 if (object.selected()) {
                     //                object.m_model.DrawHierarchy(viewLocalTransform, viewMatrix, projectionMatrix, cameraPos, m_worldTransform);
-                    static_cast<MeshModel*>(object.getModel())->DrawHierarchy(m_localTransform, viewMatrix, projectionMatrix, cameraPos, m_worldTransform);
+                    static_cast<MeshModel*>(object.getModel())->DrawHierarchy(m_localTransform, viewMatrix, projectionMatrix, cameraPos, poseMode, m_worldTransform);
                     //                object.m_model->DrawHierarchy(m_localTransform, viewMatrix, projectionMatrix, cameraPos, m_worldTransform);
                     //                object.m_model.DrawHierarchy()
 
@@ -2038,7 +2202,7 @@ void Scene::drawSkeleton(const MainWindow3dView& view, const Shader& shader, con
                 } else {
                     //                model.DrawHierarchy(onesMatrix, view);
                     //                object.m_model.DrawHierarchy(onesMatrix, viewMatrix, projectionMatrix, cameraPos);
-                    static_cast<MeshModel*>(object.getModel())->DrawHierarchy(glm::mat4(1.0f), viewMatrix, projectionMatrix, cameraPos);
+                    static_cast<MeshModel*>(object.getModel())->DrawHierarchy(glm::mat4(1.0f), viewMatrix, projectionMatrix, cameraPos, poseMode);
                     //                object.m_model.DrawHierarchy(onesMatrix, viewMatrix, projectionMatrix, cameraPos);
                 }
             }
@@ -2064,9 +2228,14 @@ void Scene::drawOriginModel(const MainWindow3dView& view, const Shader& shader, 
     shader.setBool("has_texture_diffuse", false);
     //    glPolygonMode(GL_FRONT, GL_LINE);
     //    for (const Model& model : m_models) {
-    if (view.m_mode == MainWindow3dView::Mode::EDIT) {
+    switch (view.m_mode) {
+    case MainWindow3dView::Mode::EDIT:
+        break;
 
-    } else {
+    case MainWindow3dView::Mode::POSE:
+        break;
+
+    case MainWindow3dView::Mode::OBJECT:
         for (const Object* object : m_objects) {
             if (object->selected()) {
                 //            model.Draw(modelMatrix, shader);
@@ -2086,6 +2255,7 @@ void Scene::drawOriginModel(const MainWindow3dView& view, const Shader& shader, 
                 //            DotGeometry::draw(m_worldTransform * object->m_model->m_transform * m_localTransform, shader, glm::vec4(1.0f, 0.5f, 0.0f, 1.0f));
             }
         }
+        break;
     }
     //    shader.setBool("userColor", false);
     glDepthFunc(GL_LESS);

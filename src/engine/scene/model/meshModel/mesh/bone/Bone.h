@@ -39,12 +39,16 @@ public:
 
     void save(std::ofstream & file) const;
 
+    void setSelected(bool selected) const;
+    bool selected() const;
+
 //    glm::vec3 min() const;
 //    glm::vec3 max() const;
 
 private:
 
     const std::vector<uint> & m_indices;
+    mutable bool m_selected = false;
 
 //    void setupTriangles();
 //    Meshes * m_meshes;
