@@ -1,4 +1,4 @@
-# Goliath-Engine_standalone
+# Goliath-Engine
 My first experimental engine (C++, OpenGL, Qt) for rendering, modelisation and animation
 
 Gui (clone Blender)
