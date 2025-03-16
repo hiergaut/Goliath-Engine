@@ -75,7 +75,7 @@ add_library(${PROJECT_NAME} SHARED
 
 #set(EXT_LIBS Qt5::OpenGL ${OPENGL_LIBRARIES})
 #target_link_libraries(${PROJECT_NAME} ${EXT_LIBS} ${M_GOLIATH_LIBRARIES})
-target_link_libraries(${PROJECT_NAME} ${M_Qt5_LIBRARIES} ${OPENGL_LIBRARIES} AnimTimeline)
+target_link_libraries(${PROJECT_NAME} ${M_Qt5_LIBRARIES} ${OPENGL_LIBRARIES} AnimTimeline glm)
 
 
 #install(TARGETS ${PROJECT_NAME} DESTINATION ${M_LIB_DIR})

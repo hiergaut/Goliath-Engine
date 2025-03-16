@@ -36,7 +36,7 @@ FormTimeline::FormTimeline(QWidget* parent)
 
     m_timelines.push_back(this);
 
-    updateTimeline();
+    // updateTimeline();
 }
 
 FormTimeline::~FormTimeline()
